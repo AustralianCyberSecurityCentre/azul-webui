@@ -1,0 +1,17 @@
+@if (doneLoading$ | async; as data) {
+  <ng-content></ng-content>
+} @else {
+  <div class="flex grow flex-col items-center">
+    @if (error$ | async; as error) {
+      <az-loading-indicator-failed></az-loading-indicator-failed>
+      <p class="break-all">
+        An error occurred, please refresh the page or contact the system owner.
+      </p>
+    } @else {
+      <div class="flex grow flex-col place-content-center place-items-center">
+        <az-loading-indicator class="pb-[15px]"></az-loading-indicator>
+        Your content is loading
+      </div>
+    }
+  </div>
+}

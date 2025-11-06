@@ -1,0 +1,543 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div id="Top">
+    <div class="container mx-auto">
+      <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
+      <ng-container *ngTemplateOutlet="tplSource"></ng-container>
+      <ng-container *ngTemplateOutlet="tplRelationship"></ng-container>
+      <ng-container *ngTemplateOutlet="tplFiles"></ng-container>
+      <ng-container *ngTemplateOutlet="tplSubmissionSettings"></ng-container>
+      <ng-container *ngTemplateOutlet="tplSubmit"></ng-container>
+    </div>
+  </div>
+
+  <!--Templates below-->
+  <ng-template #tplHeader>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Upload Binaries" />
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplRelationship>
+    @if (parent$ | async; as parent) {
+      <flow-card style="width: 100%">
+        <flow-card-header title="Relationship" />
+        <flow-card-body>
+          <div class="mb-5 p-1 text-sm">
+            Uploaded samples will be placed as children under "{{ parent }}".
+            <br />
+            Relationship information that will appear on the link from the
+            parent entity to children added here.
+            <br /><br />
+          </div>
+          <table flowTable class="w-full" formArrayName="relations">
+            <thead flowTableHeader>
+              <tr>
+                <th flowTableHeaderCell>Key</th>
+                <th flowTableHeaderCell>Value</th>
+                <th flowTableHeaderCell>Options</th>
+              </tr>
+            </thead>
+            <tbody flowTableBody>
+              @for (ref of formRelations.controls; track ref; let i = $index) {
+                <ng-container [formGroupName]="i">
+                  <tr>
+                    <td flowTableBodyCell>
+                      <flow-input
+                        [attr.list]="'keylist' + i"
+                        [id]="'key' + i"
+                        formControlName="key"
+                        placeholder="Field Key"
+                      />
+                    </td>
+                    <td flowTableBodyCell>
+                      <flow-input
+                        [attr.list]="'vallist' + i"
+                        [id]="'val' + i"
+                        formControlName="val"
+                        placeholder="Field Value"
+                      />
+                    </td>
+                    <td flowTableBodyCell>
+                      <flow-button
+                        [size]="ButtonSize.Icon"
+                        [type]="ButtonType.Dark"
+                        title="X"
+                        (click)="rmRelation(i)"
+                      >
+                        <fa-icon [icon]="faTrashCan" />
+                      </flow-button>
+                    </td>
+                  </tr>
+                </ng-container>
+              }
+              <tr>
+                <td flowTableBodyCell></td>
+                <td flowTableBodyCell></td>
+                <td flowTableBodyCell>
+                  <flow-button
+                    (click)="addRelation()"
+                    [size]="ButtonSize.Tiny"
+                    [type]="ButtonType.Dark"
+                    title="Add reference field"
+                  >
+                    <fa-icon [icon]="faPlus" />
+                  </flow-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </flow-card-body>
+      </flow-card>
+    }
+  </ng-template>
+
+  <ng-template #tplSource>
+    @if ((parent$ | async) === null) {
+      <flow-card>
+        <flow-card-header title="Source" />
+        <flow-card-body>
+          <az-loading-card
+            [obs$]="sources$"
+            [show]="(sources$ | async) !== null"
+            class="w-full"
+          >
+            <div class="grid grid-cols-3 gap-1">
+              <div class="col-span-3 mb-3 p-1 text-sm leading-loose">
+                The source information of uploaded files represents the
+                'where/when/why' of the files.
+                <br />
+                There should be enough information such that a person 5 years
+                from now can understand where your files were collected and why.
+                <br />
+                If you feel your files don't fit into an existing source, please
+                contact the system administrators to have another source or
+                fields added.
+              </div>
+              <!--Source select drop downs.-->
+              @if (sources$ | async; as sf) {
+                <div class="col-span-3">
+                  <select flowSelect formControlName="source">
+                    @for (row of sf | keyvalue; track row) {
+                      <option [value]="row.key">
+                        {{ toTitleCase(row.key) }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <!--Source related disclamers if source info exists.-->
+                <ng-container>
+                  @if (sf[form.get("source").value]; as sourceInfo) {
+                    <div class="col-span-3">
+                      <div class="ml-2">
+                        <flow-label>
+                          {{ sourceInfo.description }}
+                        </flow-label>
+                        @if (
+                          sourceInfo?.expire_events_after?.length > 0 &&
+                          sourceInfo?.expire_events_after !== "0"
+                        ) {
+                          <flow-alert
+                            alertType="warning"
+                            [withinCard]="true"
+                            title="Age Off Warning"
+                          >
+                            <span class="font-medium">
+                              Files submitted to this source will age off after
+                              {{ sourceInfo.expire_events_after }}</span
+                            >
+                          </flow-alert>
+                        } @else {
+                          <flow-alert
+                            alertType="info"
+                            [withinCard]="true"
+                            title="No Age Off"
+                          >
+                            <span class="font-medium">
+                              Files submitted to this source never expire
+                            </span>
+                          </flow-alert>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @if (sf | keyvalue; as d) {
+                    <ng-container formArrayName="refs">
+                      @for (
+                        ref of formRefs.controls;
+                        track ref;
+                        let i = $index
+                      ) {
+                        <div class="col-span-3" [formGroupName]="i">
+                          <flow-input
+                            [id]="ref.value.key + '.val'"
+                            formControlName="val"
+                            placeholder="{{
+                              toTitleCase(ref.value.ref.name, '_')
+                            }}{{ ref.value.ref.required ? ' (required)' : '' }}"
+                            [invalid]="
+                              (ref.touched || form.get('security').value) &&
+                              !ref.valid
+                            "
+                          />
+                          <div class="mt-2 mb-4 ml-4 grow">
+                            <flow-label [for]="ref.value.key + '.val'">
+                              {{ ref.value.ref.description }}
+                            </flow-label>
+                          </div>
+                        </div>
+                      }
+                    </ng-container>
+                  }
+                </ng-container>
+              }
+            </div>
+          </az-loading-card>
+        </flow-card-body>
+      </flow-card>
+    }
+  </ng-template>
+
+  <ng-template #tplFiles>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Files" />
+      <flow-card-body class="container" style="width: 80%">
+        <div>
+          <div class="mb-5 p-1 text-sm leading-loose">
+            Azul supports files submitted as raw file content and as neutered
+            CART or MALPZ format files.
+            <br />
+            For sample/s contained in a Zip, Gzip or tar archive that was not
+            part of the original malware, please check "Batch submission" and
+            optionally provide a password to decrypt.
+            <br />
+            Please strip any other formatting or wrapping that was used to
+            transport the sample (eg. base64) before insertion.
+          </div>
+          <table flowTable class="col-span-2 w-[80%]">
+            <tbody flowTableBody class="container mx-auto">
+              <tr>
+                <td flowTableBodyCell class="align-middle">
+                  <flow-label [noPadding]="true">Upload files</flow-label>
+                </td>
+                <td flowTableBodyCell class="text-center">
+                  <flow-button
+                    id=""
+                    [type]="
+                      form.get('security').value &&
+                      form.get('files').value.length === 0
+                        ? ButtonType.Danger
+                        : ButtonType.Primary
+                    "
+                    onclick="document.getElementById('addfile').click()"
+                  >
+                    <fa-icon [icon]="faCloudArrowUp" />
+                    Upload
+                  </flow-button>
+                  <input
+                    type="file"
+                    id="addfile"
+                    name="addfile"
+                    multiple
+                    (change)="onAddFiles($event)"
+                    style="display: none"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td flowTableBodyCell class="align-middle">
+                  <flow-label [noPadding]="true" for="extract">
+                    Batch submission
+                  </flow-label>
+                </td>
+                <td flowTableBodyCell class="text-center align-middle">
+                  <flow-checkbox
+                    id="extract"
+                    formControlName="extract"
+                  ></flow-checkbox>
+                </td>
+              </tr>
+              @if (form.value.extract) {
+                <tr>
+                  <td flowTableBodyCell class="align-middle">
+                    <flow-label [noPadding]="true" for="password">
+                      Batch submission archive password
+                    </flow-label>
+                  </td>
+                  <td flowTableBodyCell>
+                    <flow-input id="password" formControlName="password" />
+                  </td>
+                </tr>
+              }
+              <tr>
+                <td flowTableBodyCell class="align-middle">
+                  <flow-label [noPadding]="true" for="collectionTime"
+                    >Collection time</flow-label
+                  >
+                </td>
+                <td flowTableBodyCell>
+                  <flow-input
+                    id="collectionTime"
+                    [fieldType]="'datetime-local'"
+                    formControlName="timestamp"
+                    [invalid]="
+                      form.get('timestamp').invalid &&
+                      form.get('timestamp').touched
+                    "
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          @if (form.value.files.length > 0) {
+            <flow-hr />
+          }
+
+          <div class="grid grid-cols-3 gap-1">
+            @for (f of form.value.files; track f; let i = $index) {
+              <div
+                class="hover:bg-azul-100 dark:hover:bg-azul-600 flex gap-4 p-4"
+              >
+                <div class="pt-1">
+                  <fa-icon [icon]="faFileLines" size="2x" />
+                </div>
+                <div class="flex grow flex-col">
+                  <div class="grow">
+                    <flow-input
+                      [ngModel]="f.newName"
+                      (input)="renameFile(i, $event)"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    @if (uploads.get(i) | async; as row) {
+                      <div class="py-2">
+                        @if (row[0] >= 0 && row[0] < 100) {
+                          <flow-progress [value]="row[0]"
+                            >Uploading</flow-progress
+                          >
+                        }
+                        @if (row[0] === 100) {
+                          <flow-progress [value]="row[0]"
+                            >Processing</flow-progress
+                          >
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="pl-1">
+                    {{ f.file.size | filesize }}
+                    <br />
+                    <span>{{ f.file.lastModified | since }}</span>
+                  </div>
+                </div>
+                <div>
+                  @if (uploads.size === 0) {
+                    <flow-button [type]="ButtonType.Danger" (click)="rmFile(i)">
+                      <fa-icon [icon]="faXmark" />
+                      Remove file
+                    </flow-button>
+                  }
+                  @if (uploads.get(i) | async; as row) {
+                    @if (row[0] === -1) {
+                      <fa-icon [icon]="faXmark" />
+                    }
+                    @if (row[0] === 1000) {
+                      <fa-icon [icon]="faCheck" />
+                      &nbsp;
+                      @if (row[1] && !row[2]) {
+                        <a
+                          flowLink
+                          [href]="'pages/binaries/current/' + row[1]"
+                          target="_blank"
+                        >
+                          View Entity<fa-icon
+                            [icon]="faSquareUpRight"
+                            class="pl-2"
+                          />
+                        </a>
+                      }
+                      @if (row[1] && row[2]) {
+                        <flow-button
+                          title="View Submission"
+                          (click)="openSubmissionView(i)"
+                          [size]="ButtonSize.Small"
+                          >View Submission <fa-icon [icon]="faSquareUpRight"
+                        /></flow-button>
+                      }
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplExtractWarning>
+    <flow-card>
+      <flow-card-header title="Usage of batch submissions" />
+      <flow-card-body class="block max-w-[80ch]">
+        <h2>
+          This option extracts archives as part of the submission process.
+        </h2>
+        <p>
+          If the archive you are uploading itself is untrusted and/or is
+          malicious,
+          <b>do not continue</b> with the batch submission option, and instead
+          upload the file without this checked (as plugins can extract archives
+          instead).
+        </p>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button [type]="ButtonType.Light" (click)="cancelBatch()"
+          >Cancel</flow-button
+        >
+        <flow-button [type]="ButtonType.Danger" (click)="dialogClose()">
+          This archive is trusted, continue.
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplSubmissionSettings>
+    <flow-accordion class="overflow-y-auto" style="width: 100%">
+      <flow-accordion-panel [open]="false">
+        <flow-accordion-title>Extra Settings</flow-accordion-title>
+        <flow-accordion-content>
+          <div class="mb-5 p-1 text-sm">
+            Add extra settings to the submission that can change the processing
+            behaviour for the binary.
+            <br />
+          </div>
+          <div class="mb-5 p-1 text-sm">
+            <b>Passwords</b>
+            <br />
+            Additional Passwords to attempt to extract a zip file with using
+            unbox.
+            <br />
+            NOTE that this only works at the top level file and does not apply
+            to subsequent nested files.
+          </div>
+          <table flowTable class="w-full" formArrayName="settingsPasswords">
+            <thead flowTableHeader>
+              <tr>
+                <th flowTableHeaderCell>password</th>
+                <th flowTableHeaderCell>Options</th>
+              </tr>
+            </thead>
+            <tbody flowTableBody>
+              @for (
+                ref of formSettingsPasswords.controls;
+                track ref;
+                let i = $index
+              ) {
+                <ng-container [formGroupName]="i">
+                  <tr>
+                    <td flowTableBodyCell>
+                      <flow-input
+                        [attr.list]="'passwordList' + i"
+                        [id]="'password' + i"
+                        formControlName="passwordValue"
+                        placeholder="Password"
+                      />
+                    </td>
+                    <td flowTableBodyCell>
+                      <flow-button
+                        [size]="ButtonSize.Icon"
+                        [type]="ButtonType.Dark"
+                        title="X"
+                        (click)="rmSettingsPassword(i)"
+                      >
+                        <fa-icon [icon]="faTrashCan" />
+                      </flow-button>
+                    </td>
+                  </tr>
+                </ng-container>
+              }
+              <tr>
+                <td flowTableBodyCell></td>
+                <td flowTableBodyCell>
+                  <flow-button
+                    (click)="addSettingsPassword('')"
+                    [type]="ButtonType.Dark"
+                    title="Add reference field"
+                  >
+                    <fa-icon [icon]="faPlus" />
+                  </flow-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </flow-accordion-content> </flow-accordion-panel
+    ></flow-accordion>
+  </ng-template>
+
+  <ng-template #tplSubmit>
+    <flow-card>
+      <flow-card-header title="Submit" />
+      <flow-card-body class="container" style="width: 80%">
+        <div class="flex flex-col gap-2">
+          <azco-security-picker
+            [fullWidth]="true"
+            (security)="securityEmit($event)"
+          ></azco-security-picker>
+          @if (form.get("security").value && getRequiredFields().length > 0) {
+            <div class="mt-4">
+              <flow-alert
+                alertType="warning"
+                [withinCard]="true"
+                title="Incomplete submission"
+              >
+                <span class="font-medium"
+                  >Please ensure the following fields are specified:</span
+                >
+                <ul class="mt-1.5 ml-4 list-inside list-disc">
+                  @for (ref2 of getRequiredFields(); track ref2) {
+                    <li>
+                      {{ ref2 }}
+                    </li>
+                  }
+                </ul>
+              </flow-alert>
+            </div>
+          }
+          <flow-button
+            [fullWidth]="true"
+            (click)="confirmSecurity()"
+            [type]="
+              (selectedSecurity$ | async) === undefined ||
+              (confirmedSecurity$ | async)
+                ? ButtonType.Disabled
+                : ButtonType.Primary
+            "
+          >
+            @if ((selectedSecurity$ | async) !== undefined) {
+              I confirm that all files are "{{ selectedSecurity$ | async }}"
+            } @else {
+              Select security first
+            }
+            <ng-template #missingSecuritySelection>
+              Select security first
+            </ng-template>
+          </flow-button>
+          <flow-button
+            [fullWidth]="true"
+            [submit]="true"
+            [type]="
+              !form.valid || getRequiredFields().length > 0 || uploads.size > 0
+                ? ButtonType.Disabled
+                : ButtonType.Primary
+            "
+            status="primary"
+          >
+            Upload all files
+            @if ((selectedSecurity$ | async) !== undefined) {
+              at "{{ selectedSecurity$ | async }}"
+            }
+          </flow-button>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+</form>

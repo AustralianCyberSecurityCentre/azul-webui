@@ -1,0 +1,13 @@
+<label
+  [for]="for"
+  class="block text-sm font-medium text-gray-900 dark:text-white"
+  [ngClass]="{
+    'mb-2': !noPadding,
+    'sm:text-md p-4': fieldSize === 'large',
+    'p-2.5 text-sm': fieldSize === 'medium',
+    'p-3 sm:text-xs': fieldSize === 'small',
+    'p-0 sm:text-xs': fieldSize === 'small-nopadding',
+  }"
+>
+  <ng-content></ng-content>
+</label>

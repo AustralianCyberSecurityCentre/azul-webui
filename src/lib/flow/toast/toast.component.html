@@ -1,0 +1,45 @@
+<div
+  class="border-azul-800 dark:bg-azul-900 flex w-96 items-center space-x-4 divide-x divide-gray-200 rounded-lg border bg-white p-4 text-gray-900 drop-shadow-lg dark:divide-gray-700 dark:text-gray-300"
+  role="alert"
+>
+  <div
+    class="flex-none"
+    [ngClass]="{
+      'text-green-600 dark:text-green-400':
+        toastPackage.toastType === 'toast-success',
+      'text-yellow-600 dark:text-yellow-400':
+        toastPackage.toastType === 'toast-warning',
+      'text-red-600 dark:text-red-400':
+        toastPackage.toastType === 'toast-error',
+    }"
+  >
+    <fa-icon [icon]="faIcons[toastPackage.toastType]" size="xl" />
+  </div>
+  <div class="grow">
+    <div class="ml-3 text-sm font-normal">
+      @if (title) {
+        <span
+          class="mb-1 text-sm font-semibold text-gray-900 dark:text-white"
+          [attr.aria-label]="title"
+        >
+          {{ title }}
+        </span>
+      }
+
+      @if (message) {
+        <div
+          role="alert"
+          class="text-sm font-normal break-words text-ellipsis"
+          [attr.aria-label]="message"
+        >
+          {{ message }}
+        </div>
+      }
+    </div>
+  </div>
+  @if (options.closeButton) {
+    <div class="flex-none text-right">
+      <flow-button (click)="remove()"> Close </flow-button>
+    </div>
+  }
+</div>

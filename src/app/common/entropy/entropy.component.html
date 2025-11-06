@@ -1,0 +1,81 @@
+<div [style.height]="horizontal ? height : '70vh'" style="font-size: smaller">
+  @if (!!(entropy$ | async)) {
+    @if (entropyData$ | async; as entropyData) {
+      @if (entropyData.dataset.length > 0) {
+        <svg
+          width="100%"
+          [attr.height]="horizontal ? height : '70vh'"
+          attr.viewBox="0 0 {{ svgWidth }} {{ svgHeight }}"
+          preserveAspectRatio="none"
+        >
+          <!-- Entropy bars for data points from file -->
+          <g>
+            @for (d of entropyData.dataset; track d; let i = $index) {
+              <rect
+                #bar
+                [attr.width]="d.width"
+                [attr.x]="d.x"
+                [attr.y]="d.y - minHeightOfZero"
+                [attr.height]="d.height + minHeightOfZero"
+                [attr.fill]="(elementHover$ | async) === i ? 'white' : d.colour"
+                class="stroke-0 focus:outline-hidden"
+                (mouseover)="dataHover(i, bar, d)"
+                (mouseout)="hoverHide()"
+                (focus)="dataHover(i, bar, d)"
+                (blur)="hoverHide()"
+              />
+            }
+          </g>
+          <!-- Bounding boxes for important entropy levels -->
+          @if (horizontal && (showLevels$ | async)) {
+            <g>
+              @for (d of bounds; track d) {
+                <rect
+                  #bound
+                  [attr.width]="100"
+                  [attr.x]="0"
+                  [attr.y]="100 - d.max * scaleFactor - minHeightOfZero"
+                  [attr.height]="(d.max - d.min) * scaleFactor"
+                  [attr.fill]="genColour(d.min, 0.3)"
+                  class="focus:outline-hidden"
+                  (mouseover)="boundsHover(bound, d)"
+                  (mouseout)="hoverHide()"
+                  (focus)="boundsHover(bound, d)"
+                  (blur)="hoverHide()"
+                />
+              }
+            </g>
+          }
+        </svg>
+      } @else {
+        File too small to calculate entropy.
+      }
+    }
+  } @else {
+    No entropy data currently available.
+  }
+</div>
+
+@if (hoverEvents$ | async; as currentTooltip) {
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="currentTooltip.element"
+    [cdkConnectedOverlayOpen]="currentTooltip.type !== 'none'"
+    [cdkConnectedOverlayPositions]="positionPairs"
+  >
+    <div
+      class="dark:bg-azul-700 bg-azul-50 border-azul-500 text-azul-700 border p-1 dark:border-slate-700 dark:text-white"
+    >
+      @if (currentTooltip.type === "data") {
+        Start: {{ currentTooltip.data.start }}<br />
+        Entropy: {{ currentTooltip.data.entropy.toPrecision(3) }}
+        @if (currentTooltip.data.bound) {
+          <br />Likely: {{ currentTooltip.data.bound }}
+        }
+      }
+      @if (currentTooltip.type === "bounds") {
+        Entropy at this level indicates {{ currentTooltip.data.label }}
+      }
+    </div>
+  </ng-template>
+}

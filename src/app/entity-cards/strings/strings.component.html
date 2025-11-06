@@ -1,0 +1,120 @@
+<az-loading-card cardTitle="Strings" [obs$]="_stringsLoaded$" [help]="help">
+  @if (strings$ | async; as d) {
+    <div class="flex h-full flex-col">
+      <form [formGroup]="form">
+        <div class="mb-2 flex items-center gap-2">
+          <flow-input
+            class="grow"
+            id="filter"
+            formControlName="filter"
+            placeholder="Filter"
+            fieldSize="small"
+          />
+          <select formControlName="filterType" flowSelect fieldSize="small">
+            <option value="filter">Free-text</option>
+            <option value="regex">Regex</option>
+          </select>
+          <div class="flex h-6 items-center">
+            @if ((isAISupported$ | async) === false) {
+              <flow-tooltip
+                message="AI filtering is not supported for this file type"
+              >
+                <flow-toggle
+                  id="ai-filter-toggle"
+                  [formControlName]="'aiToggle'"
+                  [disabled]="(isAISupported$ | async) === false"
+                  [ngClass]="{
+                    'cursor-not-allowed opacity-50':
+                      (isAISupported$ | async) === false,
+                  }"
+                >
+                </flow-toggle>
+              </flow-tooltip>
+            } @else {
+              <flow-toggle
+                id="ai-filter-toggle"
+                [formControlName]="'aiToggle'"
+                [disabled]="(isAISupported$ | async) === false"
+                [ngClass]="{
+                  'cursor-not-allowed opacity-50':
+                    (isAISupported$ | async) === false,
+                }"
+              >
+              </flow-toggle>
+            }
+            <flow-label
+              class="flex"
+              fieldSize="small-nopadding"
+              [noPadding]="true"
+              for="ai-filter-toggle"
+            >
+              AI filter
+            </flow-label>
+          </div>
+          @if (isLoading$ | async) {
+            <span>
+              <fa-icon [icon]="faSpinner" animation="spin" />
+            </span>
+          }
+        </div>
+      </form>
+      <table flowTable class="w-full">
+        <thead flowTableHeader>
+          <tr flowTableHeaderRow>
+            <th flowTableHeaderCell class="w-20">Encoding</th>
+            <th flowTableHeaderCell class="w-16">Offset</th>
+            <th flowTableHeaderCell>Value</th>
+          </tr>
+        </thead>
+      </table>
+      <div class="flex min-h-0 w-full grow">
+        @if (isLoadingInitial$ | async) {
+          <span class="absolute inset-0 z-50 flex items-center justify-center">
+            <az-loading-indicator />
+          </span>
+        }
+        <cdk-virtual-scroll-viewport
+          itemSize="29"
+          minBufferPx="1800"
+          maxBufferPx="1800"
+          class="min-h-0 shrink grow"
+          style="contain: none"
+          (scrolledIndexChange)="cs.loadMore($event)"
+        >
+          <table
+            flowTable
+            class="w-full"
+            [ngClass]="{
+              'opacity-50': (isLoadingInitial$ | async),
+              'opacity-100': (isLoadingInitial$ | async) === false,
+            }"
+          >
+            <tbody flowTableBody>
+              <tr flowTableBodyRow *cdkVirtualFor="let row of d.strings">
+                <td
+                  flowTableBodyCell
+                  class="w-20 truncate"
+                  [title]="row.encoding"
+                >
+                  {{ row.encoding }}
+                </td>
+                <td
+                  flowTableBodyCell
+                  class="w-16 truncate font-mono"
+                  [title]="row.offset | hex"
+                >
+                  {{ row.offset | hex }}
+                </td>
+                <td flowTableBodyCell class="truncate" [title]="row.string">
+                  {{ row.string }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </cdk-virtual-scroll-viewport>
+      </div>
+    </div>
+  } @else {
+    No binary file available
+  }
+</az-loading-card>

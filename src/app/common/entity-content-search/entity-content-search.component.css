@@ -1,0 +1,77 @@
+.search-container form {
+  margin: 1ch;
+  gap: 1ch;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+}
+
+.form-row label {
+  width: 6em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.form-row.no-label {
+  /* Label width + margin */
+  padding-left: calc(6em + 1.2em);
+}
+
+/* Results table */
+
+.s-encoding {
+  width: 5em;
+  max-width: 5em;
+  min-width: 5em;
+}
+
+.s-offset {
+  width: 6em;
+  max-width: 6em;
+  min-width: 6em;
+}
+
+.s-value {
+  min-width: 10em;
+}
+
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.s-table-header {
+  display: block;
+}
+
+/* Force the table header to expand in width */
+.s-table-header thead,
+.s-table-header tr {
+  display: block;
+  background-color: var(--background-basic-color-2);
+}
+
+.s-table-header td {
+  display: inline-block;
+}
+
+.s-table,
+.s-table-header {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.s-tableh {
+  max-height: calc(30vh - 2ch);
+  contain: none;
+}
+
+.loading-container {
+  display: flex;
+  margin-top: 4em;
+  justify-content: center;
+}

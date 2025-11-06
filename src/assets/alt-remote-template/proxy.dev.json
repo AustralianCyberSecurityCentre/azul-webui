@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "https://example.internal",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/docs": {
+    "target": "https://example.internal",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

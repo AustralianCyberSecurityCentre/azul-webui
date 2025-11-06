@@ -1,0 +1,93 @@
+<div>
+  <div>
+    <flow-card class="w-full">
+      <flow-card-header title="Feature Value Tag '{{ tag$ | async }}'" />
+      <flow-card-body>
+        @if (features$ | async; as d) {
+          Viewing {{ d?.items.length || 0 }} feature values attached to tag
+        }
+      </flow-card-body>
+    </flow-card>
+  </div>
+  <div>
+    <flow-card class="w-full">
+      <flow-card-body>
+        <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+      </flow-card-body>
+    </flow-card>
+  </div>
+</div>
+
+<ng-template #tplResult>
+  <az-loading-card [obs$]="features$" class="w-full">
+    @if ((features$ | async)?.items; as d) {
+      @if (d.length > 0) {
+        <div class="fit-in-view" style="max-height: 100%">
+          <table flowTable>
+            <thead flowTableHeader class="sticky top-0">
+              <tr flowTableHeaderRow>
+                <th flowTableHeaderCell>Binaries</th>
+                <th flowTableHeaderCell>Name</th>
+                <th flowTableHeaderCell>Value</th>
+                <th flowTableHeaderCell>Creator</th>
+                <th flowTableHeaderCell>Timestamp</th>
+                <th flowTableHeaderCell>Security</th>
+                <th flowTableHeaderCell>&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody flowTableBody>
+              @for (row of d; track row; let i = $index) {
+                <tr flowTableBodyRow>
+                  <td flowTableBodyCell>
+                    <a
+                      class="table-link"
+                      title="Find binaries with this feature value"
+                      [routerLink]="['/pages/binaries/explore']"
+                      [queryParams]="{
+                        term:
+                          'features_map.' +
+                          row.feature_name +
+                          ':' +
+                          escapeValue(row.feature_value),
+                      }"
+                    >
+                      <strong>{{
+                        (row.XNumBinaries$ | async) || "..."
+                      }}</strong>
+                    </a>
+                  </td>
+                  <td flowTableBodyCell>{{ row.feature_name }}</td>
+                  <td flowTableBodyCell>{{ row.feature_value }}</td>
+                  <td flowTableBodyCell>{{ row.owner }}</td>
+                  <td flowTableBodyCell [title]="row.timestamp">
+                    {{ row.timestamp | since }}
+                  </td>
+                  <td flowTableBodyCell>{{ row.security }}</td>
+                  <td flowTableBodyCell>
+                    <flow-button
+                      [type]="ButtonType.Danger"
+                      [size]="ButtonSize.Tiny"
+                      title="Remove tag"
+                      (click)="
+                        onDeleteFVTag(
+                          row.feature_name,
+                          row.feature_value,
+                          row.tag
+                        )
+                      "
+                    >
+                      <fa-icon [icon]="faXmark" />
+                      Remove tag
+                    </flow-button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p>No Features Found</p>
+      }
+    }
+  </az-loading-card>
+</ng-template>

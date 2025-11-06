@@ -1,0 +1,29 @@
+hr {
+  width: 20em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.logo {
+  margin: 2em;
+}
+
+.logo [class^="cls"] {
+  transition: fill 1s;
+}
+
+.logo:hover {
+  .cls-2 {
+    fill: #fe00c2;
+  }
+  .cls-3 {
+    fill: #02fe73;
+  }
+}
+
+.logo-svg {
+  height: 13em;
+  width: 13em;
+  display: block;
+  margin: auto;
+}

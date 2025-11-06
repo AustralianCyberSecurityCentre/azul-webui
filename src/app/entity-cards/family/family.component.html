@@ -1,0 +1,37 @@
+<az-loading-card
+  [cardTitle]="isParentSignal() ? 'Parents' : 'Children'"
+  [obs$]="autoLoad$"
+  [help]="isParentSignal() ? parentsHelp : childrenHelp"
+  [show]="(entity.children$ | async) !== null"
+>
+  <div class="max-h-card-height overflow-y-auto">
+    <div
+      *ngTemplateOutlet="
+        familyTemplate;
+        context: {
+          data$: isParentSignal() ? entity.parents$ : entity.children$,
+          etype: isParentSignal() ? 'parents' : 'children',
+        }
+      "
+    ></div>
+  </div>
+</az-loading-card>
+
+<ng-template
+  #familyTemplate
+  [typedTemplate]="familyTemplateInputType"
+  let-data$="data$"
+  let-etype="etype"
+>
+  <az-loading-content [obs$]="data$">
+    @if (data$ | async; as data) {
+      <azco-entity-results
+        [familyFind]="true"
+        [isParent]="isParentSignal()"
+        [originalSha256]="entity.sha256"
+        [eType]="etype"
+        [countOption]="'all'"
+      ></azco-entity-results>
+    }
+  </az-loading-content>
+</ng-template>

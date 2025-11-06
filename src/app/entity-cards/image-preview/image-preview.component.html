@@ -1,0 +1,27 @@
+<az-loading-card
+  cardTitle="Image"
+  [obs$]="imageUrl$"
+  [help]="help"
+  [tplTopRight]="tplTopRight"
+  [show]="(imageUrl$ | async)?.length > 0"
+>
+  <div
+    class="flex h-full w-full place-content-center-safe place-items-center-safe overflow-auto"
+  >
+    <img
+      [hidden]="isImageHidden"
+      class="image-background"
+      [src]="imageUrl$ | async"
+      alt="Safe image to display."
+    />
+  </div>
+</az-loading-card>
+
+<ng-template #tplTopRight>
+  <flow-toggle
+    class="flex"
+    [(ngModel)]="_isImageHidden"
+    (change)="toggleIsImageHidden()"
+    >Hide</flow-toggle
+  >
+</ng-template>

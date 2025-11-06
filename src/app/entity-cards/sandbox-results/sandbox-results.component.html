@@ -1,0 +1,120 @@
+<az-loading-card
+  cardTitle="Sandbox Results"
+  [obs$]="entity?.sandbox$"
+  [help]="help"
+  [show]="(entity?.sandbox$ | async)?.length > 0"
+>
+  @if (entity?.sandbox$ | async; as d) {
+    <table flowTable>
+      <thead flowTableHeader class="sticky top-0">
+        <tr flowTableHeaderRow>
+          <th flowTableHeaderCell>Screenshot</th>
+          <th flowTableHeaderCell>Sandbox</th>
+          <th flowTableHeaderCell>Profile</th>
+          <th flowTableHeaderCell>Options</th>
+          <th flowTableHeaderCell>Tags</th>
+          <th flowTableHeaderCell>Route</th>
+          <th flowTableHeaderCell>Resolved</th>
+          <th flowTableHeaderCell>Contacted</th>
+          <th flowTableHeaderCell>PCAP</th>
+          <th flowTableHeaderCell>Persistence</th>
+        </tr>
+      </thead>
+      <tbody flowTableBody>
+        @for (row of d; track row) {
+          <tr flowTableBodyRow>
+            <td flowTableBodyCell>
+              <div class="thumbnail">
+                @if (
+                  row.screenshot && (screenshot(row.screenshot) | async);
+                  as screen
+                ) {
+                  <a [href]="screen" target="_blank">
+                    <img [src]="screen" width="100" alt="Loading..." />
+                  </a>
+                } @else {
+                  <fa-layers size="xl">
+                    <fa-icon [icon]="faCameraRetro" />
+                    <fa-icon [icon]="faSlash" />
+                  </fa-layers>
+                }
+              </div>
+            </td>
+            <td flowTableBodyCell>
+              @if (row.report_url) {
+                <a href="{{ row.report_url }}">{{ row.sandbox }}</a>
+              }
+              @if (!row.report_url) {
+                {{ row.sandbox }}
+              }
+            </td>
+            <td flowTableBodyCell>
+              {{ row.profile }}
+              @if (!row.profile) {
+                N/A
+              }
+            </td>
+            <td flowTableBodyCell>{{ row.options }}</td>
+            <td flowTableBodyCell>{{ row.tags }}</td>
+            <td flowTableBodyCell>{{ row.route }}</td>
+            <td flowTableBodyCell>
+              <ul class="list-unstyled">
+                @for (host of row.resolved_hosts; track host; let i = $index) {
+                  <li>
+                    @if (i < 6) {
+                      {{ host }}
+                    }
+                    @if (i === 6) {
+                      ...
+                    }
+                  </li>
+                }
+              </ul>
+            </td>
+            <td flowTableBodyCell>
+              <ul class="list-unstyled">
+                @for (host of row.contacted_hosts; track host; let i = $index) {
+                  <li>
+                    @if (i < 6) {
+                      {{ host }}
+                    }
+                    @if (i === 6) {
+                      ...
+                    }
+                  </li>
+                }
+              </ul>
+            </td>
+            <td flowTableBodyCell>
+              @if (row.pcap) {
+                <a
+                  href="javascript: void(0);"
+                  (click)="
+                    downloadArtifact(
+                      row.pcap,
+                      entity.sha256 + '.' + row.route + '.pcap'
+                    )
+                  "
+                  >Download</a
+                >
+              }
+            </td>
+            <td flowTableBodyCell>
+              <ul class="list-unstyled">
+                @for (p of row.persistence; track p) {
+                  <li>
+                    <!-- service is the only current cat that may need label of what it refers to, category is redundant for others like schtask/regkeys -->
+                    @if (p.category === "service") {
+                      {{ p.category }}:
+                    }
+                    {{ p.value }}
+                  </li>
+                }
+              </ul>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</az-loading-card>

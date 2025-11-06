@@ -1,0 +1,26 @@
+<flow-card>
+  <flow-card-header title="Tags" />
+  <flow-card-body>
+    <az-loading-card [obs$]="tags$">
+      @if (tags$ | async; as tagdata) {
+        @if (tagdata.tags.length !== 0) {
+          <div class="grid grid-cols-4 gap-2 lg:grid-cols-6">
+            @for (row of tagdata.tags; track row) {
+              <flow-button
+                [size]="ButtonSize.Small"
+                [fullWidth]="true"
+                [routerLink]="['/pages/binaries/explore']"
+                [queryParams]="{ term: 'binary.tag:' + escapeValue(row.tag) }"
+                [type]="getColour(row.tag)"
+              >
+                {{ row.tag }} ({{ row.num_entities }})
+              </flow-button>
+            }
+          </div>
+        } @else {
+          No binaries have been tagged
+        }
+      }
+    </az-loading-card>
+  </flow-card-body>
+</flow-card>

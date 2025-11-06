@@ -1,0 +1,272 @@
+@if (sourceId$ | async; as sourceId) {
+  <div>
+    <div>
+      <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
+    </div>
+    <div>
+      @if (!showSubmissionView) {
+        <ng-container *ngTemplateOutlet="tplReferenceSets"></ng-container>
+      } @else {
+        <ng-container *ngTemplateOutlet="tplSubmissions"></ng-container>
+      }
+    </div>
+  </div>
+  <ng-template #tplHeader>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Source | {{ sourceId }}">
+        <div class="flex items-center gap-x-1">
+          <flow-label for="input-select" [noPadding]="true"
+            >Show Submission View</flow-label
+          >
+          <flow-toggle
+            id="toggle-select"
+            [(ngModel)]="showSubmissionView"
+            class="contents"
+          ></flow-toggle>
+        </div>
+      </flow-card-header>
+      <flow-card-body>
+        <az-loading-card [obs$]="sources$">
+          @if (sources$ | async; as sources) {
+            @if (source$ | async; as d) {
+              <div class="flex flex-col gap-2">
+                <span>{{ sources[sourceId].description }}</span>
+                <span>
+                  Contains
+                  <a
+                    class="table-link"
+                    title="View top-level binaries in this source"
+                    [routerLink]="['/pages/binaries/explore']"
+                    [queryParams]="{
+                      term: sourceRefsAsParams(sourceId, 0, '', null),
+                    }"
+                    >{{ (d.num_entities | number) || "?" }}</a
+                  >
+                  top-level binaries
+                </span>
+                <span [title]="d.newest"
+                  >Last binary was added
+                  {{ (d.newest | since) || "at an unknown time" }}</span
+                >
+                <div>
+                  <a
+                    title="Upload to source"
+                    [routerLink]="['/pages/binaries/upload']"
+                    [queryParams]="{ source: sourceId }"
+                  >
+                    <flow-button [size]="ButtonSize.Small"> Upload</flow-button>
+                  </a>
+                </div>
+                @if (
+                  sources[sourceId]?.expire_events_after.length > 0 &&
+                  sources[sourceId]?.expire_events_after !== "0"
+                ) {
+                  <div>
+                    <fa-icon
+                      [icon]="faTriangleExclamation"
+                      class="text-orange-400"
+                    />
+                    Binaries and metadata added to this source will age off
+                    after
+                    {{ sources[sourceId]?.expire_events_after }}
+                  </div>
+                } @else {
+                  <div>
+                    Binaries and metadata added to this source never age off
+                  </div>
+                }
+              </div>
+            }
+          }
+        </az-loading-card>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+  <ng-template #tplReferenceSets>
+    @if (sources$ | async; as sources) {
+      <flow-card class="w-full">
+        <flow-card-header title="Reference Sets" />
+        <flow-card-body>
+          <az-loading-card [obs$]="sourceRefs$" class="w-full" [show]="true">
+            <div class="flex flex-col gap-2">
+              <flow-input
+                [icon]="faMagnifyingGlass"
+                class="grow"
+                placeholder="Search Reference Sets"
+                [(ngModel)]="term"
+                (ngModelChange)="searchChange()"
+              />
+              <div>
+                <table flowTable class="w-full">
+                  <thead flowTableHeader class="sticky top-0">
+                    <tr flowTableHeaderRow>
+                      <th flowTableHeaderCell>Most Recent Use</th>
+                      <th flowTableHeaderCell>Binaries</th>
+                      @for (ref of sources[sourceId].references; track ref) {
+                        <th flowTableHeaderCell>
+                          {{ ref.name }}
+                          @if (ref.required) {
+                            (required)
+                          }
+                        </th>
+                      }
+                      <th flowTableHeaderCell>Actions</th>
+                    </tr>
+                  </thead>
+                  @if (sourceRefs$ | async; as refs) {
+                    <tbody flowTableBody>
+                      @for (row of refs; track row) {
+                        <tr flowTableBodyRow>
+                          <td flowTableBodyCell [title]="row.timestamp">
+                            {{ row.timestamp | since }}
+                          </td>
+                          <td flowTableBodyCell class="text-center">
+                            <a
+                              class="table-link"
+                              title="View top-level binaries with these source references"
+                              [routerLink]="['/pages/binaries/explore']"
+                              [queryParams]="{
+                                term: sourceRefsAsParams(
+                                  sourceId,
+                                  0,
+                                  row.track_source_references,
+                                  null
+                                ),
+                              }"
+                            >
+                              {{ row.num_entities | number }}
+                            </a>
+                          </td>
+                          @for (
+                            key of sources[sourceId].references;
+                            track key
+                          ) {
+                            <td flowTableBodyCell>
+                              {{ row.values[key.name] }}
+                            </td>
+                          }
+                          <td flowTableBodyCell>
+                            <a
+                              title="Upload binaries to this reference set"
+                              [routerLink]="['/pages/binaries/upload']"
+                              [queryParams]="
+                                getSourceInstanceQueryParams(
+                                  sourceId,
+                                  sources[sourceId].references,
+                                  row.values
+                                )
+                              "
+                            >
+                              <flow-button [size]="ButtonSize.Tiny">
+                                Upload
+                              </flow-button>
+                            </a>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  }
+                </table>
+              </div>
+            </div>
+          </az-loading-card>
+        </flow-card-body>
+      </flow-card>
+    }
+  </ng-template>
+  <ng-template #tplSubmissions>
+    @if (sources$ | async; as sources) {
+      <flow-card class="w-full">
+        <flow-card-header title="Submissions" />
+        <flow-card-body>
+          <az-loading-card
+            [obs$]="sourceSubmissions$"
+            class="w-full"
+            [show]="true"
+          >
+            <div>
+              <table flowTable class="w-full">
+                <thead flowTableHeader class="sticky top-0">
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell>Submission Time</th>
+                    <th flowTableHeaderCell>Binaries</th>
+                    @for (ref of sources[sourceId].references; track ref) {
+                      <th flowTableHeaderCell>
+                        {{ ref.name }}
+                        @if (ref.required) {
+                          (required)
+                        }
+                      </th>
+                    }
+                    @if (user.isUserAdmin$ | async) {
+                      <th flowTableHeaderCell>Actions</th>
+                    }
+                  </tr>
+                </thead>
+                @if (sourceSubmissions$ | async; as refs) {
+                  <tbody flowTableBody>
+                    @for (row of refs; track row) {
+                      <tr flowTableBodyRow>
+                        <td flowTableBodyCell [title]="row.timestamp">
+                          {{ row.timestamp | since }}
+                        </td>
+                        <td flowTableBodyCell class="text-center">
+                          <a
+                            class="table-link"
+                            title="View top-level binaries with these source references"
+                            [routerLink]="['/pages/binaries/explore']"
+                            [queryParams]="{
+                              term: sourceRefsAsParams(
+                                sourceId,
+                                0,
+                                row.track_source_references,
+                                row.timestamp
+                              ),
+                            }"
+                          >
+                            {{ row.num_entities | number }}
+                          </a>
+                        </td>
+                        @for (key of sources[sourceId].references; track key) {
+                          <td flowTableBodyCell>
+                            {{ row.values[key.name] }}
+                          </td>
+                        }
+                        @if (
+                          allowedToPurge(
+                            user.isUserAdmin$ | async,
+                            row.track_source_references,
+                            undefined
+                          )
+                        ) {
+                          <td flowTableBodyCell>
+                            <a
+                              title="Purge this reference set from the system"
+                              [routerLink]="['/pages/binaries/purge']"
+                              [queryParams]="
+                                getPurgeQueryParams(
+                                  row.track_source_references,
+                                  sourceId,
+                                  getSourceReferences(
+                                    sources[sourceId].references,
+                                    row.values
+                                  )
+                                )
+                              "
+                            >
+                              Delete
+                            </a>
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                }
+              </table>
+            </div>
+          </az-loading-card>
+        </flow-card-body>
+      </flow-card>
+    }
+  </ng-template>
+}

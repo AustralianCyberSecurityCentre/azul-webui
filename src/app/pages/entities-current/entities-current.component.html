@@ -1,0 +1,304 @@
+<div class="flex min-h-0 grow flex-col dark:text-white">
+  @if (entity$ | async; as entity) {
+    <div class="bg-azul-100 dark:bg-azul-600">
+      <div class="mx-auto w-full px-4 py-6">
+        @if (sourceInformation$ | async; as sources) {
+          <div class="pb-1">
+            @for (source of sources; track source; let last = $last) {
+              <a
+                class="table-link"
+                title="view source {{ source.source }}"
+                [routerLink]="'/pages/sources/current/' + source.source"
+                >{{ source.source }}</a
+              >
+              <span>/</span>
+              @for (
+                highlight of source.highlight | slice: 0 : maxBreadcrumbRefs;
+                track highlight;
+                let firstHighlight = $first;
+                let lastHighlight = $last;
+                let count = $count
+              ) {
+                @if (firstHighlight && count > 1) {
+                  <span>&lcub;</span>
+                }
+                <a
+                  class="table-link"
+                  title="View top-level binaries with this key"
+                  [routerLink]="['/pages/binaries/explore']"
+                  [queryParams]="{
+                    term: sourceRefsAsParams(
+                      source.source,
+                      0,
+                      highlight.track_source_references,
+                      null
+                    ),
+                  }"
+                  >{{ highlight.label }}</a
+                >
+                @if (!lastHighlight) {
+                  <span>, </span>
+                }
+                @if (
+                  lastHighlight && source.highlight.length > maxBreadcrumbRefs
+                ) {
+                  <span>
+                    +
+                    {{ source.highlight.length - maxBreadcrumbRefs }}
+                    others
+                  </span>
+                }
+                @if (lastHighlight && count > 1) {
+                  <span>&rcub;</span>
+                }
+                @if (lastHighlight) {
+                  <span>/</span>
+                }
+              }
+              @if (!last) {
+                <span>&nbsp;&bull;&nbsp;</span>
+              }
+            }
+          </div>
+        }
+        <div class="flex min-w-0 place-content-between gap-1">
+          <div class="flex min-w-0">
+            @if (icon$ | async; as icon) {
+              <div class="shrink-0">
+                <fa-icon [icon]="icon" size="xl" />
+                &nbsp;
+              </div>
+            }
+            <div class="flex min-w-0 flex-col gap-1">
+              <div class="truncate text-xl font-bold break-all">
+                {{ entity.sha256 }}
+              </div>
+              <div>
+                <azco-entity-tags
+                  entityType="binary"
+                  [sha256]="entity.sha256"
+                  [tags]="entity.tags$ | async"
+                  (changed)="entity.refreshTags()"
+                ></azco-entity-tags>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            @if (entity.summary$ | async; as d) {
+              <flow-tooltip
+                [message]="
+                  (entity.hasContent$ | async) === true
+                    ? 'Download File'
+                    : 'No Content Available'
+                "
+              >
+                <flow-button
+                  [type]="
+                    (entity.hasContent$ | async) === false || !!downloading$
+                      ? ButtonType.Disabled
+                      : ButtonType.Light
+                  "
+                  [size]="ButtonSize.Icon"
+                  (click)="doDownload(d.sha256, d.file_size)"
+                >
+                  <fa-icon [icon]="faDownload" />
+                  @if (!!downloading$) {
+                    {{ (downloading$ | async) || 0 }}%
+                  }
+                </flow-button>
+              </flow-tooltip>
+              <flow-tooltip
+                [message]="
+                  (entity.hasContent$ | async) === true
+                    ? 'Add Child'
+                    : 'Can\'t add child to contentless parent'
+                "
+              >
+                <flow-button
+                  [type]="
+                    (entity.hasContent$ | async) === false || !!downloading$
+                      ? ButtonType.Disabled
+                      : ButtonType.Light
+                  "
+                  [size]="ButtonSize.Icon"
+                  [routerLink]="['/pages/binaries/upload/child', entity.sha256]"
+                >
+                  <fa-icon [icon]="faFileCirclePlus" />
+                </flow-button>
+              </flow-tooltip>
+              @if ((expedite$ | async) < 100) {
+                <flow-tooltip message="Run Latest Plugins (takes 60 seconds)">
+                  <flow-button
+                    [type]="
+                      (isExpedited$ | async)
+                        ? ButtonType.Disabled
+                        : ButtonType.Light
+                    "
+                    [size]="ButtonSize.Icon"
+                    (click)="doExpedite(d.sha256)"
+                  >
+                    @if ((isExpedited$ | async) !== true) {
+                      <fa-icon [icon]="faRotate" />
+                    } @else {
+                      <fa-icon [icon]="faSpinner" animation="spin" />
+                    }
+                  </flow-button>
+                </flow-tooltip>
+              }
+              @if ((expedite$ | async) === 100) {
+                <flow-tooltip message="Load Latest Results">
+                  <flow-button
+                    [type]="ButtonType.Light"
+                    [size]="ButtonSize.Icon"
+                    (click)="doRefresh()"
+                  >
+                    <fa-icon [icon]="faBolt" />
+                  </flow-button>
+                </flow-tooltip>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <az-loading-content
+      [obs$]="entity.summary$"
+      class="dark:bg-azul-700 flex min-h-0 grow flex-col"
+    >
+      @if ((entity.summary$ | async)?.exists) {
+        <div class="flex min-h-0 w-full grow justify-stretch overflow-y-auto">
+          @if (activeTab$ | async; as tab) {
+            @if (tab === "Overview") {
+              <ng-container
+                *ngTemplateOutlet="tabOverview; context: { entity: entity }"
+              />
+            }
+            @if (tab === "Features") {
+              <ng-container
+                *ngTemplateOutlet="tabFeatures; context: { entity: entity }"
+              />
+            }
+            <ng-container>
+              <!-- We want the data tab to be able to load its resources to populate badges -->
+              <ng-container
+                *ngTemplateOutlet="
+                  tabData;
+                  context: { entity: entity, tab: tab }
+                "
+              />
+            </ng-container>
+            @if (tab === "Relations") {
+              <ng-container
+                *ngTemplateOutlet="tabRelations; context: { entity: entity }"
+              />
+            }
+            @if (tab === "Status") {
+              <ng-container
+                *ngTemplateOutlet="tabStatus; context: { entity: entity }"
+              />
+            }
+            @if (showDebugInfo$ | async) {
+              <!-- Allow debug to render and stay in the DOM to make it easier to keep your position. -->
+              <ng-container
+                *ngTemplateOutlet="
+                  tabDebug;
+                  context: { entity: entity, tab: tab }
+                "
+              />
+            }
+          }
+        </div>
+        <div
+          class="bg-azul-100 dark:bg-azul-600 flex h-10 items-center justify-center gap-4 select-none dark:text-white"
+        >
+          @for (tab of tabs$ | async; track tab) {
+            <a
+              [ngClass]="{
+                'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
+                  (activeTab$ | async) !== tab.name,
+                'bg-azul-200 dark:bg-azul-400':
+                  (activeTab$ | async) === tab.name,
+              }"
+              class="flex h-10 px-4 py-2"
+              (click)="activeTab$.next(tab.name)"
+              routerLink="."
+              [fragment]="tab.name"
+            >
+              {{ tab.name }}
+              @if (tab.badgeCount > 0) {
+                <flow-button-label class="flex items-center">
+                  {{ tab.badgeCount }}
+                </flow-button-label>
+              }
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="pt-20 text-center text-2xl">
+          <h1 class="text-red-600">404 - Not Found</h1>
+          <h1>This binary was not found in Azul.</h1>
+          <h1>It may have aged off, been purged or has never been seen.</h1>
+        </div>
+      }
+    </az-loading-content>
+  }
+</div>
+
+<ng-template #tabOverview let-entity="entity">
+  @if (entity.summary$ | async; as summary) {
+    <div
+      class="grid min-h-0 grow grid-cols-1 grid-rows-[1fr_auto] gap-x-4 gap-y-2 px-4 py-6 lg:grid-cols-2 xl:gap-x-16"
+    >
+      <div
+        class="flex shrink flex-col justify-between overflow-y-auto lg:min-h-0"
+      >
+        <azco-entity-summary [entity]="entity" />
+        <azec-source-table
+          class="flex min-h-36 shrink overflow-x-auto"
+          [entity]="entity"
+          [restrictedHeight]="true"
+        />
+      </div>
+      <div class="min-h-32 grow">
+        <azec-relation-graph [entity]="entity" />
+      </div>
+      <div class="h-[120px] lg:col-span-2">
+        <azec-entropy-graph [entity]="entity" height="120px" />
+      </div>
+    </div>
+  }
+</ng-template>
+
+<ng-template #tabFeatures let-entity="entity">
+  <azec-feature-table
+    [entity]="entity"
+    [features$]="entity.features$"
+    tablename="Features"
+    class="m-2 min-w-0 grow"
+  />
+</ng-template>
+
+<ng-template #tabData let-entity="entity" let-tab="tab">
+  <azco-data-tab
+    [entity]="entity"
+    (badgeCount)="setTabBadgeCount('Data', $event)"
+    [ngClass]="{ hidden: tab !== 'Data' }"
+    class="m-2 min-w-0 grow"
+  />
+</ng-template>
+
+<ng-template #tabRelations let-entity="entity">
+  <azco-relations-tab [entity]="entity" class="min-w-0 grow" />
+</ng-template>
+
+<ng-template #tabStatus let-entity="entity">
+  <azec-statuses [entity]="entity" class="m-2 min-w-0 grow" />
+</ng-template>
+
+<ng-template #tabDebug let-entity="entity" let-tab="tab">
+  <azco-debug-tab
+    [entity]="entity"
+    [ngClass]="{ hidden: tab !== 'Debug' }"
+    class="m-2 min-w-0 grow"
+  />
+</ng-template>

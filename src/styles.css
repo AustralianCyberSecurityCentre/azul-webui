@@ -1,0 +1,166 @@
+/* You can add global styles to this file, and also import other style files: */
+@import "@angular/cdk/overlay-prebuilt.css" layer(base);
+
+@import "@fontsource-variable/inter/opsz.css" layer(base);
+@import "@fontsource-variable/jetbrains-mono/wght.css" layer(base);
+
+@import "tailwindcss";
+
+@plugin '@tailwindcss/forms';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-*: initial;
+  --font-sans:
+    Inter Variable, ui-system, sans-serif, Noto Color Emoji, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol;
+  --font-mono: JetBrains Mono Variable, ui-monospace, monospace;
+
+  --line-clamp-8: 8;
+
+  --spacing-small-card-height: 30vh;
+  --spacing-card-height: 70vh;
+
+  --color-azul-50: #edf2f5;
+  --color-azul-100: #e1e8ed;
+  --color-azul-200: #b6c4d1;
+  --color-azul-300: #91a2b5;
+  --color-azul-400: #50607d;
+  --color-azul-500: #222b45;
+  --color-azul-600: #1b233d;
+  --color-azul-700: #131a33;
+  --color-azul-800: #0c1229;
+  --color-azul-900: #070b1f;
+  --color-azul-950: #030614;
+}
+
+@layer components {
+  select:not([multiple]) {
+    /* This is normally an inline svg from tailwindcss/forms, which we don't like */
+    background-image: url(assets/dropdown.svg);
+  }
+
+  [type="checkbox"]:checked {
+    /* This is normally an inline svg from tailwindcss/forms, which we don't like */
+    background-image: url(assets/checkbox.svg);
+  }
+
+  text {
+    @apply fill-black dark:fill-slate-100;
+  }
+
+  marker {
+    @apply fill-slate-100;
+  }
+}
+
+/* special looking table links */
+a.node-link:hover {
+  @apply underline;
+}
+
+/**
+ * ngx-toastr doesn't allow multiple CSS classes on its container; use a Tailwind
+ * apply to merge them:
+ **/
+.toast-container {
+  @apply fixed right-5 bottom-5 z-[9000] flex flex-col gap-4;
+}
+
+/* special looking table links */
+a.table-link:hover {
+  @apply text-slate-700 underline;
+}
+
+a.table-link:link,
+a.table-link:visited {
+  @apply text-blue-600 dark:text-blue-300;
+}
+
+/**
+ * relation graph formatting start
+ * has to be applied globally!
+ **/
+
+.nodeLabel span.spanlink {
+  @apply text-slate-100;
+}
+.nodeLabel span.spanlink a {
+  @apply text-black dark:text-sky-200;
+}
+
+.nodeLabel div.notes {
+  @apply ml-1 font-normal text-slate-300;
+}
+
+.edgePath {
+  @apply stroke-sky-400 stroke-2;
+}
+
+.node {
+  @apply fill-sky-600;
+}
+
+.node.current {
+  @apply fill-emerald-600;
+}
+
+.node.source {
+  @apply fill-yellow-600;
+}
+
+/**
+ * relation graph formatting end
+ * has to be applied globally!
+ **/
+
+:not(.dark) {
+  /* Scrollbar styling on Edge and Chrome */
+  ::-webkit-scrollbar-track {
+    border-radius: 0px;
+    background-color: #ffffff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    /* The following is the colour of the scrollbar controller */
+    background-color: grey;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: #ffffff;
+  }
+}
+
+.dark {
+  /* Scrollbar styling on Edge and Chrome */
+  ::-webkit-scrollbar-track {
+    border-radius: 0px;
+    background-color: #151a30;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    /* The following is the colour of the scrollbar controller */
+    background-color: grey;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: #151a30;
+  }
+}

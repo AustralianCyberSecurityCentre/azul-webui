@@ -1,0 +1,12 @@
+.local-fit-in-view {
+  max-height: 40vh;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+
+.limit {
+  max-width: 20em;
+}
+.limit-hash {
+  max-width: 20em;
+}

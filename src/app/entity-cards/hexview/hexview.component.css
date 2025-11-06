@@ -1,0 +1,109 @@
+/* Needed for @apply */
+@reference "../../../styles.css";
+
+.hex-table {
+  display: flex;
+  flex-direction: row;
+  gap: 2ch;
+  flex-wrap: wrap;
+}
+
+.inline {
+  display: inline-block;
+}
+
+cdk-virtual-scroll-viewport {
+  white-space: nowrap;
+}
+
+.s-table {
+  max-height: calc(75vh - 2ch);
+  contain: none;
+  min-width: 70ch;
+}
+
+.s-table ::selection {
+  /** We want the user to be able to focus the area */
+  background: transparent;
+}
+
+.custom-header {
+  @apply bg-slate-200 dark:bg-slate-900;
+  width: 100%;
+}
+
+.custom-body {
+  padding: 2ch;
+}
+
+.hex-view {
+  flex-grow: 1;
+}
+
+.hex-view-header {
+  top: 0;
+  z-index: 10;
+}
+
+.hex-digit div,
+.ascii-digit div {
+  display: inline-block;
+  height: min-content;
+  width: min-content;
+}
+
+.hex-digit div:nth-child(2n)::after {
+  content: "\00a0";
+}
+
+.null-value {
+  @apply text-slate-600;
+}
+
+.selected {
+  @apply bg-yellow-300;
+}
+
+.selected:not(.hovered) {
+  @apply text-black;
+}
+
+.null-value.hovered {
+  @apply text-slate-300;
+}
+
+.null-value.selected:not(.hovered) {
+  @apply text-slate-900;
+}
+
+.hovered {
+  @apply bg-slate-700 text-white;
+}
+
+.row {
+  width: fit-content;
+}
+
+.row-address {
+  width: 12ch;
+  display: inline-block;
+}
+
+.hex-digit {
+  width: 42ch;
+  display: inline-block;
+}
+
+.ascii-digit {
+  width: fit-content;
+  display: inline-block;
+}
+
+.find-menu {
+  /* The high value here is to force this element to expand first */
+  flex-grow: 999999;
+}
+
+hr {
+  @apply border-slate-800;
+}

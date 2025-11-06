@@ -1,0 +1,53 @@
+<azco-data-tab-panes class="grow" [tabs$]="tabs$" />
+<!-- We want these elements in the DOM so that they are persistent -->
+<div class="hidden">
+  <div #tabTemplate key="hex" class="flex h-full w-full grow">
+    <div class="flex grow p-1">
+      <azec-hexview [entity]="entity" class="grow" />
+    </div>
+  </div>
+  <div #tabTemplate key="strings" class="flex h-full w-full grow">
+    <div class="flex grow p-1">
+      <azec-strings [entity]="entity" class="grow" />
+    </div>
+  </div>
+  @for (stream of streamsRender$ | async; track stream) {
+    <div
+      #tabTemplate
+      [attr.key]="getKeyForStream(stream)"
+      class="flex h-full min-h-0 w-full grow"
+    >
+      @switch (true) {
+        @case (isTextStream(stream)) {
+          <azec-stream-text-tab-monaco
+            [textData]="stream"
+            class="flex min-h-0 w-full"
+          />
+        }
+        @case (isImageStream(stream)) {
+          <azec-image-preview
+            [entity]="entity"
+            [streamData]="stream"
+            class="grow"
+          ></azec-image-preview>
+        }
+        @case (isObjectStream(stream)) {
+          <azec-pdf-preview
+            [entity]="entity"
+            [streamData]="stream"
+            class="grow"
+          ></azec-pdf-preview>
+        }
+        @default {
+          <div>
+            No preview available for {{ stream.file_format_legacy }}
+            @if (stream.file_format) {
+              &nbsp;({{ stream.file_format }})
+            }
+            .
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

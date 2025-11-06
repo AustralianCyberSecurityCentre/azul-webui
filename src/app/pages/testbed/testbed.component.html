@@ -1,0 +1,274 @@
+<div id="Top">
+  <flow-card>
+    <flow-card-header title="Header">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+      >
+        <fa-icon [icon]="faInternetExplorer" />
+      </flow-button>
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+      >
+        <fa-icon [icon]="faHammer" />
+      </flow-button>
+    </flow-card-header>
+    <flow-card-body>
+      <p>Body</p>
+
+      <div class="flex gap-2 py-4">
+        <flow-button (click)="clippyFacts()">Clippy</flow-button>
+
+        <flow-tooltip message="This is important!">
+          <flow-button>Button with a tooltip</flow-button>
+        </flow-tooltip>
+      </div>
+
+      <flow-hr />
+
+      Introducing, the <i>grid</i>:
+
+      <div class="grid grid-cols-4 gap-4 pt-2">
+        @for (
+          style of [
+            ButtonType.Primary,
+            ButtonType.Light,
+            ButtonType.Dark,
+            ButtonType.Disabled,
+            ButtonType.Transparent,
+            ButtonType.Danger,
+            ButtonType.Purple,
+            ButtonType.Yellow,
+            ButtonType.Green,
+          ];
+          track style
+        ) {
+          @for (
+            size of [
+              ButtonSize.Icon,
+              ButtonSize.Small,
+              ButtonSize.Medium,
+              ButtonSize.Large,
+            ];
+            track size
+          ) {
+            <flow-button [size]="size" [type]="style">
+              {{ size }} in {{ style }}
+            </flow-button>
+          }
+        }
+
+        @for (
+          size of [
+            ButtonSize.Icon,
+            ButtonSize.Small,
+            ButtonSize.Medium,
+            ButtonSize.Large,
+          ];
+          track size
+        ) {
+          <flow-tooltip [message]="size">
+            <flow-button [size]="size">
+              <fa-icon [icon]="faSpinner" animation="spin" />
+              {{ size }}
+            </flow-button>
+          </flow-tooltip>
+        }
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        Toast buttons:
+        @for (item of dialogTypes | keyvalue; track item) {
+          <flow-button
+            [size]="ButtonSize.Small"
+            [type]="ButtonType.Light"
+            (click)="item.value()"
+          >
+            {{ item.key }} toast
+          </flow-button>
+        }
+      </div>
+
+      <div class="mx-auto my-2 flex w-96">
+        <div class="grow">
+          <flow-progress [value]="74">This is a progress bar</flow-progress>
+        </div>
+      </div>
+
+      <flow-alert alertType="warning">
+        Warning! This is a test alert!
+      </flow-alert>
+
+      <div class="font-mono">
+        This is a mono font. Very mono. Lingatures! 1 != 2. ||==
+      </div>
+    </flow-card-body>
+  </flow-card>
+
+  <flow-card>
+    <flow-card-header title="Important data" />
+    <flow-card-body>
+      <table flowTable>
+        <thead flowTableHeader>
+          <tr flowTableHeaderRow>
+            <td flowTableHeaderCell>Name</td>
+            <td flowTableHeaderCell>Type</td>
+            <td flowTableHeaderCell>Cute</td>
+          </tr>
+        </thead>
+        <tbody flowTableBody>
+          @for (cuteAnimal of cuteAnimals; track cuteAnimal; let last = $last) {
+            <tr flowTableBodyRow [noBorder]="last">
+              <td flowTableBodyCell [rowHeader]="true">
+                {{ cuteAnimal.name }}
+              </td>
+              <td flowTableBodyCell>
+                {{ cuteAnimal.type }}
+              </td>
+              <td flowTableBodyCell>Yes</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </flow-card-body>
+  </flow-card>
+
+  <flow-card>
+    <flow-card-header title="Tabbed Card" />
+    <flow-card-body>
+      <flow-tablist
+        [tabs]="[
+          { name: 'Tab A', template: contentA },
+          { name: 'Tab B', template: contentB, count: '123' },
+        ]"
+      />
+      <ng-template #contentA> Content A! </ng-template>
+      <ng-template #contentB> Content B! </ng-template>
+    </flow-card-body>
+  </flow-card>
+
+  <flow-card>
+    <flow-card-header title="Example Form" />
+    <flow-card-body>
+      <div class="mb-6 grid gap-6 md:grid-cols-2">
+        @for (inputType of InputFieldTypes; track inputType; let i = $index) {
+          <div>
+            <flow-label [for]="'input-' + inputType"
+              >Input type: {{ inputType }} = {{ data[i] }}</flow-label
+            >
+            <flow-input
+              [id]="'input-' + inputType"
+              [fieldType]="inputType"
+              [(ngModel)]="data[i]"
+            />
+          </div>
+        }
+        <div>
+          <flow-label for="test-error"> Invalid input demo</flow-label>
+          <flow-input
+            [id]="'test-error'"
+            [fieldType]="'text'"
+            [invalid]="true"
+            [placeholder]="'Invalid input demo'"
+            [helpText]="'Example of an invalid input'"
+          />
+        </div>
+        <div>
+          <flow-label for="input-checkbox"
+            >Checkbox: {{ checkboxValue }}</flow-label
+          >
+          <flow-checkbox id="input-checkbox" [(ngModel)]="checkboxValue" />
+          <flow-checkbox-label
+            >I acknowledge that looking at malware is Azul's
+            purpose.</flow-checkbox-label
+          >
+        </div>
+        <div>
+          <flow-label for="input-checkbox2"
+            >Checkbox: {{ checkbox2Value }}</flow-label
+          >
+          <flow-checkbox id="input-checkbox2" [(ngModel)]="checkbox2Value" />
+          <flow-checkbox-label
+            >I further acknowledge that performing analysis is strictly
+            prohibited.</flow-checkbox-label
+          >
+        </div>
+        <div>
+          <flow-label for="input-select"
+            >Dropdown: {{ dropdownValue }}</flow-label
+          >
+          <select flowSelect id="input-select" [(ngModel)]="dropdownValue">
+            <option selected value="soup">Soup</option>
+            <option value="salad">Salad</option>
+            <option value="sandwich">Sandwich</option>
+            <option disabled>No other options available</option>
+          </select>
+        </div>
+        <div>
+          <flow-label for="input-select">Toggle: {{ toggleValue }}</flow-label>
+          <flow-toggle id="toggle-select" [(ngModel)]="toggleValue"
+            >I'm magic!</flow-toggle
+          >
+        </div>
+        <div>
+          <a flowLink href="/">Test flow-link</a>
+          <br />
+          <a
+            flowLink
+            href="/"
+            [no_underline]="true"
+            [link_colour]="LinkColour.White"
+            >Test white flow-link</a
+          >
+          <br />
+          <a flowLink href="/">
+            Link with icon<fa-icon [icon]="faSquareUpRight" class="pl-2" />
+          </a>
+        </div>
+      </div>
+    </flow-card-body>
+  </flow-card>
+
+  <hr class="my-4" />
+
+  <flow-card>
+    <flow-card-header title="Credentials for {{ user.username$ | async }}" />
+    <flow-card-body>
+      <strong>Organisation</strong><br />
+      {{ (user.userDetails$ | async)?.org }}<br />
+      <strong>Roles</strong><br />
+      @for (role of (user.userDetails$ | async)?.roles; track role) {
+        {{ role }}<br />
+      }
+    </flow-card-body>
+  </flow-card>
+
+  <flow-card>
+    <flow-card-header title="Test Loading Cards" />
+    <flow-card-body>
+      <div>
+        <az-loading-card cardTitle="Loading" [obs$]="unknown$">
+          <div>this should not be visible</div>
+        </az-loading-card>
+      </div>
+      <div>
+        <az-loading-card cardTitle="Error" [obs$]="error$">
+          <div>this should not be visible</div>
+        </az-loading-card>
+      </div>
+      <div>
+        <az-loading-card cardTitle="False" [obs$]="false$">
+          <div>this should be visible</div>
+        </az-loading-card>
+      </div>
+      <div>
+        <az-loading-card cardTitle="True" [obs$]="true$">
+          <div>this should be visible</div>
+        </az-loading-card>
+      </div>
+    </flow-card-body>
+  </flow-card>
+</div>

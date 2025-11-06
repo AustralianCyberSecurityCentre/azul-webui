@@ -1,0 +1,134 @@
+@if ((entities$ | async).length > 1) {
+  <div>
+    <flow-card>
+      <flow-card-header title="Binaries" />
+      <flow-card-body>
+        @for (entity of entities$ | async; track entity) {
+          <div class="local-entity-list-item">
+            <flow-button
+              [type]="ButtonType.Light"
+              [size]="ButtonSize.Icon"
+              (click)="removeEntity(entity.sha256)"
+            >
+              <fa-icon [icon]="faTrashCan" />
+            </flow-button>
+            <a
+              class="table-link"
+              title="View this binary"
+              [routerLink]="['/pages/binaries/current', entity.sha256]"
+            >
+              {{ entity.sha256 }}
+            </a>
+          </div>
+        }
+      </flow-card-body>
+    </flow-card>
+  </div>
+  <div>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Entropy" />
+      <flow-card-body>
+        <table class="local-no-pad" style="width: 100%">
+          <tbody>
+            <tr>
+              @for (entity of entities$ | async; track entity) {
+                <th class="limit-small sticky truncate font-mono">
+                  {{ entity.sha256 }}
+                </th>
+              }
+            </tr>
+            <tr class="local-no-hover">
+              @for (entity of entities$ | async; track entity) {
+                <td>
+                  <azco-entropy
+                    style="width: 100%"
+                    [minBytes]="maxBytes$ | async"
+                    [rawEntropy$]="entity.entropy$"
+                    [horizontal]="false"
+                  ></azco-entropy>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </flow-card-body>
+    </flow-card>
+  </div>
+  <div>
+    <flow-card>
+      <flow-card-header title="Features" />
+      <flow-card-body>
+        @if (entities$ | async; as entities) {
+          <div class="max-h-card-height overflow-y-auto">
+            @if (featureData$ | async; as fdata) {
+              <table>
+                <thead>
+                  <tr>
+                    <th class="sticky"></th>
+                    @for (entity of entities$ | async; track entity) {
+                      <th
+                        class="limit-small sticky truncate font-mono"
+                        [title]="entity.sha256"
+                      >
+                        {{ entity.sha256 }}
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                @for (feat of fdata.features; track feat) {
+                  <tbody>
+                    <tr>
+                      <th class="local-left-most-cell">
+                        {{ feat }}
+                      </th>
+                      <td colspan="100"></td>
+                    </tr>
+                    @for (value of fdata.values.get(feat); track value) {
+                      @if (fdata.entities.get(feat + value); as presents) {
+                        <tr>
+                          <td class="local-left-most-cell limit-large truncate">
+                            {{ value }}
+                          </td>
+                          @for (entity of entities; track entity) {
+                            <td
+                              [title]="entity.sha256"
+                              [ngClass]="{
+                                'local-present': presents.has(entity.sha256),
+                              }"
+                            >
+                              @if (presents.has(entity.sha256)) {
+                                <div class="grid justify-items-center">
+                                  <fa-icon [icon]="faCheck" />
+                                </div>
+                              }
+                            </td>
+                          }
+                        </tr>
+                      }
+                    }
+                    <tr>
+                      <td class="local-left-most-cell">&nbsp;</td>
+                      <td colspan="100">&nbsp;</td>
+                    </tr>
+                  </tbody>
+                }
+              </table>
+            }
+          </div>
+        }
+      </flow-card-body>
+    </flow-card>
+  </div>
+} @else {
+  <div>
+    <flow-card>
+      <flow-card-header title="Not Enough Binaries Selected" />
+      <flow-card-body>
+        Comparisons are currently performed between two or more binaries.
+        <br />
+        They can be started through the 'Similar' card, on the page for a
+        specific entity.
+      </flow-card-body>
+    </flow-card>
+  </div>
+}

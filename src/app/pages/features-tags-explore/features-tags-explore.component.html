@@ -1,0 +1,25 @@
+<flow-card>
+  <flow-card-header title="Feature Value Tags" />
+  <flow-card-body>
+    <az-loading-card [obs$]="featureService.tags$">
+      @if (featureService.tags$ | async; as tagdata) {
+        @if (tagdata.tags.length !== 0) {
+          <div class="grid grid-cols-4 gap-2 lg:grid-cols-6">
+            @for (row of tagdata.tags; track row) {
+              <flow-button
+                [size]="ButtonSize.Small"
+                [fullWidth]="true"
+                [routerLink]="['/pages/features/tags', row.tag]"
+                [type]="getColour(row.tag)"
+              >
+                {{ row.tag }} ({{ row.num_feature_values }})
+              </flow-button>
+            }
+          </div>
+        } @else {
+          No feature values have been tagged
+        }
+      }
+    </az-loading-card>
+  </flow-card-body>
+</flow-card>

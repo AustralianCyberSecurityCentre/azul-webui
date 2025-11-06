@@ -1,0 +1,26 @@
+@keyframes bobbler {
+  0% {
+    transform: rotate(0deg);
+    transform-origin: center 70%;
+  }
+  25% {
+    transform: rotate(10deg);
+    transform-origin: center 70%;
+  }
+  50% {
+    transform: rotate(0deg);
+    transform-origin: center 70%;
+  }
+  75% {
+    transform: rotate(-10deg);
+    transform-origin: center 70%;
+  }
+  100% {
+    transform: rotate(0deg);
+    transform-origin: center 70%;
+  }
+}
+
+.loading-indicator {
+  animation: bobbler 1s linear infinite;
+}

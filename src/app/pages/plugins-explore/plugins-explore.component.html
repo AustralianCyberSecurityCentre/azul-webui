@@ -1,0 +1,122 @@
+<div>
+  <div>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Plugins" />
+      @if (plugins$ | async; as d) {
+        <flow-card-body>
+          Viewing {{ d.length || 0 | number }} plugins
+        </flow-card-body>
+      }
+    </flow-card>
+  </div>
+  <div>
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  </div>
+</div>
+
+<ng-template #tplResult>
+  <flow-card>
+    <flow-card-body>
+      <az-loading-card [obs$]="plugins$" class="w-full">
+        @if (plugins$ | async; as d) {
+          @if (d.length > 0) {
+            <div>
+              <table flowTable class="w-full">
+                <thead flowTableHeader class="sticky top-0">
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell>Name</th>
+                    <th flowTableHeaderCell>Version</th>
+                    <th flowTableHeaderCell>Security</th>
+                    <th flowTableHeaderCell>Description</th>
+                    <th flowTableHeaderCell>
+                      <az-hover-textable
+                        message="Time since a plugin last completed"
+                      >
+                        Last Completed
+                      </az-hover-textable>
+                    </th>
+                    <th flowTableHeaderCell class="w-20">Features</th>
+                    <th flowTableHeaderCell class="w-24">
+                      <!--Inaccurate because the api endpoint doesn't filter out duplicates values-->
+                      <!--Duplicates are where a plugin processes the same binary when it has different source paths.-->
+                      <az-hover-textable
+                        message="Number of times a plugin completed in the last 7 days (inaccurate)"
+                        >Completed</az-hover-textable
+                      >
+                    </th>
+                    <th flowTableHeaderCell class="w-20">
+                      <az-hover-textable
+                        message="Number of times a plugin reported 'error|exception|timeout|invalid result' statuses in the last 7 days (inaccurate)"
+                      >
+                        Error
+                      </az-hover-textable>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  @for (row of d; track row; let i = $index) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell class="limit-medium">
+                        <flow-tooltip message="View this plugin">
+                          <a
+                            class="table-link text-wrap break-words"
+                            [routerLink]="[
+                              '/pages/plugins/current',
+                              row.newest_version.name,
+                              'versions',
+                              row.newest_version.version,
+                            ]"
+                          >
+                            <strong>{{ row.newest_version.name }}</strong>
+                          </a>
+                        </flow-tooltip>
+                      </td>
+                      <td flowTableBodyCell class="truncate">
+                        <span class="line-clamp-2 text-wrap break-words">
+                          {{ row.newest_version.version }}
+                        </span>
+                      </td>
+                      <td flowTableBodyCell class="truncate">
+                        <span class="line-clamp-2 text-wrap break-words">
+                          {{ row.newest_version.security }}
+                        </span>
+                      </td>
+                      <td flowTableBodyCell class="limit-description">
+                        <flow-tooltip
+                          message="{{ row.newest_version.description }}"
+                          [copyText]="true"
+                        >
+                          <span class="line-clamp-2 text-wrap break-words">
+                            {{ row.newest_version.description }}
+                          </span>
+                        </flow-tooltip>
+                      </td>
+                      <td flowTableBodyCell class="limit-last-completed">
+                        <span class="line-clamp-2 text-wrap break-words">{{
+                          row.last_completion | since
+                        }}</span>
+                      </td>
+                      <td flowTableBodyCell>
+                        {{
+                          (row.newest_version.features?.length | number) || "0"
+                        }}
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ (row?.success_count | number) || "" }}
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ (row?.error_count | number) || "" }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p>No Features Found</p>
+          }
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>

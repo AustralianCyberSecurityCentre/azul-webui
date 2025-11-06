@@ -1,0 +1,47 @@
+{
+  "oauth_enabled": true,
+  "oidc_debug": true,
+  "motd_hours": 24,
+  "motd_header": "Welcome banner motd!",
+  "motd_body": "The motd config option \n\nis where you put a message you want \n\ndisplayed to users on a refresh of the page, assuming motd_hours has elapsed since last seen. Usually \n\nit is used for a security warning or something.",
+  "motd_footer": "",
+  "deployment_title": "Local Azul",
+  "deployment_text": "LOCAL WITH REMOTE",
+  "oidc_url": "https://example.com",
+  "oidc_client": "example",
+  "oidc_scopes": "openid profile offline_access",
+  "unauthorized_help": "This is a help message displayed to users who need help with *unauthorized* errors, potentially with email contacts for support or [links](https://localhost) to ticketing systems.\n\nThis can be configured in the Azul Helm chart.",
+  "banner_message": "This is a test banner. No action is required.",
+  "banner_severity": "info",
+  "banner_dismissable": true,
+  "global_external_links": {
+    "not_retrohunt_url": "https://example.internal",
+    "nsrl_url": "https://example.internal"
+  },
+  "binary_external_links": [
+    {
+      "if": "features.name",
+      "operator": "eq",
+      "match": "file_type_vt",
+      "display_name": "VirusLocal",
+      "url": "https://viruslocal/{}",
+      "url_args": ["summary.sha256"]
+    },
+    {
+      "if": "summary.sources.references.task_id",
+      "operator": "regex",
+      "match": "^[Cc][Bb][Ll]-[0-9]+$",
+      "display_name": "Jira",
+      "url": "https://jira/abc/{}",
+      "url_args": ["summary.sources.references.task_id"]
+    },
+    {
+      "if": "summary.sources.references.task_id",
+      "operator": "regex",
+      "match": "^[Cc][Bb][Ll]-[0-9]+$",
+      "display_name": "Confluence",
+      "url": "https://confluence/abc/{}",
+      "url_args": ["summary.sources.references.task_id"]
+    }
+  ]
+}

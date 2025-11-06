@@ -1,0 +1,215 @@
+@if (_row; as innerRow) {
+  <div class="hover:bg-azul-100 dark:hover:bg-azul-600 flex gap-4 p-2">
+    <flow-checkbox
+      [ngModel]="_row.checked"
+      (ngModelChange)="onCheckboxChange($event)"
+      class="mt-2"
+    />
+    <!-- icon -->
+    <div class="flex-none">
+      <div class="pt-2" [title]="innerRow.file_format_legacy">
+        <fa-icon
+          [icon]="iconService.get('binary', innerRow.file_format_legacy)"
+          [fixedWidth]="true"
+          size="3x"
+        ></fa-icon>
+      </div>
+    </div>
+    <div class="flex min-w-0 grow flex-col justify-start gap-1">
+      <!-- SHA256 -->
+      <div>
+        <a
+          style="font-size: 120%"
+          class="table-link font-bold break-all text-ellipsis"
+          title="View this binary"
+          [routerLink]="['/pages/binaries/current', innerRow.sha256]"
+          target="_blank"
+        >
+          {{ innerRow.sha256 }}
+        </a>
+      </div>
+      <!-- entropy -->
+      @if (showEntropy$ | async) {
+        <azco-entropy
+          #entropy
+          [rawEntropy$]="entropy$"
+          [height]="'10px'"
+          [showLevels$]="showGraphLevels$"
+          [fullHeightBars]="true"
+        ></azco-entropy>
+      }
+
+      <!-- Family info including purge capability -->
+      @if (eType !== undefined) {
+        <ng-container>
+          @if (
+            allowedToPurge(user.isUserAdmin$ | async, undefined, undefined) &&
+            innerRow.author_category !== "plugin"
+          ) {
+            <div>
+              <a
+                class="table-link"
+                title="Purge this link from the system"
+                [routerLink]="['/pages/binaries/purge']"
+                [queryParams]="
+                  getLinkPurgeParams(
+                    eType,
+                    innerRow.track_link,
+                    originalSha256,
+                    innerRow.sha256,
+                    innerRow.author_name
+                  )
+                "
+              >
+                <fa-icon [icon]="faTrash" />
+              </a>
+            </div>
+          }
+        </ng-container>
+      }
+
+      <!-- entity tags -->
+      @if (innerRow.tags$ | async; as curTags) {
+        @if (innerRow.tags && innerRow.tags.length > 0) {
+          <div>
+            <azco-entity-tags
+              [addTag]="false"
+              entityType="binary"
+              [sha256]="innerRow.sha256"
+              [tags]="innerRow.tags$.value"
+              (changed)="refreshRowTags(innerRow)"
+            >
+            </azco-entity-tags>
+          </div>
+        }
+      } @else {
+        @if (innerRow.tags && innerRow.tags.length > 0) {
+          <div>
+            <azco-entity-tags
+              [addTag]="false"
+              entityType="binary"
+              [sha256]="innerRow.sha256"
+              [tags]="innerRow.tags"
+              (changed)="refreshRowTags(innerRow)"
+            >
+            </azco-entity-tags>
+          </div>
+        }
+      }
+      <!-- filenames -->
+      @if (innerRow.filenames && innerRow.filenames.length > 0) {
+        <div class="flex min-w-0 flex-wrap">
+          @for (
+            filename of innerRow.filenames;
+            track filename;
+            let last = $last
+          ) {
+            <div class="flex min-w-0 text-gray-700 dark:text-gray-300">
+              <div
+                class="line-clamp-1 break-all text-ellipsis"
+                [title]="filename"
+              >
+                {{ filename }}
+              </div>
+              @if (!last) {
+                &nbsp;|&nbsp;
+              }
+            </div>
+          }
+        </div>
+      }
+      <!-- size and file format -->
+      <div>
+        <span>
+          @if (innerRow.has_content) {
+            <fa-icon title="File content available" [icon]="faEye" />
+          } @else {
+            <fa-icon title="File content unavailable" [icon]="faEyeSlash" />
+          }
+        </span>
+        |
+        <span [title]="'Size: ' + innerRow.file_size">{{
+          innerRow.file_size | filesize
+        }}</span>
+        |
+        <span [title]="'Type: ' + innerRow.file_format">{{
+          innerRow.file_format || "?"
+        }}</span>
+        @if (showFileFormatLegacy$ | async) {
+          |
+          <span [title]="'Type (Legacy): ' + innerRow.file_format_legacy">{{
+            innerRow.file_format_legacy || "?"
+          }}</span>
+        }
+        @if (showMimetype$ | async) {
+          |
+          <span [title]="'Mime: ' + innerRow.mime">{{
+            innerRow.mime || "?"
+          }}</span>
+        }
+        @if (showMagic$ | async) {
+          |
+          <span [title]="'Magic: ' + innerRow.magic">{{
+            innerRow.magic || "?"
+          }}</span>
+        }
+      </div>
+      <div class="grid grid-cols-[minmax(16rem,max-content)_auto] gap-y-1">
+        <!-- sources -->
+        @if (showSources) {
+          @for (source of innerRow.sources; track $index) {
+            @if (source) {
+              <div class="mr-2 border-l border-l-slate-400 pl-1">
+                <span>
+                  <span [title]="'Last Seen: ' + source.timestamp">{{
+                    source.timestamp | since
+                  }}</span
+                  >:
+                  {{ source.name }}
+                </span>
+              </div>
+              <div class="flex min-w-0 grow flex-wrap">
+                @for (
+                  kv of source.references | keyvalue;
+                  track kv;
+                  let last = $last
+                ) {
+                  <div class="flex min-w-0">
+                    <div
+                      class="line-clamp-1 min-w-0 truncate break-all"
+                      [title]="kv.key + ': ' + kv.value"
+                    >
+                      {{ kv.value }}
+                    </div>
+                    @if (!last) {
+                      &nbsp;|&nbsp;
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        }
+        <!-- highlight -->
+        @for (kv of innerRow.highlight | keyvalue; track kv.key) {
+          <!-- Hide sha256 highlight if we are doing external pagination
+            as that will use sha256 to pick binaries to display here. -->
+          @if (kv.key !== "entity.sha256" || !externalPagination) {
+            <div class="mr-2 flex-none">
+              <em>{{ kv.key }}</em>
+            </div>
+            <div class="grow">
+              <em>{{ kv.value }}</em>
+            </div>
+          }
+        }
+      </div>
+      <div>
+        <div class="w-64 flex-none border-l border-l-slate-400 pl-1">
+          <!-- render any extra information thats difficult to standardise -->
+          <ng-content></ng-content>
+        </div>
+      </div>
+    </div>
+  </div>
+}

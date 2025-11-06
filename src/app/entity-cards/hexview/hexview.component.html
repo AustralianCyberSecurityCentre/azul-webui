@@ -1,0 +1,133 @@
+<az-loading-card cardTitle="Hex" [obs$]="hexViewReady$" [help]="help">
+  @if (hexViewReady$ | async) {
+    <ng-container class="container">
+      <div class="hex-view flex h-full max-h-full flex-col">
+        <div class="status-bar mb-2 flex flex-row gap-1">
+          <fa-icon
+            [icon]="(ds.loadingPages$ | async) ? spinnerIcon : checkIcon"
+            [animation]="(ds.loadingPages$ | async) ? 'spin' : undefined"
+            [title]="
+              'Loaded: ' +
+              (loadedBytes$ | async) +
+              ' / ' +
+              (totalBytes$ | async) +
+              ' bytes'
+            "
+            class="py-2"
+          ></fa-icon>
+          <div class="py-2">|</div>
+          <form [formGroup]="offsetForm">
+            <div>
+              <flow-input
+                id="offsetGoto"
+                fieldSize="small"
+                formControlName="offsetGoto"
+                placeholder="Jump to offset (e.g. A1B2, 0x1234)"
+                (input)="hexValidator($event)"
+                (keyup.enter)="jumpToOffset()"
+              />
+            </div>
+          </form>
+          <div class="py-2">|</div>
+          <az-content-search
+            (rowSelected)="jumpAndSelectBytes($event)"
+            [entity]="entity"
+            class="grow"
+          ></az-content-search>
+        </div>
+        <div class="hex-view-header custom-header shrink-0">
+          <div class="row-address font-mono">ADDRESS :</div>
+          <div class="hex-digit font-mono whitespace-nowrap">
+            0001 0203 0405 0607 0809 0a0b 0c0d 0e0f
+          </div>
+          <div class="ascii-digit font-mono">ASCII</div>
+        </div>
+        <cdk-virtual-scroll-viewport
+          #hexViewport
+          [itemSize]="ROW_HEIGHT"
+          minBufferPx="300"
+          maxBufferPx="300"
+          class="s-table min-h-0 grow"
+          (keydown)="handleCopy($event)"
+          tabindex="0"
+        >
+          <div
+            *cdkVirtualFor="let row of ds"
+            (mouseleave)="hover$.next(-1)"
+            class="select-none"
+          >
+            @if (row) {
+              <div class="row hover font-mono">
+                <div
+                  class="row-address"
+                  (click)="clearDrag()"
+                  (keydown)="(null)"
+                  tabindex="-1"
+                >
+                  {{ row.address | hex }}:
+                </div>
+                <div class="hex-digit font-mono" event="mouseenter">
+                  @for (hexNum of row.hex; track hexNum; let i = $index) {
+                    <div
+                      (mouseover)="hover$.next(row.address + i)"
+                      (mousedown)="startDrag(row.address + i)"
+                      (mousemove)="handleDrag(row.address + i)"
+                      (mouseup)="stopDrag(row.address + i)"
+                      (focus)="(null)"
+                      [ngClass]="{
+                        hovered:
+                          (hover$ | async) === row.address + i && !isDragging,
+                        selected: (range$ | async)?.contains(row.address + i),
+                        'null-value': hexNum === '00',
+                      }"
+                      [innerText]="hexNum"
+                    ></div>
+                  }
+                </div>
+                <div class="ascii-digit font-mono" event="mouseenter">
+                  @for (ascii of row.ascii; track ascii; let i = $index) {
+                    <div
+                      (mouseover)="hover$.next(row.address + i)"
+                      (mousedown)="startDrag(row.address + i)"
+                      (mousemove)="handleDrag(row.address + i)"
+                      (mouseup)="stopDrag(row.address + i)"
+                      (focus)="(null)"
+                      [ngClass]="{
+                        hovered:
+                          (hover$ | async) === row.address + i && !isDragging,
+                        selected: (range$ | async)?.contains(row.address + i),
+                      }"
+                      [innerText]="ascii"
+                    ></div>
+                  }
+                </div>
+              </div>
+            } @else {
+              &nbsp;
+            }
+          </div>
+        </cdk-virtual-scroll-viewport>
+        @if ((totalChunks$ | async) > 1) {
+          <div class="my-2 flex gap-2">
+            <flow-button (click)="firstChunk()" [size]="ButtonSize.Tiny">
+              &lt;&lt;
+            </flow-button>
+            <flow-button (click)="previousChunk()" [size]="ButtonSize.Tiny">
+              &lt;
+            </flow-button>
+            <flow-button (click)="nextChunk()" [size]="ButtonSize.Tiny">
+              &gt;
+            </flow-button>
+            <flow-button (click)="lastChunk()" [size]="ButtonSize.Tiny">
+              &gt;&gt;
+            </flow-button>
+            Page: {{ (chunkIndex$ | async) + 1 }} /
+            {{ totalChunks$ | async }}
+          </div>
+        }
+      </div>
+    </ng-container>
+  } @else {
+    No binary file available
+  }
+</az-loading-card>

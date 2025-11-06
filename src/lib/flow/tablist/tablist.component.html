@@ -1,0 +1,56 @@
+<div
+  class="border-b border-gray-200 text-center text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
+>
+  <ul role="tablist" class="-mb-px flex flex-wrap">
+    @for (tab of tabs; track tab; let i = $index; let last = $last) {
+      <li role="tab" [ngClass]="{ 'mr-2': !last }" class="select-none">
+        @if ((currentTab$ | async) === i) {
+          <div
+            class="active inline-block rounded-t-lg border-b-2 border-blue-600 p-4 text-blue-600 dark:border-blue-500 dark:text-blue-500"
+            aria-current="page"
+            tabindex="0"
+          >
+            <ng-container *ngTemplateOutlet="tabContent" />
+          </div>
+        } @else {
+          @if (tab.disabled) {
+            <div
+              class="inline-block cursor-not-allowed rounded-t-lg p-4 text-gray-400 dark:text-gray-500"
+            >
+              <ng-container *ngTemplateOutlet="tabContent" />
+            </div>
+          } @else {
+            <div
+              class="inline-block cursor-pointer rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300"
+              role="button"
+              tabindex="0"
+              (click)="onTabClick(i)"
+              (keypress)="onTabClick(i)"
+            >
+              <ng-container *ngTemplateOutlet="tabContent" />
+            </div>
+          }
+        }
+      </li>
+      <ng-template #tabContent>
+        <div class="flex items-center">
+          {{ tab.name }}
+          @if (tab.count) {
+            <flow-button-label class="flex">
+              {{ tab.count }}
+            </flow-button-label>
+          }
+        </div>
+      </ng-template>
+    }
+  </ul>
+</div>
+
+<div role="tabpanel" class="flex min-h-0 shrink flex-col p-4">
+  <ng-container
+    *ngTemplateOutlet="
+      currentTabTemplate$ | async;
+      context: currentTabContext$ | async
+    "
+  ></ng-container>
+</div>

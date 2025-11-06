@@ -1,0 +1,31 @@
+{
+  "name": "Azul",
+  "short_name": "Azul",
+  "description": "Discover, analyse and correlate malware at scale.",
+  "theme_color": "#222b45",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "assets/azul-ico-glitched.c25c53e5.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "assets/azul-ico-glitched.16.3267651b.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/azul-ico-glitched.32.db41e4b3.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/azul-ico-glitched.192.95a31191.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

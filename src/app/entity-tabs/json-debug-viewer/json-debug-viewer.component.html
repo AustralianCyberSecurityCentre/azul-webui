@@ -1,0 +1,11 @@
+<ngx-monaco-editor
+  #editor
+  [options]="editorOptions"
+  [ngModel]="text"
+  (onInit)="onMonacoInit($event)"
+  class="min-h-0 grow"
+  [ngClass]="{ 'h-full! [&_.editor-container]:h-full!': fullHeight }"
+  [style.height]="
+    fullHeight === true ? 'auto' : debugEditorHeight + 'px !important'
+  "
+/>

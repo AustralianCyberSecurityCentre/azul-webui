@@ -1,0 +1,103 @@
+<div id="Top">
+  <div>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Sources" />
+    </flow-card>
+  </div>
+  <div>
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  </div>
+</div>
+
+<ng-template #tplResult>
+  <flow-card>
+    <flow-card-body>
+      <az-loading-card [obs$]="sources$" class="w-full">
+        @if (sources$ | async; as d) {
+          @if (d.length > 0) {
+            <div>
+              <table class="multirow table">
+                @for (kv of d; track kv) {
+                  <tbody>
+                    <tr>
+                      <td class="no-pad" rowspan="5">
+                        <div class="text-azul-400 pt-2 pr-2 dark:text-white">
+                          <fa-icon
+                            [icon]="kv.icon"
+                            size="3x"
+                            pull="left"
+                            [fixedWidth]="true"
+                          />
+                        </div>
+                      </td>
+                      <td colspan="99">
+                        <a
+                          flowLink
+                          style="font-size: 120%"
+                          title="View source information"
+                          [routerLink]="['/pages/sources/current', kv.key]"
+                        >
+                          <strong>{{ kv.key }}</strong>
+                        </a>
+                      </td>
+                    </tr>
+                    <tr style="border-top: none">
+                      <td colspan="2">
+                        <span>{{ kv.value.description }}</span
+                        >&nbsp;
+                      </td>
+                      <td rowspan="3">
+                        <flow-button
+                          title="Upload to source"
+                          [routerLink]="['/pages/binaries/upload']"
+                          [queryParams]="{ source: kv.key }"
+                        >
+                          Upload
+                        </flow-button>
+                      </td>
+                    </tr>
+                    <tr style="border-top: none">
+                      <td>
+                        Contains
+                        {{ (kv.number_binaries | async | number) || "?" }}
+                        top-level binaries&nbsp;
+                      </td>
+                    </tr>
+                    <tr style="border-top: none">
+                      <td colspan="99" [title]="kv.newest | async">
+                        Last binary was added
+                        {{
+                          (kv.newest | async | since) || "at an unknown time"
+                        }}&nbsp;
+                      </td>
+                    </tr>
+                    <tr style="border-top: none">
+                      <td colspan="99">
+                        @if (
+                          kv.value?.expire_events_after.length > 0 &&
+                          kv.value?.expire_events_after !== "0"
+                        ) {
+                          <span>
+                            Metadata will be kept for
+                            {{ kv.value.expire_events_after }}
+                          </span>
+                        } @else {
+                          <span> Metadata will be kept forever </span>
+                        }
+                      </td>
+                    </tr>
+                    <tr style="border-top: none">
+                      <td colspan="99">&nbsp;</td>
+                    </tr>
+                  </tbody>
+                }
+              </table>
+            </div>
+          } @else {
+            <p>No Sources Found</p>
+          }
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>

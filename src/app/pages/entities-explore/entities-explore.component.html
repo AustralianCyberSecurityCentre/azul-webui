@@ -1,0 +1,62 @@
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <ng-container *ngTemplateOutlet="tplMainSearch"></ng-container>
+  </div>
+
+  <div>
+    @if (!noSearch) {
+      <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+    }
+  </div>
+
+  <ng-template #tplMainSearch>
+    <flow-card class="w-full">
+      <flow-card-header title="Binary Explorer" />
+      <flow-card-body>
+        <div class="py-2">
+          <p>
+            Search for binaries with matching hashes, plugin output, source
+            references or other metadata.
+          </p>
+        </div>
+        <div class="flex items-start gap-2">
+          <azco-entity-search #entitySearch [term]="termControl" class="grow" />
+
+          <select flowSelect [formControl]="countControl">
+            @for (count of countOptions; track count) {
+              <option [value]="count">
+                {{ count }}
+              </option>
+            }
+          </select>
+
+          @if (countControl.value !== "all") {
+            <select flowSelect [formControl]="sortControl">
+              @for (kv of sortOptions | keyvalue; track kv) {
+                <option [value]="kv.key">
+                  {{ kv.value.title }}
+                </option>
+              }
+            </select>
+          }
+          <flow-button
+            [type]="
+              (termValid$ | async) ? ButtonType.Primary : ButtonType.Disabled
+            "
+            (click)="onSubmit()"
+            >Search</flow-button
+          >
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplResult>
+    <azco-entity-results
+      [termOption]="termControl.value"
+      [countOption]="countControl.value"
+      [sortOption]="sortControl.value"
+      [forceEmptySearchOption]="true"
+    ></azco-entity-results>
+  </ng-template>
+</form>

@@ -1,0 +1,111 @@
+<div
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  (mouseover)="fadeIn()"
+  (mouseout)="fadeOut()"
+  (focus)="fadeIn()"
+  (blur)="fadeOut()"
+>
+  <ng-content></ng-content>
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="(hovering$ | async) ?? false"
+  [cdkConnectedOverlayPositions]="
+    direction === 'top'
+      ? [
+          {
+            originX: 'center',
+            originY: 'top',
+            overlayX: 'center',
+            overlayY: 'bottom',
+          },
+          {
+            originX: 'end',
+            originY: 'top',
+            overlayX: 'end',
+            overlayY: 'bottom',
+            panelClass: ['[&_svg]:invisible'],
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            panelClass: ['[&_svg]:invisible'],
+          },
+        ]
+      : [
+          {
+            originX: 'center',
+            originY: 'bottom',
+            overlayX: 'center',
+            overlayY: 'top',
+          },
+          {
+            originX: 'end',
+            originY: 'bottom',
+            overlayX: 'end',
+            overlayY: 'top',
+            panelClass: ['[&_svg]:invisible'],
+          },
+          {
+            originX: 'start',
+            originY: 'bottom',
+            overlayX: 'start',
+            overlayY: 'top',
+            panelClass: ['[&_svg]:invisible'],
+          },
+        ]
+  "
+>
+  <div
+    [ngClass]="{
+      'opacity-100': fade$ | async,
+      'opacity-0': (fade$ | async) === false,
+      'flex-col': direction === 'top',
+      'flex-col-reverse': direction === 'bottom',
+    }"
+    class="flex transition-opacity duration-300"
+  >
+    <div
+      role="tooltip"
+      class="bg-azul-50 border-azul-500 text-azul-700 max-w-2xl rounded-lg border px-3 py-2 text-center text-sm font-medium break-words shadow-xs dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+    >
+      @if (message) {
+        {{ message }}
+      }
+      @if (subText) {
+        <br />
+        <p class="text-xs text-gray-500">{{ subText }}</p>
+      }
+      @if (copyText) {
+        <br />
+        <p class="pt-1.5 text-xs text-gray-500">
+          <fa-icon [icon]="faCopy" class="pr-0.5" />
+          Triple click and press
+          <b class="rounded-xs border border-gray-600 px-1 py-0.5">Ctrl</b>
+          + <b class="rounded-xs border border-gray-600 px-1 py-0.5">C</b>
+          to copy
+        </p>
+      }
+      @if (tplRef) {
+        <ng-container *ngTemplateOutlet="tplRef; context: tplContext" />
+      }
+    </div>
+    <svg
+      [ngClass]="{
+        'rotate-180 transform': direction === 'bottom',
+      }"
+      class="h-2 text-gray-900 dark:text-gray-700"
+      x="0px"
+      y="0px"
+      viewBox="0 0 255 255"
+      xml:space="preserve"
+    >
+      <polygon class="fill-current" points="0,0 127.5,127.5 255,0" />
+    </svg>
+  </div>
+</ng-template>

@@ -1,0 +1,48 @@
+<button
+  [type]="submit ? 'submit' : 'button'"
+  [ngClass]="{
+    'px-2': size === 'tiny',
+    'px-3': size === 'icon' || size === 'small',
+    'px-5': size === 'medium' || size === 'large',
+    'py-2': size === 'icon' || size === 'small',
+    'py-2.5': size === 'medium',
+    'py-3': size === 'large',
+    'text-xs': size === 'tiny' || size === 'icon',
+    'text-sm': size === 'small' || size === 'medium',
+    'text-base': size === 'large',
+
+    'text-white':
+      type !== 'disabled' && type !== 'transparent' && type !== 'light',
+    border: type === 'light' || type === 'transparent' || type === 'disabled',
+    'hover:bg-gray-100': type === 'light' || type === 'transparent',
+
+    'cursor-pointer': type !== 'disabled',
+
+    'bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
+      type === 'primary',
+    'bg-gray-800 hover:bg-gray-900 focus:ring-gray-300 dark:border dark:border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700':
+      type === 'dark',
+    'border-transparent focus:ring-gray-300 dark:hover:bg-gray-700 dark:focus:ring-gray-700':
+      type === 'transparent',
+    'border-gray-300 bg-white text-gray-900 focus:ring-gray-200':
+      type === 'light',
+    'border-gray-600 text-gray-400 dark:bg-gray-800': type === 'disabled',
+    'bg-red-700 hover:bg-red-800 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900':
+      type === 'danger',
+    'bg-purple-700 hover:bg-purple-800 focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900':
+      type === 'purple',
+    'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-300 dark:focus:ring-yellow-900':
+      type === 'yellow',
+    'bg-green-700 hover:bg-green-800 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800':
+      type === 'green',
+    'w-full': fullWidth,
+    block: blockCentered,
+    'mx-auto': blockCentered && !fullWidth,
+    'rounded-lg': rounded,
+    'focus:ring-4': outline,
+  }"
+  [disabled]="type === 'disabled'"
+  class="font-medium focus:outline-hidden"
+>
+  <ng-content></ng-content>
+</button>

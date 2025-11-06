@@ -1,0 +1,63 @@
+.local-flex-spacer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.local-flex-spacer > * {
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.local-flex-spacer > :first-child {
+  margin-left: 0em;
+}
+
+.local-flex-spacer > :last-child {
+  margin-right: 0em;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.sort:hover .hidden {
+  visibility: visible;
+}
+
+.s-expand {
+  width: 22px;
+  max-width: 22px;
+  padding: 0;
+}
+
+.s-feature {
+  width: 24ch;
+  max-width: 24ch;
+}
+
+.s-entities {
+  width: 13ch;
+  max-width: 13ch;
+  /* Text align left to align with the heading */
+  text-align: left;
+}
+
+.s-values {
+  min-width: 20vw;
+  max-width: 30vw;
+}
+
+.s-label {
+  min-width: 15vw;
+  max-width: 25vw;
+}
+
+.s-tags {
+  width: 24ch;
+  max-width: 24ch;
+  text-align: center;
+}
+
+.large-value {
+  max-width: 50vw;
+}

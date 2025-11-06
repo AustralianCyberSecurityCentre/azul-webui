@@ -1,0 +1,35 @@
+<div class="bg-azul-700 h-screen w-screen">
+  <div class="grid h-full grid-cols-3">
+    <aside
+      class="flex h-full place-content-end justify-items-end px-8 pt-56 text-white"
+    >
+      <az-loading-indicator-failed height="200px" />
+    </aside>
+    <main class="bg-azul-500 col-span-2 h-full px-8 pt-56 text-white">
+      <h1 class="pb-4 text-4xl font-extrabold text-gray-50">
+        You don't have access to Azul...
+      </h1>
+      <div class="pb-4 text-2xl">
+        Unfortunately, your attempt to access Azul was unsuccessful. This is due
+        to invalid authentication or missing permissions.
+      </div>
+      <div class="pb-4 text-2xl">Here is some further information:</div>
+      <div class="pb-8 text-xl">
+        <flow-markdown [markdown]="help" />
+      </div>
+      <div class="pb-8">
+        <flow-button
+          [type]="ButtonType.Light"
+          (click)="security.reauthenticate()"
+        >
+          Try again
+        </flow-button>
+      </div>
+      @if (error$ | async; as error) {
+        <div class="text-gray-400">
+          <pre><code class="text-sm whitespace-break-spaces">{{ error }}</code></pre>
+        </div>
+      }
+    </main>
+  </div>
+</div>

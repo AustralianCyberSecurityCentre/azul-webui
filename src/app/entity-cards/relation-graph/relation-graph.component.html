@@ -1,0 +1,80 @@
+<div
+  class="h-full w-full"
+  [ngClass]="{
+    'dark:bg-azul-800 fixed top-0 right-0 bottom-0 left-0 z-30 block bg-white':
+      (isFullScreen$ | async),
+  }"
+>
+  <az-loading-card
+    cardTitle="Relations"
+    [obs$]="graphData$"
+    [help]="help"
+    [tplTopRight]="tplControls"
+  >
+    <div #relationDIV class="h-full w-full">
+      <svg
+        #relationSVG
+        width="100%"
+        height="100%"
+        class="outline-azul-500 inline-block cursor-grab rounded-xs outline-2 outline-solid"
+      ></svg>
+    </div>
+  </az-loading-card>
+</div>
+
+<ng-template #tplControls>
+  @if (isFullScreen$ | async) {
+    <flow-tooltip message="Minimize">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+        (click)="isFullScreen$.next(false)"
+      >
+        <fa-icon [icon]="faCompress" />
+      </flow-button>
+    </flow-tooltip>
+  } @else {
+    <flow-tooltip message="Maximize">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+        (click)="isFullScreen$.next(true)"
+      >
+        <fa-icon [icon]="faExpand" />
+      </flow-button>
+    </flow-tooltip>
+  }
+
+  <flow-tooltip message="Recentre View">
+    <flow-button
+      [size]="ButtonSize.Icon"
+      [type]="ButtonType.Light"
+      noPadding="true"
+      (click)="rerender$.next(null)"
+    >
+      <fa-icon [icon]="faEye" />
+    </flow-button>
+  </flow-tooltip>
+  <flow-tooltip message="Zoom In">
+    <flow-button
+      [size]="ButtonSize.Icon"
+      [type]="ButtonType.Light"
+      noPadding="true"
+      (click)="zoom_in()"
+    >
+      <fa-icon [icon]="faMagnifyingGlassPlus" />
+    </flow-button>
+  </flow-tooltip>
+  <flow-tooltip message="Zoom Out">
+    <flow-button
+      [size]="ButtonSize.Icon"
+      [type]="ButtonType.Light"
+      noPadding="true"
+      (click)="zoom_out()"
+    >
+      <fa-icon [icon]="faMagnifyingGlassMinus" />
+    </flow-button>
+  </flow-tooltip>
+</ng-template>

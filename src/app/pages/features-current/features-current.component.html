@@ -1,0 +1,192 @@
+@if (featureId$ | async; as feat) {
+  <div id="Top">
+    <div>
+      <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
+    </div>
+    <div>
+      <ng-container *ngTemplateOutlet="tplNavigate"></ng-container>
+    </div>
+    <div>
+      <ng-container *ngTemplateOutlet="tplMain"></ng-container>
+    </div>
+    <div>
+      <ng-container *ngTemplateOutlet="tplNavigate"></ng-container>
+    </div>
+  </div>
+  <ng-template #tplHeader>
+    <flow-card class="w-full">
+      <flow-card-header title="Feature | {{ featureId$ | async }}" />
+      <flow-card-body>
+        <div class="flex flex-wrap gap-2">
+          <flow-input
+            [icon]="faMagnifyingGlass"
+            placeholder="Search"
+            [(ngModel)]="term"
+            (ngModelChange)="searchChange()"
+          />
+          <select
+            flowSelect
+            [value]="valueCount()"
+            (change)="valueCountSelectionChanged($event)"
+          >
+            @for (opt of valueCountOptions; track opt.title) {
+              <option [value]="opt.count">
+                {{ opt.title }}
+              </option>
+            }
+          </select>
+          <select
+            flowSelect
+            [value]="isSortAscending()"
+            (change)="isSortAscendingSelectionChanged($event)"
+          >
+            @for (opt of sortOptions; track opt.sort_asc) {
+              <option [value]="opt.sort_asc">
+                {{ opt.title }}
+              </option>
+            }
+          </select>
+        </div>
+        @if (featureValues$ | async; as d) {
+          @if (author) {
+            <p>Restricting to {{ author }}</p>
+          }
+          @if (author_version) {
+            <p>Restricting to {{ author_version }}</p>
+          }
+        }
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+  <ng-template #tplNavigate>
+    <flow-card class="w-full">
+      <flow-card-body>
+        <div class="flex justify-center gap-2">
+          <p class="py-2">
+            Showing {{ (currentPageSignal() - 1) * valueCount() + 1 }} to
+            {{
+              (currentPageSignal() - 1) * valueCount() +
+                allPageFeatureInfo[currentPageSignal() - 1]?.values?.length
+            }}
+            of {{ totalNumberOfFeatureValuesActual() }}
+            @if (isTotalCountAnApproximation() && !isSearchComplete()) {
+              (approximation)
+            }
+            values for
+            @if (featureValues$ | async; as d) {
+              {{ d.name }}
+            }
+            <br />
+          </p>
+        </div>
+        <div class="flex justify-center gap-2">
+          <flow-button
+            [type]="
+              currentPageSignal() === 1 || isDoneLoadingSignal() === false
+                ? ButtonType.Disabled
+                : ButtonType.Light
+            "
+            (click)="decrementPage()"
+          >
+            <fa-icon [icon]="faBackwardStep" size="lg" />
+          </flow-button>
+          <flow-button
+            [type]="
+              isDoneLoadingSignal() === false ||
+              currentPageSignal() === totalNumberOfPages()
+                ? ButtonType.Disabled
+                : ButtonType.Light
+            "
+            (click)="incrementPage()"
+          >
+            <fa-icon [icon]="faForwardStep" size="lg" />
+          </flow-button>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplMain>
+    <flow-card>
+      <flow-card-header title="Values" />
+      <flow-card-body>
+        <az-loading-card
+          [obs$]="isDoneLoading$"
+          [isCheckObsIsTrue]="true"
+          class="w-full"
+        >
+          @if (featureId$ | async; as feature) {
+            @if (featureValues$ | async; as d) {
+              @if (d.values.length > 0) {
+                <div
+                  class="max-h-card-height overflow-y-auto"
+                  style="max-height: 100%"
+                >
+                  <table flowTable class="w-full">
+                    <thead flowTableHeader class="sticky top-0">
+                      <tr flowTableHeaderRow>
+                        <th flowTableHeaderCell>Binaries</th>
+                        <th flowTableHeaderCell>Value</th>
+                        <th flowTableHeaderCell>Processed</th>
+                        <th flowTableHeaderCell>Tags</th>
+                        <!-- <th>Security</th> -->
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of d.values; track row.value) {
+                        <tr flowTableBodyRow class="group">
+                          <td flowTableBodyCell class="text-center">
+                            <a
+                              class="table-link"
+                              title="View binaries with this feature value"
+                              [routerLink]="['/pages/binaries/explore']"
+                              [queryParams]="{
+                                term:
+                                  'features_map.' +
+                                  feature +
+                                  ':' +
+                                  escapeValue(row.value),
+                              }"
+                            >
+                              {{ (row.XNumBinaries$ | async | number) || "?" }}
+                            </a>
+                          </td>
+                          <td
+                            flowTableBodyCell
+                            class="line-clamp-3 break-all text-ellipsis"
+                            [title]="
+                              row.XValueDecoded ? row.XValueDecoded : row.value
+                            "
+                          >
+                            {{
+                              row.XValueDecoded ? row.XValueDecoded : row.value
+                            }}
+                          </td>
+                          <td
+                            flowTableBodyCell
+                            class="whitespace-nowrap"
+                            [title]="row.newest_processed"
+                          >
+                            {{ row.newest_processed | since }}
+                          </td>
+                          <td flowTableBodyCell>
+                            <az-feature-value-tags
+                              [row]="row"
+                            ></az-feature-value-tags>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <p>No Values Found</p>
+              }
+            }
+          }
+        </az-loading-card>
+      </flow-card-body>
+    </flow-card>
+    <!-- </ng-container> -->
+  </ng-template>
+}

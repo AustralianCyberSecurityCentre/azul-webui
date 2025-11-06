@@ -1,0 +1,11 @@
+.list-unstyled {
+  list-style: none;
+  margin-top: 0;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.thumbnail {
+  margin: auto;
+  text-align: center;
+}

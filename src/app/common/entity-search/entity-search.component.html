@@ -1,0 +1,146 @@
+<div class="relative z-10 w-full break-words text-ellipsis">
+  <flow-input
+    #termInput
+    [id]="'termInput'"
+    placeholder="Search binary metadata"
+    [formControl]="term"
+    [icon]="faMagnifyingGlass"
+    (inputFocus)="showAutocomplete$.next(true)"
+    (inputFocusOut)="handleFocusOut($event)"
+    (inputSelectionChange)="caretChange$.emit()"
+    tabindex="0"
+  />
+  @if (autocompleteContext$ | async; as token) {
+    @if (
+      (showAutocomplete$ | async) &&
+      (termValid$ | async) &&
+      token.type !== "None"
+    ) {
+      <div
+        class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl"
+      >
+        <div class="h-4 w-full">&nbsp;</div>
+        <div class="pl-8 text-gray-700 dark:text-gray-200">
+          @if (token.type === "Initial") {
+            Example queries (more examples in the docs):
+            <div class="py-1">
+              <div>
+                <b>Search for a hash:</b>
+              </div>
+              <div>
+                abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+              </div>
+            </div>
+            <div class="py-1">
+              <div>
+                <b>Search for a filetype:</b>
+              </div>
+              <div>"executable/windows"</div>
+            </div>
+            <div class="py-1">
+              <div>
+                <b>Search for files where we have the backing binary:</b>
+              </div>
+              <div>datastreams.label:"content"</div>
+            </div>
+            <div class="py-1">
+              <div>
+                <b>Search for a specific field:</b>
+              </div>
+              <div>features_map.document_title:"Best *"</div>
+            </div>
+            <div class="py-1">
+              <div>
+                <b>Find a file with a specific size:</b>
+              </div>
+              <div>size:>2MB</div>
+              <p class="pt-2 text-gray-500">
+                Start typing then use the <b>mouse</b> or
+                <b class="rounded-xs border border-gray-600 px-1 py-0.5">Tab</b>
+                and
+                <b class="rounded-xs border border-gray-600 px-1 py-0.5"
+                  >Enter</b
+                >
+                keys to autocomplete
+              </p>
+            </div>
+          }
+          @if (token.type === "FieldName") {
+            <div class="py-1">
+              <b>Searching for field:</b>
+              {{ token.prefix }}
+            </div>
+          }
+          @if (token.type === "FieldValue" && !token.key) {
+            <div class="py-1 text-gray-400">
+              <b>Search for a hash, magic, filetype, author or source:</b>
+              {{ token.prefix }}
+              <br />
+              <p class="pt-1">
+                Use the <b>mouse</b> or
+                <b class="rounded-xs border border-gray-600 px-1 py-0.5">Tab</b>
+                and
+                <b class="rounded-xs border border-gray-600 px-1 py-0.5"
+                  >Enter</b
+                >
+                keys to autocomplete
+              </p>
+            </div>
+          }
+          @if (token.type === "FieldValue" && token.key) {
+            <div class="py-1">
+              Searching
+              <b>{{ token.key }}:</b>
+              {{ token.prefix }}
+              @if (token.prefix_type !== "empty") {
+                ({{ token.prefix_type }})
+              }
+            </div>
+          }
+        </div>
+        @if (suggestions$ | async; as suggestions) {
+          @if (suggestions.length > 0) {
+            <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+            <table class="w-full">
+              <tbody>
+                @for (
+                  suggestion of suggestions;
+                  track suggestion;
+                  let i = $index
+                ) {
+                  <tr
+                    class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
+                  >
+                    <td
+                      class="pl-8 leading-loose"
+                      id="suggestion{{ i }}"
+                      [tabindex]="0"
+                      (focusout)="handleFocusOut($event)"
+                      [title]="suggestion.originalFieldName"
+                      (click)="fillSuggestion($event, suggestion)"
+                      (keydown)="fillSuggestion($event, suggestion)"
+                    >
+                      <b>
+                        @for (section of suggestion.fieldName; track section) {
+                          <span [ngClass]="{ underline: section.underlined }">{{
+                            section.value
+                          }}</span>
+                        }
+                      </b>
+                      ({{ suggestion.fieldType }})
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        }
+      </div>
+    }
+    @if (token.type === "Error" && (termIsHash$ | async) !== true) {
+      <div class="ml-2 font-semibold text-red-800 dark:text-red-300">
+        {{ token.message }}. Make sure special characters/terms are quoted.
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,140 @@
+<div>
+  <div>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Features" />
+      <flow-card-body>
+        <div class="flex gap-2">
+          <flow-input
+            [icon]="faMagnifyingGlass"
+            class="grow"
+            placeholder="Search"
+            [formControl]="term"
+          />
+        </div>
+        <br />
+
+        <div class="flex gap-2">
+          @if (authors$ | async; as d) {
+            <!-- <nb-select [selected]="sortOptions[0].sort" formControlName="sort" (selectedChange)="onSubmit()">
+            <nb-option *ngFor="let option of sortOptions" [value]="option.sort">{{option.title}}</nb-option>
+          </nb-select> -->
+            <select flowSelect [formControl]="author">
+              <option [value]="''">All Authors</option>
+              @for (row of authors$ | async; track row) {
+                <option [value]="row">
+                  {{ row }}
+                </option>
+              }
+            </select>
+          }
+          @if (author_versions$ | async) {
+            <select flowSelect [formControl]="authorVersion">
+              <option [value]="''">All Author Versions</option>
+              @for (av of author_versions$ | async; track av) {
+                <option [value]="av">
+                  {{ av }}
+                </option>
+              }
+            </select>
+          }
+        </div>
+
+        @if (filteredFeatures$ | async; as d) {
+          <p class="pt-2">Viewing {{ d.length || 0 | number }} features</p>
+        }
+      </flow-card-body>
+    </flow-card>
+  </div>
+  <div>
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  </div>
+</div>
+
+<ng-template #tplResult>
+  <flow-card>
+    <flow-card-body>
+      <az-loading-card [obs$]="filteredFeatures$" class="w-full">
+        @if (filteredFeatures$ | async; as d) {
+          @if (d.length > 0) {
+            <table flowTable class="w-full">
+              <thead flowTableHeader class="sticky top-0">
+                <tr flowTableHeaderRow>
+                  <th flowTableHeaderCell>Feature</th>
+                  <th flowTableHeaderCell class="w-20 text-center">Binaries</th>
+                  <th flowTableHeaderCell class="w-20 text-center">Values</th>
+                  <th flowTableHeaderCell>Description</th>
+                  <th flowTableHeaderCell>Authors</th>
+                  <th flowTableHeaderCell>Tags</th>
+                </tr>
+              </thead>
+              <tbody flowTableBody>
+                @for (row of d; track trackBy(i, row); let i = $index) {
+                  <tr flowTableBodyRow>
+                    <td flowTableBodyCell class="truncate">
+                      <flow-tooltip message="{{ row.name }}" [copyText]="true">
+                        {{ row.name }}
+                      </flow-tooltip>
+                    </td>
+                    <td flowTableBodyCell class="text-center">
+                      <flow-tooltip message="View binaries with this feature">
+                        <a
+                          class="table-link whitespace-nowrap"
+                          title="View binaries with this feature"
+                          [routerLink]="['/pages/binaries/explore']"
+                          [queryParams]="{
+                            term: 'features.name:' + escapeValue(row.name),
+                          }"
+                        >
+                          {{ (row.XNumBinaries$ | async | number) || "?" }}
+                        </a>
+                      </flow-tooltip>
+                    </td>
+                    <td flowTableBodyCell class="text-center">
+                      <flow-tooltip message="View values for this feature">
+                        <a
+                          class="table-link whitespace-nowrap"
+                          [routerLink]="['/pages/features/current/', row.name]"
+                          [queryParams]="addAuthorFilter({})"
+                        >
+                          {{ (row.XNumValues$ | async | number) || "?" }}
+                        </a>
+                      </flow-tooltip>
+                    </td>
+                    <!-- Only render the first description. -->
+                    <td
+                      flowTableBodyCell
+                      class="limit line-clamp-2 text-wrap break-words"
+                    >
+                      <flow-tooltip
+                        message="{{ row.XDescriptions[0] }}"
+                        [copyText]="true"
+                      >
+                        {{ row.XDescriptions[0] }}
+                      </flow-tooltip>
+                    </td>
+                    <!-- Always put all authors in hover text, but only render few to page. -->
+                    <td flowTableBodyCell>
+                      <flow-tooltip message="{{ row.XAuthors.join(' | ') }}">
+                        @if (row.XAuthors.length <= 4) {
+                          {{ row.XAuthors.join(" | ") }}
+                        }
+                        @if (row.XAuthors.length > 4) {
+                          Hover to view {{ row.XAuthors.length }} authors
+                        }
+                      </flow-tooltip>
+                    </td>
+                    <td flowTableBodyCell>
+                      {{ row.XTags }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p>No Features Found</p>
+          }
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>

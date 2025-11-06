@@ -1,0 +1,52 @@
+<div class="group/card relative flex h-full w-full grow">
+  <ng-template [ngTemplateOutlet]="outlet" />
+  @if (showHelp) {
+    <div
+      class="absolute right-0 bottom-0 z-10 m-4 flex items-center gap-1 transition-opacity group-hover/card:opacity-40 hover:group-hover/card:opacity-100"
+    >
+      @if ((obs$ | async) !== null) {
+        @if (tplTopRight) {
+          <ng-container *ngTemplateOutlet="tplTopRight"></ng-container>
+        }
+        <!-- FUTURE: This overlay should be separated out entirely -->
+        @if (cardTitle) {
+          <div
+            class="bg-azul-100/80 dark:bg-azul-700/80 cursor-pointer rounded-xs p-1 text-xs"
+            (click)="openDialog(helpDialog)"
+            role="button"
+            (keypress)="(null)"
+            tabindex="0"
+          >
+            {{ cardTitle }}
+            <fa-icon [icon]="questionIcon" />
+          </div>
+        }
+      }
+    </div>
+  }
+</div>
+
+<ng-template #outlet>
+  <az-loading-content
+    [ngClass]="_isScrollable ? 'overflow-auto' : ''"
+    class="flex min-w-0 grow flex-col"
+    [obs$]="obs$"
+    [isCheckObsIsTrue]="isCheckObsIsTrue"
+  >
+    <ng-content></ng-content>
+  </az-loading-content>
+</ng-template>
+
+<ng-template #helpDialog>
+  <flow-card class="max-w-(--breakpoint-lg)">
+    <flow-card-header title="Help for {{ cardTitle }}" />
+    <flow-card-body>
+      <span class="block p-2 text-left text-sm whitespace-pre-wrap">{{
+        _help
+      }}</span>
+    </flow-card-body>
+    <flow-card-footer>
+      <flow-button (click)="closeDialog()">Close</flow-button>
+    </flow-card-footer>
+  </flow-card>
+</ng-template>

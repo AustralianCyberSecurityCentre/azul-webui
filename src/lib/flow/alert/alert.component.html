@@ -1,0 +1,21 @@
+<div
+  class="dark:bg-azul-600 mb-4 flex items-center rounded-lg bg-red-50 p-4 text-sm dark:border-red-800"
+  [ngClass]="{
+    'text-red-800 dark:text-red-400': alertType === 'error',
+    'text-yellow-800 dark:text-yellow-300': alertType === 'warning',
+    'dark:bg-azul-700': withinCard,
+  }"
+  role="alert"
+>
+  <div class="mr-3 inline h-4 w-4 shrink-0">
+    <fa-icon [attr.aria-label]="alertType" [icon]="icons[alertType]" />
+  </div>
+  <div>
+    <div class="font-medium">
+      {{ title }}
+    </div>
+    <div class="mt-1 text-black dark:text-white">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+/* Needed for @apply */
+@reference "../../../styles.css";
+
+svg.main-svg .hill {
+  @apply fill-black/30 stroke-black stroke-1 dark:fill-white/30 dark:stroke-white;
+}
+
+svg.main-svg #draggable {
+  @apply fill-rose-700/50;
+}

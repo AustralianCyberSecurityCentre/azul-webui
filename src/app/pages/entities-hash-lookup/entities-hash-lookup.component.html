@@ -1,0 +1,42 @@
+<div>
+  <ng-container *ngTemplateOutlet="tplMainSearch"></ng-container>
+</div>
+<div>
+  <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+</div>
+
+<ng-template #tplMainSearch>
+  <flow-card style="width: 100%">
+    <flow-card-header title="Binary Hash Lookup" />
+    <flow-card-body>
+      <p class="pb-1">Look up many hashes extracted from a block of text.</p>
+      <p class="pb-1">
+        Your text will be parsed locally via a regex for all supported hashes
+        (md5/sha1/sha256/sha512). Those hashes will then be checked to see if
+        Azul has corresponding metadata.
+      </p>
+      <p class="pb-1">
+        Remember to click away from the text box to update results.
+      </p>
+      <div class="flex">
+        <flow-textarea
+          [formControl]="hashSearchList"
+          class="grow"
+          [spellcheck]="false"
+          [rows]="10"
+        ></flow-textarea>
+      </div>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
+
+<ng-template #tplResult>
+  @if ((hashes$ | async).length > 0) {
+    <flow-card>
+      <flow-card-body>
+        <az-entity-table [find$]="filteredFind$" style="width: 100%">
+        </az-entity-table>
+      </flow-card-body>
+    </flow-card>
+  }
+</ng-template>

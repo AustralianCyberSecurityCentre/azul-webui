@@ -1,0 +1,142 @@
+<az-loading-card
+  class="flex w-full"
+  cardTitle="Sources"
+  [obs$]="entity.sources$"
+  [help]="help"
+>
+  @if (sourceTabs$ | async; as sourceTabs) {
+    <flow-tablist
+      class="flex min-h-0 w-full shrink flex-col"
+      [tabs]="sourceTabs"
+    />
+  }
+</az-loading-card>
+<ng-template #tplSource let-row="row">
+  <div
+    class="s-table w-full overflow-y-auto"
+    [ngClass]="{
+      'max-h-20vh': restrictedHeight,
+    }"
+  >
+    <table flowTable class="w-full">
+      <thead flowTableHeader>
+        <tr flowTableHeaderRow>
+          <th flowTableHeaderCell></th>
+          <th flowTableHeaderCell>Kind</th>
+          <th flowTableHeaderCell>Submitted</th>
+          <th flowTableHeaderCell>Security</th>
+          @for (k of row.refKeys; track k) {
+            <th flowTableHeaderCell [title]="k">
+              {{ k }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody flowTableBody>
+        <ng-container
+          *ngTemplateOutlet="
+            tplTableRows;
+            context: {
+              row: row.direct,
+              kind: 'direct',
+              refKeys: row.refKeys,
+            }
+          "
+        ></ng-container>
+        <ng-container
+          *ngTemplateOutlet="
+            tplTableRows;
+            context: {
+              row: row.indirect,
+              kind: 'indirect',
+              refKeys: row.refKeys,
+            }
+          "
+        ></ng-container>
+      </tbody>
+    </table>
+    <br />
+  </div>
+</ng-template>
+
+<ng-template #tplTableRows let-row="row" let-kind="kind" let-refKeys="refKeys">
+  @for (item of row; track item) {
+    <tr flowTableBodyRow>
+      <td flowTableBodyCell class="flex">
+        <flow-tooltip message="View top-level binaries from this submission"
+          ><a
+            class="table-link"
+            [routerLink]="['/pages/binaries/explore']"
+            [queryParams]="{
+              term: sourceRefsAsParams(
+                item.name,
+                0,
+                item.track_source_references,
+                item.timestamp
+              ),
+            }"
+          >
+            <fa-icon [icon]="faMagnifyingGlass" /> </a></flow-tooltip
+        >&nbsp;
+        <flow-tooltip
+          message="View top-level binaries with same source references"
+        >
+          <a
+            class="table-link"
+            [routerLink]="['/pages/binaries/explore']"
+            [queryParams]="{
+              term: sourceRefsAsParams(
+                item.name,
+                0,
+                item.track_source_references,
+                null
+              ),
+            }"
+          >
+            <fa-icon [icon]="faBucket" /> </a
+        ></flow-tooltip>
+        @if (
+          kind === "direct" &&
+          allowedToPurge(
+            user.isUserAdmin$ | async,
+            item.track_source_references,
+            undefined
+          )
+        ) {
+          &nbsp;
+          <a
+            class="table-link"
+            title="Purge this submission from the system"
+            [routerLink]="['/pages/binaries/purge']"
+            [queryParams]="
+              getPurgeQueryParams(
+                item.track_source_references,
+                item.sha256,
+                item.references,
+                item.timestamp
+              )
+            "
+          >
+            <fa-icon [icon]="faTrash" />
+          </a>
+        }
+      </td>
+      <td flowTableBodyCell>{{ kind }}</td>
+      <td flowTableBodyCell class="truncate" [title]="item.timestamp">
+        {{ item.timestamp | since }}
+      </td>
+      <td flowTableBodyCell class="truncate">
+        {{ item.security }}
+      </td>
+      @for (k of refKeys; track k) {
+        <td flowTableBodyCell [title]="item.references?.[k]">
+          <span class="truncate break-words">
+            @if (item.references) {
+              {{ item.references[k] }}
+            }
+          </span>
+        </td>
+      }
+    </tr>
+  }
+</ng-template>

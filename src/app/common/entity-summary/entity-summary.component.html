@@ -1,0 +1,191 @@
+@if (entity.summary$ | async; as d) {
+  <table flowTable class="max-h-card-height w-full table-fixed">
+    <tbody flowTableBody>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true" class="w-28">Security</th>
+        @if (entity.security$ | async; as sec) {
+          <td>
+            @for (row of sec; track row) {
+              <div class="limit truncate" [title]="row">
+                <flow-tooltip message="{{ row }}" [copyText]="true">
+                  {{ row }}
+                </flow-tooltip>
+              </div>
+            }
+          </td>
+        } @else {
+          <td>...</td>
+        }
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">File Size</th>
+        <td>
+          <flow-tooltip message="{{ d.file_size }} bytes" [copyText]="true">
+            {{ d.file_size | filesize }}</flow-tooltip
+          >
+        </td>
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">Type</th>
+        <td class="limit truncate">
+          <flow-tooltip message="{{ d.file_format }}" [copyText]="true">
+            {{ d.file_format }}</flow-tooltip
+          >
+        </td>
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">Type (Legacy)</th>
+        <td class="limit truncate">
+          <flow-tooltip message="{{ d.file_format_legacy }}" [copyText]="true">
+            {{ d.file_format_legacy }}</flow-tooltip
+          >
+        </td>
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">File Names</th>
+        <td>
+          @for (row of d.filenames; track row) {
+            <div class="limit truncate">
+              <flow-tooltip message="{{ row }}" [copyText]="true">
+                {{ row }}
+              </flow-tooltip>
+            </div>
+          }
+        </td>
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">Magic</th>
+        <td class="limit truncate">
+          <flow-tooltip message="{{ d.magic }}" [copyText]="true">
+            {{ d.magic }}</flow-tooltip
+          >
+        </td>
+      </tr>
+      <tr>
+        <th flowTableBodyCell [rowHeader]="true">Mime</th>
+        <td class="limit truncate">
+          <flow-tooltip message="{{ d.mime }}" [copyText]="true">
+            {{ d.mime }}</flow-tooltip
+          >
+        </td>
+      </tr>
+      @if (d.md5) {
+        <tr>
+          <th flowTableBodyCell [rowHeader]="true">MD5</th>
+          <td class="hash truncate font-mono">
+            <flow-tooltip message="{{ d.md5 }}" [copyText]="true">
+              {{ d.md5 }}</flow-tooltip
+            >
+          </td>
+        </tr>
+      }
+      @if (d.sha1) {
+        <tr>
+          <th flowTableBodyCell [rowHeader]="true">SHA1</th>
+          <td class="hash truncate font-mono">
+            <flow-tooltip message="{{ d.sha1 }}" [copyText]="true">
+              {{ d.sha1 }}</flow-tooltip
+            >
+          </td>
+        </tr>
+      }
+      @if (d.sha256) {
+        <tr>
+          <th flowTableBodyCell [rowHeader]="true">SHA256</th>
+          <td class="hash truncate font-mono">
+            <flow-tooltip message="{{ d.sha256 }}" [copyText]="true">
+              {{ d.sha256 }}</flow-tooltip
+            >
+          </td>
+        </tr>
+      }
+      @if (d.sha512) {
+        <tr>
+          <th flowTableBodyCell [rowHeader]="true">SHA512</th>
+          <td class="hash truncate font-mono">
+            <flow-tooltip message="{{ d.sha512 }}" [copyText]="true">
+              {{ d.sha512 }}</flow-tooltip
+            >
+          </td>
+        </tr>
+      }
+      @if (d.ssdeep) {
+        <tr>
+          <th flowTableBodyCell [rowHeader]="true">ssdeep</th>
+          <td class="hash truncate font-mono">
+            <flow-tooltip message="{{ d.ssdeep }}" [copyText]="true">
+              {{ d.ssdeep }}</flow-tooltip
+            >
+          </td>
+        </tr>
+      }
+      @if (entityLinks$ | async; as entityLinks) {
+        @if (entityLinks.length > 0) {
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">External</th>
+            <td>
+              <div class="flex gap-4">
+                @for (entityLink of entityLinks; track entityLink) {
+                  <a class="table-link" [href]="entityLink.link">
+                    {{ entityLink.name }}</a
+                  >
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      }
+      @if (entity.diagnostics$ | async; as diagnostics) {
+        @if (featureTags$ | async; as featureTags) {
+          @if (featureTags.length > 0) {
+            <tr>
+              <th flowTableBodyCell [rowHeader]="true">Feature Tags</th>
+              <td>
+                <div class="flex flex-wrap gap-2">
+                  @for (featureTag of featureTags; track featureTag) {
+                    <flow-tooltip
+                      [message]="
+                        featureTag.feature_name +
+                        ': ' +
+                        featureTag.feature_value
+                      "
+                    >
+                      <flow-button
+                        [size]="ButtonSize.Tiny"
+                        [routerLink]="['/pages/features/tags', featureTag.tag]"
+                        [type]="getStatusColour(featureTag.tag)"
+                        [rounded]="false"
+                      >
+                        {{ featureTag.tag }}
+                      </flow-button></flow-tooltip
+                    >
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        @if (diagnostics.length > 0) {
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Warnings</th>
+            <td>
+              <div class="flex flex-wrap gap-2">
+                @for (diagnostic of diagnostics; track diagnostic) {
+                  <flow-tooltip [message]="diagnostic.body">
+                    <flow-button
+                      [size]="ButtonSize.Tiny"
+                      [type]="ButtonType.Yellow"
+                      [rounded]="false"
+                    >
+                      {{ diagnostic.title }}
+                    </flow-button></flow-tooltip
+                  >
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+}

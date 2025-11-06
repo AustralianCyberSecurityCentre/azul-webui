@@ -1,0 +1,14 @@
+/* Needed for @apply */
+@reference "../../../styles.css";
+
+pre {
+  overflow: auto;
+  max-width: 70vw;
+  max-height: 70vh;
+  padding: 0px;
+  margin: 0px;
+}
+
+.errored {
+  @apply bg-rose-200 dark:bg-rose-800;
+}

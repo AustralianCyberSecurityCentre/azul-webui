@@ -1,0 +1,68 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+# cannot include because of the resolved: field
+# or at least cannot commit unless on purpose
+package-lock.json
+
+src/assets/alt-remote
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+# Only exists if Bazel was run
+/bazel-out
+
+# testing
+/cypress/results
+/cypress/screenshots
+/cypress/videos
+
+# dependencies
+/node_modules
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.iml
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# misc
+/.angular
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# disable nx
+/.nx
+/test-results/
+/test-cache/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+.env

@@ -1,0 +1,141 @@
+<div>
+  <select
+    [class]="{ 'w-full': fullWidth }"
+    flowSelect
+    placeholder="Select Security Preset"
+    fullWidth="true"
+    [formControl]="preset"
+  >
+    <option [value]="null" disabled [selected]="preset.value === null">
+      Select a classification...
+    </option>
+    @for (
+      pr of (securityService.userSpecificSecuritySettings$ | async)?.presets;
+      track pr
+    ) {
+      <option [value]="pr">
+        {{ pr }}
+      </option>
+    }
+    <option [value]="customString">- custom -</option>
+  </select>
+</div>
+@if (preset.value === customString) {
+  <br />
+  <form [formGroup]="formCustom">
+    @if (securityService.userSpecificSecuritySettings$ | async; as settings) {
+      <div class="flex flex-wrap gap-8">
+        <div>
+          <p>
+            <b>{{ settings.labels.classification.title }}</b>
+          </p>
+          <p>Users must have this access to view.</p>
+          <select
+            flowSelect
+            formControlName="classification"
+            size="10"
+            style="width: 100%"
+          >
+            @for (opt of settings.labels.classification.options; track opt) {
+              <option [value]="opt.name">
+                {{ opt.name }}
+              </option>
+            }
+          </select>
+        </div>
+        @if (settings.labels.caveat.options.length > 0) {
+          <div>
+            <p>
+              <b>{{ settings.labels.caveat.title }}</b>
+            </p>
+            <p>Users must have all of selected to view.</p>
+            <select
+              flowSelect
+              formControlName="caveat"
+              multiple
+              size="10"
+              style="width: 100%"
+            >
+              <option value="">-</option>
+              @for (opt of settings.labels.caveat.options; track opt) {
+                <option [value]="opt.name">
+                  {{ opt.name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+        @if (settings.labels.releasability.options.length > 0) {
+          <div>
+            <p>
+              <b>{{ settings.labels.releasability.title }}</b>
+            </p>
+            <p>Users must have one of selected to view.</p>
+            <select
+              flowSelect
+              formControlName="releasability"
+              multiple
+              size="10"
+              style="width: 100%"
+            >
+              <option value="">-</option>
+              @for (opt of settings.labels.releasability.options; track opt) {
+                <option [value]="opt.name">
+                  {{ opt.name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+        @if (settings.labels.tlp.options.length > 0) {
+          <div>
+            <p>
+              <b>{{ settings.labels.tlp.title }}</b>
+            </p>
+            <p>Can restrict access (if configured).</p>
+            <select
+              flowSelect
+              formControlName="tlp"
+              size="10"
+              style="width: 100%"
+            >
+              <option value="">-</option>
+              @for (opt of settings.labels.tlp.options; track opt) {
+                <option [value]="opt.name">
+                  {{ opt.name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+    }
+    @if (formCustom.valid) {
+      @if (customRender$ | async; as rendered) {
+        <!-- {{ rendered }} -->
+      }
+    } @else {
+      <div class="mt-4">
+        <flow-alert
+          alertType="warning"
+          title="Missing selection"
+          [withinCard]="true"
+          class="mt-4"
+        >
+          Must select a classification.
+        </flow-alert>
+      </div>
+    }
+    @if (selectionError$ | async; as selectionError) {
+      <div class="mt-4">
+        <flow-alert
+          alertType="error"
+          title="Invalid security options"
+          [withinCard]="true"
+        >
+          Invalid selection: {{ selectionError }}
+        </flow-alert>
+      </div>
+    }
+  </form>
+}

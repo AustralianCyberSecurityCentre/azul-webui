@@ -1,0 +1,270 @@
+<div class="flex flex-col items-center">
+  <div class="w-full max-w-4xl">
+    <flow-card>
+      <flow-card-header [title]="'Purge ' + (purgeTargetLabel$ | async)" />
+      @switch (state$ | async) {
+        @case ("loading") {
+          <flow-card-body>
+            <div class="flex flex-col items-center">
+              <az-loading-indicator class="pb-3" />
+              Preparing to purge...
+            </div>
+          </flow-card-body>
+          <flow-card-footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <flow-indicator [count]="4" [current]="0" />
+            </div>
+          </flow-card-footer>
+        }
+        @case ("admin_validation") {
+          <flow-card-body>
+            <div class="flex flex-col items-center">
+              <az-loading-indicator class="pb-3" />
+              Checking authorization...
+            </div>
+          </flow-card-body>
+          <flow-card-footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <flow-indicator [count]="4" [current]="0" />
+            </div>
+          </flow-card-footer>
+        }
+        @case ("invalid_params") {
+          <flow-card-body>
+            <div class="flex flex-col items-center">
+              <az-loading-indicator-failed class="pb-3" />
+              Internal error: invalid parameters passed to purger.
+            </div>
+          </flow-card-body>
+          <flow-card-footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <flow-indicator [count]="4" [current]="0" />
+            </div>
+          </flow-card-footer>
+        }
+        @case ("unauthorized") {
+          <flow-card-body>
+            <div class="flex flex-col items-center">
+              <az-loading-indicator-failed class="pb-3" />
+              You do not have permissions to perform this purge. If this is
+              unexpected, please contact a system administrator to check your
+              permissions.
+            </div>
+          </flow-card-body>
+          <flow-card-footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <flow-indicator [count]="4" [current]="0" />
+            </div>
+          </flow-card-footer>
+        }
+        @case ("input_options") {
+          <flow-card-body>
+            <flow-alert alertType="warning" title="Caution" [withinCard]="true">
+              Purging is a permanent operation - before continuing, ensure that
+              this is what you intend to do!
+              <br />
+              Note that purging is subject to audit controls.
+            </flow-alert>
+
+            <ng-container *ngTemplateOutlet="purgeDescription"></ng-container>
+          </flow-card-body>
+          <flow-card-footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <flow-indicator [count]="4" [current]="1" />
+              <div class="flex gap-2">
+                <flow-button [type]="ButtonType.Light" (click)="cancelPurge()">
+                  Cancel
+                </flow-button>
+                <flow-button [type]="ButtonType.Primary" (click)="purge(false)">
+                  Preview
+                </flow-button>
+              </div>
+            </div>
+          </flow-card-footer>
+        }
+        @case ("simulate") {
+          @if (apiSimulation$ | async; as refSetSimulation) {
+            <flow-card-body>
+              <ng-container *ngTemplateOutlet="purgeDescription"></ng-container>
+              <br />
+              <p>
+                This will result in the {{ refSetSimulation.events }} events
+                being deleted
+              </p>
+              <br />
+              <p>
+                Proceeding from this point will result in all mentioned events
+                and binaries being deleted.
+              </p>
+              <br />
+              <flow-checkbox [formControl]="acknowledgedPreview" />
+              <flow-checkbox-label>The above is correct.</flow-checkbox-label>
+            </flow-card-body>
+            <flow-card-footer>
+              <div class="flex w-full items-center justify-between gap-2">
+                <flow-indicator [count]="4" [current]="2" />
+                <div class="flex gap-2">
+                  <flow-button
+                    [type]="ButtonType.Light"
+                    (click)="cancelPurge()"
+                  >
+                    Cancel
+                  </flow-button>
+                  <flow-button
+                    [type]="ButtonType.Light"
+                    (click)="backPurgeFromSimulation()"
+                  >
+                    Back
+                  </flow-button>
+                  <flow-button
+                    [type]="
+                      (acknowledgedPreview.valueChanges | async)
+                        ? ButtonType.Danger
+                        : ButtonType.Disabled
+                    "
+                    (click)="purge(true)"
+                  >
+                    Purge
+                  </flow-button>
+                </div>
+              </div>
+            </flow-card-footer>
+          } @else {
+            <flow-card-body>
+              <div class="flex flex-col items-center">
+                <az-loading-indicator class="pb-3" />
+                Calculating damage...
+              </div>
+            </flow-card-body>
+            <flow-card-footer>
+              <div class="flex w-full items-center justify-between gap-2">
+                <flow-indicator [count]="4" [current]="2" />
+              </div>
+            </flow-card-footer>
+          }
+        }
+        @case ("purge") {
+          @if (apiPurge$ | async; as refSetPurge) {
+            @if (cacheClear$ | async) {
+              <flow-card-body>
+                <p>
+                  Purge successfully completed. You may need to refresh your
+                  browser for changes to appear.
+                </p>
+              </flow-card-body>
+              <flow-card-footer>
+                <div class="flex w-full items-center justify-between gap-2">
+                  <flow-indicator [count]="4" [current]="3" />
+                  <div class="flex gap-2">
+                    <flow-button
+                      [type]="ButtonType.Light"
+                      (click)="cancelPurge()"
+                    >
+                      Exit
+                    </flow-button>
+                  </div>
+                </div>
+              </flow-card-footer>
+            } @else {
+              <flow-card-body>
+                <div class="flex flex-col items-center">
+                  <az-loading-indicator class="pb-3" />
+                  Clearing cache...
+                </div>
+              </flow-card-body>
+              <flow-card-footer>
+                <div class="flex w-full items-center justify-between gap-2">
+                  <flow-indicator [count]="4" [current]="3" />
+                </div>
+              </flow-card-footer>
+            }
+          } @else {
+            <flow-card-body>
+              <div class="flex flex-col items-center">
+                <az-loading-indicator class="pb-3" />
+                Opening the airlock...
+              </div>
+            </flow-card-body>
+            <flow-card-footer>
+              <div class="flex w-full items-center justify-between gap-2">
+                <flow-indicator [count]="4" [current]="3" />
+              </div>
+            </flow-card-footer>
+          }
+        }
+        @case ("bad_response") {
+          @if (purgeError$ | async; as error) {
+            <flow-card-body>
+              <div class="flex flex-col items-center">
+                <az-loading-indicator-failed class="pb-3" />
+                Encountered an error while performing task: {{ error }}
+              </div>
+            </flow-card-body>
+          }
+        }
+        @default {
+          <flow-card-body>
+            <div class="flex flex-col items-center">
+              <az-loading-indicator-failed class="pb-3" />
+              Invalid state: {{ state$ | async }}
+            </div>
+          </flow-card-body>
+        }
+      }
+    </flow-card>
+  </div>
+</div>
+
+<ng-template #purgeDescription>
+  @if (purgeTarget$ | async; as purgeTarget) {
+    @switch (purgeTarget.type) {
+      @case ("reference_set") {
+        <p>
+          You are intending to purge files sourced at
+          {{ purgeTarget.timestamp }} from {{ purgeTargetLabel$ | async }} in
+          the <b>{{ purgeTarget.source }}</b> source, which has following
+          reference key/values:
+        </p>
+        <br />
+        <table flowTable class="w-full table-fixed">
+          <thead flowTableHeader>
+            <tr flowTableHeaderRow>
+              @for (
+                refValue of purgeTarget.referenceValues | keyvalue;
+                track refValue
+              ) {
+                <th flowTableHeaderCell class="truncate">
+                  {{ refValue.key }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody flowTableBody>
+            <tr flowTableBodyRow>
+              @for (
+                refValue of purgeTarget.referenceValues | keyvalue;
+                track refValue
+              ) {
+                <td flowTableBodyCell class="truncate">
+                  {{ refValue.value }}
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      }
+      @case ("relation") {
+        <p>
+          You are intending to purge link(s), authored by
+          <b>{{ purgeTarget.author }}</b
+          >, from {{ purgeTarget.parent }} to {{ purgeTarget.child }}.
+        </p>
+        <br />
+        <p>
+          Note that this may also <b>purge files</b> emitted if this operation
+          orphans files.
+        </p>
+      }
+    }
+  }
+</ng-template>

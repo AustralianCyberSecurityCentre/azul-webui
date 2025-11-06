@@ -1,0 +1,67 @@
+<az-loading-card
+  cardTitle="BinaryMeta"
+  [obs$]="queriesStringified$"
+  [help]="help"
+>
+  @if (queriesStringified$ | async; as qs) {
+    <div class="flex h-full w-full flex-col">
+      <flow-accordion class="overflow-y-auto">
+        @for (q of qs; track q) {
+          <flow-accordion-panel [open]="false">
+            <flow-accordion-title
+              >{{ q?.query_type }} - {{ q?.index }}</flow-accordion-title
+            >
+            <flow-accordion-content>
+              <table flowTable class="w-full">
+                <thead flowTableHeader>
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell colspan="2">Query Metadata</th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  <!--Index-->
+                  <tr flowTableBodyRow>
+                    <td flowTableBodyCell>Index</td>
+                    <td flowTableBodyCell>{{ q.index }}</td>
+                  </tr>
+                  <!--Args-->
+                  @if (q?.args) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell>Args</td>
+                      <td flowTableBodyCell>{{ q.argsAsString }}</td>
+                    </tr>
+                  }
+                  <!--Kwargs-->
+                  @if (q?.kwargs) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell>Kwargs</td>
+                      <td flowTableBodyCell>
+                        <pre>{{ q.kwargsAsString }}</pre>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <flow-card-header title="Query" />
+              <azco-json-debug-viewer
+                class="inline-block w-full"
+                [text]="q.queryAsString"
+              ></azco-json-debug-viewer>
+              @if (q?.response) {
+                <flow-card-header>Response</flow-card-header>
+              }
+              @if (q?.response) {
+                <azco-json-debug-viewer
+                  class="inline-block w-full"
+                  [text]="q?.responseAsString"
+                ></azco-json-debug-viewer>
+              }
+            </flow-accordion-content>
+          </flow-accordion-panel>
+        }
+      </flow-accordion>
+    </div>
+  } @else {
+    No Opensearch queries found.
+  }
+</az-loading-card>

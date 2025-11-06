@@ -1,0 +1,23 @@
+<az-loading-card
+  [cardTitle]="'Similar ' + hashType"
+  [obs$]="provider$"
+  [help]="help"
+  [isScrollable]="true"
+>
+  @if (provider$ | async; as d) {
+    <az-entity-table
+      [find$]="transformedFind$"
+      [originalSha256]="this.entity.sha256"
+      [tablename]="'Similar ' + hashType"
+      [scroll]="true"
+      [externalPagination]="false"
+    >
+    </az-entity-table>
+  } @else {
+    <p>This file does not have a {{ hashType }}.</p>
+  }
+</az-loading-card>
+
+<ng-template #tplNoSimilar>
+  <p>No similar files found.</p>
+</ng-template>

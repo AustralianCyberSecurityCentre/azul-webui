@@ -1,0 +1,165 @@
+<az-loading-card cardTitle="Similar Features" [obs$]="ready$" [help]="help">
+  @if (similar$ | async; as d) {
+    <div class="flex gap-2">
+      <flow-button [type]="ButtonType.Light" (click)="clickRecalculate()">
+        @if (d.status === "complete") {
+          Recalculate
+        } @else {
+          Refresh
+        }
+      </flow-button>
+
+      @if (d.status === "complete") {
+        <flow-button
+          [type]="selected.length <= 0 ? ButtonType.Disabled : ButtonType.Light"
+          title="Compare Binaries"
+          (click)="clickGo()"
+          class="mb-2"
+        >
+          Compare {{ selected.length + 1 }} Binaries
+        </flow-button>
+
+        <div>
+          <p>
+            Binary had {{ d.num_feature_values }} feature values at time of
+            calculation.
+          </p>
+          <p>Last calculated {{ d.timestamp | since }}.</p>
+        </div>
+      }
+
+      <p>Status: {{ d.status }}</p>
+    </div>
+
+    @if (d.status === "complete") {
+      @if (d.matches.length >= 1) {
+        <div class="overflow-y-auto">
+          <table flowTable class="w-full">
+            <thead flowTableHeader class="sticky top-0">
+              <tr flowTableHeaderRow>
+                <th flowTableHeaderCell>Binary</th>
+                <th flowTableHeaderCell>Same Features</th>
+                <th flowTableHeaderCell>Compare</th>
+                <th flowTableHeaderCell>Match Info</th>
+                <th flowTableHeaderCell>Type</th>
+                <th flowTableHeaderCell>Type (Legacy)</th>
+                <th flowTableHeaderCell>File Size</th>
+                <th flowTableHeaderCell>Magic</th>
+                <th flowTableHeaderCell>Mime</th>
+                <th flowTableHeaderCell>Filename</th>
+              </tr>
+            </thead>
+            <tbody flowTableBody>
+              @for (row of d.matches; track row) {
+                <tr
+                  flowTableBodyRow
+                  [ngClass]="{ '!bg-green-700': selected.includes(row) }"
+                >
+                  <td
+                    flowTableBodyCell
+                    class="limit-hash truncate"
+                    title="View this binary"
+                  >
+                    <a
+                      class="table-link"
+                      [routerLink]="['/pages/binaries/current', row.sha256]"
+                    >
+                      {{ row.sha256 }}
+                    </a>
+                  </td>
+                  <td flowTableBodyCell>
+                    {{ row.score_sum }} ({{ row.score_percent }}%)
+                  </td>
+                  <td flowTableBodyCell class="limit truncate">
+                    <flow-checkbox
+                      class="checked:bg-slate-700 checked:dark:text-blue-300"
+                      (change)="clickRow(row)"
+                      [ngModel]="selected.includes(row)"
+                    />
+                  </td>
+                  <td flowTableBodyCell class="limit truncate">
+                    @for (contrib of row.contributions; track contrib) {
+                      {{ contrib[0] }} ({{ contrib[1] }})
+                    }
+                  </td>
+                  @if (row._localEntitySummary$ | async; as edata) {
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.file_format"
+                    >
+                      {{ edata?.file_format }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.file_format_legacy"
+                    >
+                      {{ edata?.file_format_legacy }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.file_size"
+                    >
+                      {{ edata?.file_size | filesize }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.magic"
+                    >
+                      {{ edata?.magic }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.mime"
+                    >
+                      {{ edata?.mime }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="limit truncate"
+                      [title]="edata?.filenames?.join(' ')"
+                    >
+                      {{ edata?.filenames?.slice(0, 1)?.join("") }}
+                    </td>
+                  } @else {
+                    <ng-container>
+                      <td flowTableBodyCell></td>
+                      <td flowTableBodyCell></td>
+                      <td flowTableBodyCell></td>
+                      <td flowTableBodyCell></td>
+                      <td flowTableBodyCell></td>
+                      <td flowTableBodyCell></td>
+                    </ng-container>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div
+          class="flex h-full w-full flex-col place-content-center place-items-center"
+        >
+          <p>No similar binaries found.</p>
+        </div>
+      }
+    } @else {
+      <div class="m-5 flex place-content-center content-center">
+        <az-loading-indicator></az-loading-indicator>
+      </div>
+    }
+  } @else {
+    <div
+      class="flex h-full w-full flex-col place-content-center place-items-center"
+    >
+      <div class="py-2">Not yet calculated.</div>
+      <flow-button [type]="ButtonType.Light" (click)="clickRecalculate()">
+        Calculate
+      </flow-button>
+    </div>
+  }
+</az-loading-card>

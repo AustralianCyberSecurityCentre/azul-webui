@@ -1,0 +1,46 @@
+<az-loading-card
+  cardTitle="Text Preview"
+  [obs$]="loadingCard$"
+  [help]="help"
+  class="w-full min-w-0"
+>
+  @if ((ready$ | async) !== true) {
+    <div class="flex h-full grow place-content-center place-items-center">
+      <az-loading-indicator />
+    </div>
+  }
+  @if (textData !== null && textData !== undefined) {
+    <div
+      class="flex h-full min-w-0 grow flex-col"
+      [ngClass]="{ hidden: (ready$ | async) !== true }"
+    >
+      <ngx-monaco-editor
+        #editor
+        [options]="editorOptions"
+        [ngModel]="text$ | async"
+        (onInit)="onMonacoInit($event)"
+        class="h-full! min-h-0 grow [&_.editor-container]:h-full!"
+      />
+      <div
+        class="flex place-content-between bg-gray-200 px-4 font-mono text-xs dark:bg-gray-800"
+      >
+        <div class="flex min-w-0 shrink">
+          <p class="line-clamp-1 text-ellipsis">
+            {{ textData.datastream_sha256 }} ({{ textData.size | filesize }})
+          </p>
+        </div>
+        <div class="flex shrink-0 place-content-end gap-4">
+          <div>
+            Ln {{ cursorLine$ | async }}, Col {{ cursorColumn$ | async }}
+          </div>
+          <div>
+            {{ eolType$ | async }}
+          </div>
+          <div>
+            {{ selectedLanguage$ | async }}
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</az-loading-card>

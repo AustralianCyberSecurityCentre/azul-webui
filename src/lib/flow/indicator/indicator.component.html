@@ -1,0 +1,11 @@
+<div class="flex">
+  @for (item of [].constructor(count); track item; let i = $index) {
+    <span
+      class="me-2 flex h-2 w-2 rounded-full bg-gray-200"
+      [ngClass]="{
+        'bg-gray-200': i === current,
+        'bg-gray-900 dark:bg-gray-700': i !== current,
+      }"
+    ></span>
+  }
+</div>

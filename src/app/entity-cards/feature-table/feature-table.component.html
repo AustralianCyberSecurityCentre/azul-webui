@@ -1,0 +1,463 @@
+<az-loading-card
+  [cardTitle]="tablename"
+  [obs$]="boundedFeatures$"
+  [help]="help"
+>
+  <ng-container>
+    <div class="flex h-full flex-col">
+      <div class="flex flex-row-reverse flex-wrap place-content-between gap-2">
+        <div class="mb-2 flex items-center gap-2">
+          <ng-template #filterButton>
+            <flow-tooltip
+              [message]="
+                (caseSensitivity$ | async)
+                  ? 'Case sensitive search'
+                  : 'Case insensitive search'
+              "
+            >
+              <flow-button
+                [type]="
+                  (caseSensitivity$ | async)
+                    ? ButtonType.Dark
+                    : ButtonType.Transparent
+                "
+                [size]="ButtonSize.Tiny"
+                [outline]="false"
+                (click)="toggleCaseSensitivity()"
+              >
+                Aa
+              </flow-button>
+            </flow-tooltip>
+          </ng-template>
+          <flow-input
+            class="max-w-lg grow"
+            id="filter"
+            [formControl]="filterFormControl"
+            placeholder="Filter"
+            [suffixTpl]="filterButton"
+          />
+          <flow-button
+            (click)="searchForSelectedFeatures()"
+            title="Search for binaries with all the selected features"
+            [type]="
+              currentSelectedFeatures().length === 0
+                ? ButtonType.Disabled
+                : ButtonType.Green
+            "
+          >
+            Search Selected
+          </flow-button>
+          <azec-offset-picker
+            [entity]="entity"
+            (extent)="visibleExtent$.next($event)"
+          />
+        </div>
+        <div class="flex grow flex-wrap gap-2">
+          <flow-tooltip
+            message="Toggle features from all plugins"
+            direction="bottom"
+          >
+            <flow-button [type]="ButtonType.Light" (click)="toggleAllPlugins()">
+              All
+            </flow-button>
+          </flow-tooltip>
+          @for (
+            pluginFVCount of pluginFVCounts() | keyvalue;
+            track pluginFVCount
+          ) {
+            <flow-tooltip
+              message="Toggle features from {{ pluginFVCount.key }}"
+              direction="bottom"
+            >
+              <flow-button
+                (click)="toggleButton(pluginFVCount.key)"
+                [type]="
+                  (currentPluginFilter$ | async).includes(pluginFVCount.key)
+                    ? ButtonType.Primary
+                    : ButtonType.Dark
+                "
+              >
+                {{ pluginFVCount.key }}
+                <flow-button-label>{{ pluginFVCount.value }}</flow-button-label>
+              </flow-button>
+            </flow-tooltip>
+          }
+        </div>
+      </div>
+      <div class="py-2">
+        Viewing {{ (displayFeatures$ | async)?.length || 0 | number }} of
+        {{ (boundedFeatures$ | async)?.length || 0 | number }} feature values
+      </div>
+      <div class="min-h-0 w-full overflow-y-auto">
+        <table flowTable #ftable class="w-full table-auto">
+          <thead flowTableHeader class="sticky top-0">
+            <tr flowTableHeaderRow>
+              <th flowTableHeaderCell class="s-expand text-wrap break-words">
+                &nbsp;
+              </th>
+              <th flowTableHeaderCell class="s-expand text-wrap break-words">
+                &nbsp;
+              </th>
+              <th flowTableHeaderCell class="s-feature text-wrap break-words">
+                Feature
+              </th>
+              <th flowTableHeaderCell class="s-entities text-wrap break-words">
+                Binaries
+              </th>
+              <th flowTableHeaderCell class="s-values text-wrap break-words">
+                Value
+              </th>
+              <th flowTableHeaderCell class="s-label text-wrap break-words">
+                Label
+              </th>
+              <th flowTableHeaderCell class="s-tags text-wrap break-words">
+                Tags
+              </th>
+              <th flowTableHeaderCell class="s-location1 text-wrap break-words">
+                Location
+              </th>
+            </tr>
+          </thead>
+          <tbody flowTableBody>
+            <ng-container>
+              @for (
+                row of reduceFeatures$ | async;
+                track trackBy(i, row);
+                let i = $index
+              ) {
+                <!-- hide values if there are already a bunch being displayed for same feature-->
+                @if (
+                  row.distance < 5 || row.shared.max <= 10 || row.shared.showAll
+                ) {
+                  <tr flowTableBodyRow class="group">
+                    <td class="align-top">
+                      <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
+                      <input
+                        type="checkbox"
+                        [checked]="isAlreadyTicked(row.name, row.value)"
+                        (change)="
+                          updateSelectedFeatures($event, row.name, row.value)
+                        "
+                        class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                      />
+                    </td>
+                    <!-- button to toggle visibility of detailed info for current row -->
+                    <td flowTableBodyCell class="s-expand align-top">
+                      <span class="line-clamp-8 text-wrap break-words">
+                        <flow-button
+                          [type]="ButtonType.Transparent"
+                          [size]="ButtonSize.Tiny"
+                          (click)="featureDetailShow(tplFeatureDetail, row)"
+                        >
+                          <fa-icon flowLink [icon]="faPlus" />
+                        </flow-button>
+                      </span>
+                    </td>
+                    <!-- feature name column -->
+                    <td flowTableBodyCell class="s-feature align-top">
+                      <span
+                        [ngClass]="{
+                          'hidden hover:block': !row.showFeatureName,
+                        }"
+                        class="line-clamp-8 text-wrap break-words"
+                        ><flow-tooltip
+                          message="{{ row.name }}"
+                          [copyText]="true"
+                          >{{ row.name }}</flow-tooltip
+                        ></span
+                      >
+                    </td>
+                    <!-- entity count for feature value -->
+                    <td flowTableBodyCell class="s-entities align-top">
+                      <span class="line-clamp-8 text-wrap break-words">
+                        <a
+                          class="table-link"
+                          [routerLink]="['/pages/binaries/explore']"
+                          [queryParams]="{
+                            term:
+                              'features_map.' +
+                              row.name +
+                              ':' +
+                              escapeValue(row.value),
+                          }"
+                        >
+                          <flow-tooltip
+                            message="View binaries with this feature value"
+                          >
+                            {{
+                              row.XBinaries ? (row.XBinaries | number) : "?"
+                            }}</flow-tooltip
+                          >
+                        </a>
+                      </span>
+                    </td>
+                    <!-- value for current feature -->
+                    <td flowTableBodyCell class="s-values align-top">
+                      <span class="line-clamp-8 text-wrap break-words">
+                        <flow-tooltip
+                          message="{{
+                            row.XValueDecoded ? row.XValueDecoded : row.value
+                          }}"
+                          [copyText]="true"
+                        >
+                          {{
+                            row.XValueDecoded ? row.XValueDecoded : row.value
+                          }}</flow-tooltip
+                        >
+                      </span>
+                    </td>
+                    <!-- label for feature value -->
+                    <td flowTableBodyCell class="s-label align-top">
+                      @for (lab of row.label | slice: 0 : 5; track lab) {
+                        <span class="line-clamp-8 text-wrap break-words">
+                          <flow-tooltip message="{{ lab }}" [copyText]="true">
+                            {{ lab }}</flow-tooltip
+                          >
+                        </span>
+                      }
+                      @if (row.label.length > 5) {
+                        <span class="line-clamp-8 text-wrap break-words">
+                          + {{ row.label.length - 5 }} extra labels
+                        </span>
+                      }
+                    </td>
+                    <!-- tags attached to the feature value -->
+                    <td flowTableBodyCell class="s-tags">
+                      <span class="line-clamp-8 text-wrap break-words">
+                        <az-feature-value-tags
+                          [row]="row"
+                          (changed)="newTagAddedToFeature($event)"
+                        ></az-feature-value-tags
+                      ></span>
+                    </td>
+                    <!-- the first offset in file that feature value was extracted -->
+                    <td flowTableBodyCell class="s-location1 align-top">
+                      <span class="line-clamp-8 text-wrap break-words">
+                        @if (row.parts?.location?.length > 0) {
+                          @if (
+                            row.parts?.location[0][0] ===
+                            row.parts?.location[0][1]
+                          ) {
+                            {{ row.parts?.location[0][0] | hex }}
+                          }
+                          @if (
+                            row.parts?.location[0][0] !==
+                            row.parts?.location[0][1]
+                          ) {
+                            {{ row.parts?.location[0][0] | hex }} to
+                            {{ row.parts?.location[0][1] | hex }}
+                          }
+                        }
+                      </span>
+                    </td>
+                  </tr>
+                }
+                @if (row.distance === 4 && row.shared.max > 10) {
+                  <tr flowTableBodyRow>
+                    <td class="align-top"></td>
+                    <td class="s-expand"></td>
+                    <td
+                      class="s-feature text-wrap break-words"
+                      [title]="row.name"
+                    >
+                      <span
+                        [ngClass]="{
+                          'hidden hover:block': !row.showFeatureName,
+                        }"
+                      >
+                        {{ row.name }}
+                      </span>
+                    </td>
+                    <td class="s-entities"></td>
+                    <td class="s-values" colspan="99">
+                      <flow-button
+                        [type]="ButtonType.Transparent"
+                        [size]="ButtonSize.Tiny"
+                        (click)="doExpandRow(row)"
+                      >
+                        +/- {{ row.shared.max - 5 }} rows
+                      </flow-button>
+                    </td>
+                  </tr>
+                }
+              }
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</az-loading-card>
+
+<ng-template #tplFeatureDetail>
+  <flow-card>
+    <flow-card-header [title]="currentRowDetail.name" />
+    <flow-card-body class="block h-[75vh] w-[80vw] overflow-auto">
+      @if (currentRowDetail; as row) {
+        <div class="py-2">
+          <flow-tablist
+            [tabs]="[
+              { name: 'Main', template: tlpFeatureDetailMain },
+              {
+                name: 'Labels',
+                template: tlpFeatureDetailLabels,
+                count: row.label?.length.toString(),
+              },
+            ]"
+          />
+          <ng-template #tlpFeatureDetailMain>
+            <!-- display info vertically as width is limited -->
+            <table flowTable class="w-full">
+              <tbody flowTableBody>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell>Feature</th>
+                  <td flowTableBodyCell class="pl-2">
+                    {{ row.name }}
+                  </td>
+                </tr>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell>Value</th>
+                  <td
+                    flowTableBodyCell
+                    class="large-value line-clamp-8 pl-2 text-wrap break-words"
+                  >
+                    {{ row.value }}
+                  </td>
+                </tr>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell>Type</th>
+                  <td class="pl-2">
+                    {{ row.type }}
+                  </td>
+                </tr>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell>Description</th>
+                  <td class="pl-2">
+                    @if (row.description) {
+                      {{ row.description }}
+                    } @else {
+                      Not available
+                    }
+                  </td>
+                </tr>
+                @if (row.type === "binary") {
+                  <tr flowTableBodyRow>
+                    <th flowTableBodyCell>Base64 Value</th>
+                    <td
+                      flowTableBodyCell
+                      class="large-value line-clamp-8 pl-2 text-wrap break-words"
+                      [title]="row.value"
+                    >
+                      {{ row.value }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <!-- parsed information from feature value properties -->
+            <table flowTable class="w-full">
+              <thead flowTableBody>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell class="pl-2">Part</th>
+                  <th flowTableBodyCell class="pl-2">Value</th>
+                  <th flowTableBodyCell class="pl-2">Binaries</th>
+                </tr>
+              </thead>
+              <tbody flowTableBody class="pt-2">
+                @for (part of row.XPartsBinaries; track part) {
+                  <tr flowTableBodyRow>
+                    <td flowTableBodyCell>
+                      {{ part.part }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="large-value line-clamp-8 pl-2 text-wrap break-words"
+                      [title]="part.value"
+                    >
+                      {{ part.value }}
+                    </td>
+                    <td flowTableBodyCell class="pl-2">
+                      <a
+                        class="table-link"
+                        title="View binaries with this subvalue"
+                        [routerLink]="['/pages/binaries/explore']"
+                        [queryParams]="{
+                          term: encodePartToTerm(part),
+                        }"
+                      >
+                        {{ (part.cb | async | number) || "?" }}
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <!-- author information -->
+            @if (entity.instancesKv$ | async; as instancesKv) {
+              <table flowTable class="w-full">
+                <thead flowTableBody>
+                  <tr flowTableBodyRow>
+                    <th flowTableBodyCell>Authors</th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  @for (aref of row.instances; track aref) {
+                    <tr flowTableBodyRow>
+                      @if (instancesKv.get(aref); as instance) {
+                        <td flowTableBodyCell>
+                          {{
+                            instance.author.category !== "plugin"
+                              ? instance.author.category + " | "
+                              : ""
+                          }}{{ instance.author.name }} |
+                          {{ instance.author.version }}
+                          @if (instance.stream) {
+                            | {{ instance.stream }}
+                          }
+                          <i> &#64; {{ instance.author.security }} </i>
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+            <!-- offsets for feature value -->
+            @if (row.parts?.location?.length > 0) {
+              <table flowTable class="w-full">
+                <thead flowTableBody>
+                  <tr flowTableBodyRow>
+                    <th flowTableBodyCell>Offsets</th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  @for (a of row.parts?.location; track a) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell>
+                        @if (a[0] === a[1]) {
+                          {{ a[0] | hex }}
+                        }
+                        @if (a[0] !== a[1]) {
+                          {{ a[0] | hex }} to {{ a[1] | hex }}
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </ng-template>
+          <ng-template #tlpFeatureDetailLabels>
+            @for (lab of row.label; track lab) {
+              <span class="line-clamp-8 text-wrap break-words" [title]="lab">
+                <flow-tooltip message="{{ lab }}" [copyText]="true">
+                  {{ lab }}</flow-tooltip
+                >
+              </span>
+            }
+          </ng-template>
+        </div>
+      }
+    </flow-card-body>
+  </flow-card>
+</ng-template>

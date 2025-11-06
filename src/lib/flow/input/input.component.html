@@ -1,0 +1,54 @@
+<div [ngClass]="{ relative: !!icon || !!suffixTpl }">
+  @if (icon) {
+    <div
+      class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"
+    >
+      <fa-icon [icon]="icon" />
+    </div>
+  }
+
+  <input
+    #inputElement
+    id="{{ id }}"
+    [type]="fieldType"
+    [placeholder]="placeholder"
+    [required]="required"
+    [attr.aria-autocomplete]="ariaAutocomplete"
+    [ngClass]="{
+      'pl-10': !!icon,
+      'pr-10': !!suffixTpl,
+      'border-red-500 dark:border-red-500': invalid,
+      'border-gray-300 dark:border-gray-600': !invalid,
+      'sm:text-md p-4': fieldSize === 'large',
+      'p-2.5 text-sm': fieldSize === 'medium',
+      'p-2 sm:text-xs': fieldSize === 'small',
+    }"
+    class="bg-azul-50 dark:bg-azul-700 block w-full rounded-lg border text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:text-white dark:placeholder-gray-400 dark:scheme-dark dark:focus:border-blue-500 dark:focus:ring-blue-500"
+    [formControl]="hcd.control"
+    [attr.min]="min"
+    [attr.max]="max"
+    [attr.step]="step"
+    [attr.size]="size"
+    (focus)="inputFocus.emit($event)"
+    (blur)="inputBlur.emit($event)"
+    (focusout)="inputFocusOut.emit($event)"
+    (selectionchange)="inputSelectionChange.emit($event)"
+  />
+
+  @if (suffixTpl) {
+    <div class="absolute inset-y-0 right-0 flex items-center pr-3.5">
+      <ng-container [ngTemplateOutlet]="suffixTpl" />
+    </div>
+  }
+
+  <span
+    [ngClass]="{
+      'text-slate-600 dark:text-slate-400': !invalid && helpText,
+      'text-red-600 dark:text-red-500': invalid && helpText,
+      hidden: !helpText,
+    }"
+    class="mt-2 ml-2 text-xs font-semibold"
+  >
+    {{ helpText }}
+  </span>
+</div>

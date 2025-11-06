@@ -1,0 +1,10 @@
+{
+  "oauth_enabled": false,
+  "motd_hours": 24,
+  "motd_header": "Danger!",
+  "motd_body": "This webui config must be overridden.",
+  "motd_footer": "Close",
+  "deployment_colour": "#ffffff",
+  "deployment_back_colour": "#4287f5",
+  "deployment_text": "Danger!"
+}

@@ -1,0 +1,33 @@
+<div
+  class="border-b-azul-200 dark:border-b-azul-800 flex w-full justify-between border-b px-6 py-4 text-lg"
+>
+  @if (icon || title) {
+    <div class="flex items-center gap-2">
+      @if (title && icon) {
+        <div
+          class="text-azul-800 border-azul-800 dark:text-azul-100 dark:border-azul-100"
+        >
+          <az-text-icon [label]="icon" />
+        </div>
+        <div
+          class="text-md grid place-content-center font-semibold tracking-tight text-gray-900 dark:text-white"
+          [ngClass]="{ scroll: scroll }"
+          [id]="id"
+        >
+          {{ title }}
+        </div>
+      } @else if (title) {
+        <div
+          class="text-md grid place-content-center font-semibold tracking-tight text-gray-900 dark:text-white"
+          [ngClass]="{ scroll: scroll }"
+          [id]="id"
+        >
+          {{ title }}
+        </div>
+      }
+    </div>
+  }
+  <div class="flex gap-2">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+@for (banner of banners$ | async; track banner) {
+  <aside
+    class="bg-azul-400 dark:bg-azul-600 flex px-4 py-2 text-center text-sm text-white"
+  >
+    <div class="grow">
+      <div class="ml-3 text-sm font-normal">
+        <div role="alert" class="text-sm font-normal break-all text-ellipsis">
+          <fa-icon
+            [icon]="faIcons[banner.severity]"
+            size="lg"
+            class="pr-2 text-orange-400"
+          />
+          {{ banner.message }}
+        </div>
+      </div>
+    </div>
+    @if (banner.dismissable) {
+      <div>
+        <button
+          aria-label="Close banner"
+          class="cursor-pointer hover:text-gray-200"
+          (click)="dismissBanner(banner.id)"
+        >
+          <fa-icon [icon]="faXmark" size="lg" />
+        </button>
+      </div>
+    }
+  </aside>
+}

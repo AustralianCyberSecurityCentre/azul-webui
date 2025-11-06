@@ -1,0 +1,212 @@
+@if (target$ | async; as t) {
+  <div id="Top">
+    <div>
+      <ng-container
+        *ngTemplateOutlet="tplMain; context: { target: t }"
+      ></ng-container>
+    </div>
+    <div>
+      <ng-container *ngTemplateOutlet="tplState"></ng-container>
+    </div>
+  </div>
+}
+
+<ng-template #tplMain let-t="target">
+  <flow-card>
+    <flow-card-header title="{{ t.name }} | {{ t.version }}" />
+    <flow-card-body>
+      <az-loading-card [obs$]="plugin$" class="w-full">
+        @if (plugin$ | async; as d) {
+          <div class="flex flex-col gap-2">
+            <p>{{ d.plugin.description || "No description available" }}</p>
+            <p>
+              The point of contact for this plugin is
+              {{ d.plugin.contact || "unknown" }}.
+            </p>
+            <p>
+              <a
+                class="table-link"
+                title="View features produced by this plugin"
+                [routerLink]="['/pages/features/explore']"
+                [queryParams]="{ author: t.name, author_version: t.version }"
+              >
+                <strong
+                  >View
+                  {{ d?.plugin?.features?.length | number }} features</strong
+                >
+              </a>
+              produced by this plugin.
+            </p>
+            <p>
+              <a
+                class="table-link"
+                title="View binaries successfully run with this plugin"
+                [routerLink]="['/pages/binaries/explore']"
+                [queryParams]="{
+                  term:
+                    'author.name:' +
+                    escapeValue(t.name) +
+                    ' author.version:' +
+                    escapeValue(t.version),
+                }"
+              >
+                <strong>View {{ d?.num_entities | number }} binaries</strong>
+              </a>
+              processed by this plugin.
+            </p>
+            @if ((pluginVersions$ | async)?.length > 0) {
+              <p
+                [ngClass]="{
+                  'line-clamp-none': showAllVersions$ | async,
+                  'line-clamp-2': (showAllVersions$ | async) === false,
+                }"
+                (mouseenter)="enterVersions()"
+                (mouseleave)="exitVersions()"
+              >
+                Old Versions:
+                @for (
+                  currentVersion of pluginVersions$ | async;
+                  track currentVersion;
+                  let isLast = $last
+                ) {
+                  <a
+                    class="table-link"
+                    title="View this version"
+                    [routerLink]="[
+                      '/pages/plugins/current',
+                      t.name,
+                      'versions',
+                      currentVersion,
+                    ]"
+                  >
+                    <strong>{{ currentVersion }}</strong>
+                  </a>
+                  @if (!isLast) {
+                    ,&nbsp;
+                  }
+                }
+              </p>
+            }
+            @if ((d.plugin.config | keyvalue)?.length > 0) {
+              <flow-accordion class="overflow-y-auto">
+                <flow-accordion-panel [open]="false">
+                  <flow-accordion-title
+                    >Plugin Configuration</flow-accordion-title
+                  >
+                  <flow-accordion-content>
+                    <table flowTable>
+                      <thead flowTableHeader class="sticky top-0">
+                        <tr flowTableHeaderRow>
+                          <th flowTableHeaderCell>Key</th>
+                          <th flowTableHeaderCell>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody flowTableBody>
+                        @for (kv of d.plugin.config | keyvalue; track kv) {
+                          <tr flowTableBodyRow>
+                            <td flowTableBodyCell>{{ kv.key }}</td>
+                            <td flowTableBodyCell>{{ kv.value }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </flow-accordion-content></flow-accordion-panel
+                ></flow-accordion
+              >
+            }
+          </div>
+        } @else {
+          <p>Plugin not found</p>
+        }
+        <ng-template #tplNoPlugin>
+          <p>Plugin not found</p>
+        </ng-template>
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
+
+<ng-template #tplState>
+  @if (pluginStatus$ | async; as d) {
+    <flow-card>
+      <flow-card-header title="Status" />
+      <flow-card-body>
+        <az-loading-card [obs$]="pluginStatus$" class="w-full">
+          @if (d?.length > 0) {
+            <flow-tablist [tabs]="convertStatusToTabs(d)" />
+          } @else {
+            <p>
+              Looks like the plugin hasn't run recently or does not publish
+              status updates
+            </p>
+          }
+          <ng-template #tplNoStatus>
+            <p>
+              Looks like the plugin hasn't run recently or does not publish
+              status updates
+            </p>
+          </ng-template>
+        </az-loading-card>
+      </flow-card-body>
+    </flow-card>
+  }
+</ng-template>
+
+<ng-template
+  #tplStatusContent
+  [typedTemplate]="statusContentType"
+  let-row="row"
+>
+  <div class="mb-6 text-lg">
+    {{
+      STATUS_DESCRIPTIONS[row.status] ||
+        "This status is missing a description. Please report as a bug."
+    }}
+  </div>
+  <flow-hr />
+  @for (item of row.items; track item) {
+    <div class="flex flex-col gap-2">
+      <p>
+        <a
+          style="font-size: 120%"
+          class="table-link"
+          title="View this binary"
+          [routerLink]="[
+            '/pages/binaries/current',
+            item.entity.input.entity.sha256,
+          ]"
+        >
+          <strong>{{ item.entity.input.entity.sha256 }}</strong> </a
+        ><br />
+      </p>
+      <p [title]="item.timestamp">Processed {{ item.timestamp | since }}</p>
+      @if (item.entitySummary$ | async; as edata) {
+        @if (edata?.exists) {
+          {{ edata.file_format }} | {{ edata.file_size | filesize }} |
+          {{ edata.mime }} | {{ edata.magic }} |
+          {{ edata.filenames?.slice(0, 1)?.join("") }}
+        }
+      } @else {
+        <div>
+          Entity Summary Loading &nbsp;<fa-icon
+            [icon]="faSpinner"
+            animation="spin"
+          />
+        </div>
+      }
+      @if (item.entity.error) {
+        <p>{{ item.entity.error }}</p>
+      }
+      @if (item.entity.message) {
+        <pre style="white-space: pre-wrap">{{ item.entity.message }}</pre>
+      }
+      <flow-hr />
+    </div>
+  }
+</ng-template>
+
+<ng-template #tplNoSummary>
+  <div>
+    Entity Summary Loading &nbsp;<fa-icon [icon]="faSpinner" animation="spin" />
+  </div>
+</ng-template>

@@ -1,0 +1,71 @@
+<h2 class="mb-2 text-lg font-bold dark:text-white">Global Options</h2>
+
+<form [formGroup]="globalForm">
+  <div class="grid grid-cols-2 gap-2" formGroupName="theme">
+    <div>
+      <flow-label for="color-control">Theme</flow-label>
+      <select
+        flowSelect
+        class="w-full"
+        id="color-control"
+        formControlName="color"
+      >
+        <option [value]="darkColorTheme">Dark</option>
+        <option [value]="lightColorTheme">Light</option>
+      </select>
+    </div>
+  </div>
+</form>
+
+<flow-hr />
+
+<h2 class="mb-2 text-lg font-bold dark:text-white">Binary Viewer Options</h2>
+<ng-container>
+  <div class="grid grid-cols-2 gap-2">
+    @if (!bucketToggleDelayActiveSignal()) {
+      <flow-toggle [formControl]="entityBucketSizeForm"
+        >Increase Query Size</flow-toggle
+      >
+    } @else {
+      <div>
+        <div class="h-6">
+          <fa-icon [icon]="faSpinner" animation="spin" /> Increase Query Size
+        </div>
+      </div>
+    }
+    <flow-toggle [formControl]="entityShowDebugInfoForm"
+      >Show Debug Tab</flow-toggle
+    >
+    <flow-label>Debug Editor Height (pixels)</flow-label>
+    <flow-input
+      fieldType="number"
+      [min]="10"
+      [step]="10"
+      [max]="5000"
+      [formControl]="debugEditorHeightPxForm"
+      [size]="5"
+    />
+  </div>
+</ng-container>
+
+<flow-hr />
+
+<h2 class="mb-2 text-lg font-bold dark:text-white">Binary Explorer Options</h2>
+<ng-container>
+  <div class="grid grid-cols-2 gap-2">
+    <flow-toggle [formControl]="formBinaryExploreShowEntropy"
+      >Show Entropy</flow-toggle
+    >
+    <flow-toggle [formControl]="formBinaryExploreShowFileFormatLegacy"
+      >Show Legacy File Format</flow-toggle
+    >
+    <flow-toggle [formControl]="formBinaryExploreShowMimetype"
+      >Show Mimetype</flow-toggle
+    >
+    <flow-toggle [formControl]="formBinaryExploreShowMagic"
+      >Show Magic</flow-toggle
+    >
+  </div>
+</ng-container>
+
+<flow-hr />

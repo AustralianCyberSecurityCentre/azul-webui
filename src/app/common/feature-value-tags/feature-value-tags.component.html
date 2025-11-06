@@ -1,0 +1,57 @@
+@if (row) {
+  <div class="flex justify-center gap-1">
+    <span class="hidden group-hover:block">
+      <flow-button
+        [size]="ButtonSize.Tiny"
+        [type]="ButtonType.Transparent"
+        (click)="openDialog(tplTagsCreate, { data: row })"
+      >
+        <fa-icon [icon]="faPlus" />
+      </flow-button>
+    </span>
+    @for (tag of row.tags; track tag) {
+      <flow-button
+        [size]="ButtonSize.Tiny"
+        [routerLink]="['/pages/features/tags', tag.tag]"
+        [type]="getStatusColour(tag.tag)"
+      >
+        {{ tag.tag }}
+      </flow-button>
+    }
+  </div>
+}
+
+<ng-template #tplTagsCreate let-row>
+  <form
+    [formGroup]="formCreateTag"
+    (ngSubmit)="onCreateFVTagSubmit(row.name, row.value)"
+  >
+    <flow-card>
+      <flow-card-header> {{ row.name }} | {{ row.value }} </flow-card-header>
+      <flow-card-body>
+        <div class="flex flex-col gap-2">
+          Tags are limited to 25 lowercase alphanumeric and '-' only.
+          <flow-input
+            formControlName="tag"
+            placeholder="my-tag-45"
+            pattern="[a-z0-9\-]*$"
+            maxlength="25"
+          />
+          <azco-security-picker
+            (security)="formCreateTag.get('security').patchValue($event)"
+          />
+        </div>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button
+          [submit]="true"
+          [type]="
+            formCreateTag.valid ? ButtonType.Primary : ButtonType.Disabled
+          "
+        >
+          Create
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </form>
+</ng-template>

@@ -1,0 +1,34 @@
+<azco-data-tab-panes
+  class="grow"
+  [tabs$]="tabs$"
+  [preTabTemplateRef]="tplPreTabTemplate"
+/>
+
+<!-- We want these elements in the DOM so that they are persistent -->
+<div class="hidden">
+  <div #tabTemplate key="binaryMeta" class="flex h-full w-full grow">
+    <div class="flex grow p-1">
+      <azco-debug-tab-pane [queries$]="entity.queriesSummary$" class="grow" />
+    </div>
+  </div>
+  @for (query of queries$ | async; track query) {
+    <div
+      #tabTemplate
+      [attr.key]="query.name"
+      class="flex h-full min-h-0 w-full grow"
+    >
+      <azco-debug-tab-query-pane [query$]="query.query$" class="grow" />
+    </div>
+  }
+</div>
+
+<ng-template #tplPreTabTemplate>
+  <flow-button
+    (click)="performQueries()"
+    [fullWidth]="true"
+    [type]="ButtonType.Green"
+    [type]="areExtraQueriesDone ? ButtonType.Disabled : ButtonType.Green"
+  >
+    <fa-icon [icon]="faPlus" /> Extra Queries
+  </flow-button>
+</ng-template>

@@ -1,0 +1,41 @@
+.local-present {
+  background-color: darkgreen;
+}
+
+.local-absent {
+  background-color: darkred;
+}
+
+.local-present:hover {
+  background-color: green;
+}
+
+.local-absent:hover {
+  background-color: red;
+}
+
+.local-no-pad th,
+.local-no-pad td {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.local-entity-list-item {
+  display: inline-block;
+  margin: 0.3em;
+}
+
+.local-left-most-cell {
+  border-right: 1px solid var(--color-basic-700);
+}
+
+tr.local-no-hover:hover {
+  background-color: inherit;
+}
+
+.limit-small {
+  max-width: 8ch;
+}
+.limit-large {
+  max-width: 24ch;
+}

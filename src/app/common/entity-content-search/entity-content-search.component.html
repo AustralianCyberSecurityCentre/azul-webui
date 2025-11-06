@@ -1,0 +1,102 @@
+<div class="relative">
+  <form [formGroup]="searchForm" class="flex gap-1">
+    <div>
+      <select
+        flowSelect
+        id="searchType"
+        formControlName="searchType"
+        fieldSize="small"
+      >
+        <option value="hex">Hex</option>
+        <!-- <nb-option value="strings">Strings</nb-option> -->
+      </select>
+    </div>
+    <div class="grow">
+      <flow-input
+        fieldSize="small"
+        id="searchQuery"
+        formControlName="searchQuery"
+        placeholder="Enter search query"
+        (input)="queryValidator($event)"
+        (keyup.enter)="doSearch()"
+        class="grow"
+      />
+      @if (searchForm.errors && (searchForm.touched || searchForm.dirty)) {
+        <div class="text-xs">
+          &nbsp;
+          @for (item of searchForm.errors | keyvalue; track item) {
+            <span>
+              <b>{{ item.value }}</b>
+            </span>
+          }
+        </div>
+      }
+    </div>
+    <flow-button
+      (click)="doSearch()"
+      [type]="searchForm.valid ? ButtonType.Primary : ButtonType.Disabled"
+      [size]="ButtonSize.Icon"
+      >Search</flow-button
+    >
+  </form>
+  @if (
+    ((results$ | async) || (isLoading$ | async)) &&
+    (hideResults$ | async) !== true
+  ) {
+    <div
+      class="border-azul-800 bg-azul-500 absolute top-full right-0 left-0 z-40 border-x border-b p-1 shadow-lg shadow-black/50"
+    >
+      @if (isLoading$ | async) {
+        <div class="my-16 flex justify-center">
+          <az-loading-indicator></az-loading-indicator>
+        </div>
+      } @else {
+        @if (results$ | async; as d) {
+          <div #resultsDiv tabindex="0" (blur)="hideResults$.next(true)">
+            <table flowTable class="w-full">
+              <thead flowTableHeader>
+                <tr flowTableHeaderRow>
+                  <th flowTableHeaderCell class="w-24">Encoding</th>
+                  <th flowTableHeaderCell class="w-20">Offset</th>
+                  <th flowTableHeaderCell>Value</th>
+                </tr>
+              </thead>
+            </table>
+            <cdk-virtual-scroll-viewport
+              itemSize="29"
+              minBufferPx="1800"
+              maxBufferPx="1800"
+              class="s-tableh"
+              (scrolledIndexChange)="cs.loadMore($event)"
+            >
+              <table flowTable class="w-full">
+                <tbody flowTableBody>
+                  <tr flowTableBodyRow *cdkVirtualFor="let row of d.strings">
+                    <td
+                      flowTableBodyCell
+                      class="w-24 truncate"
+                      [title]="row.encoding"
+                    >
+                      {{ row.encoding }}
+                    </td>
+                    <td
+                      flowTableBodyCell
+                      class="w-20 cursor-pointer truncate font-mono underline"
+                      [title]="row.offset | hex"
+                      (click)="clickAddress(row.offset, row.length)"
+                    >
+                      {{ row.offset | hex }}
+                    </td>
+                    <td flowTableBodyCell class="truncate" [title]="row.string">
+                      {{ row.string }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </cdk-virtual-scroll-viewport>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

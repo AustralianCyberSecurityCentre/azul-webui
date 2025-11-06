@@ -1,0 +1,14 @@
+stages:
+  - build
+
+build:
+  stage: build
+  extends: .kaniko
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+include:
+  - project: "$AUTO_DEVOPS_GROUP/autodevops"
+    ref: master
+    file:
+      - "/build/Kaniko.gitlab-ci.yml"

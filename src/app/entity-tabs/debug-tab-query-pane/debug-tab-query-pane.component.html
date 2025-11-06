@@ -1,0 +1,11 @@
+<az-loading-card cardTitle="Query" [obs$]="queryStringified$" [help]="help">
+  @if (queryStringified$ | async; as qs) {
+    <azco-json-debug-viewer
+      class="inline-block h-full w-full"
+      [text]="qs"
+      [fullHeight]="true"
+    ></azco-json-debug-viewer>
+  } @else {
+    <div class="p-8">No results from query found.</div>
+  }
+</az-loading-card>

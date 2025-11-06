@@ -1,0 +1,181 @@
+@if (panesWithTabs$ | async; as panes) {
+  <as-split
+    unit="percent"
+    direction="horizontal"
+    restrictMove="true"
+    class="w-full dark:[&_.as-split-gutter]:bg-slate-900! [&_.as-split-gutter-icon]:bg-none!"
+    (dragEnd)="resizeEnd($event)"
+    #asSplitElement
+  >
+    <as-split-area
+      [size]="(validatedPaneSizes$ | async)[0]"
+      [maxSize]="20"
+      [minSize]="10"
+      class="text-sm select-none dark:bg-slate-800"
+    >
+      <div class="dark:bg-azul-900 bg-gray-100 p-2">Views</div>
+      @if (preTabTemplateRef) {
+        <div class="dark:bg-azul-900 bg-gray-100 p-2">
+          <ng-container *ngTemplateOutlet="preTabTemplateRef"></ng-container>
+        </div>
+      }
+      <div
+        class="dark:bg-azul-700 bg-white font-medium text-gray-900 dark:text-white"
+      >
+        @for (tab of tabList$ | async; track tab) {
+          <div
+            class="flex w-full cursor-pointer border-b border-gray-200 px-4 py-2 hover:bg-gray-100 hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 focus:outline-hidden dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
+            (click)="openTab(tab.tabId)"
+            (keypress)="openTab(tab.tabId)"
+            tabindex="0"
+          >
+            @if (tab?.betterName$ | async; as betterName) {
+              <div class="line-clamp-1 grow text-ellipsis">
+                {{ betterName }}
+              </div>
+            } @else {
+              <div class="line-clamp-1 grow text-ellipsis">
+                {{ tab.name }}
+              </div>
+            }
+            @if (tab.downloadParent && tab.downloadHash) {
+              <flow-button
+                [type]="
+                  (isDownloading$ | async)
+                    ? ButtonType.Disabled
+                    : ButtonType.Transparent
+                "
+                [size]="ButtonSize.Tiny"
+                (click)="
+                  downloadFile(tab.tabId, tab.downloadParent, tab.downloadHash)
+                "
+              >
+                <fa-icon [icon]="faDownload" />
+                @if (
+                  (isDownloading$ | async) &&
+                  (tabDownloading$ | async) === tab.tabId
+                ) {
+                  {{ (downloading$ | async) || 0 }}%
+                }
+              </flow-button>
+            }
+          </div>
+        }
+      </div>
+    </as-split-area>
+    @if (panes.length === 0) {
+      <as-split-area
+        [size]="(validatedPaneSizes$ | async)[1]"
+        class="select-none"
+      >
+        <div
+          class="flex h-full w-full place-content-center place-items-center opacity-40 grayscale"
+        >
+          <az-loading-indicator [animated]="false" />
+        </div>
+      </as-split-area>
+    }
+    @for (pane of panes; track pane; let paneI = $index) {
+      <as-split-area
+        [minSize]="10"
+        [size]="(validatedPaneSizes$ | async)[paneI + 1]"
+        class="flex flex-col"
+      >
+        @if (pane.tabs.length > 0) {
+          <ul
+            class="flex shrink-0 overflow-x-auto border-b border-gray-200 text-center text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
+          >
+            @for (tab of pane.tabs; track tab; let i = $index) {
+              <li class="ms-2 shrink-0">
+                <div
+                  class="inline-block cursor-pointer rounded-t-lg px-4 py-2 select-none"
+                  [ngClass]="{
+                    'hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300':
+                      i !== pane.selectedTab,
+                    'bg-gray-100 text-blue-600 dark:bg-gray-800 dark:text-blue-500':
+                      i === pane.selectedTab,
+                  }"
+                  (click)="handleTabClick($event, tab.tabId)"
+                  (auxclick)="handleTabClick($event, tab.tabId)"
+                  (contextmenu)="handleTabClick($event, tab.tabId)"
+                  (mousedown)="handleTabMouseDown($event, tab.tabId)"
+                  (dragstart)="handleTabDragStart($event, tab.tabId)"
+                  (dragend)="handleTabDragEnd()"
+                  (keypress)="focusTab(tab.tabId)"
+                  draggable="true"
+                  tabindex="0"
+                  [attr.aria-label]="tab.name"
+                  title="Drag to move/split panes"
+                >
+                  {{ tab.name }}
+                  <div
+                    class="inline-block cursor-pointer px-1 hover:bg-gray-200 dark:hover:bg-gray-900"
+                    (click)="closeTab(tab.tabId)"
+                    (keypress)="closeTab(tab.tabId)"
+                    tabindex="0"
+                  >
+                    <fa-icon [icon]="faXmark" />
+                  </div>
+                </div>
+              </li>
+            }
+          </ul>
+          @for (tab of pane.tabs; track tab; let i = $index) {
+            <div
+              [ngClass]="{
+                flex: i === pane.selectedTab,
+                hidden: i !== pane.selectedTab,
+              }"
+              class="dark:bg-azul-700 relative min-h-0 grow overflow-y-auto text-sm"
+            >
+              <ng-container *cdkPortalOutlet="tab.portal" />
+              @if (showDragOverlay$ | async) {
+                <div
+                  class="absolute top-0 right-0 bottom-0 left-0 z-50 m-2 flex gap-2 text-base"
+                >
+                  <div
+                    class="flex grow flex-col place-content-center place-items-center"
+                    [ngClass]="{
+                      'bg-green-300/40':
+                        (hoveredTab$ | async) === pane.absIndex &&
+                        (hoveredTabIndex$ | async) === 0,
+                      'bg-green-300/20':
+                        (hoveredTab$ | async) !== pane.absIndex ||
+                        (hoveredTabIndex$ | async) !== 0,
+                    }"
+                    (dragover)="handleDragOver($event, pane.absIndex, false)"
+                    (dragleave)="handleDragOut()"
+                    (drop)="handleDrop($event, pane.absIndex, false)"
+                  >
+                    <p>Drop a tab here to move to this pane.</p>
+                    @if ((canAddPanes$ | async) === false) {
+                      <p>(Screen too small to split the pane side-by-side)</p>
+                    }
+                  </div>
+                  @if ((canAddPanes$ | async) && pane.tabs.length > 1) {
+                    <div
+                      class="flex grow place-content-center place-items-center"
+                      [ngClass]="{
+                        'bg-green-300/40':
+                          (hoveredTab$ | async) === pane.absIndex &&
+                          (hoveredTabIndex$ | async) === 1,
+                        'bg-green-300/20':
+                          (hoveredTab$ | async) !== pane.absIndex ||
+                          (hoveredTabIndex$ | async) !== 1,
+                      }"
+                      (dragover)="handleDragOver($event, pane.absIndex, true)"
+                      (dragleave)="handleDragOut()"
+                      (drop)="handleDrop($event, pane.absIndex, true)"
+                    >
+                      Create a new pane with this tab.
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      </as-split-area>
+    }
+  </as-split>
+}

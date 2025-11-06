@@ -1,0 +1,222 @@
+<az-loading-card cardTitle="Status" [obs$]="combinedStatuses$" [help]="help">
+  <div class="h-full">
+    <ng-template #tplNoStatus> No status information available </ng-template>
+    @if (combinedStatuses$ | async; as d) {
+      <div class="h-full overflow-y-auto">
+        <table flowTable class="w-full">
+          <thead flowTableHeader class="sticky top-0">
+            <tr flowTableHeaderRow>
+              <th flowTableHeaderCell>Detail</th>
+              <th flowTableHeaderCell>Author</th>
+              <th flowTableHeaderCell>Version</th>
+              <th flowTableHeaderCell>
+                <az-hover-textable
+                  message="The current state of plugin execution for the binary."
+                  >Status</az-hover-textable
+                >
+              </th>
+              <th flowTableHeaderCell>Runs</th>
+              <th flowTableHeaderCell>Time</th>
+              <th flowTableHeaderCell>Runtime</th>
+              <th flowTableHeaderCell>Event Type</th>
+              <th flowTableHeaderCell>Features</th>
+              <th flowTableHeaderCell>Security</th>
+            </tr>
+          </thead>
+          <tbody flowTableBody>
+            @for (pluginEntry of d | keyvalue; track pluginEntry) {
+              @for (
+                versionEntry of pluginEntry.value | keyvalue;
+                track versionEntry;
+                let versionIndex = $index
+              ) {
+                @for (
+                  featureEvent of versionEntry.value.featureEvents;
+                  track featureEvent;
+                  let featureIndex = $index
+                ) {
+                  <tr
+                    flowTableBodyRow
+                    [ngClass]="{
+                      errored:
+                        versionEntry.value.status?.entity.status ===
+                        'exception',
+                    }"
+                  >
+                    @if (
+                      featureIndex === 0 &&
+                      versionEntry.value.status?.entity?.status !==
+                        "completed" &&
+                      versionEntry.value.status?.entity?.status !==
+                        "completed-empty" &&
+                      versionEntry.value.status?.entity?.status !== "queued" &&
+                      versionEntry?.value?.status
+                    ) {
+                      <td flowTableBodyCell>
+                        <flow-button
+                          [size]="ButtonSize.Tiny"
+                          [type]="ButtonType.Transparent"
+                          (click)="
+                            openDialog(tplDetailedCard, {
+                              data: versionEntry.value.status,
+                            })
+                          "
+                        >
+                          <flow-tooltip message="More details">
+                            <fa-icon [icon]="faInfoCircle" size="lg" />
+                          </flow-tooltip>
+                        </flow-button>
+                      </td>
+                    } @else {
+                      <td>&nbsp;</td>
+                    }
+                    <!-- Display author names in the first row even where multiple versions/feature events exist -->
+                    @if (featureIndex === 0) {
+                      <td flowTableBodyCell>
+                        @if (versionEntry.value.author.category !== "plugin") {
+                          {{ versionEntry.value.author.category }}
+                          |
+                        }
+                        <flow-tooltip
+                          message="{{ versionEntry.value.author.name }}"
+                          [copyText]="true"
+                        >
+                          {{ versionEntry.value.author.name }}
+                        </flow-tooltip>
+                      </td>
+                    } @else {
+                      <td>&nbsp;</td>
+                    }
+                    <!-- Only display new versions in the first row where multiple feature events exist -->
+                    @if (featureIndex === 0) {
+                      <td flowTableBodyCell>
+                        <flow-tooltip
+                          message="{{ versionEntry.value.author.version }}"
+                          [copyText]="true"
+                        >
+                          {{ versionEntry.value.author.version }}
+                        </flow-tooltip>
+                      </td>
+                    } @else {
+                      <td>&nbsp;</td>
+                    }
+                    <!-- Not all files will have status entries: -->
+                    @if (versionEntry.value.status) {
+                      <td flowTableBodyCell class="truncate">
+                        <az-hover-textable
+                          [message]="
+                            STATUS_DESCRIPTIONS[
+                              versionEntry.value.status.entity.status
+                            ] ||
+                            'This status is missing a description. Please report as a bug.'
+                          "
+                          >{{
+                            versionEntry.value.status.entity.status
+                          }}</az-hover-textable
+                        >
+                      </td>
+                      <td flowTableBodyCell class="truncate text-center">
+                        {{ versionEntry.value.status.completed }}
+                      </td>
+                      <td flowTableBodyCell class="truncate">
+                        <flow-tooltip
+                          message="{{ versionEntry.value.status.timestamp }}"
+                        >
+                          {{
+                            versionEntry.value.status.timestamp | since
+                          }}</flow-tooltip
+                        >
+                      </td>
+                      <td flowTableBodyCell class="truncate text-center">
+                        {{
+                          versionEntry.value.status.entity.runtime
+                            | friendlyTime
+                        }}
+                      </td>
+                    } @else {
+                      <td colspan="4">&nbsp;</td>
+                    }
+                    @if (featureEvent) {
+                      <td flowTableBodyCell>
+                        {{ ACTION_NAMES[featureEvent.action] }}
+                      </td>
+                    } @else {
+                      <td>&nbsp;</td>
+                    }
+                    @if (featureEvent) {
+                      <td flowTableBodyCell>
+                        {{ featureEvent.num_feature_values | number }}
+                      </td>
+                    } @else {
+                      <td>&nbsp;</td>
+                    }
+                    <td flowTableBodyCell class="truncate">
+                      <flow-tooltip
+                        message="{{ versionEntry.value.classification }}"
+                        [copyText]="true"
+                      >
+                        {{ versionEntry.value.classification }}
+                      </flow-tooltip>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</az-loading-card>
+
+<ng-template #tplDetailedCard let-row>
+  <flow-card>
+    <flow-card-header
+      title="{{ row.author?.name }} | {{ row.author?.version }}"
+    />
+    <flow-card-body>
+      <table flowTable>
+        <tbody flowTableBody>
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Status</th>
+            <td flowTableBodyCell>
+              {{ row.entity.status }}
+            </td>
+          </tr>
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Runtime</th>
+            <td flowTableBodyCell>{{ row.entity.runtime | number }}s</td>
+          </tr>
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Timestamp</th>
+            <td flowTableBodyCell [title]="row.timestamp">
+              {{ row.timestamp | since }}
+            </td>
+          </tr>
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Completed Executions</th>
+            <td flowTableBodyCell>
+              {{ row.completed | number }}
+            </td>
+          </tr>
+          @if (row.entity?.error) {
+            <tr>
+              <th flowTableBodyCell [rowHeader]="true">Error</th>
+              <td flowTableBodyCell>
+                <pre>{{ row.entity.error }}</pre>
+              </td>
+            </tr>
+          }
+          @if (row.entity?.message) {
+            <tr>
+              <th flowTableBodyCell [rowHeader]="true">Message</th>
+              <td flowTableBodyCell>
+                <pre>{{ row.entity.message }}</pre>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </flow-card-body>
+  </flow-card>
+</ng-template>

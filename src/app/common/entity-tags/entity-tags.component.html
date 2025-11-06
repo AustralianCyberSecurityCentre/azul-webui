@@ -1,0 +1,86 @@
+<div class="flex flex-wrap gap-2">
+  @if (addTag) {
+    <flow-button
+      [type]="ButtonType.Light"
+      [size]="ButtonSize.Icon"
+      (click)="openDialog(tplTagsCreate)"
+    >
+      Add tag
+    </flow-button>
+  }
+  @if (tags; as d) {
+    @for (row of d; track row) {
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [title]="row.owner + ' - ' + (row.timestamp | since)"
+        [type]="getColour(row.tag)"
+        (click)="openDialog(tplTagsInspect, { data: row })"
+      >
+        {{ row.tag
+        }}{{ row.num_entities > 0 ? " (" + row.num_entities + ")" : "" }}
+      </flow-button>
+    }
+  }
+</div>
+
+<ng-template #tplTagsCreate>
+  <form [formGroup]="formCreateTag" (ngSubmit)="onCreateEntityTagSubmit()">
+    <flow-card>
+      <flow-card-body>
+        <div class="flex flex-col gap-2">
+          Tags are limited to 25 lowercase alphanumeric and '-' only.
+
+          <flow-input
+            formControlName="tag"
+            placeholder="my-tag-45"
+            pattern="[a-z0-9\-]*$"
+            maxlength="25"
+          />
+          <azco-security-picker
+            style="width: 100%"
+            (security)="formCreateTag.get('security').patchValue($event)"
+          ></azco-security-picker>
+        </div>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button
+          [submit]="true"
+          [type]="
+            formCreateTag.valid ? ButtonType.Primary : ButtonType.Disabled
+          "
+        >
+          Create
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </form>
+</ng-template>
+
+<ng-template #tplTagsInspect let-tag>
+  <flow-card>
+    <flow-card-header title="Tag '{{ tag.tag }}'" />
+    <flow-card-body>
+      Author: {{ tag.owner }} <br />
+      Timestamp: {{ tag.timestamp }} |
+      <span [title]="tag.timestamp">{{ tag.timestamp | since }}</span> <br />
+      Security: {{ tag.security }}
+    </flow-card-body>
+    <flow-card-footer>
+      <flow-button
+        [routerLink]="['/pages/binaries/explore']"
+        [queryParams]="{
+          term: 'binary.tag:' + escapeValue(tag.tag),
+        }"
+        (click)="dialog.close()"
+      >
+        View {{ tag.num_entities }} binaries
+      </flow-button>
+      <flow-button
+        [type]="ButtonType.Danger"
+        (click)="onDeleteEntityTag(tag.tag)"
+      >
+        Remove
+      </flow-button>
+    </flow-card-footer>
+  </flow-card>
+</ng-template>

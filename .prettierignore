@@ -1,0 +1,4 @@
+devops/
+.tox/
+.angular/
+node_modules/

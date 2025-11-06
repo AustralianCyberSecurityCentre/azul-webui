@@ -1,0 +1,125 @@
+<form [formGroup]="formCustom" (ngSubmit)="onSubmit()">
+  <div class="flex flex-wrap gap-2">
+    <div class="mx-1">
+      <p>{{ settings.labels.classification.title }}</p>
+      <select
+        flowSelect
+        formControlName="classification"
+        multiple
+        size="8"
+        [noRightPadding]="true"
+        class="rounded-xs pr-0"
+      >
+        <option value="" class="py-2 pr-14 pl-4">-</option>
+        @for (opt of settings.labels.classification.options; track opt) {
+          <option class="py-2 pr-14 pl-4" [value]="opt.name">
+            {{ opt.name }}
+          </option>
+        }
+      </select>
+    </div>
+    @if (settings.labels.caveat.options.length > 0) {
+      <div class="mx-1">
+        <p>{{ settings.labels.caveat.title }}</p>
+        <select
+          flowSelect
+          formControlName="caveat"
+          multiple
+          size="8"
+          [noRightPadding]="true"
+          class="rounded-xs pr-0"
+        >
+          <option value="" class="py-2 pr-14 pl-4">-</option>
+          @for (opt of settings.labels.caveat.options; track opt) {
+            <option class="py-2 pr-14 pl-4" [value]="opt.name">
+              {{ opt.name }}
+            </option>
+          }
+        </select>
+      </div>
+    }
+    @if (settings.labels.releasability.options.length > 0) {
+      <div class="mx-1">
+        <p>{{ settings.labels.releasability.title }}</p>
+        <select
+          flowSelect
+          formControlName="releasability"
+          multiple
+          size="8"
+          [noRightPadding]="true"
+          class="rounded-xs pr-0"
+          (change)="ensureReleasabilityOriginIsSelected()"
+        >
+          <option value="" class="py-2 pr-14 pl-4">-</option>
+          @for (opt of settings.labels.releasability.options; track opt) {
+            <option class="py-2 pr-14 pl-4" [value]="opt.name">
+              {{ opt.name }}
+            </option>
+          }
+        </select>
+      </div>
+    }
+    @if (settings.labels.tlp.options.length > 0) {
+      <div class="mx-1">
+        <p>{{ settings.labels.tlp.title }}</p>
+        <select
+          flowSelect
+          formControlName="tlp"
+          multiple
+          size="8"
+          [noRightPadding]="true"
+          class="rounded-xs pr-0"
+        >
+          <option value="" class="py-2 pr-14 pl-4">-</option>
+          @for (opt of settings.labels.tlp.options; track opt) {
+            <option class="py-2 pr-14 pl-4" [value]="opt.name">
+              {{ opt.name }}
+            </option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+  <div class="mt-2 ml-1">
+    <p class="text-gray-400">
+      Select multiple options using <b>CTRL + left click</b>.
+    </p>
+  </div>
+  @if (currentWarningMessage) {
+    <flow-alert alertType="warning" [withinCard]="true" class="mt-4">
+      {{ currentWarningMessage }}
+    </flow-alert>
+  }
+  <div class="flex justify-between pt-6">
+    <div role="group">
+      <flow-label class="inline-flex" [noPadding]="true">Select</flow-label>
+      <br />
+      <flow-button
+        [size]="ButtonSize.Small"
+        [type]="ButtonType.Dark"
+        (click)="updateSecurityForm(true)"
+        class="mr-1"
+        ><fa-icon [icon]="faCheckDouble" /> All</flow-button
+      >
+      <flow-button
+        [size]="ButtonSize.Small"
+        [type]="ButtonType.Dark"
+        (click)="updateSecurityForm(false)"
+        ><fa-icon [icon]="faSquareMinus" class="pr-1" />None</flow-button
+      >
+    </div>
+    <div role="group">
+      <flow-label class="inline-flex" [noPadding]="true">Confirm</flow-label>
+      <br />
+      <flow-button [size]="ButtonSize.Small" [submit]="true" class="pr-1"
+        >Set</flow-button
+      >
+      <flow-button
+        [type]="ButtonType.Danger"
+        [size]="ButtonSize.Small"
+        (click)="updateSecurityForm(true); onSubmit()"
+        >Reset</flow-button
+      >
+    </div>
+  </div>
+</form>

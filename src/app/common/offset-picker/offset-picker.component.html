@@ -1,0 +1,48 @@
+<div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+  <flow-button
+    [type]="
+      (isOpen$ | async)
+        ? ButtonType.Dark
+        : (boundaryBytes$ | async).x1 >= 0
+          ? ButtonType.Primary
+          : ButtonType.Light
+    "
+    (click)="isOpen$.next(!isOpen$.value)"
+  >
+    Offset...
+  </flow-button>
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen$ | async"
+>
+  <div
+    class="bg-azul-50 dark:bg-azul-600 mt-1 border border-slate-700 p-1 text-black shadow-md shadow-black/50 dark:text-white"
+  >
+    <span>Click and drag to inspect part of the file</span>
+    <div class="w-full min-w-96 px-2">
+      <div #offsetDIV class="w-full">
+        <svg #offsetSVG class="main-svg" width="100%" height="200px"></svg>
+      </div>
+    </div>
+    <div>
+      <span
+        >{{ (features$ | async)?.length }} features over
+        {{ fileSize$ | async }} bytes</span
+      >
+      @if (boundaryBytes$ | async; as boundary) {
+        @if (boundary.x1 >= 0 && boundary.x2 >= 0) {
+          <span>
+            <br />
+            Selected: {{ boundary.x1 | hex }} to {{ boundary.x2 | hex }}
+            <flow-button [size]="ButtonSize.Icon" (click)="resetBoundary()"
+              >Clear</flow-button
+            >
+          </span>
+        }
+      }
+    </div>
+  </div>
+</ng-template>

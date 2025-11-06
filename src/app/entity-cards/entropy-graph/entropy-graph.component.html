@@ -1,0 +1,32 @@
+<az-loading-card
+  cardTitle="Entropy"
+  [obs$]="entity?.entropy$"
+  [help]="help"
+  [tplTopRight]="tplControls"
+>
+  <div class="w-full px-1">
+    <azco-entropy
+      #entropy
+      [rawEntropy$]="entity?.entropy$"
+      [height]="height"
+      [showLevels$]="showGraphLevels$"
+    ></azco-entropy>
+  </div>
+  <!-- Average Entropy: {{(entity?.entropy$ | async)?.overall.toPrecision(3)}} -->
+</az-loading-card>
+
+<ng-template #tplControls>
+  <!--Change message based on current state of toggle.-->
+  <flow-tooltip
+    message="{{ (showGraphLevels$ | async) ? 'Hide' : 'Show' }} Levels"
+  >
+    <flow-button
+      [size]="ButtonSize.Icon"
+      [type]="(showGraphLevels$ | async) ? ButtonType.Light : ButtonType.Dark"
+      noPadding="true"
+      (click)="hideLevelToggle()"
+    >
+      <fa-icon [icon]="faEye" />
+    </flow-button>
+  </flow-tooltip>
+</ng-template>

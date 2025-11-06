@@ -1,0 +1,92 @@
+<div>
+  <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
+  @if (!noSearch) {
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  }
+  @if (pageEstimateBinaries > 50) {
+    <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
+  }
+</div>
+<ng-template #tplResult>
+  <flow-card class="w-full">
+    <flow-card-body>
+      <az-entity-table
+        [find$]="find$"
+        [externalPagination]="true"
+        [originalSha256]="originalSha256"
+        [eType]="eType"
+        class="w-full"
+      ></az-entity-table>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
+
+<ng-template #tplPaginate>
+  @if (pageEstimateBinaries > 0) {
+    <flow-card class="w-full">
+      <flow-card-body>
+        <ng-container>
+          @if (pageEstimateBinaries > 50) {
+            <div class="flex justify-center gap-2">
+              <p class="py-2">
+                Showing {{ pageCurrentPage * pageDisplayBinaries + 1 }} to
+                {{
+                  pageCurrentPage * pageDisplayBinaries + pageCurrentBinaries
+                }}
+                of {{ pageEstimateBinaries }}
+                @if (eType !== undefined) {
+                  @if (eType === "parents") {
+                    parent
+                  }
+                  @if (eType === "children") {
+                    child
+                  }
+                }
+                binaries<br />
+              </p>
+            </div>
+            <div class="flex justify-center gap-2">
+              <flow-button
+                [type]="
+                  pageCurrentPage === 0 || pageLoading === true
+                    ? ButtonType.Disabled
+                    : ButtonType.Light
+                "
+                (click)="switchPage(pageCurrentPage - 1)"
+              >
+                <fa-icon [icon]="faBackwardStep" size="lg" />
+              </flow-button>
+              <flow-button
+                [type]="
+                  pageLoading === true || pageCurrentPage === pageMax
+                    ? ButtonType.Disabled
+                    : ButtonType.Light
+                "
+                (click)="switchPage(pageCurrentPage + 1)"
+              >
+                <fa-icon [icon]="faForwardStep" size="lg" />
+              </flow-button>
+            </div>
+          } @else {
+            Showing {{ pageCurrentBinaries }}
+            @if (eType !== undefined) {
+              @if (eType === "parents") {
+                parent
+              }
+              @if (eType === "children") {
+                child
+              }
+            }
+
+            @if (pageCurrentBinaries === 1) {
+              binary
+            } @else {
+              binaries
+            }
+            <br />
+          }
+        </ng-container>
+      </flow-card-body>
+    </flow-card>
+  }
+</ng-template>

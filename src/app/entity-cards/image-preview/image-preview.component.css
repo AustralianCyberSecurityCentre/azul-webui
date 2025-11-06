@@ -1,0 +1,5 @@
+.image-background {
+  /* https://stackoverflow.com/questions/35361986/css-gradient-checkerboard-pattern */
+  background: repeating-conic-gradient(#808080 0% 25%, white 0% 50%) 50% / 20px
+    20px;
+}

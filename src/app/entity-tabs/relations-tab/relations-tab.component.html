@@ -1,0 +1,44 @@
+<div class="flex h-full w-full grow flex-col">
+  <div class="min-h-0 w-full grow overflow-auto p-8 text-sm">
+    @switch (activeTab$ | async) {
+      @case (0) {
+        <azec-similar [entity]="entity" />
+      }
+      @case (1) {
+        <azec-similarfuzzyhash [entity]="entity" hashType="ssdeep" />
+      }
+      @case (2) {
+        <azec-similarfuzzyhash [entity]="entity" hashType="tlsh" />
+      }
+      @case (3) {
+        <azec-family [entity]="entity" [isParent]="true" />
+      }
+      @case (4) {
+        <azec-family [entity]="entity" [isParent]="false" />
+      }
+      @case (5) {
+        <azec-source-table [entity]="entity" />
+      }
+    }
+  </div>
+
+  <div
+    class="bg-azul-100/80 dark:bg-azul-600/80 flex h-10 w-full items-center justify-center gap-4 font-light select-none"
+  >
+    @for (tab of tabs; track tab) {
+      <a
+        [ngClass]="{
+          'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
+            (activeTab$ | async) !== tab.key,
+          'bg-azul-200 dark:bg-azul-400': (activeTab$ | async) === tab.key,
+        }"
+        class="flex h-10 px-4 py-2"
+        (click)="activeTab$.next(tab.key)"
+        (keypress)="activeTab$.next(tab.key)"
+        tabindex="0"
+      >
+        {{ tab.name }}
+      </a>
+    }
+  </div>
+</div>
