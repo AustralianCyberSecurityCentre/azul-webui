@@ -101,7 +101,7 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
   private previousPage?: Navigation;
 
   constructor() {
-    this.previousPage = this.router.getCurrentNavigation()?.previousNavigation;
+    this.previousPage = this.router.currentNavigation()?.previousNavigation;
   }
 
   ngOnInit() {
