@@ -14,13 +14,6 @@
     "e2e": "npx playwright test"
   },
   "private": true,
-  "//": "Override required because ngx-monaco-editor-v2 doesn't specify angular 20.x just angular 20.0.0",
-  "overrides": {
-    "ngx-monaco-editor-v2": {
-      "@angular/common": "20.1.6",
-      "@angular/core": "20.1.6"
-    }
-  },
   "dependencies": {
     "@angular/animations": "^20.1.6",
     "@angular/cdk": "^20.1.5",
