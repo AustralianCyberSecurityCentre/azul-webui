@@ -15,7 +15,7 @@ test("Navigate To Explore", async ({ page }) => {
   // Click the get started link.
   await expect(
     page.getByText("Discover, analyse and correlate malware at scale."),
-  ).toBeVisible({timeout: 10000});
+  ).toBeVisible();
 
   // Open binary explore (first the menu then the specific item.)
   await openTab(page, "Binaries", "Explore");

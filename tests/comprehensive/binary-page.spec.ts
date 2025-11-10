@@ -1,7 +1,8 @@
 import { expect } from "@playwright/test";
-import fs from "node:fs";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
 import {
+  ENTROPY_TIMEOUT,
   generateFileName,
   generatePNG,
   OPENSEARCH_TIMEOUT,
@@ -130,7 +131,9 @@ test("Test Relations Tab", async ({ page, binary: _binary }) => {
 test("Test Status Tab", async ({ page, binary: _binary }) => {
   await page.getByRole("link", { name: "Status" }).click();
 
-  await expect(page.getByRole("cell", { name: "Entropy" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Entropy" })).toBeVisible({
+    timeout: ENTROPY_TIMEOUT,
+  });
 });
 
 test("Test Debug Tab", async ({ page, binary: _binary }) => {
@@ -148,11 +151,7 @@ test("Test Debug Tab", async ({ page, binary: _binary }) => {
 
   await page.getByRole("link", { name: "Debug" }).click();
 
-  await page.getByRole("button", { name: "New Query Tab" }).click();
-
-  await page.locator("#inputEventType").selectOption([{ label: "sourced" }]);
-
-  await page.getByRole("button", { name: "Add" }).click();
+  await page.getByRole("button", { name: "Extra Queries" }).click();
 
   // This file should only ever be uploaded once
   await expect(page.getByText("sourced (1)")).toBeVisible();
