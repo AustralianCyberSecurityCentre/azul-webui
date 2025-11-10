@@ -6,6 +6,8 @@ import { encode } from "upng-js";
 export const OPENSEARCH_TIMEOUT = 15000;
 export const PLUGIN_TIMEOUT = 90000;
 export const PURGE_TIMEOUT = 60000;
+// Entropy can take a bit longer depending on opensearch
+export const ENTROPY_TIMEOUT = 10000;
 const UPLOAD_TIMEOUT = 15000;
 
 /**
