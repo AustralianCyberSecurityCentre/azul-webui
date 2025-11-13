@@ -108,6 +108,13 @@
         ><fa-icon [icon]="faSquareMinus" class="pr-1" />None</flow-button
       >
     </div>
+    <div class="flex items-center">
+      <span class="mr-2">Only show documents with the selected REL's</span>
+      <flow-toggle
+        formControlName="andSearch"
+        (change)="updateLocalStorage()"
+      ></flow-toggle>
+    </div>
     <div role="group">
       <flow-label class="inline-flex" [noPadding]="true">Confirm</flow-label>
       <br />
