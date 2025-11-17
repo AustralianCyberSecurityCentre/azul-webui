@@ -75,7 +75,7 @@
         </div>
       </as-split-area>
     }
-    @for (pane of panes; track pane; let paneI = $index) {
+    @for (pane of panes; track pane.absIndex; let paneI = $index) {
       <as-split-area
         [minSize]="10"
         [size]="(validatedPaneSizes$ | async)[paneI + 1]"
