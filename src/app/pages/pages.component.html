@@ -475,7 +475,7 @@
 
 <ng-template #menuList let-content="content" let-useGrid="useGrid">
   <div [ngClass]="{ 'm-4 grid grid-cols-3 gap-4': useGrid }" role="tabpanel">
-    @for (row of content; track row) {
+    @for (row of content; track row?.link) {
       <ng-container
         *ngTemplateOutlet="menuItem; context: { row: row, useGrid: useGrid }"
       />
