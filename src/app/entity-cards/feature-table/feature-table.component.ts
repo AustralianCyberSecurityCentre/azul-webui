@@ -426,8 +426,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.rereduceFeatures$.next(true);
   }
 
-  trackBy(i, feat: ShowFeature) {
-    return (feat.name, feat.value, feat.type);
+  trackBy(idx: number, feat: ShowFeature) {
+    return idx.toString() + feat.name + feat.value + feat.type;
   }
 
   protected toggleCaseSensitivity() {

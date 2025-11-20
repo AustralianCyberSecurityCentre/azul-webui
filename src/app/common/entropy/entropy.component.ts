@@ -97,6 +97,24 @@ export class EntropyComponent {
       overlayX: "start",
       overlayY: "bottom",
     },
+    // If origin is at the right edge, align the tooltip's right edge to the bar's right edge (tooltip grows leftward)
+    {
+      offsetX: 0,
+      offsetY: 0,
+      originX: "end",
+      originY: "bottom",
+      overlayX: "end",
+      overlayY: "top",
+    },
+    // If the bar is at the right edge and there is no room below, have the tooltip grow leftward and upward
+    {
+      offsetX: 0,
+      offsetY: 0,
+      originX: "end",
+      originY: "top",
+      overlayX: "end",
+      overlayY: "bottom",
+    },
   ];
 
   @Input() minBytes: number = 0;
