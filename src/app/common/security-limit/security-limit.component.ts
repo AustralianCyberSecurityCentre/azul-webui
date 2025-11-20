@@ -35,7 +35,7 @@ export type FormControls = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SecurityLimitComponent implements OnInit {
+export class SecurityLimitComponent {
   securityService = inject(SecurityService);
   api = inject(ApiService);
   changeDetectorRef = inject(ChangeDetectorRef);
@@ -48,17 +48,12 @@ export class SecurityLimitComponent implements OnInit {
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
 
-  ngOnInit(): void {
-    const relBool = this.api.getRelFilterOption() === "true";
-    this.formCustom.get("andSearch")?.setValue(relBool);
-  }
-
   formCustom: FormGroup = new FormGroup<FormControls>({
     classification: new FormControl(null, Validators.required),
     caveat: new FormControl(null),
     releasability: new FormControl(null),
     tlp: new FormControl(null),
-    andSearch: new FormControl(null),
+    andSearch: new FormControl(this.api.getRelFilterOption() === "true"),
   });
 
   allGroups: {
