@@ -802,7 +802,7 @@ export class ApiService {
   entityReadMain(
     sha256: string,
     query: paths["/api/v0/binaries/{sha256}"]["get"]["parameters"]["query"] = {},
-  ): Observable<components["schemas"]["BinaryMetadata__"] | undefined> {
+  ): Observable<components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__"] | undefined> {
     return this.getOperation("/api/v0/binaries/{sha256}", query, {
       sha256,
     }).pipe(
@@ -966,7 +966,7 @@ export class ApiService {
     term: string,
     offset: number,
   ): Observable<
-    | components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"]["data"]
+    | components["schemas"]["Response_typing.Annotated_typing.Union_azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"]["data"]
     | undefined
   > {
     return this.getOperation("/api/v0/binaries/autocomplete", {
@@ -983,7 +983,7 @@ export class ApiService {
     items: string[],
     params: paths["/api/v0/features/values/counts"]["post"]["parameters"]["query"] = {},
   ): Observable<
-    | components["schemas"]["Response_str_FeatureMulticountRet_"]["data"]
+    | components["schemas"]["Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_"]["data"]
     | undefined
   > {
     return this.postOperation(
@@ -1001,7 +1001,7 @@ export class ApiService {
     items: string[],
     params: paths["/api/v0/features/entities/counts"]["post"]["parameters"]["query"] = {},
   ): Observable<
-    | components["schemas"]["Response_str_FeatureMulticountRet_"]["data"]
+    | components["schemas"]["Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_"]["data"]
     | undefined
   > {
     return this.postOperation(
@@ -1019,7 +1019,7 @@ export class ApiService {
     items: components["schemas"]["ValueCountItem"][],
     params: paths["/api/v0/features/values/entities/counts"]["post"]["parameters"]["query"] = {},
   ): Observable<
-    | components["schemas"]["Response_str__dict_str_ValueCountRet__"]["data"]
+    | components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValueCountRet__"]["data"]
     | undefined
   > {
     return this.postOperation(
@@ -1037,7 +1037,7 @@ export class ApiService {
     items: components["schemas"]["ValuePartCountItem"][],
     params: paths["/api/v0/features/values/parts/entities/counts"]["post"]["parameters"]["query"] = {},
   ): Observable<
-    | components["schemas"]["Response_str__dict_str_ValuePartCountRet__"]["data"]
+    | components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValuePartCountRet__"]["data"]
     | undefined
   > {
     return this.postOperation(
@@ -1128,7 +1128,7 @@ export class ApiService {
   }
 
   sourceReadAll(): Observable<
-    components["schemas"]["Response_str_Source_"]["data"] | undefined
+    components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"]["data"] | undefined
   > {
     return this.getOperation("/api/v0/sources").pipe(
       ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
@@ -1264,7 +1264,7 @@ export class ApiService {
     purge?: Purge,
   ): Observable<
     | (Purge extends true
-        ? components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"]
+        ? components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"]
         : components["schemas"]["PurgeSimulation"])
     | undefined
   > {
@@ -1284,7 +1284,7 @@ export class ApiService {
     purge?: Purge,
   ): Observable<
     | (Purge extends true
-        ? components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"]
+        ? components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"]
         : components["schemas"]["PurgeSimulation"])
     | undefined
   > {
