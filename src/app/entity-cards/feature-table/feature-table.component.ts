@@ -469,12 +469,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       : false;
     // If we just unchecked the checkbox remove the feature.
     if (!isChecked) {
-      // Remove from pivot as well
-      this.pivotService.removeSelected({
-        feature_name: featureName,
-        feature_value: featureValue,
-      });
-
       this.currentSelectedFeatures.update((val: FeatureValue[]) => {
         return [
           ...val.filter(
@@ -484,12 +478,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       });
       return;
     }
-
-    // Add to pivot as well
-    this.pivotService.setSelected({
-      feature_name: featureName,
-      feature_value: featureValue,
-    });
 
     // Add the feature to the list of features
     this.currentSelectedFeatures.update((val: FeatureValue[]) => {
@@ -516,5 +504,18 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     const partName = PART_ANALYZERS[part.part] || part.part;
 
     return "features.enriched." + partName + ":" + escapeValue(part.value);
+  }
+
+  pivotOnSelectedFeatures() {
+    this.pivotService.clearPivot();
+    this.currentSelectedFeatures().forEach((fv) => {
+      this.pivotService.setSelected({
+        feature_name: fv.name,
+        feature_value: fv.value,
+      });
+    });
+    // Backup this selection so it can be restored to.
+    this.pivotService.backupCurrentSelection();
+    this.router.navigate(["/pages/features/pivot"]);
   }
 }

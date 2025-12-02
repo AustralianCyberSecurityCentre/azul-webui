@@ -8,11 +8,21 @@
   flex-grow: 1;
 }
 
-.s-td{
+.s-td {
   text-align: left;
   vertical-align: top;
 }
 
 .table-div {
   height: 80vh;
+}
+
+.s-checkbox {
+  width: 22px;
+  max-width: 22px;
+  padding: 0;
+}
+
+.s-button-panel {
+  width: 10rem;
 }

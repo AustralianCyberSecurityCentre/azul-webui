@@ -47,6 +47,17 @@
           >
             Search Selected
           </flow-button>
+          <flow-button
+            (click)="pivotOnSelectedFeatures()"
+            title="Search for all the features on binaries that have the selected features"
+            [type]="
+              currentSelectedFeatures().length === 0
+                ? ButtonType.Disabled
+                : ButtonType.Green
+            "
+          >
+            Pivot on Selected
+          </flow-button>
           <azec-offset-picker
             [entity]="entity"
             (extent)="visibleExtent$.next($event)"

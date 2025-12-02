@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from "@angular/core";
 import { Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -7,7 +12,11 @@ import { Api } from "src/app/core/services";
 
 import { toObservable } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faCircleInfo,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { PivotService } from "src/app/core/pivot.service";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 import { escapeValue } from "../../core/util";
@@ -32,20 +41,21 @@ export class FeaturesPivotComponent {
   protected ButtonType = ButtonType;
   protected faSpinner = faSpinner;
   protected faCheck = faCheck;
+  protected faCircleInfo = faCircleInfo;
   // Subscriptions
   protected pivotFeatures$: Observable<
     components["schemas"]["FeaturePivotResponse"] & { values_count: number }
   >;
 
-  protected ongoingRequest = signal(false)
+  protected ongoingRequest = signal(false);
 
   constructor() {
     this.pivotFeatures$ = toObservable(
       this.pivotService.SelectedFeatureSignal,
     ).pipe(
       ops.debounceTime(1000),
-      ops.tap(() =>  {
-        this.ongoingRequest.set(true)
+      ops.tap(() => {
+        this.ongoingRequest.set(true);
       }),
       ops.switchMap((selectedFeats) => {
         return this.api.featurePivotValues({
@@ -53,13 +63,17 @@ export class FeaturesPivotComponent {
         });
       }),
       ops.catchError(() => {
-        return of({reason: "Unable to find features, are any filters selected?", incomplete_query: false, feature_value_counts: []})
-    }),
+        return of({
+          reason: "Unable to find features, are any filters selected?",
+          incomplete_query: false,
+          feature_value_counts: [],
+        });
+      }),
       ops.map((pv) => {
         let values_count = 0;
-        pv.feature_value_counts.forEach((val) =>{
-          values_count += val.values_and_counts.length
-        })
+        pv.feature_value_counts.forEach((val) => {
+          values_count += val.values_and_counts.length;
+        });
         return {
           reason: pv.reason,
           incomplete_query: pv.incomplete_query,
@@ -67,8 +81,8 @@ export class FeaturesPivotComponent {
           values_count: values_count,
         };
       }),
-      ops.tap(() =>  {
-        this.ongoingRequest.set(false)
+      ops.tap(() => {
+        this.ongoingRequest.set(false);
       }),
       ops.shareReplay(1),
     );
@@ -118,7 +132,9 @@ export class FeaturesPivotComponent {
   searchForSelectedFeatures() {
     const termParams = Array<string>();
     this.pivotService.SelectedFeatureSignal().forEach((fv) => {
-      termParams.push(`features_map.${fv.feature_name}:${escapeValue(fv.feature_value)}`);
+      termParams.push(
+        `features_map.${fv.feature_name}:${escapeValue(fv.feature_value)}`,
+      );
     });
     // The actual term query are space seperated values.
     const termQuery = termParams.join(" ");
@@ -127,10 +143,8 @@ export class FeaturesPivotComponent {
     });
   }
 
-  clearFeatures(){
-    this.pivotService.clearPivot()
+  // Revert to the selection when the pivot page loaded.
+  resetFeatures() {
+    this.pivotService.restoreToBackupSelection();
   }
 }
-
-// TODO - start using a cdk-virtual-scroll-viewport to limit viewed content.
-// May have to flatten the 2D list to 1D so it can scroll through the list, or provide a function that does it for it.

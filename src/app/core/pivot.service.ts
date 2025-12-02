@@ -7,12 +7,10 @@ import { components } from "./api/openapi";
 export class PivotService {
   public SelectedFeatureSignal: WritableSignal<
     Array<components["schemas"]["FeaturePivotRequest"]>
-  > = signal([
-    {
-      feature_name: "pe_debug_codeview_signature",
-      feature_value: "PDB_70",
-    },
-  ]);
+  > = signal([]);
+
+  private backupFeatures: Array<components["schemas"]["FeaturePivotRequest"]> =
+    [];
 
   isSelected(row: components["schemas"]["FeaturePivotRequest"]): boolean {
     const idx = this.SelectedFeatureSignal().findIndex((val, _idx, _obj) => {
@@ -39,6 +37,14 @@ export class PivotService {
         );
       }),
     );
+  }
+
+  backupCurrentSelection() {
+    this.backupFeatures = this.SelectedFeatureSignal();
+  }
+
+  restoreToBackupSelection() {
+    this.SelectedFeatureSignal.set(this.backupFeatures);
   }
 
   clearPivot() {
