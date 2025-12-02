@@ -802,7 +802,10 @@ export class ApiService {
   entityReadMain(
     sha256: string,
     query: paths["/api/v0/binaries/{sha256}"]["get"]["parameters"]["query"] = {},
-  ): Observable<components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__"] | undefined> {
+  ): Observable<
+    | components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__"]
+    | undefined
+  > {
     return this.getOperation("/api/v0/binaries/{sha256}", query, {
       sha256,
     }).pipe(
@@ -1127,8 +1130,21 @@ export class ApiService {
     );
   }
 
+  /** find feature values */
+  featurePivotValues(
+    body: paths["/api/v0/features/pivot"]["post"]["requestBody"]["content"]["application/json"],
+    params: paths["/api/v0/features/pivot"]["post"]["parameters"]["query"] = {},
+  ): Observable<components["schemas"]["FeaturePivotResponse"] | undefined> {
+    return this.postOperation("/api/v0/features/pivot", body, params).pipe(
+      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
   sourceReadAll(): Observable<
-    components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"]["data"] | undefined
+    | components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"]["data"]
+    | undefined
   > {
     return this.getOperation("/api/v0/sources").pipe(
       ops.tap((d) => this.addReceivedSecurity(d.meta.security)),

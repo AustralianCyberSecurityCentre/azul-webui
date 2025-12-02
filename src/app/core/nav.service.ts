@@ -148,6 +148,7 @@ export class NavService {
         // construct entity menu
         const items: MenuItem[] = [
           { title: "Explore", link: "/pages/features/explore" },
+          { title: "Pivot", link: "/pages/features/pivot" },
           { title: "Tags", link: "/pages/features/tags" },
         ];
         if (d.length > 0) {

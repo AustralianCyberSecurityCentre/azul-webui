@@ -805,6 +805,34 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/features/pivot": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Feature Pivot Search
+     * @description Return all the common features for binaries that contain the provided features.
+     *
+     *     Feature values attached to binaries with a count of 1 are ignored because they aren't 'common'
+     *     Below the feats 3,4 and 5 are ignored because they have a count of 1.
+     *     E.g
+     *     Binary 1 has features (feat1: val1, feat2: val2, feat3: val3, feat5: val5)
+     *     Binary 2 has features (feat1: val1, feat2: val2, feat4: val4, feat5: val99)
+     *     Response to request for "feat1: val1" would be:
+     *     (feat1: value: val1, count: 2, feat2: value: val2, count: 2)
+     */
+    readonly post: operations["feature_pivot_search_api_v0_features_pivot_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/plugins": {
     readonly parameters: {
       readonly query?: never;
@@ -1117,26 +1145,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return parsed info for for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me/opensearch": {
     readonly parameters: {
       readonly query?: never;
@@ -1149,6 +1157,26 @@ export interface paths {
      * @description Return Opensearch access for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return parsed info for for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -1597,6 +1625,14 @@ export interface components {
        * @description SHA256 of binaries to download.
        */
       readonly binaries: readonly string[];
+    };
+    /** Body_feature_pivot_search_api_v0_features_pivot_post */
+    readonly Body_feature_pivot_search_api_v0_features_pivot_post: {
+      /**
+       * Feature Values
+       * @default []
+       */
+      readonly feature_values: readonly components["schemas"]["FeaturePivotRequest"][];
     };
     /** Body_find_all_binaries_api_v0_binaries_all_post */
     readonly Body_find_all_binaries_api_v0_binaries_all_post: {
@@ -2154,6 +2190,59 @@ export interface components {
       readonly values?: number | null;
       /** Entities */
       readonly entities?: number | null;
+    };
+    /**
+     * FeaturePivotNameWithValueCount
+     * @description Feature name, value and total count.
+     */
+    readonly FeaturePivotNameWithValueCount: {
+      /** Feature Name */
+      readonly feature_name: string;
+      /** Feature Description */
+      readonly feature_description: string;
+      /** Values And Counts */
+      readonly values_and_counts: readonly components["schemas"]["FeaturePivotValueCount"][];
+    };
+    /**
+     * FeaturePivotRequest
+     * @description Format of the request body for a feature pivot request.
+     */
+    readonly FeaturePivotRequest: {
+      /** Feature Name */
+      readonly feature_name: string;
+      /** Feature Value */
+      readonly feature_value: string;
+    };
+    /**
+     * FeaturePivotResponse
+     * @description Response from the Feature pivot containing a list of matching features and their counts.
+     */
+    readonly FeaturePivotResponse: {
+      /**
+       * Feature Value Counts
+       * @default []
+       */
+      readonly feature_value_counts: readonly components["schemas"]["FeaturePivotNameWithValueCount"][];
+      /**
+       * Incomplete Query
+       * @default false
+       */
+      readonly incomplete_query: boolean;
+      /**
+       * Reason
+       * @default
+       */
+      readonly reason: string;
+    };
+    /**
+     * FeaturePivotValueCount
+     * @description The value and count for a binary.
+     */
+    readonly FeaturePivotValueCount: {
+      /** Feature Value */
+      readonly feature_value: string;
+      /** Entity Count */
+      readonly entity_count: string;
     };
     /**
      * FeatureType
@@ -2788,6 +2877,11 @@ export interface components {
     /** Response:<class 'azul_bedrock.models_restapi.binaries.Status'> */
     readonly "Response__class__azul_bedrock.models_restapi.binaries.Status__": {
       readonly data?: components["schemas"]["Status"];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.features.FeaturePivotResponse'> */
+    readonly "Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__": {
+      readonly data?: components["schemas"]["FeaturePivotResponse"];
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:<class 'azul_bedrock.models_restapi.features.Features'> */
@@ -3450,6 +3544,8 @@ export type BodyCreateTagOnBinaryApiV0BinariesSha256TagsTagPost =
   components["schemas"]["Body_create_tag_on_binary_api_v0_binaries__sha256__tags__tag__post"];
 export type BodyDownloadBinariesApiV0BinariesContentBulkPost =
   components["schemas"]["Body_download_binaries_api_v0_binaries_content_bulk_post"];
+export type BodyFeaturePivotSearchApiV0FeaturesPivotPost =
+  components["schemas"]["Body_feature_pivot_search_api_v0_features_pivot_post"];
 export type BodyFindAllBinariesApiV0BinariesAllPost =
   components["schemas"]["Body_find_all_binaries_api_v0_binaries_all_post"];
 export type BodyFindAllChildrenApiV0BinariesAllChildrenPost =
@@ -3497,6 +3593,13 @@ export type Feature = components["schemas"]["Feature"];
 export type FeatureDescription = components["schemas"]["FeatureDescription"];
 export type FeatureMulticountRet =
   components["schemas"]["FeatureMulticountRet"];
+export type FeaturePivotNameWithValueCount =
+  components["schemas"]["FeaturePivotNameWithValueCount"];
+export type FeaturePivotRequest = components["schemas"]["FeaturePivotRequest"];
+export type FeaturePivotResponse =
+  components["schemas"]["FeaturePivotResponse"];
+export type FeaturePivotValueCount =
+  components["schemas"]["FeaturePivotValueCount"];
 export type FeatureType = components["schemas"]["FeatureType"];
 export type FeatureValuePart = components["schemas"]["FeatureValuePart"];
 export type FeatureValueTag = components["schemas"]["FeatureValueTag"];
@@ -3568,6 +3671,8 @@ export type ResponseClassAzulBedrockModelsRestapiBinariesSimilarMatch =
   components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarMatch__"];
 export type ResponseClassAzulBedrockModelsRestapiBinariesStatus =
   components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.Status__"];
+export type ResponseClassAzulBedrockModelsRestapiFeaturesFeaturePivotResponse =
+  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__"];
 export type ResponseClassAzulBedrockModelsRestapiFeaturesFeatures =
   components["schemas"]["Response__class__azul_bedrock.models_restapi.features.Features__"];
 export type ResponseClassAzulBedrockModelsRestapiFeaturesReadFeatureTagValues =
@@ -6025,6 +6130,60 @@ export interface operations {
       };
     };
   };
+  readonly feature_pivot_search_api_v0_features_pivot_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["Body_feature_pivot_search_api_v0_features_pivot_post"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly get_all_plugins_api_v0_plugins_get: {
     readonly parameters: {
       readonly query?: {
@@ -6768,42 +6927,6 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
   readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: {
@@ -6842,6 +6965,42 @@ export interface operations {
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
         };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly read_users_me_api_v0_users_me_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["UserInfo"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Something went wrong */
       readonly 500: {

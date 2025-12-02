@@ -1,0 +1,18 @@
+.limit {
+  width: 30vw;
+  min-width: 15vw;
+  max-width: 40vw;
+}
+
+.s-table {
+  flex-grow: 1;
+}
+
+.s-td{
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-div {
+  height: 80vh;
+}

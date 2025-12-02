@@ -25,6 +25,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Boundary } from "src/app/common/offset-picker/offset-picker.component";
 import { components } from "src/app/core/api/openapi";
 import { FeatureWithDecodedValue } from "src/app/core/api/state";
+import { PivotService } from "src/app/core/pivot.service";
 import { escapeValue } from "src/app/core/util";
 import { BaseCard } from "../base-card.component";
 
@@ -65,6 +66,7 @@ const FEATURE_INSTANCE_USER_TYPE = "user";
 export class FeatureTableComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private dialogService = inject(Dialog);
+  private pivotService = inject(PivotService);
 
   @ViewChild("ftable", { read: ElementRef }) ftable: ElementRef;
 
@@ -467,6 +469,12 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       : false;
     // If we just unchecked the checkbox remove the feature.
     if (!isChecked) {
+      // Remove from pivot as well
+      this.pivotService.removeSelected({
+        feature_name: featureName,
+        feature_value: featureValue,
+      });
+
       this.currentSelectedFeatures.update((val: FeatureValue[]) => {
         return [
           ...val.filter(
@@ -476,6 +484,12 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       });
       return;
     }
+
+    // Add to pivot as well
+    this.pivotService.setSelected({
+      feature_name: featureName,
+      feature_value: featureValue,
+    });
 
     // Add the feature to the list of features
     this.currentSelectedFeatures.update((val: FeatureValue[]) => {
