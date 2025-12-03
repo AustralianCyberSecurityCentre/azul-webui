@@ -70,7 +70,7 @@ const routes: Routes = [
         children: [
           { path: "", redirectTo: "explore", pathMatch: "full" },
           { path: "explore", component: FeaturesExploreComponent },
-          { path: "pivot", component: FeaturesPivotComponent },
+          { path: "pivot", component: FeaturesPivotComponent, data: { noScroll: true }, },
           { path: "tags", component: FeaturesTagsExploreComponent },
           { path: "tags/:tag", component: FeaturesTagsCurrentComponent },
           { path: "current/:feature", component: FeaturesCurrentComponent },

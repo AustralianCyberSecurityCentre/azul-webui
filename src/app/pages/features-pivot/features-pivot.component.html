@@ -1,6 +1,6 @@
 <div class="flex min-h-0 shrink grow flex-col dark:text-white">
-  <div class="min-h-0 shrink grow">
-    <flow-card class="w-full">
+  <div>
+    <flow-card>
       <flow-card-header title="Multi-pivot Features">
         @if (ongoingRequest() === true) {
           <fa-icon [icon]="faSpinner" animation="spin" />
@@ -11,7 +11,7 @@
       <flow-card-body>
         <div class="flex flex-row">
           <div class="flex w-full flex-col">
-            <div class="s-table-div">
+            <div class="flex grow shrink max-h-0 s-table-div">
               <table flowTable class="s-table w-full">
                 <!-- Stick top is breaking when you scroll far.-->
                 <thead flowTableHeader class="sticky top-0">
@@ -87,7 +87,7 @@
                 distinct values
               </div>
               @if ((pivotFeatures$ | async)?.incomplete_query) {
-                <flow-alert alertType="warning"
+                <flow-alert alertType="warning" [withinCard]="true"
                   >Counts for features are incomplete because only the first
                   10,000 binaries were used to search for features and there
                   were more than 10,000 matching binaries.</flow-alert
@@ -135,13 +135,13 @@
 </div>
 
 <ng-template #tplResult>
-  <flow-card class="min-h-0 grow">
-    <flow-card-body>
+  <flow-card class="flex grow shrink min-h-0 w-full" [isFlex]="true">
+    <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
       <az-loading-card
         [obs$]="flattenedPivotFeatures$"
-        class="min-h-0 w-full grow"
+        class="w-full flex min-h-0"
       >
-        <div class="min-h-0 grow">
+        <div class="flex grow min-h-0 flex-col shrink justify-items-stretch">
           @if (flattenedPivotFeatures$ | async; as d) {
             @if (d.length > 0) {
               <table flowTable class="s-other-table w-full">
@@ -163,7 +163,7 @@
                 itemSize="29"
                 minBufferPx="1800"
                 maxBufferPx="1800"
-                class="s-virtual-scroll w-full"
+                class="w-full grow shrink min-h-0 justify-self-stretch"
               >
                 <table flowTable class="s-table w-full">
                   <tbody flowTableBody class="s-body">

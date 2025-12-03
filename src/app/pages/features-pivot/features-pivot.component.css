@@ -14,17 +14,13 @@
   width: 100%;
 }
 .s-table-div {
-  max-height: 35vh;
+  max-height: 25vh;
   overflow-y: auto;
 }
 
 .s-td {
   text-align: left;
   vertical-align: top;
-}
-
-.s-virtual-scroll {
-  height: 40vh;
 }
 
 .s-checkbox {

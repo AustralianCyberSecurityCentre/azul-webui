@@ -1,5 +1,5 @@
 <div
-  [ngClass]="[
+  [class]="[
     backgroundColour,
     darkBackgroundColour,
     'border-azul-200',
@@ -12,6 +12,8 @@
     'shadow-sm',
     'dark:text-white',
   ]"
+  [class.flex]="isFlex"
+  [class.w-full]="isFlex"
 >
   <ng-content></ng-content>
 </div>
