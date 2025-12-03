@@ -11,7 +11,7 @@
       <flow-card-body>
         <div class="flex flex-row">
           <div class="flex w-full flex-col">
-            <div class="flex grow shrink max-h-0 s-table-div">
+            <div class="s-table-div flex max-h-0 shrink grow">
               <table flowTable class="s-table w-full">
                 <!-- Stick top is breaking when you scroll far.-->
                 <thead flowTableHeader class="sticky top-0">
@@ -135,13 +135,13 @@
 </div>
 
 <ng-template #tplResult>
-  <flow-card class="flex grow shrink min-h-0 w-full" [isFlex]="true">
+  <flow-card class="flex min-h-0 w-full shrink grow" [isFlex]="true">
     <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
       <az-loading-card
         [obs$]="flattenedPivotFeatures$"
-        class="w-full flex min-h-0"
+        class="flex min-h-0 w-full"
       >
-        <div class="flex grow min-h-0 flex-col shrink justify-items-stretch">
+        <div class="flex min-h-0 shrink grow flex-col justify-items-stretch">
           @if (flattenedPivotFeatures$ | async; as d) {
             @if (d.length > 0) {
               <table flowTable class="s-other-table w-full">
@@ -163,7 +163,7 @@
                 itemSize="29"
                 minBufferPx="1800"
                 maxBufferPx="1800"
-                class="w-full grow shrink min-h-0 justify-self-stretch"
+                class="min-h-0 w-full shrink grow justify-self-stretch"
               >
                 <table flowTable class="s-table w-full">
                   <tbody flowTableBody class="s-body">

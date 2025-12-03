@@ -66,7 +66,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
 
   private _take_n_strings = 1000;
 
-
   private lastRequest: Subscription | undefined = undefined;
   private formSubscription: Subscription | undefined = undefined;
   private aiSupportedListener: Subscription | undefined = undefined;
@@ -110,8 +109,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
         this.cs.offset = 0;
         this.update();
       });
-
-
 
     this.resizeObs.observe(this.host.nativeElement);
 
@@ -174,7 +171,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
       this.cs.update = () => {
         this.update();
       };
-
 
       //get first set of data
       this.cs.update();
