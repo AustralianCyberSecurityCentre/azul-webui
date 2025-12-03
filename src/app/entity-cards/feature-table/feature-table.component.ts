@@ -446,7 +446,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.currentSelectedFeatures().forEach((fv: FeatureValue) => {
       termParams.push(`features_map.${fv.name}:${escapeValue(fv.value)}`);
     });
-    // The actual term query are space seperated values.
+    // The actual term query are space separated values.
     const termQuery = termParams.join(" ");
     this.router.navigate(["/pages/binaries/explore"], {
       queryParams: { term: termQuery },

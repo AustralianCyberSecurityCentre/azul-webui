@@ -5,7 +5,17 @@
 }
 
 .s-table {
-  flex-grow: 1;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.s-other-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.s-table-div {
+  max-height: 35vh;
+  overflow-y: auto;
 }
 
 .s-td {
@@ -13,16 +23,33 @@
   vertical-align: top;
 }
 
-.table-div {
-  height: 80vh;
+.s-virtual-scroll {
+  height: 40vh;
 }
 
 .s-checkbox {
+  min-width: 22px;
   width: 22px;
   max-width: 22px;
   padding: 0;
 }
 
 .s-button-panel {
-  width: 10rem;
+  width: 12rem;
+}
+
+.s-feat-col {
+  width: 20%;
+}
+
+.s-entity-count-col {
+  width: 100px;
+}
+
+.s-val-col {
+  width: auto;
+}
+
+.s-description-col {
+  width: 30%;
 }

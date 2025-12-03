@@ -1,7 +1,7 @@
-<div>
-  <div>
-    <flow-card style="width: 100%">
-      <flow-card-header title="Selected Features">
+<div class="flex min-h-0 shrink grow flex-col dark:text-white">
+  <div class="min-h-0 shrink grow">
+    <flow-card class="w-full">
+      <flow-card-header title="Multi-pivot Features">
         @if (ongoingRequest() === true) {
           <fa-icon [icon]="faSpinner" animation="spin" />
         } @else {
@@ -11,83 +11,80 @@
       <flow-card-body>
         <div class="flex flex-row">
           <div class="flex w-full flex-col">
-            <table flowTable class="s-table w-full">
-              <!-- Stick top is breaking when you scroll far.-->
-              <thead flowTableHeader class="sticky top-0">
-                <tr flowTableHeaderRow>
-                  <th flowTableHeaderCell class="s-checkbox"></th>
-                  <th flowTableHeaderCell>Feature</th>
-                  <th flowTableHeaderCell>Value</th>
-                </tr>
-              </thead>
-              <tbody flowTableBody>
-                @for (
-                  featVal of this.pivotService.SelectedFeatureSignal();
-                  track trackHeaderBy(
-                    $index,
-                    featVal.feature_name,
-                    featVal.feature_value
-                  )
-                ) {
-                  <tr flowTableBodyRow>
-                    <td flowTableBodyCell class="s-td s-checkbox">
-                      <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
-                      <input
-                        type="checkbox"
-                        [checked]="
-                          isAlreadyTicked(
-                            featVal.feature_name,
-                            featVal.feature_value
-                          )
-                        "
-                        (change)="
-                          updateSelectedFeatures(
-                            $event,
-                            featVal.feature_name,
-                            featVal.feature_value
-                          )
-                        "
-                        class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                      />
-                    </td>
-                    <td flowTableBodyCell class="s-td">
-                      <flow-tooltip
-                        message="{{ featVal.feature_name }}"
-                        [copyText]="true"
-                      >
-                        {{ featVal.feature_name }}
-                      </flow-tooltip>
-                    </td>
-                    <td
-                      flowTableBodyCell
-                      class="limit line-clamp-2 text-wrap break-words"
-                    >
-                      <flow-tooltip
-                        message="{{ featVal.feature_value }}"
-                        [copyText]="true"
-                      >
-                        {{ featVal.feature_value }}
-                      </flow-tooltip>
-                    </td>
+            <div class="s-table-div">
+              <table flowTable class="s-table w-full">
+                <!-- Stick top is breaking when you scroll far.-->
+                <thead flowTableHeader class="sticky top-0">
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell class="s-checkbox"></th>
+                    <th flowTableHeaderCell>Feature</th>
+                    <th flowTableHeaderCell>Value</th>
                   </tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+                <tbody flowTableBody>
+                  @for (
+                    featVal of this.pivotService.SelectedFeatureSignal();
+                    track trackHeaderBy(
+                      $index,
+                      featVal.feature_name,
+                      featVal.feature_value
+                    )
+                  ) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell class="s-td s-checkbox">
+                        <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
+                        <input
+                          type="checkbox"
+                          [checked]="
+                            isAlreadyTicked(
+                              featVal.feature_name,
+                              featVal.feature_value
+                            )
+                          "
+                          (change)="
+                            updateSelectedFeatures(
+                              $event,
+                              featVal.feature_name,
+                              featVal.feature_value
+                            )
+                          "
+                          class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                        />
+                      </td>
+                      <td flowTableBodyCell class="s-td">
+                        <flow-tooltip
+                          message="{{ featVal.feature_name }}"
+                          [copyText]="true"
+                        >
+                          {{ featVal.feature_name }}
+                        </flow-tooltip>
+                      </td>
+                      <td
+                        flowTableBodyCell
+                        class="limit line-clamp-2 text-wrap break-words"
+                      >
+                        <flow-tooltip
+                          message="{{ featVal.feature_value }}"
+                          [copyText]="true"
+                        >
+                          {{ featVal.feature_value }}
+                        </flow-tooltip>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
             <div class="flex flex-col">
-              <div>
+              <div class="p-2">
                 Viewing
                 {{
-                  (pivotFeatures$ | async)?.feature_value_counts?.length || 0
-                    | number
+                  (pivotFeatures$ | async)?.feature_value_counts?.length ||
+                    "..."
                 }}
-                Features
-              </div>
-              <div>
-                And
-                {{
-                  (pivotFeatures$ | async)?.values_count || 0 | number
-                }}
-                Distinct Values
+                features and
+                {{ (flattenedPivotFeatures$ | async)?.length || "..." }}
+                distinct values
               </div>
               @if ((pivotFeatures$ | async)?.incomplete_query) {
                 <flow-alert alertType="warning"
@@ -98,7 +95,7 @@
               }
             </div>
           </div>
-          <div class="s-button-panel flex flex-col">
+          <div class="s-button-panel flex flex-col py-2 pl-4">
             <flow-tooltip
               message="Convert current selection of features to a binary explore search."
               class="w-full p-1"
@@ -123,11 +120,7 @@
               <flow-button
                 class="w-full"
                 (click)="resetFeatures()"
-                [type]="
-                  this.pivotService.SelectedFeatureSignal().length > 0
-                    ? ButtonType.Danger
-                    : ButtonType.Disabled
-                "
+                [type]="ButtonType.Danger"
                 [size]="ButtonSize.Icon"
                 [fullWidth]="true"
                 >Reset Selection</flow-button
@@ -138,117 +131,107 @@
       </flow-card-body>
     </flow-card>
   </div>
-  <div>
-    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
-  </div>
+  <div class="min-h-0 shrink grow" *ngTemplateOutlet="tplResult"></div>
 </div>
 
 <ng-template #tplResult>
-  <flow-card>
+  <flow-card class="min-h-0 grow">
     <flow-card-body>
-      <az-loading-card [obs$]="pivotFeatures$" class="w-full">
-        <div class="table-div flex min-h-0 w-full grow">
-          @if (pivotFeatures$ | async; as d) {
-            @if (d.feature_value_counts.length > 0) {
+      <az-loading-card
+        [obs$]="flattenedPivotFeatures$"
+        class="min-h-0 w-full grow"
+      >
+        <div class="min-h-0 grow">
+          @if (flattenedPivotFeatures$ | async; as d) {
+            @if (d.length > 0) {
+              <table flowTable class="s-other-table w-full">
+                <thead flowTableHeader>
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell class="s-checkbox"></th>
+                    <th flowTableHeaderCell class="s-feat-col">Feature</th>
+                    <th flowTableHeaderCell class="s-entity-count-col">
+                      Binaries
+                    </th>
+                    <th flowTableHeaderCell class="s-val-col">Value</th>
+                    <th flowTableHeaderCell class="s-description-col">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+              </table>
               <cdk-virtual-scroll-viewport
                 itemSize="29"
                 minBufferPx="1800"
                 maxBufferPx="1800"
-                class="min-h-0 shrink grow"
+                class="s-virtual-scroll w-full"
               >
                 <table flowTable class="s-table w-full">
-                  <!-- Stick top is breaking when you scroll far.-->
-                  <thead flowTableHeader class="sticky top-0">
-                    <tr flowTableHeaderRow>
-                      <th flowTableHeaderCell class="s-checkbox"></th>
-                      <th flowTableHeaderCell>Feature</th>
-                      <th flowTableHeaderCell class="w-20 text-center">
-                        Binaries
-                      </th>
-                      <th flowTableHeaderCell class="w-20 text-center">
-                        Value
-                      </th>
-                      <th flowTableHeaderCell>Description</th>
-                    </tr>
-                  </thead>
-                  <tbody flowTableBody>
-                    <ng-container
-                      *cdkVirtualFor="
-                        let featureWithValues of d.feature_value_counts
-                      "
-                    >
-                      @for (
-                        valueAndCount of featureWithValues.values_and_counts;
-                        track $index
-                      ) {
-                        <tr flowTableBodyRow>
-                          <td flowTableBodyCell class="s-checkbox">
-                            <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
-                            <input
-                              type="checkbox"
-                              [checked]="
-                                isAlreadyTicked(
-                                  featureWithValues.feature_name,
-                                  valueAndCount.feature_value
-                                )
-                              "
-                              (change)="
-                                updateSelectedFeatures(
-                                  $event,
-                                  featureWithValues.feature_name,
-                                  valueAndCount.feature_value
-                                )
-                              "
-                              class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                            />
-                          </td>
-                          <td flowTableBodyCell>
-                            <flow-tooltip
-                              message="{{ featureWithValues.feature_name }}"
-                              [copyText]="true"
-                            >
-                              {{ featureWithValues.feature_name }}
-                            </flow-tooltip>
-                          </td>
-                          <td flowTableBodyCell class="text-center">
-                            <flow-tooltip
-                              message="View binaries with this feature"
-                            >
-                              {{ valueAndCount.entity_count }}
-                            </flow-tooltip>
-                          </td>
-                          <td
-                            flowTableBodyCell
-                            class="limit line-clamp-2 text-wrap break-words"
+                  <tbody flowTableBody class="s-body">
+                    <ng-container *cdkVirtualFor="let featureWithValues of d">
+                      <tr flowTableBodyRow>
+                        <td flowTableBodyCell class="s-checkbox">
+                          <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
+                          <input
+                            type="checkbox"
+                            [checked]="
+                              isAlreadyTicked(
+                                featureWithValues.feature_name,
+                                featureWithValues.feature_value
+                              )
+                            "
+                            (change)="
+                              updateSelectedFeatures(
+                                $event,
+                                featureWithValues.feature_name,
+                                featureWithValues.feature_value
+                              )
+                            "
+                            class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                          />
+                        </td>
+                        <td flowTableBodyCell class="s-feat-col">
+                          <flow-tooltip
+                            message="{{ featureWithValues.feature_name }}"
+                            [copyText]="true"
                           >
-                            <flow-tooltip
-                              message="{{ valueAndCount.feature_value }}"
-                              [copyText]="true"
-                            >
-                              {{ valueAndCount.feature_value }}
-                            </flow-tooltip>
-                          </td>
-                          <td
-                            flowTableBodyCell
-                            class="limit line-clamp- text-wrap break-words"
+                            {{ featureWithValues.feature_name }}
+                          </flow-tooltip>
+                        </td>
+                        <td flowTableBodyCell class="s-entity-count-col">
+                          {{ featureWithValues.entity_count }}
+                        </td>
+                        <td
+                          flowTableBodyCell
+                          class="s-val-col text-wrap break-words"
+                        >
+                          <flow-tooltip
+                            message="{{ featureWithValues.feature_value }}"
+                            [copyText]="true"
                           >
-                            <flow-tooltip
-                              message="{{
-                                featureWithValues.feature_description
-                              }}"
-                              [copyText]="true"
-                            >
-                              {{ featureWithValues.feature_description }}
-                            </flow-tooltip>
-                          </td>
-                        </tr>
-                      }
+                            {{ featureWithValues.feature_value }}
+                          </flow-tooltip>
+                        </td>
+                        <td
+                          flowTableBodyCell
+                          class="s-description-col text-wrap break-words"
+                        >
+                          <flow-tooltip
+                            message="{{ featureWithValues.description }}"
+                            [copyText]="true"
+                          >
+                            {{ featureWithValues.description }}
+                          </flow-tooltip>
+                        </td>
+                      </tr>
                     </ng-container>
                   </tbody>
                 </table>
               </cdk-virtual-scroll-viewport>
             } @else {
-              <p>No Common Features Found with reason {{ d.reason }}</p>
+              <p>
+                No files with all the selected features found with reason
+                {{ d }}
+              </p>
             }
           }
         </div>

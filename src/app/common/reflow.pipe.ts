@@ -184,7 +184,7 @@ export class UserInitialsPipe implements PipeTransform {
       // If no valid username is detected
     } else if (validComponents.length < 1) {
       return "";
-      // If atleast 2 valid names seperated by a '.' is detected
+      // If at least 2 valid names separated by a '.' is detected
     } else {
       const firstName = validComponents[0];
       let firstInitial = "";

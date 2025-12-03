@@ -21,6 +21,13 @@ import { PivotService } from "src/app/core/pivot.service";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 import { escapeValue } from "../../core/util";
 
+type flattenedPivotFeatureResponse = {
+  feature_name: string;
+  description: string;
+  feature_value: string;
+  entity_count: string;
+};
+
 /**page for displaying all features*/
 @Component({
   selector: "app-features-pivot",
@@ -44,7 +51,10 @@ export class FeaturesPivotComponent {
   protected faCircleInfo = faCircleInfo;
   // Subscriptions
   protected pivotFeatures$: Observable<
-    components["schemas"]["FeaturePivotResponse"] & { values_count: number }
+    components["schemas"]["FeaturePivotResponse"]
+  >;
+  protected flattenedPivotFeatures$: Observable<
+    flattenedPivotFeatureResponse[]
   >;
 
   protected ongoingRequest = signal(false);
@@ -58,28 +68,37 @@ export class FeaturesPivotComponent {
         this.ongoingRequest.set(true);
       }),
       ops.switchMap((selectedFeats) => {
-        return this.api.featurePivotValues({
-          feature_values: selectedFeats,
-        });
+        return this.api
+          .featurePivotValues({
+            feature_values: selectedFeats,
+          })
+          .pipe(
+            ops.catchError(() => {
+              return of({
+                reason: "Unable to find features, are any filters selected?",
+                incomplete_query: false,
+                feature_value_counts: [],
+              });
+            }),
+          );
       }),
-      ops.catchError(() => {
-        return of({
-          reason: "Unable to find features, are any filters selected?",
-          incomplete_query: false,
-          feature_value_counts: [],
+      ops.shareReplay(1),
+    );
+
+    this.flattenedPivotFeatures$ = this.pivotFeatures$.pipe(
+      ops.map((pf) => {
+        const result: flattenedPivotFeatureResponse[] = [];
+        pf.feature_value_counts.forEach((fvc) => {
+          fvc.values_and_counts.forEach((value_and_counts) => {
+            result.push({
+              feature_name: fvc.feature_name,
+              description: fvc.feature_description,
+              feature_value: value_and_counts.feature_value,
+              entity_count: value_and_counts.entity_count,
+            });
+          });
         });
-      }),
-      ops.map((pv) => {
-        let values_count = 0;
-        pv.feature_value_counts.forEach((val) => {
-          values_count += val.values_and_counts.length;
-        });
-        return {
-          reason: pv.reason,
-          incomplete_query: pv.incomplete_query,
-          feature_value_counts: pv.feature_value_counts,
-          values_count: values_count,
-        };
+        return result;
       }),
       ops.tap(() => {
         this.ongoingRequest.set(false);
@@ -136,7 +155,7 @@ export class FeaturesPivotComponent {
         `features_map.${fv.feature_name}:${escapeValue(fv.feature_value)}`,
       );
     });
-    // The actual term query are space seperated values.
+    // The actual term query are space separated values.
     const termQuery = termParams.join(" ");
     this.router.navigate(["/pages/binaries/explore"], {
       queryParams: { term: termQuery },
