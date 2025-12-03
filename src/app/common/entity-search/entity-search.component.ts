@@ -63,7 +63,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
 
   /** Autocomplete context */
   protected autocompleteContext$: Observable<
-    components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"]["data"]
+    components["schemas"]["Response_typing.Annotated_typing.Union_azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"]["data"]
   >;
   /** Suggestions for the current autocomplete. */
   protected suggestions$ = new ReplaySubject<Suggestion[]>(1);

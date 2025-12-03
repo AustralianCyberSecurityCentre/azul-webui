@@ -1,4 +1,3 @@
-import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
   ChangeDetectionStrategy,
@@ -6,7 +5,6 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
 } from "@angular/core";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
@@ -68,11 +66,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
 
   private _take_n_strings = 1000;
 
-  @ViewChild(CdkVirtualScrollViewport)
-  viewport: CdkVirtualScrollViewport;
-
-  viewportHeight = "70vh";
-
   private lastRequest: Subscription | undefined = undefined;
   private formSubscription: Subscription | undefined = undefined;
   private aiSupportedListener: Subscription | undefined = undefined;
@@ -116,12 +109,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
         this.cs.offset = 0;
         this.update();
       });
-
-    // Force the strings view viewport to automatically resize when the height of the element
-    // changes
-    this.resizeObs = new ResizeObserver((_entries) => {
-      this.viewport?.checkViewportSize();
-    });
 
     this.resizeObs.observe(this.host.nativeElement);
 
@@ -183,9 +170,6 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
       //override functions that need local context
       this.cs.update = () => {
         this.update();
-      };
-      this.cs.getDataLength = () => {
-        return this.viewport.getDataLength();
       };
 
       //get first set of data

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 
 // https://flowbite.com/docs/components/card/
 
@@ -6,6 +7,8 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   selector: "flow-card-body",
   templateUrl: "./card-body.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [CommonModule],
 })
-export class CardBodyComponent {}
+export class CardBodyComponent {
+  @Input() isFlex: boolean = false;
+}

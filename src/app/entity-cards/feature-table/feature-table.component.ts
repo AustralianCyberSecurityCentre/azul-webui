@@ -25,6 +25,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Boundary } from "src/app/common/offset-picker/offset-picker.component";
 import { components } from "src/app/core/api/openapi";
 import { FeatureWithDecodedValue } from "src/app/core/api/state";
+import { PivotService } from "src/app/core/pivot.service";
 import { escapeValue } from "src/app/core/util";
 import { BaseCard } from "../base-card.component";
 
@@ -65,6 +66,7 @@ const FEATURE_INSTANCE_USER_TYPE = "user";
 export class FeatureTableComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private dialogService = inject(Dialog);
+  private pivotService = inject(PivotService);
 
   @ViewChild("ftable", { read: ElementRef }) ftable: ElementRef;
 
@@ -444,7 +446,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.currentSelectedFeatures().forEach((fv: FeatureValue) => {
       termParams.push(`features_map.${fv.name}:${escapeValue(fv.value)}`);
     });
-    // The actual term query are space seperated values.
+    // The actual term query are space separated values.
     const termQuery = termParams.join(" ");
     this.router.navigate(["/pages/binaries/explore"], {
       queryParams: { term: termQuery },
@@ -502,5 +504,18 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     const partName = PART_ANALYZERS[part.part] || part.part;
 
     return "features.enriched." + partName + ":" + escapeValue(part.value);
+  }
+
+  pivotOnSelectedFeatures() {
+    this.pivotService.clearPivot();
+    this.currentSelectedFeatures().forEach((fv) => {
+      this.pivotService.setSelected({
+        feature_name: fv.name,
+        feature_value: fv.value,
+      });
+    });
+    // Backup this selection so it can be restored to.
+    this.pivotService.backupCurrentSelection();
+    this.router.navigate(["/pages/features/pivot"]);
   }
 }
