@@ -533,13 +533,13 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     const files: FileWithNewName[] = this.form.get("files").value;
     files[index].newName = (event.target as HTMLInputElement).value;
     this.form.get("files").patchValue(files);
-    this.checkIfFileIsGreaterThan50Mb();
   }
 
   rmFile(index: number) {
     const files: FileWithNewName[] = this.form.get("files").value;
     files.splice(index, 1);
     this.form.get("files").patchValue(files);
+    this.checkIfFileIsGreaterThan50Mb();
   }
 
   confirmSecurity() {
