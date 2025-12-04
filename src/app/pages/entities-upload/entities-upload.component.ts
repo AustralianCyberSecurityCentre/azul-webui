@@ -7,7 +7,9 @@ import {
   OnInit,
   TemplateRef,
   ViewChild,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
 import {
   UntypedFormArray,
@@ -21,6 +23,7 @@ import {
   faCloudArrowUp,
   faFileLines,
   faPlus,
+  faSpinner,
   faSquareUpRight,
   faTrashCan,
   faXmark,
@@ -87,6 +90,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   protected faCheck = faCheck;
   protected faFileLines = faFileLines;
   protected faSquareUpRight = faSquareUpRight;
+  protected faSpinner = faSpinner;
 
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
@@ -112,9 +116,11 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   readonly extensionsToRemoveOnUpload = [".cart", ".malpz"];
   readonly extensionsThatCanBeExtracted = ["zip", "gzip", "tar"];
   readonly defaultSource = "samples";
+  readonly largeFileSize = 50 * 1024 * 1024;
 
   protected selectedSecurity$: Observable<string | undefined>;
   protected confirmedSecurity$: Observable<boolean>;
+  protected largeFileSignal: WritableSignal<boolean> = signal(false);
 
   constructor() {
     this.form = this.fb.group({
@@ -318,9 +324,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     Extract<keyof ChildUpload, keyof SourceUpload>
   > {
     const fv = this.form.value;
-
     const binary = file.file;
-
     let filename: string;
     if (fv.extract) {
       filename = file?.file.name;
@@ -330,7 +334,6 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
     // Convert timestamp to UTC
     const timestamp = new Date(fv.timestamp).toISOString();
-
     const security = fv.security;
 
     // Submission Settings
@@ -361,7 +364,6 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
   private getFormDataForChildSubmission(file: FileWithNewName): ChildUpload {
     const fv = this.form.value;
-
     const relations = {};
     for (const kv of fv.relations as Array<{ key: string; val: string }>) {
       relations[kv.key] = kv.val;
@@ -378,7 +380,6 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
   private getFormDataForSourceSubmission(file: FileWithNewName): SourceUpload {
     const fv = this.form.value;
-
     const refs = {};
     for (const kv of fv.refs as Array<{ key: string; val: string }>) {
       if (!kv.val) {
@@ -423,7 +424,6 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
         i,
         new BehaviorSubject<[number, string, boolean]>([0, "", false]),
       );
-
       // create upload observable for this file
       allUploads.push(
         combineLatest([
@@ -492,6 +492,24 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     return value;
   }
 
+  checkIfFileIsGreaterThan50Mb() {
+    let resultantSignalValue = false;
+    if (
+      this.form.value?.files != undefined &&
+      this.form.value?.files != null &&
+      this.form.value?.files.length > 0
+    ) {
+      this.form.value.files.forEach((fvf: FileWithNewName) => {
+        if (fvf.file.size > this.largeFileSize) {
+          // At least one file is large so add warning.
+          resultantSignalValue = true;
+          return;
+        }
+      });
+    }
+    this.largeFileSignal.set(resultantSignalValue);
+  }
+
   onAddFiles(eventFiles: Event) {
     const eventTarget = eventFiles.target as HTMLInputElement;
 
@@ -505,6 +523,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
       files.push({ file: eventTarget.files[i], newName: newName });
     }
     this.form.get("files").patchValue(files);
+    this.checkIfFileIsGreaterThan50Mb();
     // reset security confirmation
     this.form.get("security_confirm").setValue(false);
     eventTarget.value = null;
@@ -520,6 +539,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     const files: FileWithNewName[] = this.form.get("files").value;
     files.splice(index, 1);
     this.form.get("files").patchValue(files);
+    this.checkIfFileIsGreaterThan50Mb();
   }
 
   confirmSecurity() {
