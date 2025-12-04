@@ -317,8 +317,9 @@
                         }
                         @if (row[0] === 100) {
                           <flow-progress [value]="row[0]"
-                            >Processing</flow-progress
-                          >
+                            >Processing
+                            <fa-icon [icon]="faSpinner" animation="spin"
+                          /></flow-progress>
                         }
                       </div>
                     }
@@ -369,6 +370,13 @@
               </div>
             }
           </div>
+          @if (largeFileSignal() === true) {
+            <flow-alert alertType="warning"
+              >When files greater than {{ largeFileSize / (1024 * 1024) }}MiB
+              are uploaded the processing time can be multiple
+              minutes.</flow-alert
+            >
+          }
         </div>
       </flow-card-body>
     </flow-card>
