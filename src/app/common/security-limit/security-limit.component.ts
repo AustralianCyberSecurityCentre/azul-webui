@@ -24,6 +24,7 @@ export type FormControls = {
   caveat: FormControl<string>;
   releasability: FormControl<string>;
   tlp: FormControl<string>;
+  andSearch: FormControl;
 };
 
 /**provides utility for the user to specify what security markings they dont want to see*/
@@ -51,6 +52,7 @@ export class SecurityLimitComponent {
     caveat: new FormControl(null),
     releasability: new FormControl(null),
     tlp: new FormControl(null),
+    andSearch: new FormControl(this.api.getRelFilterOption() === "true"),
   });
 
   allGroups: {
@@ -62,6 +64,7 @@ export class SecurityLimitComponent {
 
   @Input() set securitySettings(data: components["schemas"]["Settings"]) {
     this.settings = data;
+
     this.allGroups = {
       classification: this.settings.labels.classification,
       caveat: this.settings.labels.caveat,
@@ -115,19 +118,30 @@ export class SecurityLimitComponent {
 
   onSubmit() {
     // iterate through all groups and find inverted set of what the form controls actually report as being selected
-    // find option that are excluded, not included
+    // find option that are excluded, not included. If AND searhc is toggled then we include the selected RELS
     const raw = this.formCustom.getRawValue();
     const excluded: string[] = [];
+    const included: string[] = [];
     for (const k in this.allGroups) {
       for (const option of this.allGroups[k].options) {
+        if (
+          k === "releasability" &&
+          this.formCustom.get("andSearch")?.value &&
+          raw[k] &&
+          raw[k].indexOf(option.name) >= 0
+        ) {
+          included.push(option.name);
+        }
         if (raw[k] === null || raw[k].indexOf(option.name) < 0) {
           excluded.push(option.name);
         }
       }
     }
-
-    console.log("exclude", excluded);
-    this.api.changeExclusions(excluded);
+    this.api.changeExclusions(excluded, included);
     this.submitLimits.emit(true);
+  }
+
+  updateLocalStorage() {
+    this.api.changeRelFilterOption(this.formCustom.get("andSearch")?.value);
   }
 }

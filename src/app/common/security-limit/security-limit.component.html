@@ -108,6 +108,17 @@
         ><fa-icon [icon]="faSquareMinus" class="pr-1" />None</flow-button
       >
     </div>
+    <div class="flex items-center">
+      <span class="mr-2">Only show documents with the selected REL's</span>
+      <flow-tooltip
+        message="Select this option if you want to only show documents marked with the selected releasability. The inverse of this will show documents marked with any of the currently selected labels."
+      >
+        <flow-toggle
+          formControlName="andSearch"
+          (change)="updateLocalStorage()"
+        ></flow-toggle>
+      </flow-tooltip>
+    </div>
     <div role="group">
       <flow-label class="inline-flex" [noPadding]="true">Confirm</flow-label>
       <br />

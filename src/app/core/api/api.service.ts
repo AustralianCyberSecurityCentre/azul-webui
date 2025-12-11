@@ -179,6 +179,8 @@ export class ApiService {
 
   // list of security exclusions to filter queries with on the backend
   currentExclusions: string[];
+  // list of security inclusions used to filter opensearch using AND for Rels to ensure only documents with the selected RELs are shown
+  currentInclusions: string[];
   // collection of security dicts received from responses
   private receivedSecurities$ = new BehaviorSubject(new Set<string>());
   combinedSecurity$: Observable<string>;
@@ -191,6 +193,10 @@ export class ApiService {
     // load exclusions from browser data
     this.currentExclusions = JSON.parse(
       localStorage.getItem("currentExclusions") || "[]",
+    );
+    // load inclusions from browser data
+    this.currentInclusions = JSON.parse(
+      localStorage.getItem("currentInclusions") || "[]",
     );
     if (this.currentExclusions.length > 0) {
       console.warn(
@@ -309,11 +315,28 @@ export class ApiService {
   }
 
   /**change the current set of excluded security markings*/
-  changeExclusions(data: string[]) {
+  changeExclusions(excludedData: string[], includedData?: string[]) {
     // update local storage with new exclusion list
-    localStorage.setItem("currentExclusions", JSON.stringify(data));
+    localStorage.setItem("currentExclusions", JSON.stringify(excludedData));
+    if (includedData.length > 0) {
+      localStorage.setItem("currentInclusions", JSON.stringify(includedData));
+    } else {
+      localStorage.setItem("currentInclusions", JSON.stringify([]));
+    }
     // refresh the page, so we clear our cache and reload using new security controls
     location.reload();
+  }
+
+  /**update whether AND or OR is used in OpenSearch with security filters for RELs */
+  changeRelFilterOption(data: boolean) {
+    // update local storage with filter option
+    localStorage.setItem("relsFilterOption", JSON.stringify(data));
+    // reload will be called in the changeExclusions function
+  }
+
+  //**get the saved filter option for RELs */
+  getRelFilterOption(): string {
+    return localStorage.getItem("relsFilterOption") || "false";
   }
 
   /** Clears all storage. */
@@ -325,6 +348,10 @@ export class ApiService {
   private addExcl(p: { [id: string]: unknown }) {
     if (this.currentExclusions.length > 0) {
       p["x"] = this.currentExclusions;
+    }
+    // add the included RELs if user wants to filter by RELs in opensearch using AND instead of OR
+    if (this.currentInclusions.length > 0) {
+      p["i"] = this.currentInclusions;
     }
   }
 
