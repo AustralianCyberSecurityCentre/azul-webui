@@ -11,8 +11,11 @@ import {
   HostListener,
   inject,
   OnDestroy,
+  signal,
   ViewChild,
+  WritableSignal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
   faCircleNodes,
@@ -23,6 +26,7 @@ import {
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
 } from "@fortawesome/free-solid-svg-icons";
+import { Store } from "@ngrx/store";
 import * as d3 from "d3";
 import * as dd3 from "dagre-d3-es";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
@@ -30,6 +34,7 @@ import * as ops from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
 import { IconService } from "src/app/core/icon.service";
 import { Nav } from "src/app/core/services";
+import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
 
 /**a single node on the graph*/
@@ -103,6 +108,7 @@ export class RelationGraphComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private nav = inject(Nav);
   private iconService = inject(IconService);
+  private store = inject(Store);
 
   dbg = (...d) => console.debug("RelationGraphComponent:", ...d);
   err = (...d) => console.error("RelationGraphComponent:", ...d);
@@ -131,7 +137,8 @@ not be shown on the graph.
   protected faCircleNodes = faCircleNodes;
   protected faHexagonNodes = faHexagonNodes;
 
-  protected isIncludeCousins$ = new BehaviorSubject<boolean>(true);
+  protected isIncludeCousins$: Observable<boolean>;
+  protected isIncludeCousinsSignal: WritableSignal<boolean> = signal(true);
 
   private buildNodeLink(sha256: string, current: boolean): string {
     // display half the sha256
@@ -254,13 +261,23 @@ not be shown on the graph.
 
   // controls camera for d3 svg
   private zoomer: d3.ZoomBehavior<Element, unknown>;
+  constructor() {
+    super();
+    this.store
+      .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
+      .pipe(ops.take(1))
+      .subscribe((defaultRelational) => {
+        this.isIncludeCousinsSignal.set(defaultRelational);
+        this.isIncludeCousins$ = toObservable(this.isIncludeCousinsSignal);
+      });
+  }
 
   ngOnDestroy() {
     this.renderSub?.unsubscribe();
   }
 
   protected toggle_cousins() {
-    this.isIncludeCousins$.next(!this.isIncludeCousins$.value);
+    this.isIncludeCousinsSignal.set(!this.isIncludeCousinsSignal());
   }
 
   protected zoom_out() {

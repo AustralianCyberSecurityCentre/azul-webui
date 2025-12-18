@@ -84,7 +84,7 @@
       noPadding="true"
       (click)="toggle_cousins()"
     >
-      @if (isIncludeCousins$.value) {
+      @if (isIncludeCousinsSignal()) {
         <fa-icon [icon]="faHexagonNodes" />
       } @else {
         <fa-icon [icon]="faCircleNodes" />

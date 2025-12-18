@@ -23,6 +23,11 @@ export const saveBucketSize = createAction(
   props<{ size: number }>(),
 );
 
+export const saveRelationalGraphShowCousinsByDefault = createAction(
+  "[GlobalSetting] Save Relational Graph Show Cousins by Default",
+  props<{ relationalGraphShowCousinsByDefault: boolean }>(),
+);
+
 export const saveShowDebugInfo = createAction(
   "[GlobalSetting] Save Show Debug Info",
   props<{ showDebugInfo: boolean }>(),
