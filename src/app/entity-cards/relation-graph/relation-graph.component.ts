@@ -8,28 +8,29 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  OnDestroy,
-  ViewChild,
   HostListener,
   inject,
+  OnDestroy,
+  ViewChild,
 } from "@angular/core";
 import { Router } from "@angular/router";
+import {
+  faCircleNodes,
+  faCompress,
+  faExpand,
+  faEye,
+  faHexagonNodes,
+  faMagnifyingGlassMinus,
+  faMagnifyingGlassPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import * as d3 from "d3";
 import * as dd3 from "dagre-d3-es";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-
-import {
-  faCompress,
-  faExpand,
-  faEye,
-  faMagnifyingGlassMinus,
-  faMagnifyingGlassPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { components } from "src/app/core/api/openapi";
 import { IconService } from "src/app/core/icon.service";
 import { Nav } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 /**a single node on the graph*/
 type Node = {
@@ -127,6 +128,10 @@ not be shown on the graph.
   protected faMagnifyingGlassMinus = faMagnifyingGlassMinus;
   protected faExpand = faExpand;
   protected faCompress = faCompress;
+  protected faCircleNodes = faCircleNodes;
+  protected faHexagonNodes = faHexagonNodes;
+
+  protected isIncludeCousins$ = new BehaviorSubject<boolean>(true);
 
   private buildNodeLink(sha256: string, current: boolean): string {
     // display half the sha256
@@ -162,8 +167,15 @@ not be shown on the graph.
   }
 
   protected override onEntityChange() {
-    this.graphData$ = this.entity.nearby$
+    this.graphData$ = this.isIncludeCousins$
       .pipe(
+        ops.switchMap((condition) => {
+          if (condition) {
+            return this.entity.nearby$;
+          } else {
+            return this.entity.nearbyNoCousins$;
+          }
+        }),
         ops.map(
           (e) =>
             <Package>{
@@ -245,6 +257,10 @@ not be shown on the graph.
 
   ngOnDestroy() {
     this.renderSub?.unsubscribe();
+  }
+
+  protected toggle_cousins() {
+    this.isIncludeCousins$.next(!this.isIncludeCousins$.value);
   }
 
   protected zoom_out() {

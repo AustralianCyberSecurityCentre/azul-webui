@@ -77,4 +77,18 @@
       <fa-icon [icon]="faMagnifyingGlassMinus" />
     </flow-button>
   </flow-tooltip>
+  <flow-tooltip message="Toggle simplicity">
+    <flow-button
+      [size]="ButtonSize.Icon"
+      [type]="ButtonType.Light"
+      noPadding="true"
+      (click)="toggle_cousins()"
+    >
+      @if (isIncludeCousins$.value) {
+        <fa-icon [icon]="faHexagonNodes" />
+      } @else {
+        <fa-icon [icon]="faCircleNodes" />
+      }
+    </flow-button>
+  </flow-tooltip>
 </ng-template>

@@ -16,18 +16,18 @@ import {
 import * as ops from "rxjs/operators";
 import { ApiService } from "src/app/core/api/api.service";
 import { FeatureService, b64ToReadable } from "src/app/core/feature.service";
-import * as fromGlobalSettings from "./store/global-settings/global-selector";
 import * as tInfo from "./api/info";
-import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
 import { components, paths } from "./api/openapi";
 import {
+  BulkEntitySummarySubmit,
   FeatureWithDecodedValue,
   FuzzyMatchWithSummary,
-  SimilarMatchWithSummary,
-  BulkEntitySummarySubmit,
-  SimilarRowWithSummary,
   PathWithSummary,
+  SimilarMatchWithSummary,
+  SimilarRowWithSummary,
 } from "./api/state";
+import * as fromGlobalSettings from "./store/global-settings/global-selector";
+import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
 
 /** turns a list of items into a list of list of items, constrained by max items per chunk */
 function chunkify<T>(items: T[], max: number): T[][] {
@@ -71,6 +71,7 @@ export class EntityWrap {
   parents$: Observable<readonly components["schemas"]["PathNode"][]>;
   children$: Observable<readonly components["schemas"]["PathNode"][]>;
   nearby$: Observable<components["schemas"]["ReadNearby"]>;
+  nearbyNoCousins$: Observable<components["schemas"]["ReadNearby"]>;
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
   similar$: Observable<SimilarMatchWithSummary>;
@@ -446,7 +447,12 @@ export class EntityWrap {
       ops.shareReplay(1),
     );
 
-    this.nearby$ = this.api.entityReadNearby(eid).pipe(ops.shareReplay(1));
+    this.nearby$ = this.api
+      .entityReadNearby(eid, { include_cousins: "yes" })
+      .pipe(ops.shareReplay(1));
+    this.nearbyNoCousins$ = this.api
+      .entityReadNearby(eid, { include_cousins: "no" })
+      .pipe(ops.shareReplay(1));
 
     this.documents$ = mainData$.pipe(
       ops.map((d) => d.documents),
