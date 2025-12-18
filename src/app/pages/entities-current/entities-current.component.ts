@@ -192,9 +192,7 @@ export class BinariesCurrentComponent implements OnDestroy {
     this.icon$ = this.entity$.pipe(
       ops.map((entity) => entity.summary$),
       ops.mergeAll(),
-      ops.map((summ) =>
-        this.iconService.get("binary", summ.file_format),
-      ),
+      ops.map((summ) => this.iconService.get("binary", summ.file_format)),
     );
 
     this.route.fragment
