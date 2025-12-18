@@ -8,10 +8,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  OnDestroy,
-  ViewChild,
   HostListener,
   inject,
+  OnDestroy,
+  ViewChild,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import * as d3 from "d3";
@@ -26,10 +26,10 @@ import {
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
 } from "@fortawesome/free-solid-svg-icons";
+import { components } from "src/app/core/api/openapi";
 import { IconService } from "src/app/core/icon.service";
 import { Nav } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 /**a single node on the graph*/
 type Node = {
@@ -402,7 +402,7 @@ not be shown on the graph.
     }
 
     for (const data of datas.slice(0, 5)) {
-      const iconDef = this.iconService.get("binary", data.file_format_legacy);
+      const iconDef = this.iconService.get("binary", data.file_format);
       const svgPathData = iconDef.icon[4];
       label += this.buildNodeLink(data.sha256, current);
       label += '<div class="flex gap-2 text-slate-100 text-sm pl-1">';

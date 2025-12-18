@@ -1,16 +1,17 @@
 import { Injectable } from "@angular/core";
 
 import {
-  faApple,
   faAndroid,
+  faApple,
   faChrome,
+  faFirefox,
   faJava,
   faJs,
   faLinux,
   faPhp,
   faPython,
-  faUbuntu,
   faRedhat,
+  faUbuntu,
   faWindows,
 } from "@fortawesome/free-brands-svg-icons";
 
@@ -22,7 +23,6 @@ import {
   faFileAudio,
   faFileCode,
   faFileExcel,
-  faHdd,
   faFileImage,
   faFilePdf,
   faFilePowerpoint,
@@ -54,132 +54,166 @@ export class IconService {
     }
 
     switch (ftype) {
-      case "JPEG":
-      case "GIF":
-      case "PNG":
-      case "ICO":
-      case "SVG":
-      case "TIFF":
+      case "image/bmp":
+      case "image/cursor":
+      case "image/gif":
+      case "image/icon":
+      case "image/jpg":
+      case "image/png":
+      case "image/svg":
+      case "image/tga":
+      case "image/tiff":
+      case "image/webp":
+      case "image/wmf":
         return faFileImage;
 
-      case "Win32 EXE":
-      case "DOS COM":
-      case "DOS EXE":
-      case "Portable Executable":
-        return faWindows;
-
-      case "Win32 DLL":
+      case "executable/windows/dll64":
+      case "executable/dll32":
         return faCogs;
 
-      case "Android":
+      case "executable/windows/dos":
+      case "executable/windows/pe64":
+      case "executable/windows/pe32":
+      case "executable/windows/pe":
+      case "executable/windows/com":
+      case "executable/pe":
+      case "executable/pe32":
+      case "executable/pe64":
+        return faWindows;
+
+      case "android/apk":
         return faAndroid;
 
-      case "Chrome Extension":
+      case "application/chrome/extension":
         return faChrome;
 
-      case "Mach-O":
+      case "application/mozilla/extension":
+        return faFirefox;
+
+      case "executable/mach-o":
         return faApple;
 
-      case "ELF":
+      case "executable/linux/elf32":
+      case "executable/linux/elf64":
         return faLinux;
 
-      case "Linux RPM package":
+      case "archive/rpm":
         return faRedhat;
 
-      case "Debian Package":
+      case "archive/deb":
         return faUbuntu;
 
-      case "Email":
-      case "Outlook":
+      case "document/email":
+      case "document/office/email":
         return faEnvelope;
 
-      case "HTML":
-      case "XML":
+      case "code/html":
+      case "code/xml":
+      case "document/xml":
         return faFileCode;
 
-      case "CAB":
-      case "MS Compress":
-      case "RAR":
-      case "TAR":
+      case "archive/cabinet":
+      case "archive/rar":
+      case "archive/tar":
         return faArchive;
 
-      case "BZIP":
-      case "GZIP":
-      case "7ZIP":
-      case "ARJ":
-      case "ZIP":
+      case "archive/bzip2":
+      case "archive/gzip":
+      case "archive/7-zip":
+      case "archive/arj":
+      case "archive/lzip":
+      case "archive/zip":
         return faFileArchive;
 
-      case "PDF":
+      case "document/pdf":
+      case "document/pdf/portfolio":
         return faFilePdf;
 
-      case "Text":
-      case "Rich Text Format":
-      case "VBA":
-      case "EPS":
+      // Handled in the default case
+      // case "text/*":
+      // case "code/*":
+      case "sff":
+      case "archive/udf":
+      case "log/vipermonkey":
         return faFileAlt;
 
-      case "PHP":
+      case "code/php":
         return faPhp;
 
-      case "Java Bytecode":
+      case "code/class":
+      case "java/class":
         return faJava;
 
-      case "JavaScript":
+      case "code/javascript":
         return faJs;
 
-      case "Python":
+      case "code/python":
         return faPython;
 
-      case "Powershell":
+      case "code/shell":
         return faTerminal;
 
-      case "Network capture":
+      case "network/tcpdump":
         return faSitemap;
 
-      case "ISO":
+      case "archive/iso":
         return faDotCircle;
 
-      case "Macintosh Disk Image":
-        return faHdd;
-
-      case "Windows Installer":
+      case "document/installer/windows":
+      case "installer/windows":
         return faDatabase;
 
-      case "Compiled HTML Help":
+      case "archive/chm":
         return faBook;
 
-      case "MS Encrypted Document":
+      case "document/office/passwordprotected":
+      case "document/pdf/passwordprotected":
         return faLock;
 
-      case "MS Word Document":
-      case "Office Open XML Document":
-      case "Hangul (Korean) Word Processor document":
-      case "Hangul (Korean] Word Processor document":
+      case "document/office/word":
+      case "document/office/unknown":
         return faFileWord;
 
-      case "MS Excel Spreadsheet":
-      case "Office Open XML Spreadsheet":
+      case "document/office/excel":
+      case "document/odt/spreadsheet":
+      case "document/lotus/spreadsheet":
         return faFileExcel;
 
-      case "MS PowerPoint Presentation":
-      case "Office Open XML Presentation":
+      case "document/office/powerpoint":
+      case "document/odt/presentation":
         return faFilePowerpoint;
 
-      case "Windows shortcut":
+      case "meta/shortcut/windows":
         return faShare;
 
-      case "MP3":
+      case "audio/midi":
+      case "audio/mp2":
+      case "audio/mp3":
+      case "audio/mp4":
+      case "audio/ogg":
+      case "audio/s3m":
+      case "audio/wav":
         return faFileAudio;
 
-      case "MP4":
+      case "video/asf":
+      case "video/avi":
+      case "video/divx":
+      case "video/mp4":
+      case "video/quicktime":
         return faFileVideo;
 
-      case "Flash":
+      case "audiovisual/flash":
         return faFilm;
 
       default:
-        return faFile;
+        // Handle complex cases like regex and startsWith here, to minimise it's usage.
+        switch (true) {
+          case ftype.startsWith("text/"):
+          case ftype.startsWith("code/"):
+            return faFileAlt;
+          default:
+            return faFile;
+        }
     }
   }
 }

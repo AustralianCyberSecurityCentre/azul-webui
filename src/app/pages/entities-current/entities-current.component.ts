@@ -30,9 +30,9 @@ import { IconDefinition, IconService } from "src/app/core/icon.service";
 import { Entity, EntityWrap, Nav } from "src/app/core/services";
 import { getStatusColour, sourceRefsAsParams } from "src/app/core/util";
 
+import { components } from "src/app/core/api/openapi";
 import { selectShowDebugInfo } from "src/app/core/store/global-settings/global-selector";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
-import { components } from "src/app/core/api/openapi";
 
 type Highlight = {
   label: string;
@@ -193,7 +193,7 @@ export class BinariesCurrentComponent implements OnDestroy {
       ops.map((entity) => entity.summary$),
       ops.mergeAll(),
       ops.map((summ) =>
-        this.iconService.get("binary", summ.file_format_legacy),
+        this.iconService.get("binary", summ.file_format),
       ),
     );
 
