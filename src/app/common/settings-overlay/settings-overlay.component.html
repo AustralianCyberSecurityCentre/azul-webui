@@ -34,20 +34,24 @@
       </div>
     }
     <flow-toggle [formControl]="relationalGraphShowCousinsByDefaultForm"
-      >Show Cousing in Relations (default)</flow-toggle
+      >Show Cousins in Relations (default)</flow-toggle
     >
     <flow-toggle [formControl]="entityShowDebugInfoForm"
       >Show Debug Tab</flow-toggle
     >
-    <flow-label>Debug Editor Height (pixels)</flow-label>
-    <flow-input
-      fieldType="number"
-      [min]="10"
-      [step]="10"
-      [max]="5000"
-      [formControl]="debugEditorHeightPxForm"
-      [size]="5"
-    />
+    <div>
+      <flow-label [noPadding]="true" class="pt-1"
+        >Debug Editor Height (pixels)</flow-label
+      >
+      <flow-input
+        fieldType="number"
+        [min]="10"
+        [step]="10"
+        [max]="5000"
+        [formControl]="debugEditorHeightPxForm"
+        [size]="5"
+      />
+    </div>
   </div>
 </ng-container>
 

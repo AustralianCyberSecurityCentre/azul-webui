@@ -97,6 +97,11 @@ type Package = {
   render: Nearby;
 };
 
+const DEFAULT_GRAPH_STROKE_WIDTH = "4";
+const DEFAULT_GRAPH_COLOR = "var(--color-sky-400)";
+const HIGHLIGHT_GRAPH_STROKE_WIDTH = "8";
+const HIGHTLIGHT_GRAPH_COLOR = "var(--color-amber-700)";
+
 /**card displaying relationships between entities, centered on the current entity*/
 @Component({
   selector: "azec-relation-graph",
@@ -647,5 +652,16 @@ not be shown on the graph.
         -centreY + svgHeight / 2,
       ),
     );
+
+    // Allow toggling of edge colour and size.
+    svg.selectAll(".edgePath").on("click", function (_edgeId) {
+      if (d3.select(this).style("stroke") == HIGHTLIGHT_GRAPH_COLOR) {
+        d3.select(this).style("stroke-width", DEFAULT_GRAPH_STROKE_WIDTH);
+        d3.select(this).style("stroke", DEFAULT_GRAPH_COLOR);
+      } else {
+        d3.select(this).style("stroke-width", HIGHLIGHT_GRAPH_STROKE_WIDTH);
+        d3.select(this).style("stroke", HIGHTLIGHT_GRAPH_COLOR);
+      }
+    });
   }
 }
