@@ -861,12 +861,11 @@ export class ApiService {
 
   entityReadNearby(
     sha256: string,
+    params: ValidGETPaths["/api/v0/binaries/{sha256}/nearby"]["get"]["parameters"]["query"] = {},
   ): Observable<components["schemas"]["ReadNearby"] | undefined> {
-    return this.getOperation(
-      "/api/v0/binaries/{sha256}/nearby",
-      {},
-      { sha256 },
-    ).pipe(
+    return this.getOperation("/api/v0/binaries/{sha256}/nearby", params, {
+      sha256,
+    }).pipe(
       ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),

@@ -10,6 +10,7 @@ export interface GlobalSettingState {
   BinaryExploreShowMimetype: boolean;
   BinaryExploreShowMagic: boolean;
   bucketSize: number;
+  relationalGraphShowCousinsByDefault: boolean;
   showDebugInfo: boolean;
   debugQueryEditorHeightPx: number;
   theme: ColorTheme;
@@ -21,6 +22,7 @@ export const initialState: GlobalSettingState = {
   BinaryExploreShowMimetype: false,
   BinaryExploreShowMagic: true,
   bucketSize: 100,
+  relationalGraphShowCousinsByDefault: true,
   showDebugInfo: false,
   debugQueryEditorHeightPx: 300,
   theme: ColorTheme.Dark,
@@ -50,6 +52,18 @@ export const globalSettingReducer = createReducer(
     saveGlobalSettingState(currentState);
     return currentState;
   }),
+  on(
+    GlobalSettingActions.saveRelationalGraphShowCousinsByDefault,
+    (state, { relationalGraphShowCousinsByDefault }) => {
+      const currentState = {
+        ...state,
+        relationalGraphShowCousinsByDefault:
+          relationalGraphShowCousinsByDefault,
+      };
+      saveGlobalSettingState(currentState);
+      return currentState;
+    },
+  ),
   on(GlobalSettingActions.saveShowDebugInfo, (state, { showDebugInfo }) => {
     const currentState = { ...state, showDebugInfo: showDebugInfo };
     saveGlobalSettingState(currentState);
