@@ -440,7 +440,7 @@ not be shown on the graph.
     }
 
     for (const data of datas.slice(0, 5)) {
-      const iconDef = this.iconService.get("binary", data.file_format_legacy);
+      const iconDef = this.iconService.get("binary", data.file_format);
       const svgPathData = iconDef.icon[4];
       label += this.buildNodeLink(data.sha256, current);
       label += '<div class="flex gap-2 text-slate-100 text-sm pl-1">';
