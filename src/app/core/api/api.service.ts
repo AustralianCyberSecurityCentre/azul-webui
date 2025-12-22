@@ -949,7 +949,7 @@ export class ApiService {
     );
   }
 
-  /**add a tag to a particlar entity*/
+  /**add a tag to a particular entity*/
   entityCreateTags(sha256: string, tag: string, security: string) {
     return this.postOperation(
       "/api/v0/binaries/{sha256}/tags/{tag}",
@@ -969,10 +969,19 @@ export class ApiService {
   }
 
   /**read all existing tags for binaries*/
-  entityReadAllTags(): Observable<
-    components["schemas"]["ReadTags"] | undefined
-  > {
-    return this.getOperation("/api/v0/binaries/tags").pipe(
+  entityReadAllTags(
+    forceRefresh: boolean = false,
+  ): Observable<components["schemas"]["ReadTags"] | undefined> {
+    let cacheProps = {};
+    if (forceRefresh) {
+      cacheProps = { cache: false };
+    }
+    return this.getOperation(
+      "/api/v0/binaries/tags",
+      null,
+      {} as never,
+      cacheProps,
+    ).pipe(
       ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
@@ -1105,10 +1114,19 @@ export class ApiService {
   }
 
   /**read all existing tags for binaries*/
-  featureReadAllTags(): Observable<
-    components["schemas"]["ReadFeatureValueTags"] | undefined
-  > {
-    return this.getOperation("/api/v0/features/all/tags").pipe(
+  featureReadAllTags(
+    forceRefresh: boolean = false,
+  ): Observable<components["schemas"]["ReadFeatureValueTags"] | undefined> {
+    let cacheProps = {};
+    if (forceRefresh) {
+      cacheProps = { cache: false };
+    }
+    return this.getOperation(
+      "/api/v0/features/all/tags",
+      null,
+      {} as never,
+      cacheProps,
+    ).pipe(
       ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),

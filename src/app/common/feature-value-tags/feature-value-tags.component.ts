@@ -7,6 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import {
+  FormControl,
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
@@ -15,11 +16,12 @@ import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { BehaviorSubject } from "rxjs";
+import { components } from "src/app/core/api/openapi";
 import { FeatureService } from "src/app/core/feature.service";
 import { SecurityService } from "src/app/core/security.service";
 import { getStatusColour } from "src/app/core/util";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
-import { components } from "src/app/core/api/openapi";
 
 /**Displays a group of tags for the current feature value.
 
@@ -47,6 +49,8 @@ export class FeatureValueTagsComponent implements OnInit {
 
   public getStatusColour = getStatusColour;
   formCreateTag: UntypedFormGroup;
+  tagFormControl: FormControl<string>;
+  refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   private dialog?: DialogRef;
 
@@ -59,10 +63,15 @@ export class FeatureValueTagsComponent implements OnInit {
       tag: ["", Validators.required],
       security: [null, Validators.required],
     });
+    this.tagFormControl = this.formCreateTag.get("tag") as FormControl<string>;
   }
 
   protected openDialog(dialog, extra?) {
     this.dialog = this.dialogService.open(dialog, extra);
+    // Clear old tag value
+    this.tagFormControl.setValue("");
+    // Trigger tag refresh to occur, to load the new tag.
+    this.refreshTags$.next(true);
   }
 
   onCreateFVTagSubmit(feature: string, value: string) {

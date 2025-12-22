@@ -30,12 +30,10 @@
       <flow-card-header> {{ row.name }} | {{ row.value }} </flow-card-header>
       <flow-card-body>
         <div class="flex flex-col gap-2">
-          Tags are limited to 25 lowercase alphanumeric and '-' only.
-          <flow-input
-            formControlName="tag"
-            placeholder="my-tag-45"
-            pattern="[a-z0-9\-]*$"
-            maxlength="25"
+          <az-tag-picker
+            [tagName]="tagFormControl"
+            [refreshTags$]="refreshTags$"
+            [isEntityTag]="false"
           />
           <azco-security-picker
             (security)="formCreateTag.get('security').patchValue($event)"
