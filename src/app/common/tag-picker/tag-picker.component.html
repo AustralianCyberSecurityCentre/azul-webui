@@ -1,0 +1,43 @@
+<div class="relative z-10 w-full break-words text-ellipsis">
+  Tags are limited to 25 lowercase alphanumeric and '-' only.
+  <flow-input
+    #tagInput
+    [id]="'tagInput'"
+    placeholder="my-tag-45"
+    [formControl]="tagName"
+    pattern="[a-z0-9\-]*$"
+    maxlength="25"
+    (inputFocus)="showExistingTagsSignal.set(true)"
+    (inputFocusOut)="handleFocusOut($event)"
+    (input)="_tagInputChange()"
+    (keydown)="closeOnEnter($event)"
+  />
+  @if (showExistingTagsSignal()) {
+    <div
+      class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl"
+    >
+      <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+      <table class="w-full">
+        <tbody>
+          @for (existingTag of entityTagsFiltered(); track existingTag) {
+            <tr
+              class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
+            >
+              <td
+                class=""
+                id="tag-suggestion-{{ existingTag }}"
+                [tabindex]="0"
+                (focusout)="handleFocusOut($event)"
+                [title]="existingTag"
+                (click)="setTagValue(existingTag)"
+                (keydown)="keyDownActionOnTagValue($event, existingTag)"
+              >
+                {{ existingTag }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

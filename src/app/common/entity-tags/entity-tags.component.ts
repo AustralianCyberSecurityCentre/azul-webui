@@ -8,6 +8,7 @@ import {
   inject,
 } from "@angular/core";
 import {
+  FormControl,
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
@@ -50,6 +51,7 @@ export class EntityTagsComponent implements OnInit {
   protected ButtonType = ButtonType;
 
   formCreateTag: UntypedFormGroup;
+  tagFormControl: FormControl<string>;
   getColour = getStatusColour;
 
   ngOnInit(): void {
@@ -57,6 +59,7 @@ export class EntityTagsComponent implements OnInit {
       tag: ["", Validators.required],
       security: [null, Validators.required],
     });
+    this.tagFormControl = this.formCreateTag.get("tag") as FormControl<string>;
   }
 
   protected openDialog(dialog, extra?) {
@@ -74,6 +77,8 @@ export class EntityTagsComponent implements OnInit {
       .subscribe((_d) => {
         this.dialog.close();
         this.changed.emit();
+        // Clear old tag value
+        this.formCreateTag.get("tag").setValue("");
       });
   }
 
