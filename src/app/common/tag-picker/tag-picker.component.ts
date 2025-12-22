@@ -53,6 +53,7 @@ export class TagPickerComponent implements OnInit {
   ngOnInit(): void {
     this.allEntityTags$ = this.refreshTags$.pipe(
       ops.switchMap(() => {
+        // FUTURE - should get cache value first and then query with no cache
         return this.api.entityReadAllTags(true);
       }),
       ops.map((tagValues) => {
@@ -88,6 +89,7 @@ export class TagPickerComponent implements OnInit {
 
     this.allFeatureTags$ = this.refreshTags$.pipe(
       ops.switchMap(() => {
+        // FUTURE - should get cache value first and then query with no cache
         return this.api.featureReadAllTags(true);
       }),
       ops.map((tagValues) => {
@@ -103,7 +105,7 @@ export class TagPickerComponent implements OnInit {
 
     this.allFeatureTagsFiltered$ = this.tagName.valueChanges.pipe(
       ops.startWith(""),
-      ops.withLatestFrom(this.allFeatureTags$),
+      ops.combineLatestWith(this.allFeatureTags$),
       ops.map(([newTagValue, tagList]) => {
         const result: string[] = [];
         tagList.forEach((val) => {
