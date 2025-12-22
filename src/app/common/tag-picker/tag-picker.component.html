@@ -9,9 +9,31 @@
     maxlength="25"
     (inputFocus)="showExistingTagsSignal.set(true)"
     (inputFocusOut)="handleFocusOut($event)"
-    (input)="_tagInputChange()"
     (keydown)="closeOnEnter($event)"
   />
+  @if (isEntityTag) {
+    @if (allEntityTagsFiltered$ | async; as allEntityTagsFilteredList) {
+      <ng-container
+        *ngTemplateOutlet="
+          tplPaginate;
+          context: { allTagsFilteredList: allEntityTagsFilteredList }
+        "
+      />
+    }
+  } @else {
+    <!-- Must be a feature tag if not an entity tag.-->
+    @if (allFeatureTagsFiltered$ | async; as allFeatureTagsFilteredList) {
+      <ng-container
+        *ngTemplateOutlet="
+          tplPaginate;
+          context: { allTagsFilteredList: allFeatureTagsFilteredList }
+        "
+      />
+    }
+  }
+</div>
+
+<ng-template #tplPaginate let-allTagsFilteredList="allTagsFilteredList">
   @if (showExistingTagsSignal()) {
     <div
       class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl"
@@ -19,7 +41,7 @@
       <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
       <table class="w-full">
         <tbody>
-          @for (existingTag of entityTagsFiltered(); track existingTag) {
+          @for (existingTag of allTagsFilteredList; track existingTag) {
             <tr
               class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
             >
@@ -40,4 +62,4 @@
       </table>
     </div>
   }
-</div>
+</ng-template>

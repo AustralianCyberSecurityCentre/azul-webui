@@ -28,7 +28,11 @@
     <flow-card>
       <flow-card-body>
         <div class="flex flex-col gap-2">
-          <az-tag-picker [tagName]="tagFormControl" />
+          <az-tag-picker
+            [tagName]="tagFormControl"
+            [refreshTags$]="refreshTags$"
+            [isEntityTag]="true"
+          />
           <azco-security-picker
             style="width: 100%"
             (security)="formCreateTag.get('security').patchValue($event)"

@@ -13,9 +13,9 @@ import {
   UntypedFormGroup,
   Validators,
 } from "@angular/forms";
+import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
-
 import { Entity, Security } from "src/app/core/services";
 import { escapeValue, getStatusColour } from "src/app/core/util";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
@@ -52,6 +52,7 @@ export class EntityTagsComponent implements OnInit {
 
   formCreateTag: UntypedFormGroup;
   tagFormControl: FormControl<string>;
+  refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   getColour = getStatusColour;
 
   ngOnInit(): void {
@@ -79,6 +80,8 @@ export class EntityTagsComponent implements OnInit {
         this.changed.emit();
         // Clear old tag value
         this.formCreateTag.get("tag").setValue("");
+        // Trigger tag refresh to occur, to load the new tag.
+        this.refreshTags$.next(true);
       });
   }
 
