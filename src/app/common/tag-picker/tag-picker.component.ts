@@ -8,7 +8,7 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { Observable, Subject, Subscription } from "rxjs";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ApiService } from "src/app/core/api/api.service";
 import { FlowModule } from "src/lib/flow/flow.module";
@@ -28,7 +28,7 @@ export class TagPickerComponent implements OnInit {
   private api = inject(ApiService);
 
   @Input() tagName: FormControl<string>;
-  @Input() refreshTags$: Subject<boolean>;
+  @Input() refreshTags$: BehaviorSubject<boolean>;
 
   private _isEntityTag: boolean = true;
 
@@ -65,13 +65,13 @@ export class TagPickerComponent implements OnInit {
       }),
       ops.shareReplay(1),
     );
-    this.allEntityTagsFiltered$ = this.allEntityTags$.pipe(
-      ops.map((tagList) => {
+    this.allEntityTagsFiltered$ = this.tagName.valueChanges.pipe(ops.startWith(""),
+      ops.combineLatestWith(this.allEntityTags$),
+      ops.map(([newTagValue, tagList]) => {
         const result: string[] = [];
         tagList.forEach((val) => {
-          const currentTagName = String(this.tagName.value);
-          if (currentTagName.length > 0) {
-            if (val.includes(currentTagName)) {
+          if (newTagValue.length > 0) {
+            if (val.includes(newTagValue)) {
               // Only add tags if they contain some of the text in the value field.
               result.push(val);
             }
@@ -100,13 +100,13 @@ export class TagPickerComponent implements OnInit {
       ops.shareReplay(1),
     );
 
-    this.allFeatureTagsFiltered$ = this.allFeatureTags$.pipe(
-      ops.map((tagList) => {
+    this.allFeatureTagsFiltered$ = this.tagName.valueChanges.pipe(ops.startWith(""),
+      ops.withLatestFrom(this.allFeatureTags$),
+      ops.map(([newTagValue, tagList]) => {
         const result: string[] = [];
         tagList.forEach((val) => {
-          const currentTagName = String(this.tagName.value);
-          if (currentTagName.length > 0) {
-            if (val.includes(currentTagName)) {
+          if (newTagValue.length > 0) {
+            if (val.includes(newTagValue)) {
               // Only add tags if they contain some of the text in the value field.
               result.push(val);
             }
@@ -115,6 +115,7 @@ export class TagPickerComponent implements OnInit {
             result.push(val);
           }
         });
+
         return result;
       }),
       ops.shareReplay(1),
