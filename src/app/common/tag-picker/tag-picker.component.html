@@ -36,19 +36,18 @@
 <ng-template #tplPaginate let-allTagsFilteredList="allTagsFilteredList">
   @if (showExistingTagsSignal()) {
     <div
-      class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl"
+      class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl overflow-y-scroll"
     >
       <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+      <div class="max-h-80 [@media(max-height:600px)]:max-h-40">
       <table class="w-full">
-        <tbody>
+        <tbody class="overflow-y-scroll">
           @for (existingTag of allTagsFilteredList; track existingTag) {
             <tr
               class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
             >
               <td
-                class=""
                 id="tag-suggestion-{{ existingTag }}"
-                [tabindex]="0"
                 (focusout)="handleFocusOut($event)"
                 [title]="existingTag"
                 (click)="setTagValue(existingTag)"
@@ -60,6 +59,7 @@
           }
         </tbody>
       </table>
+      </div>
     </div>
   }
 </ng-template>

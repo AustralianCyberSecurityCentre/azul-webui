@@ -30,14 +30,14 @@ export class TagPickerComponent implements OnInit {
   @Input() tagName: FormControl<string>;
   @Input() refreshTags$: Subject<boolean>;
 
-  private _isEntityTag: boolean;
+  private _isEntityTag: boolean = true;
 
   @Input()
   get isEntityTag(): boolean {
     return this._isEntityTag;
   }
   set isEntityTag(value: boolean) {
-    this._isEntityTag = value || true;
+    this._isEntityTag = value;
   }
 
   protected allEntityTagsSub: Subscription;
