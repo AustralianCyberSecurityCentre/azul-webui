@@ -65,7 +65,8 @@ export class TagPickerComponent implements OnInit {
       }),
       ops.shareReplay(1),
     );
-    this.allEntityTagsFiltered$ = this.tagName.valueChanges.pipe(ops.startWith(""),
+    this.allEntityTagsFiltered$ = this.tagName.valueChanges.pipe(
+      ops.startWith(""),
       ops.combineLatestWith(this.allEntityTags$),
       ops.map(([newTagValue, tagList]) => {
         const result: string[] = [];
@@ -100,7 +101,8 @@ export class TagPickerComponent implements OnInit {
       ops.shareReplay(1),
     );
 
-    this.allFeatureTagsFiltered$ = this.tagName.valueChanges.pipe(ops.startWith(""),
+    this.allFeatureTagsFiltered$ = this.tagName.valueChanges.pipe(
+      ops.startWith(""),
       ops.withLatestFrom(this.allFeatureTags$),
       ops.map(([newTagValue, tagList]) => {
         const result: string[] = [];
