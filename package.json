@@ -39,7 +39,7 @@
     "angular-auth-oidc-client": "^19.0.2",
     "angular-split": "^20.0.0",
     "axios": "^1.13.2",
-    "axios-cache-interceptor": "^1.8.3",
+    "axios-cache-interceptor": "^1.11.1",
     "d3": "^7.9.0",
     "dagre-d3-es": "^7.0.14",
     "date-fns": "^4.1.0",
