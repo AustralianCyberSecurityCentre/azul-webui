@@ -346,6 +346,11 @@ export class ApiService {
 
   /**add the current set of exclusions to the parameters dict for an outgoing request*/
   private addExcl(p: { [id: string]: unknown }) {
+    // Ignore exclusions if the operation doesn't provide them.
+    // This occurs on specific APIs where exclusions are undesirable such as when reading all tags.
+    if (p == null || p == undefined) {
+      return;
+    }
     if (this.currentExclusions.length > 0) {
       p["x"] = this.currentExclusions;
     }

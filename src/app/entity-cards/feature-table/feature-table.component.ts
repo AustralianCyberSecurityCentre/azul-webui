@@ -266,11 +266,25 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
         this.pluginFVCounts.set(tempPluginFVCounts);
         // Reset plugin toggles if this has been updated just to avoid the user
         // filtering on a plugin which they can't see
-        this.toggleAllPlugins(true);
+        this.selectAllPlugins();
       });
   }
 
-  toggleButton(button: string) {
+  /* Summary method to pick between clicking and selecting based on if shift is selected. */
+  clickButton(button: string, clickEvent: PointerEvent) {
+    if (clickEvent.shiftKey || clickEvent.ctrlKey) {
+      this.toggleButton(button);
+    } else {
+      this.selectButton(button);
+    }
+  }
+
+  private selectButton(button: string) {
+    this.dbg("Selecting:", button);
+    this.currentPluginFilter$.next([button]);
+  }
+
+  private toggleButton(button: string) {
     this.dbg("Toggling:", button);
     if (this.currentPluginFilter$.value.includes(button)) {
       this.currentPluginFilter$.next(
@@ -284,12 +298,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     }
   }
 
-  toggleAllPlugins(forcedOn: boolean = false) {
-    if (this.currentPluginFilter$.value.length == 0 || forcedOn) {
-      this.currentPluginFilter$.next(Array.from(this.pluginFVCounts().keys()));
-    } else {
-      this.currentPluginFilter$.next([]);
-    }
+  selectAllPlugins() {
+    this.currentPluginFilter$.next(Array.from(this.pluginFVCounts().keys()));
   }
 
   private sortAndFilter() {
