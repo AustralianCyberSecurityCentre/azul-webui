@@ -65,7 +65,7 @@
         </div>
         <div class="flex grow flex-wrap gap-2">
           <flow-tooltip
-            message="Toggle features from all plugins"
+            message="Show features from all plugins (Shift select to toggle plugins)"
             direction="bottom"
           >
             <flow-button [type]="ButtonType.Light" (click)="toggleAllPlugins()">
@@ -77,11 +77,11 @@
             track pluginFVCount
           ) {
             <flow-tooltip
-              message="Toggle features from {{ pluginFVCount.key }}"
+              message="View features from {{ pluginFVCount.key }}"
               direction="bottom"
             >
               <flow-button
-                (click)="toggleButton(pluginFVCount.key)"
+                (click)="clickButton(pluginFVCount.key, $event)"
                 [type]="
                   (currentPluginFilter$ | async).includes(pluginFVCount.key)
                     ? ButtonType.Primary
