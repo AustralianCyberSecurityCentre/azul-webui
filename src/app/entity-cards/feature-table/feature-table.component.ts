@@ -266,7 +266,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
         this.pluginFVCounts.set(tempPluginFVCounts);
         // Reset plugin toggles if this has been updated just to avoid the user
         // filtering on a plugin which they can't see
-        this.toggleAllPlugins();
+        this.selectAllPlugins();
       });
   }
 
