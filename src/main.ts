@@ -8,7 +8,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-/**start the acutual angular app*/
+/**start the actual angular app*/
 function runAngular() {
   import("./app/app.module").then((appmodule) => {
     // console.log('appmodule', appmodule)
