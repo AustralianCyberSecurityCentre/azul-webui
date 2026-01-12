@@ -14,6 +14,14 @@
     "e2e": "npx playwright test"
   },
   "private": true,
+  "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
+  "overrides": {
+    "ngx-monaco-editor-v2": {
+      "@angular/common": "21.0.0",
+      "@angular/core": "^21.0.0",
+      "monaco-editor": "^0.55.1"
+    }
+  },
   "dependencies": {
     "@angular/animations": "^20.3.15",
     "@angular/cdk": "^20.2.14",
