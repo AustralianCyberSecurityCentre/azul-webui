@@ -42,7 +42,6 @@
                 <th flowTableHeaderCell>Compare</th>
                 <th flowTableHeaderCell>Match Info</th>
                 <th flowTableHeaderCell>Type</th>
-                <th flowTableHeaderCell>Type (Legacy)</th>
                 <th flowTableHeaderCell>File Size</th>
                 <th flowTableHeaderCell>Magic</th>
                 <th flowTableHeaderCell>Mime</th>
@@ -89,13 +88,6 @@
                       [title]="edata?.file_format"
                     >
                       {{ edata?.file_format }}
-                    </td>
-                    <td
-                      flowTableBodyCell
-                      class="limit truncate"
-                      [title]="edata?.file_format_legacy"
-                    >
-                      {{ edata?.file_format_legacy }}
                     </td>
                     <td
                       flowTableBodyCell

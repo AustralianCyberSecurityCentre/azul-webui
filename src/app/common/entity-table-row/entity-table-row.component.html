@@ -135,12 +135,6 @@
         <span [title]="'Type: ' + innerRow.file_format">{{
           innerRow.file_format || "?"
         }}</span>
-        @if (showFileFormatLegacy$ | async) {
-          |
-          <span [title]="'Type (Legacy): ' + innerRow.file_format_legacy">{{
-            innerRow.file_format_legacy || "?"
-          }}</span>
-        }
         @if (showMimetype$ | async) {
           |
           <span [title]="'Mime: ' + innerRow.mime">{{

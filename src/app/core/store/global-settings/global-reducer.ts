@@ -6,7 +6,6 @@ const GLOBAL_SETTING_STATE = "GLOBAL_SETTING_STATE";
 
 export interface GlobalSettingState {
   BinaryExploreShowEntropy: boolean;
-  BinaryExploreShowFileFormatLegacy: boolean;
   BinaryExploreShowMimetype: boolean;
   BinaryExploreShowMagic: boolean;
   bucketSize: number;
@@ -18,7 +17,6 @@ export interface GlobalSettingState {
 
 export const initialState: GlobalSettingState = {
   BinaryExploreShowEntropy: true,
-  BinaryExploreShowFileFormatLegacy: false,
   BinaryExploreShowMimetype: false,
   BinaryExploreShowMagic: true,
   bucketSize: 100,
@@ -91,17 +89,6 @@ export const globalSettingReducer = createReducer(
       const currentState = {
         ...state,
         BinaryExploreShowEntropy: BinaryExploreShowEntropy,
-      };
-      saveGlobalSettingState(currentState);
-      return currentState;
-    },
-  ),
-  on(
-    GlobalSettingActions.saveBinaryExploreShowFileFormatLegacy,
-    (state, { BinaryExploreShowFileFormatLegacy }) => {
-      const currentState = {
-        ...state,
-        BinaryExploreShowFileFormatLegacy: BinaryExploreShowFileFormatLegacy,
       };
       saveGlobalSettingState(currentState);
       return currentState;
