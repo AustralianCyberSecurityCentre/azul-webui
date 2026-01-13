@@ -39,6 +39,7 @@ import { EntitySearchComponent } from "./entity-search/entity-search.component";
 import { OffsetPickerComponent } from "./offset-picker/offset-picker.component";
 import { BannersComponent } from "./banners/banners.component";
 import { FormsModule } from "@angular/forms";
+import { TagPickerComponent } from "./tag-picker/tag-picker.component";
 
 @NgModule({
   declarations: [
@@ -78,6 +79,7 @@ import { FormsModule } from "@angular/forms";
     FlowModule,
     OverlayModule,
     FormsModule,
+    TagPickerComponent,
   ],
   exports: [
     SincePipe,

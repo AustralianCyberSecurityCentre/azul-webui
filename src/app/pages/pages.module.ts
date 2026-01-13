@@ -6,8 +6,10 @@ import { AzCommonModule } from "src/app/common/common.module";
 import { AzCoreModule } from "src/app/core/core.module";
 import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
 
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { FlowModule } from "src/lib/flow/flow.module";
+import { TextIconComponent } from "../common/text-icon/text-icon.component";
 import { EntityTabsModule } from "../entity-tabs/entity-tabs";
 import { CallbackComponent } from "./callback/callback.component";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
@@ -19,6 +21,7 @@ import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-t
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
+import { FeaturesPivotComponent } from "./features-pivot/features-pivot.component";
 import { FeaturesTagsCurrentComponent } from "./features-tags-current/features-tags-current.component";
 import { FeaturesTagsExploreComponent } from "./features-tags-explore/features-tags-explore.component";
 import { FrontComponent } from "./front/front.component";
@@ -30,7 +33,6 @@ import { SourcesCurrentComponent } from "./sources-current/sources-current.compo
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
-import { TextIconComponent } from "../common/text-icon/text-icon.component";
 
 @NgModule({
   declarations: [
@@ -40,6 +42,7 @@ import { TextIconComponent } from "../common/text-icon/text-icon.component";
     SourcesExploreComponent,
     FeaturesExploreComponent,
     FeaturesCurrentComponent,
+    FeaturesPivotComponent,
     BinariesUploadComponent,
     SourcesCurrentComponent,
     FrontComponent,
@@ -67,6 +70,7 @@ import { TextIconComponent } from "../common/text-icon/text-icon.component";
     FlowModule,
     EntityTabsModule,
     TextIconComponent,
+    ScrollingModule,
   ],
   exports: [CallbackComponent, BinariesExploreComponent],
 })

@@ -8,28 +8,34 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  OnDestroy,
-  ViewChild,
   HostListener,
   inject,
+  OnDestroy,
+  signal,
+  ViewChild,
+  WritableSignal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
+import {
+  faCircleNodes,
+  faCompress,
+  faExpand,
+  faEye,
+  faHexagonNodes,
+  faMagnifyingGlassMinus,
+  faMagnifyingGlassPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import { Store } from "@ngrx/store";
 import * as d3 from "d3";
 import * as dd3 from "dagre-d3-es";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-
-import {
-  faCompress,
-  faExpand,
-  faEye,
-  faMagnifyingGlassMinus,
-  faMagnifyingGlassPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { components } from "src/app/core/api/openapi";
 import { IconService } from "src/app/core/icon.service";
 import { Nav } from "src/app/core/services";
+import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 /**a single node on the graph*/
 type Node = {
@@ -91,6 +97,11 @@ type Package = {
   render: Nearby;
 };
 
+const DEFAULT_GRAPH_STROKE_WIDTH = "4";
+const DEFAULT_GRAPH_COLOR = "var(--color-sky-400)";
+const HIGHLIGHT_GRAPH_STROKE_WIDTH = "8";
+const HIGHTLIGHT_GRAPH_COLOR = "var(--color-amber-700)";
+
 /**card displaying relationships between entities, centered on the current entity*/
 @Component({
   selector: "azec-relation-graph",
@@ -102,6 +113,7 @@ export class RelationGraphComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private nav = inject(Nav);
   private iconService = inject(IconService);
+  private store = inject(Store);
 
   dbg = (...d) => console.debug("RelationGraphComponent:", ...d);
   err = (...d) => console.error("RelationGraphComponent:", ...d);
@@ -127,6 +139,11 @@ not be shown on the graph.
   protected faMagnifyingGlassMinus = faMagnifyingGlassMinus;
   protected faExpand = faExpand;
   protected faCompress = faCompress;
+  protected faCircleNodes = faCircleNodes;
+  protected faHexagonNodes = faHexagonNodes;
+
+  protected isIncludeCousins$: Observable<boolean>;
+  protected isIncludeCousinsSignal: WritableSignal<boolean> = signal(true);
 
   private buildNodeLink(sha256: string, current: boolean): string {
     // display half the sha256
@@ -162,8 +179,15 @@ not be shown on the graph.
   }
 
   protected override onEntityChange() {
-    this.graphData$ = this.entity.nearby$
+    this.graphData$ = this.isIncludeCousins$
       .pipe(
+        ops.switchMap((condition) => {
+          if (condition) {
+            return this.entity.nearby$;
+          } else {
+            return this.entity.nearbyNoCousins$;
+          }
+        }),
         ops.map(
           (e) =>
             <Package>{
@@ -242,9 +266,23 @@ not be shown on the graph.
 
   // controls camera for d3 svg
   private zoomer: d3.ZoomBehavior<Element, unknown>;
+  constructor() {
+    super();
+    this.store
+      .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
+      .pipe(ops.take(1))
+      .subscribe((defaultRelational) => {
+        this.isIncludeCousinsSignal.set(defaultRelational);
+        this.isIncludeCousins$ = toObservable(this.isIncludeCousinsSignal);
+      });
+  }
 
   ngOnDestroy() {
     this.renderSub?.unsubscribe();
+  }
+
+  protected toggle_cousins() {
+    this.isIncludeCousinsSignal.set(!this.isIncludeCousinsSignal());
   }
 
   protected zoom_out() {
@@ -402,7 +440,7 @@ not be shown on the graph.
     }
 
     for (const data of datas.slice(0, 5)) {
-      const iconDef = this.iconService.get("binary", data.file_format_legacy);
+      const iconDef = this.iconService.get("binary", data.file_format);
       const svgPathData = iconDef.icon[4];
       label += this.buildNodeLink(data.sha256, current);
       label += '<div class="flex gap-2 text-slate-100 text-sm pl-1">';
@@ -614,5 +652,16 @@ not be shown on the graph.
         -centreY + svgHeight / 2,
       ),
     );
+
+    // Allow toggling of edge colour and size.
+    svg.selectAll(".edgePath").on("click", function (_edgeId) {
+      if (d3.select(this).style("stroke") == HIGHTLIGHT_GRAPH_COLOR) {
+        d3.select(this).style("stroke-width", DEFAULT_GRAPH_STROKE_WIDTH);
+        d3.select(this).style("stroke", DEFAULT_GRAPH_COLOR);
+      } else {
+        d3.select(this).style("stroke-width", HIGHLIGHT_GRAPH_STROKE_WIDTH);
+        d3.select(this).style("stroke", HIGHTLIGHT_GRAPH_COLOR);
+      }
+    });
   }
 }

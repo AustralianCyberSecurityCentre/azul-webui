@@ -25,6 +25,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Boundary } from "src/app/common/offset-picker/offset-picker.component";
 import { components } from "src/app/core/api/openapi";
 import { FeatureWithDecodedValue } from "src/app/core/api/state";
+import { PivotService } from "src/app/core/pivot.service";
 import { escapeValue } from "src/app/core/util";
 import { BaseCard } from "../base-card.component";
 
@@ -65,6 +66,7 @@ const FEATURE_INSTANCE_USER_TYPE = "user";
 export class FeatureTableComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private dialogService = inject(Dialog);
+  private pivotService = inject(PivotService);
 
   @ViewChild("ftable", { read: ElementRef }) ftable: ElementRef;
 
@@ -264,11 +266,25 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
         this.pluginFVCounts.set(tempPluginFVCounts);
         // Reset plugin toggles if this has been updated just to avoid the user
         // filtering on a plugin which they can't see
-        this.toggleAllPlugins(true);
+        this.selectAllPlugins();
       });
   }
 
-  toggleButton(button: string) {
+  /* Summary method to pick between clicking and selecting based on if shift is selected. */
+  clickButton(button: string, clickEvent: PointerEvent) {
+    if (clickEvent.shiftKey || clickEvent.ctrlKey) {
+      this.toggleButton(button);
+    } else {
+      this.selectButton(button);
+    }
+  }
+
+  private selectButton(button: string) {
+    this.dbg("Selecting:", button);
+    this.currentPluginFilter$.next([button]);
+  }
+
+  private toggleButton(button: string) {
     this.dbg("Toggling:", button);
     if (this.currentPluginFilter$.value.includes(button)) {
       this.currentPluginFilter$.next(
@@ -282,12 +298,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     }
   }
 
-  toggleAllPlugins(forcedOn: boolean = false) {
-    if (this.currentPluginFilter$.value.length == 0 || forcedOn) {
-      this.currentPluginFilter$.next(Array.from(this.pluginFVCounts().keys()));
-    } else {
-      this.currentPluginFilter$.next([]);
-    }
+  selectAllPlugins() {
+    this.currentPluginFilter$.next(Array.from(this.pluginFVCounts().keys()));
   }
 
   private sortAndFilter() {
@@ -444,7 +456,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.currentSelectedFeatures().forEach((fv: FeatureValue) => {
       termParams.push(`features_map.${fv.name}:${escapeValue(fv.value)}`);
     });
-    // The actual term query are space seperated values.
+    // The actual term query are space separated values.
     const termQuery = termParams.join(" ");
     this.router.navigate(["/pages/binaries/explore"], {
       queryParams: { term: termQuery },
@@ -502,5 +514,18 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     const partName = PART_ANALYZERS[part.part] || part.part;
 
     return "features.enriched." + partName + ":" + escapeValue(part.value);
+  }
+
+  pivotOnSelectedFeatures() {
+    this.pivotService.clearPivot();
+    this.currentSelectedFeatures().forEach((fv) => {
+      this.pivotService.setSelected({
+        feature_name: fv.name,
+        feature_value: fv.value,
+      });
+    });
+    // Backup this selection so it can be restored to.
+    this.pivotService.backupCurrentSelection();
+    this.router.navigate(["/pages/features/pivot"]);
   }
 }

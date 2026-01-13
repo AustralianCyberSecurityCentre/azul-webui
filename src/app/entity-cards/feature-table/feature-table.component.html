@@ -47,6 +47,17 @@
           >
             Search Selected
           </flow-button>
+          <flow-button
+            (click)="pivotOnSelectedFeatures()"
+            title="Search for all the features on binaries that have the selected features"
+            [type]="
+              currentSelectedFeatures().length === 0
+                ? ButtonType.Disabled
+                : ButtonType.Green
+            "
+          >
+            Pivot on Selected
+          </flow-button>
           <azec-offset-picker
             [entity]="entity"
             (extent)="visibleExtent$.next($event)"
@@ -54,10 +65,10 @@
         </div>
         <div class="flex grow flex-wrap gap-2">
           <flow-tooltip
-            message="Toggle features from all plugins"
+            message="Show features from all plugins"
             direction="bottom"
           >
-            <flow-button [type]="ButtonType.Light" (click)="toggleAllPlugins()">
+            <flow-button [type]="ButtonType.Light" (click)="selectAllPlugins()">
               All
             </flow-button>
           </flow-tooltip>
@@ -66,11 +77,13 @@
             track pluginFVCount
           ) {
             <flow-tooltip
-              message="Toggle features from {{ pluginFVCount.key }}"
+              message="View features from {{
+                pluginFVCount.key
+              }} (CTRL + Click to toggle)"
               direction="bottom"
             >
               <flow-button
-                (click)="toggleButton(pluginFVCount.key)"
+                (click)="clickButton(pluginFVCount.key, $event)"
                 [type]="
                   (currentPluginFilter$ | async).includes(pluginFVCount.key)
                     ? ButtonType.Primary

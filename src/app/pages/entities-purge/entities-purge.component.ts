@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component, OnDestroy, OnInit, inject } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Navigation, Router } from "@angular/router";
 import {
@@ -11,8 +11,8 @@ import {
 } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ApiService } from "src/app/core/api/api.service";
-import { EntityService } from "src/app/core/entity.service";
 import { components } from "src/app/core/api/openapi";
+import { EntityService } from "src/app/core/entity.service";
 import { UserService } from "src/app/core/user.service";
 import { allowedToPurge } from "src/app/core/util";
 import { ButtonType } from "src/lib/flow/button/button.component";
@@ -84,7 +84,7 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
     components["schemas"]["PurgeSimulation"]
   >;
   protected apiPurge$?: Observable<
-    components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"]
+    components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"]
   >;
   protected cacheClear$?: Observable<boolean>;
 

@@ -16,7 +16,6 @@ import {
   EntityFindWithPurgeExtras,
 } from "src/app/core/api/state";
 import { EntityWrap } from "src/app/core/entity.service";
-import { SelectionTrackerService } from "src/app/core/selection-tracker.service";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 /**Displays a set of binaries in a table, as the result of a entityFind call
@@ -32,7 +31,6 @@ Includes highlighting data from elasticsearch.
 })
 export class EntityTableComponent implements OnChanges {
   private router = inject(Router);
-  private selectionService = inject(SelectionTrackerService);
 
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
@@ -118,10 +116,8 @@ export class EntityTableComponent implements OnChanges {
     },
   ) {
     if (row.checked) {
-      this.selectionService.setSelected(row);
       this.selectedRowMap.set(row.sha256, row);
     } else {
-      this.selectionService.removeSelected(row.sha256);
       this.selectedRowMap.delete(row.sha256);
     }
   }

@@ -3,12 +3,15 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
+import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
+import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
+import { FeaturesPivotComponent } from "./features-pivot/features-pivot.component";
 import { FeaturesTagsCurrentComponent } from "./features-tags-current/features-tags-current.component";
 import { FeaturesTagsExploreComponent } from "./features-tags-explore/features-tags-explore.component";
 import { FrontComponent } from "./front/front.component";
@@ -18,8 +21,6 @@ import { PluginsExploreComponent } from "./plugins-explore/plugins-explore.compo
 import { SourcesCurrentComponent } from "./sources-current/sources-current.component";
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
-import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
-import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 
 const routes: Routes = [
   {
@@ -69,6 +70,11 @@ const routes: Routes = [
         children: [
           { path: "", redirectTo: "explore", pathMatch: "full" },
           { path: "explore", component: FeaturesExploreComponent },
+          {
+            path: "pivot",
+            component: FeaturesPivotComponent,
+            data: { noScroll: true },
+          },
           { path: "tags", component: FeaturesTagsExploreComponent },
           { path: "tags/:tag", component: FeaturesTagsCurrentComponent },
           { path: "current/:feature", component: FeaturesCurrentComponent },

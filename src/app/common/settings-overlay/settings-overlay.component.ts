@@ -1,21 +1,21 @@
-import { Component, OnInit, signal, inject } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import {
   FormControl,
   UntypedFormBuilder,
   UntypedFormGroup,
 } from "@angular/forms";
-import * as ops from "rxjs/operators";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
+import * as ops from "rxjs/operators";
 import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
-import * as fromGlobal from "../../core/store/global-settings/global-selector";
 import * as globalAction from "../../core/store/global-settings/global-actions";
-import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
-import * as globalSettingsReducer from "../../core/store/global-settings/global-reducer";
 import {
   saveBucketSize,
   saveShowDebugInfo,
 } from "../../core/store/global-settings/global-actions";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import * as globalSettingsReducer from "../../core/store/global-settings/global-reducer";
+import * as fromGlobal from "../../core/store/global-settings/global-selector";
+import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
 
 @Component({
   selector: "az-settings-overlay",
@@ -27,6 +27,7 @@ export class SettingsOverlayComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);
 
   protected entityBucketSizeForm: FormControl;
+  protected relationalGraphShowCousinsByDefaultForm: FormControl;
   protected entityShowDebugInfoForm: FormControl;
   protected debugEditorHeightPxForm: FormControl;
 
@@ -78,11 +79,26 @@ export class SettingsOverlayComponent implements OnInit {
       });
 
     this.store
+      .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.relationalGraphShowCousinsByDefaultForm = this.fb.control(value);
+        this.relationalGraphShowCousinsByDefaultForm.valueChanges.subscribe(
+          (state: boolean) => {
+            this.store.dispatch(
+              globalAction.saveRelationalGraphShowCousinsByDefault({
+                relationalGraphShowCousinsByDefault: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
       .select(fromGlobalSettings.selectShowDebugInfo)
       .pipe(ops.first())
       .subscribe((value) => {
         this.entityShowDebugInfoForm = this.fb.control(value);
-
         this.entityShowDebugInfoForm.valueChanges.subscribe(
           (state: boolean) => {
             this.store.dispatch(saveShowDebugInfo({ showDebugInfo: state }));

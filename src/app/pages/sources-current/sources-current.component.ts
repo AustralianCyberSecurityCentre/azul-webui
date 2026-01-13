@@ -46,7 +46,7 @@ export class SourcesCurrentComponent implements OnInit {
   protected ButtonType = ButtonType;
 
   protected sources$: Observable<
-    components["schemas"]["Response_str_Source_"]["data"]
+    components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"]["data"]
   >;
   protected sourceId$: Observable<string>;
   protected source$: Observable<

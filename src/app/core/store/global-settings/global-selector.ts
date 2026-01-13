@@ -1,6 +1,6 @@
 import { createSelector } from "@ngrx/store";
-import { GlobalSettingState } from "./global-reducer";
 import { AppState } from "../main-store";
+import { GlobalSettingState } from "./global-reducer";
 
 const selectGlobalConfigState = (state: AppState) => state.globalSetting;
 
@@ -24,6 +24,11 @@ export const selectBinaryExploreShowMagic = createSelector(
 export const selectBucketSize = createSelector(
   selectGlobalConfigState,
   (state: GlobalSettingState) => state.bucketSize,
+);
+
+export const selectRelationalGraphShowCousinsByDefault = createSelector(
+  selectGlobalConfigState,
+  (state: GlobalSettingState) => state.relationalGraphShowCousinsByDefault,
 );
 
 export const selectShowDebugInfo = createSelector(

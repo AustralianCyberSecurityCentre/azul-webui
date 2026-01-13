@@ -164,3 +164,13 @@ a.table-link:visited {
     background-color: #151a30;
   }
 }
+
+.edgePath:hover {
+  stroke: var(--color-amber-700);
+  stroke-width: 8px;
+  cursor: pointer;
+}
+
+.edgePath {
+  stroke-width: 4;
+}
