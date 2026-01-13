@@ -43,7 +43,17 @@ export class SecurityService {
     );
 
     this.initalise_user_settings();
+    this.displayMaxSecurity$ = this.api.receivedSecurities$.pipe(
+      ops.map((value) => {
+        if (value instanceof Set) {
+          return Array.from(value).join(", ");
+        }
+        return value;
+      }),
+      ops.shareReplay(1),
+    );
 
+    /*
     this.displayMaxSecurity$ = combineLatest([
       this.settings$.pipe(ops.startWith(null)),
       this.api.combinedSecurity$.pipe(
@@ -59,6 +69,7 @@ export class SecurityService {
     ]).pipe(
       ops.map(([x, y]) => {
         if (y) {
+          console.log("THis is y: ", y);
           return y;
         } else if (x) {
           return x.presets[0];
@@ -69,6 +80,7 @@ export class SecurityService {
       ops.catchError((_e) => of("error")),
       ops.shareReplay(1),
     );
+    */
   }
 
   private initalise_user_settings() {

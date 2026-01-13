@@ -126,7 +126,6 @@ export class SecurityLimitComponent {
       for (const option of this.allGroups[k].options) {
         if (
           k === "releasability" &&
-          this.formCustom.get("andSearch")?.value &&
           raw[k] &&
           raw[k].indexOf(option.name) >= 0
         ) {
@@ -137,7 +136,11 @@ export class SecurityLimitComponent {
         }
       }
     }
-    this.api.changeExclusions(excluded, included);
+    this.api.changeExclusions(
+      excluded,
+      this.formCustom.get("andSearch")?.value,
+      included,
+    );
     this.submitLimits.emit(true);
   }
 

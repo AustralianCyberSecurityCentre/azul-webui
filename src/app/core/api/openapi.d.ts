@@ -2452,6 +2452,7 @@ export interface components {
     readonly Meta: {
       /** Security */
       readonly security?: string | null;
+      readonly sec_filter?: string | null;
       /** Queries */
       readonly queries?: readonly components["schemas"]["QueryInfo"][] | null;
       /**
