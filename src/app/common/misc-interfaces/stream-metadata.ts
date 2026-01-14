@@ -6,7 +6,6 @@ export interface StreamMetadataWithAuthor extends StreamMetadata {
 }
 
 export interface StreamMetadata {
-  file_format_legacy: string;
   file_format?: string;
   label: string;
   language: string;

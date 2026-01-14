@@ -591,7 +591,7 @@ export class EntityWrap {
                 if (
                   st.instances.length > 0 &&
                   st.instances[0].indexOf(v.pcap_author) >= 0 &&
-                  st.file_format_legacy == "Network capture"
+                  st.file_format == "network/tcpdump"
                 ) {
                   v.pcap = st.sha256;
                 }

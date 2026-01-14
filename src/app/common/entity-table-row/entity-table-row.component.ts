@@ -49,7 +49,6 @@ export class EntityTableRowComponent {
   @HostBinding("hidden") isHidden = false;
 
   protected showEntropy$: Observable<boolean>;
-  protected showFileFormatLegacy$: Observable<boolean>;
   protected showMimetype$: Observable<boolean>;
   protected showMagic$: Observable<boolean>;
 
@@ -103,9 +102,6 @@ export class EntityTableRowComponent {
   constructor() {
     this.showEntropy$ = this.store.select(
       fromGlobalSettings.selectBinaryExploreShowEntropy,
-    );
-    this.showFileFormatLegacy$ = this.store.select(
-      fromGlobalSettings.selectBinaryExploreShowFileFormatLegacy,
     );
     this.showMimetype$ = this.store.select(
       fromGlobalSettings.selectBinaryExploreShowMimetype,
