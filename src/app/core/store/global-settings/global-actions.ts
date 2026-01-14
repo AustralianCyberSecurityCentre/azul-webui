@@ -5,10 +5,6 @@ export const saveBinaryExploreShowEntropy = createAction(
   "[GlobalSetting] Save BinaryExploreShowEntropy",
   props<{ BinaryExploreShowEntropy: boolean }>(),
 );
-export const saveBinaryExploreShowFileFormatLegacy = createAction(
-  "[GlobalSetting] Save BinaryExploreShowFileFormatLegacy",
-  props<{ BinaryExploreShowFileFormatLegacy: boolean }>(),
-);
 export const saveBinaryExploreShowMimetype = createAction(
   "[GlobalSetting] Save BinaryExploreShowMimetype",
   props<{ BinaryExploreShowMimetype: boolean }>(),

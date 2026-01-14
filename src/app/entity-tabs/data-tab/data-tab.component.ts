@@ -116,12 +116,13 @@ export class DataTabComponent
           StreamMetadataWithAuthor[]
         >();
         for (const s of streams) {
-          const fileType = s.file_format_legacy.toLowerCase();
-
+          const isTextFile =
+            s.file_format.startsWith("text/") ||
+            s.file_format.startsWith("code/") ||
+            s.file_format.startsWith("log/");
           // Filter out undesirable streams
           if (
-            (fileType !== "text" &&
-              this.entity.sha256.toLowerCase() === s.sha256) ||
+            (isTextFile && this.entity.sha256.toLowerCase() === s.sha256) ||
             s.label.includes("content")
           ) {
             // We don't want to render the file itself if it isn't text
@@ -133,7 +134,6 @@ export class DataTabComponent
             author: authorData.name,
             version: authorData.version,
             category: authorData.category,
-            file_format_legacy: fileType,
             file_format: s.file_format,
             label: s.label[0],
             language: s.language,
@@ -192,9 +192,13 @@ export class DataTabComponent
                 let label = stream.label;
 
                 // Handle special cases where we want special names for these streams
+                const isTextFile =
+                  stream.file_format.startsWith("text/") ||
+                  stream.file_format.startsWith("code/") ||
+                  stream.file_format.startsWith("log/");
                 if (
                   stream.datastream_sha256 === this.entity.sha256 &&
-                  stream.file_format_legacy === "Text"
+                  isTextFile
                 ) {
                   // File preview of the actual file
                   openInPane = 0;
@@ -268,11 +272,6 @@ export class DataTabComponent
       return true;
     }
 
-    // Base case for older files
-    if (stream.file_format_legacy === "text") {
-      return true;
-    }
-
     return false;
   }
 
@@ -287,14 +286,6 @@ export class DataTabComponent
       return true;
     }
 
-    // Base case for older files
-    if (
-      stream.file_format_legacy === "png" ||
-      stream.file_format_legacy === "jpg"
-    ) {
-      return true;
-    }
-
     return false;
   }
 
@@ -302,10 +293,7 @@ export class DataTabComponent
    * Checks whether a stream is a PDF object stream.
    */
   protected isObjectStream(stream: StreamMetadataWithAuthor): boolean {
-    if (
-      stream.file_format === "document/pdf" ||
-      stream.file_format_legacy === "pdf"
-    ) {
+    if (stream.file_format === "document/pdf") {
       return true;
     }
 

@@ -34,14 +34,6 @@
         </td>
       </tr>
       <tr>
-        <th flowTableBodyCell [rowHeader]="true">Type (Legacy)</th>
-        <td class="limit truncate">
-          <flow-tooltip message="{{ d.file_format_legacy }}" [copyText]="true">
-            {{ d.file_format_legacy }}</flow-tooltip
-          >
-        </td>
-      </tr>
-      <tr>
         <th flowTableBodyCell [rowHeader]="true">File Names</th>
         <td>
           @for (row of d.filenames; track row) {

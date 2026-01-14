@@ -39,13 +39,7 @@
           ></azec-pdf-preview>
         }
         @default {
-          <div>
-            No preview available for {{ stream.file_format_legacy }}
-            @if (stream.file_format) {
-              &nbsp;({{ stream.file_format }})
-            }
-            .
-          </div>
+          <div>No preview available for {{ stream.file_format }}</div>
         }
       }
     </div>

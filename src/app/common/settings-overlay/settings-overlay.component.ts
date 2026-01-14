@@ -32,7 +32,6 @@ export class SettingsOverlayComponent implements OnInit {
   protected debugEditorHeightPxForm: FormControl;
 
   protected formBinaryExploreShowEntropy: FormControl;
-  protected formBinaryExploreShowFileFormatLegacy: FormControl;
   protected formBinaryExploreShowMimetype: FormControl;
   protected formBinaryExploreShowMagic: FormControl;
 
@@ -133,22 +132,6 @@ export class SettingsOverlayComponent implements OnInit {
             this.store.dispatch(
               globalAction.saveBinaryExploreShowEntropy({
                 BinaryExploreShowEntropy: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowFileFormatLegacy)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowFileFormatLegacy = this.fb.control(value);
-        this.formBinaryExploreShowFileFormatLegacy.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowFileFormatLegacy({
-                BinaryExploreShowFileFormatLegacy: state,
               }),
             );
           },

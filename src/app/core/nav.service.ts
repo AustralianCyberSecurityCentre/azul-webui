@@ -224,12 +224,12 @@ export class NavService {
               if (
                 item !== undefined &&
                 item.exists &&
-                item.file_format_legacy != null &&
+                item.file_format != null &&
                 item.sources[0].name != null
               ) {
                 return {
                   ...i,
-                  subtitle: `${item.file_format_legacy} | ${item.sources[0].name}`,
+                  subtitle: `${item.file_format} | ${item.sources[0].name}`,
                 };
               } else {
                 return i;

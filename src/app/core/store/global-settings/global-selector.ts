@@ -8,10 +8,6 @@ export const selectBinaryExploreShowEntropy = createSelector(
   selectGlobalConfigState,
   (state: GlobalSettingState) => state.BinaryExploreShowEntropy,
 );
-export const selectBinaryExploreShowFileFormatLegacy = createSelector(
-  selectGlobalConfigState,
-  (state: GlobalSettingState) => state.BinaryExploreShowFileFormatLegacy,
-);
 export const selectBinaryExploreShowMimetype = createSelector(
   selectGlobalConfigState,
   (state: GlobalSettingState) => state.BinaryExploreShowMimetype,
