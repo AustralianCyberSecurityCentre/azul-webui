@@ -271,4 +271,30 @@
       </div>
     </flow-card-body>
   </flow-card>
+
+  <flow-card>
+    <flow-card-header title="Range Slider"></flow-card-header>
+    <flow-card-body>
+      <h3>Custom range with labels</h3>
+      <div class="custom-slider">
+        <ngx-slider
+          [(value)]="sliderValue"
+          [options]="sliderOptions"
+        ></ngx-slider>
+      </div>
+      <h3>tailwind range</h3>
+      <span>
+        <fa-icon [icon]="faInternetExplorer" class="" />
+        <input
+          id="steps-range"
+          type="range"
+          min="0"
+          max="3"
+          value="2"
+          step="1"
+          class="bg-neutral-quaternary h-2 w-full cursor-pointer rounded-full"
+        />
+      </span>
+    </flow-card-body>
+  </flow-card>
 </div>

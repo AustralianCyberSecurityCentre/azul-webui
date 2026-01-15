@@ -1,3 +1,4 @@
+import { LabelType, Options } from "@angular-slider/ngx-slider";
 import { Component, inject, OnInit, signal } from "@angular/core";
 import {
   FormControl,
@@ -7,7 +8,10 @@ import {
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import * as ops from "rxjs/operators";
-import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
+import {
+  ColorTheme,
+  RelationalGraphLevel,
+} from "src/app/core/store/global-settings/global-state.types";
 import * as globalAction from "../../core/store/global-settings/global-actions";
 import {
   saveBucketSize,
@@ -27,7 +31,6 @@ export class SettingsOverlayComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);
 
   protected entityBucketSizeForm: FormControl;
-  protected relationalGraphShowCousinsByDefaultForm: FormControl;
   protected entityShowDebugInfoForm: FormControl;
   protected debugEditorHeightPxForm: FormControl;
 
@@ -46,6 +49,53 @@ export class SettingsOverlayComponent implements OnInit {
   protected lightColorTheme = ColorTheme.Light;
 
   protected faSpinner = faSpinner;
+
+  protected sliderValue: number = 2;
+  protected complexitySliderOptions: Options = {
+    stepsArray: [
+      { value: 0, legend: "Basic" },
+      { value: 1, legend: "Simple" },
+      { value: 2, legend: "Normal" },
+      { value: 3, legend: "Complex" },
+    ],
+    hideLimitLabels: true,
+    translate: (value: number, _label: LabelType): string => {
+      switch (value) {
+        case 0:
+          this.store.dispatch(
+            globalAction.saveRelationalGraphShowCousinsByDefault({
+              relationalGraphShowCousinsByDefault: RelationalGraphLevel.NO,
+            }),
+          );
+          return "Basic";
+        case 1:
+          this.store.dispatch(
+            globalAction.saveRelationalGraphShowCousinsByDefault({
+              relationalGraphShowCousinsByDefault:
+                RelationalGraphLevel.YES_SMALL,
+            }),
+          );
+          return "Simple";
+        case 2:
+          this.store.dispatch(
+            globalAction.saveRelationalGraphShowCousinsByDefault({
+              relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES,
+            }),
+          );
+          return "Normal";
+        case 3:
+          this.store.dispatch(
+            globalAction.saveRelationalGraphShowCousinsByDefault({
+              relationalGraphShowCousinsByDefault:
+                RelationalGraphLevel.YES_LARGE,
+            }),
+          );
+          return "Complex";
+        default:
+          return "Normal";
+      }
+    },
+  };
 
   ngOnInit() {
     this.store
@@ -81,16 +131,22 @@ export class SettingsOverlayComponent implements OnInit {
       .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
       .pipe(ops.first())
       .subscribe((value) => {
-        this.relationalGraphShowCousinsByDefaultForm = this.fb.control(value);
-        this.relationalGraphShowCousinsByDefaultForm.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveRelationalGraphShowCousinsByDefault({
-                relationalGraphShowCousinsByDefault: state,
-              }),
-            );
-          },
-        );
+        switch (value) {
+          case RelationalGraphLevel.NO:
+            this.sliderValue = 0;
+            break;
+          case RelationalGraphLevel.YES_SMALL:
+            this.sliderValue = 1;
+            break;
+          case RelationalGraphLevel.YES:
+            this.sliderValue = 2;
+            break;
+          case RelationalGraphLevel.YES_LARGE:
+            this.sliderValue = 3;
+            break;
+          default:
+            this.sliderValue = 2;
+        }
       });
 
     this.store

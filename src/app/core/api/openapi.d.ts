@@ -1339,8 +1339,6 @@ export interface components {
       readonly tlsh?: string | null;
       /** Size */
       readonly size?: number | null;
-      /** File Format Legacy */
-      readonly file_format_legacy?: string | null;
       /** File Format */
       readonly file_format?: string | null;
       /** File Extension */
@@ -1910,8 +1908,6 @@ export interface components {
       readonly tlsh?: string | null;
       /** Size */
       readonly size?: number | null;
-      /** File Format Legacy */
-      readonly file_format_legacy?: string | null;
       /** File Format */
       readonly file_format?: string | null;
       /** File Extension */
@@ -1964,8 +1960,6 @@ export interface components {
         | null;
       /** File Size */
       readonly file_size?: number | null;
-      /** File Format Legacy */
-      readonly file_format_legacy?: string | null;
       /** File Format */
       readonly file_format?: string | null;
       /** File Extension */
@@ -2343,7 +2337,7 @@ export interface components {
      * @description Enum to decide how wide the cousin search should be for nearby searches.
      * @enum {string}
      */
-    readonly IncludeCousinsEnum: "no" | "yes" | "yes_large";
+    readonly IncludeCousinsEnum: "no" | "yes_small" | "yes" | "yes_large";
     /**
      * LabelOption
      * @description A Security Label.
@@ -2495,8 +2489,6 @@ export interface components {
       readonly relationship?: {
         readonly [key: string]: unknown;
       } | null;
-      /** File Format Legacy */
-      readonly file_format_legacy?: string | null;
       /** File Format */
       readonly file_format?: string | null;
       /** Size */
@@ -3746,6 +3738,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -3806,6 +3800,8 @@ export interface operations {
         readonly count_entities?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -3870,6 +3866,8 @@ export interface operations {
         readonly count_entities?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -3928,6 +3926,8 @@ export interface operations {
         readonly num_binaries?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -3983,6 +3983,8 @@ export interface operations {
         readonly family_sha256: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4038,6 +4040,8 @@ export interface operations {
         readonly family_sha256: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4092,6 +4096,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4144,6 +4150,8 @@ export interface operations {
         readonly offset: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4200,6 +4208,8 @@ export interface operations {
         readonly bucket_size?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4252,6 +4262,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
       };
       readonly header?: never;
       readonly path: {
@@ -4303,6 +4315,8 @@ export interface operations {
         readonly timestamp: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4359,6 +4373,8 @@ export interface operations {
         readonly max_matches?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4413,6 +4429,8 @@ export interface operations {
         readonly max_matches?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4464,6 +4482,8 @@ export interface operations {
         readonly recalculate?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4518,6 +4538,8 @@ export interface operations {
         readonly include_cousins?: components["schemas"]["IncludeCousinsEnum"];
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4570,6 +4592,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4622,6 +4646,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4679,6 +4705,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4732,6 +4760,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4788,6 +4818,8 @@ export interface operations {
         readonly size?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4840,6 +4872,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -4902,6 +4936,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
       };
       readonly header?: never;
       readonly path: {
@@ -4953,6 +4989,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5007,6 +5045,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5077,6 +5117,8 @@ export interface operations {
         readonly shortform?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5155,6 +5197,8 @@ export interface operations {
         readonly file_format?: string | null;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5225,6 +5269,8 @@ export interface operations {
         readonly filter: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5293,6 +5339,8 @@ export interface operations {
         readonly refresh?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5349,6 +5397,8 @@ export interface operations {
         readonly refresh?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5409,6 +5459,8 @@ export interface operations {
         readonly refresh?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5465,6 +5517,8 @@ export interface operations {
         readonly refresh?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5520,6 +5574,8 @@ export interface operations {
         readonly bypass_cache?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5576,6 +5632,8 @@ export interface operations {
         readonly author_version?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5633,6 +5691,8 @@ export interface operations {
         readonly author_version?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5690,6 +5750,8 @@ export interface operations {
         readonly author_version?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5747,6 +5809,8 @@ export interface operations {
         readonly skip_count?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5801,6 +5865,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5851,6 +5917,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5905,6 +5973,8 @@ export interface operations {
         readonly value: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -5963,6 +6033,8 @@ export interface operations {
         readonly value: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6017,6 +6089,8 @@ export interface operations {
         readonly author_version?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6079,6 +6153,8 @@ export interface operations {
         readonly num_values?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6135,6 +6211,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6189,6 +6267,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6239,6 +6319,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6289,6 +6371,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6346,6 +6430,8 @@ export interface operations {
         readonly purge?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6400,6 +6486,8 @@ export interface operations {
         readonly purge?: boolean;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6623,6 +6711,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
       };
       readonly header?: never;
       readonly path?: never;
@@ -6671,6 +6761,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
       };
       readonly header?: never;
       readonly path: {
@@ -6721,6 +6813,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6774,6 +6868,8 @@ export interface operations {
         readonly term?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6830,6 +6926,8 @@ export interface operations {
         readonly timestamp?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6882,6 +6980,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -6932,6 +7032,8 @@ export interface operations {
       readonly query?: {
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };

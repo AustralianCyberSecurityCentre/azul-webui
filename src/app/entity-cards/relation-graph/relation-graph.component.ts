@@ -4,6 +4,7 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=738022&q=foreign-object
 
 */
 
+import { LabelType, Options } from "@angular-slider/ngx-slider";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -18,13 +19,12 @@ import {
 import { toObservable } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
-  faCircleNodes,
   faCompress,
   faExpand,
   faEye,
-  faHexagonNodes,
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import * as d3 from "d3";
@@ -34,6 +34,7 @@ import * as ops from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
 import { IconService } from "src/app/core/icon.service";
 import { Nav } from "src/app/core/services";
+import { RelationalGraphLevel } from "src/app/core/store/global-settings/global-state.types";
 import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
 
@@ -106,6 +107,7 @@ const HIGHTLIGHT_GRAPH_COLOR = "var(--color-amber-700)";
 @Component({
   selector: "azec-relation-graph",
   templateUrl: "./relation-graph.component.html",
+  styleUrls: ["./relation-graph.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
@@ -139,11 +141,43 @@ not be shown on the graph.
   protected faMagnifyingGlassMinus = faMagnifyingGlassMinus;
   protected faExpand = faExpand;
   protected faCompress = faCompress;
-  protected faCircleNodes = faCircleNodes;
-  protected faHexagonNodes = faHexagonNodes;
+  protected faSpinner = faSpinner;
+  protected isGraphLoading: WritableSignal<boolean> = signal(true);
 
-  protected isIncludeCousins$: Observable<boolean>;
-  protected isIncludeCousinsSignal: WritableSignal<boolean> = signal(true);
+  // Slider settings
+  protected complexitySliderValue: number = 2;
+  protected complexitySliderOptions: Options = {
+    stepsArray: [
+      { value: 0, legend: "Basic" },
+      { value: 1, legend: "Simple" },
+      { value: 2, legend: "Normal" },
+      { value: 3, legend: "Complex" },
+    ],
+    hideLimitLabels: true,
+    translate: (value: number, _label: LabelType): string => {
+      switch (value) {
+        case 0:
+          this.relationalGraphDetailSignal.set(RelationalGraphLevel.NO);
+          return "Basic";
+        case 1:
+          this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES_SMALL);
+          return "Simple";
+        case 2:
+          this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
+          return "Normal";
+        case 3:
+          this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES_LARGE);
+          return "Complex";
+        default:
+          this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
+          return "Normal";
+      }
+    },
+  };
+
+  protected relationalGraphDetail$: Observable<RelationalGraphLevel>;
+  protected relationalGraphDetailSignal: WritableSignal<RelationalGraphLevel> =
+    signal(RelationalGraphLevel.YES);
 
   private buildNodeLink(sha256: string, current: boolean): string {
     // display half the sha256
@@ -179,13 +213,24 @@ not be shown on the graph.
   }
 
   protected override onEntityChange() {
-    this.graphData$ = this.isIncludeCousins$
+    this.graphData$ = this.relationalGraphDetail$
       .pipe(
-        ops.switchMap((condition) => {
-          if (condition) {
-            return this.entity.nearby$;
-          } else {
-            return this.entity.nearbyNoCousins$;
+        ops.debounceTime(1000),
+        ops.tap(() => {
+          this.isGraphLoading.set(true);
+        }),
+        ops.switchMap((detailLevel) => {
+          switch (detailLevel) {
+            case RelationalGraphLevel.YES:
+              return this.entity.nearby$;
+            case RelationalGraphLevel.NO:
+              return this.entity.nearbyNoCousins$;
+            case RelationalGraphLevel.YES_SMALL:
+              return this.entity.nearbySmall$;
+            case RelationalGraphLevel.YES_LARGE:
+              return this.entity.nearbyLarge$;
+            default:
+              return this.entity.nearby$;
           }
         }),
         ops.map(
@@ -245,6 +290,9 @@ not be shown on the graph.
       ops.debounceTime(100),
       ops.map(([a, _]) => a),
       ops.tap((a) => this.render(a.graph)),
+      ops.tap(() => {
+        this.isGraphLoading.set(false);
+      }),
     );
     this.renderSub?.unsubscribe();
     this.renderSub = this.render$.subscribe();
@@ -272,17 +320,32 @@ not be shown on the graph.
       .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
       .pipe(ops.take(1))
       .subscribe((defaultRelational) => {
-        this.isIncludeCousinsSignal.set(defaultRelational);
-        this.isIncludeCousins$ = toObservable(this.isIncludeCousinsSignal);
+        this.relationalGraphDetailSignal.set(defaultRelational);
+        switch (defaultRelational) {
+          case RelationalGraphLevel.NO:
+            this.complexitySliderValue = 0;
+            break;
+          case RelationalGraphLevel.YES_SMALL:
+            this.complexitySliderValue = 1;
+            break;
+          case RelationalGraphLevel.YES:
+            this.complexitySliderValue = 2;
+            break;
+          case RelationalGraphLevel.YES_LARGE:
+            this.complexitySliderValue = 3;
+            break;
+          default:
+            this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
+            this.complexitySliderValue = 2;
+        }
+        this.relationalGraphDetail$ = toObservable(
+          this.relationalGraphDetailSignal,
+        );
       });
   }
 
   ngOnDestroy() {
     this.renderSub?.unsubscribe();
-  }
-
-  protected toggle_cousins() {
-    this.isIncludeCousinsSignal.set(!this.isIncludeCousinsSignal());
   }
 
   protected zoom_out() {

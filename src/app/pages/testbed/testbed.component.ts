@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from "@angular/core";
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { LabelType, Options } from "@angular-slider/ngx-slider";
 import { faInternetExplorer } from "@fortawesome/free-brands-svg-icons";
 import {
   faHammer,
@@ -27,6 +28,21 @@ export class TestbedComponent implements OnInit {
   protected faHammer = faHammer;
   protected faSquareUpRight = faSquareUpRight;
   protected faSpinner = faSpinner;
+
+  // Slider settings
+  protected sliderValue: number = 2;
+  protected sliderOptions: Options = {
+    stepsArray: [
+      { value: 0, legend: "Simple" },
+      { value: 1, legend: "moderate" },
+      { value: 2, legend: "Regular" },
+      { value: 3, legend: "Complex" },
+    ],
+    hideLimitLabels: true,
+    translate: (value: number, _label: LabelType): string => {
+      return value.toString() + "abc";
+    },
+  };
 
   false$ = new BehaviorSubject(false);
   true$ = new BehaviorSubject(true);

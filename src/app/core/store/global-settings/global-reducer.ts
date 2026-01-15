@@ -1,6 +1,6 @@
 import { createReducer, on } from "@ngrx/store";
 import * as GlobalSettingActions from "./global-actions";
-import { ColorTheme } from "./global-state.types";
+import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
 
 const GLOBAL_SETTING_STATE = "GLOBAL_SETTING_STATE";
 
@@ -9,7 +9,7 @@ export interface GlobalSettingState {
   BinaryExploreShowMimetype: boolean;
   BinaryExploreShowMagic: boolean;
   bucketSize: number;
-  relationalGraphShowCousinsByDefault: boolean;
+  relationalGraphShowCousinsByDefault: RelationalGraphLevel;
   showDebugInfo: boolean;
   debugQueryEditorHeightPx: number;
   theme: ColorTheme;
@@ -20,7 +20,7 @@ export const initialState: GlobalSettingState = {
   BinaryExploreShowMimetype: false,
   BinaryExploreShowMagic: true,
   bucketSize: 100,
-  relationalGraphShowCousinsByDefault: true,
+  relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES,
   showDebugInfo: false,
   debugQueryEditorHeightPx: 300,
   theme: ColorTheme.Dark,

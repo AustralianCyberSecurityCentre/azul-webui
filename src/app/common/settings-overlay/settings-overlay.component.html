@@ -33,9 +33,17 @@
         </div>
       </div>
     }
-    <flow-toggle [formControl]="relationalGraphShowCousinsByDefaultForm"
-      >Show Cousins in Relations (default)</flow-toggle
-    >
+    <div class="flex">
+      <div class="custom-slider w-20">
+        <ngx-slider
+          [(value)]="sliderValue"
+          [options]="complexitySliderOptions"
+        ></ngx-slider>
+      </div>
+      <flow-label [noPadding]="true" class="pt-1" class="text-wrap"
+        >Relations Graph Complexity(default)</flow-label
+      >
+    </div>
     <flow-toggle [formControl]="entityShowDebugInfoForm"
       >Show Debug Tab</flow-toggle
     >
