@@ -1,5 +1,5 @@
 import { createAction, props } from "@ngrx/store";
-import { ColorTheme } from "./global-state.types";
+import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
 
 export const saveBinaryExploreShowEntropy = createAction(
   "[GlobalSetting] Save BinaryExploreShowEntropy",
@@ -21,7 +21,7 @@ export const saveBucketSize = createAction(
 
 export const saveRelationalGraphShowCousinsByDefault = createAction(
   "[GlobalSetting] Save Relational Graph Show Cousins by Default",
-  props<{ relationalGraphShowCousinsByDefault: boolean }>(),
+  props<{ relationalGraphShowCousinsByDefault: RelationalGraphLevel }>(),
 );
 
 export const saveShowDebugInfo = createAction(

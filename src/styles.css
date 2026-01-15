@@ -174,3 +174,33 @@ a.table-link:visited {
 .edgePath {
   stroke-width: 4;
 }
+
+.custom-slider .ngx-slider .ngx-slider-pointer:after {
+  display: none;
+}
+
+:not(.dark) {
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 16px;
+    height: 16px;
+    top: -7px;
+    background-color: var(--color-blue-600);
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    color: var(--color-blue-600);
+  }
+}
+
+.dark {
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 16px;
+    height: 16px;
+    top: -7px;
+    background-color: var(--color-blue-600);
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    color: white;
+  }
+}

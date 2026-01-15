@@ -70,7 +70,10 @@ export class EntityWrap {
   info$: Observable<readonly components["schemas"]["BinaryInfo"][]>;
   parents$: Observable<readonly components["schemas"]["PathNode"][]>;
   children$: Observable<readonly components["schemas"]["PathNode"][]>;
+  // Different levels of nearby queries to enable switching between them without reloading.
   nearby$: Observable<components["schemas"]["ReadNearby"]>;
+  nearbySmall$: Observable<components["schemas"]["ReadNearby"]>;
+  nearbyLarge$: Observable<components["schemas"]["ReadNearby"]>;
   nearbyNoCousins$: Observable<components["schemas"]["ReadNearby"]>;
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
@@ -449,6 +452,12 @@ export class EntityWrap {
 
     this.nearby$ = this.api
       .entityReadNearby(eid, { include_cousins: "yes" })
+      .pipe(ops.shareReplay(1));
+    this.nearbySmall$ = this.api
+      .entityReadNearby(eid, { include_cousins: "yes_small" })
+      .pipe(ops.shareReplay(1));
+    this.nearbyLarge$ = this.api
+      .entityReadNearby(eid, { include_cousins: "yes_large" })
       .pipe(ops.shareReplay(1));
     this.nearbyNoCousins$ = this.api
       .entityReadNearby(eid, { include_cousins: "no" })

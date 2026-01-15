@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "@angular-slider/ngx-slider": "^21.0.0",
     "@angular/animations": "^21.0.8",
     "@angular/cdk": "^21.0.6",
     "@angular/common": "^21.0.8",
@@ -94,13 +95,13 @@
     "karma-coverage-istanbul-reporter": "^3.0.3",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
+    "openapi-typescript": "^7.10.1",
     "postcss": "^8.5.6",
     "prettier": "3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4.1.18",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "openapi-typescript": "^7.10.1",
     "upng-js": "^2.1.0"
   }
 }

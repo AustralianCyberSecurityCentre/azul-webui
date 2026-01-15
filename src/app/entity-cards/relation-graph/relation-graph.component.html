@@ -18,6 +18,9 @@
         height="100%"
         class="outline-azul-500 inline-block cursor-grab rounded-xs outline-2 outline-solid"
       ></svg>
+      @if(isGraphLoading()){
+        <fa-icon class="spinner-ontop" [icon]="faSpinner" animation="spin" size="4x" />
+      }
     </div>
   </az-loading-card>
 </div>
@@ -77,18 +80,12 @@
       <fa-icon [icon]="faMagnifyingGlassMinus" />
     </flow-button>
   </flow-tooltip>
-  <flow-tooltip message="Toggle simplicity">
-    <flow-button
-      [size]="ButtonSize.Icon"
-      [type]="ButtonType.Light"
-      noPadding="true"
-      (click)="toggle_cousins()"
-    >
-      @if (isIncludeCousinsSignal()) {
-        <fa-icon [icon]="faHexagonNodes" />
-      } @else {
-        <fa-icon [icon]="faCircleNodes" />
-      }
-    </flow-button>
+  <flow-tooltip message="Change Complexity">
+    <div class="custom-slider w-20">
+      <ngx-slider
+        [(value)]="complexitySliderValue"
+        [options]="complexitySliderOptions"
+      ></ngx-slider>
+    </div>
   </flow-tooltip>
 </ng-template>
