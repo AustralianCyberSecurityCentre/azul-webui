@@ -18,8 +18,13 @@
         height="100%"
         class="outline-azul-500 inline-block cursor-grab rounded-xs outline-2 outline-solid"
       ></svg>
-      @if(isGraphLoading()){
-        <fa-icon class="spinner-ontop" [icon]="faSpinner" animation="spin" size="4x" />
+      @if (isGraphLoading()) {
+        <fa-icon
+          class="spinner-ontop"
+          [icon]="faSpinner"
+          animation="spin"
+          size="4x"
+        />
       }
     </div>
   </az-loading-card>

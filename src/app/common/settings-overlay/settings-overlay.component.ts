@@ -71,7 +71,8 @@ export class SettingsOverlayComponent implements OnInit {
         case 1:
           this.store.dispatch(
             globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES_SMALL,
+              relationalGraphShowCousinsByDefault:
+                RelationalGraphLevel.YES_SMALL,
             }),
           );
           return "Simple";
@@ -85,7 +86,8 @@ export class SettingsOverlayComponent implements OnInit {
         case 3:
           this.store.dispatch(
             globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES_LARGE,
+              relationalGraphShowCousinsByDefault:
+                RelationalGraphLevel.YES_LARGE,
             }),
           );
           return "Complex";
@@ -129,21 +131,21 @@ export class SettingsOverlayComponent implements OnInit {
       .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
       .pipe(ops.first())
       .subscribe((value) => {
-        switch(value){
+        switch (value) {
           case RelationalGraphLevel.NO:
-            this.sliderValue = 0
-            break
+            this.sliderValue = 0;
+            break;
           case RelationalGraphLevel.YES_SMALL:
-            this.sliderValue = 1
-            break
+            this.sliderValue = 1;
+            break;
           case RelationalGraphLevel.YES:
-            this.sliderValue = 2
-            break
+            this.sliderValue = 2;
+            break;
           case RelationalGraphLevel.YES_LARGE:
-            this.sliderValue = 3
-            break
+            this.sliderValue = 3;
+            break;
           default:
-            this.sliderValue  = 2
+            this.sliderValue = 2;
         }
       });
 

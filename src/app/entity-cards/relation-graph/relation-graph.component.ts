@@ -216,7 +216,9 @@ not be shown on the graph.
     this.graphData$ = this.relationalGraphDetail$
       .pipe(
         ops.debounceTime(1000),
-        ops.tap(() => { this.isGraphLoading.set(true)}),
+        ops.tap(() => {
+          this.isGraphLoading.set(true);
+        }),
         ops.switchMap((detailLevel) => {
           switch (detailLevel) {
             case RelationalGraphLevel.YES:
@@ -288,7 +290,9 @@ not be shown on the graph.
       ops.debounceTime(100),
       ops.map(([a, _]) => a),
       ops.tap((a) => this.render(a.graph)),
-      ops.tap(() => {this.isGraphLoading.set(false)})
+      ops.tap(() => {
+        this.isGraphLoading.set(false);
+      }),
     );
     this.renderSub?.unsubscribe();
     this.renderSub = this.render$.subscribe();
@@ -317,23 +321,23 @@ not be shown on the graph.
       .pipe(ops.take(1))
       .subscribe((defaultRelational) => {
         this.relationalGraphDetailSignal.set(defaultRelational);
-      switch (defaultRelational) {
-        case RelationalGraphLevel.NO:
-          this.complexitySliderValue = 0
-          break
-        case RelationalGraphLevel.YES_SMALL:
-          this.complexitySliderValue = 1
-          break
-        case RelationalGraphLevel.YES:
-          this.complexitySliderValue = 2
-          break
-        case RelationalGraphLevel.YES_LARGE:
-          this.complexitySliderValue = 3
-          break
-        default:
-          this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
-          this.complexitySliderValue = 2
-      }
+        switch (defaultRelational) {
+          case RelationalGraphLevel.NO:
+            this.complexitySliderValue = 0;
+            break;
+          case RelationalGraphLevel.YES_SMALL:
+            this.complexitySliderValue = 1;
+            break;
+          case RelationalGraphLevel.YES:
+            this.complexitySliderValue = 2;
+            break;
+          case RelationalGraphLevel.YES_LARGE:
+            this.complexitySliderValue = 3;
+            break;
+          default:
+            this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
+            this.complexitySliderValue = 2;
+        }
         this.relationalGraphDetail$ = toObservable(
           this.relationalGraphDetailSignal,
         );
