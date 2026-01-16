@@ -295,8 +295,9 @@ not be shown on the graph.
 
   /** Handles generic key events for when we are capturing the screen. */
   @HostListener("document:keydown.escape", ["$event"])
-  protected handleKey(evt: KeyboardEvent) {
-    evt.preventDefault();
+  protected handleKey(evt: Event) {
+    const evtKeyboard = evt as KeyboardEvent;
+    evtKeyboard.preventDefault();
     this.isFullScreen$.next(false);
   }
 
