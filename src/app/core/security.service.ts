@@ -52,35 +52,6 @@ export class SecurityService {
       }),
       ops.shareReplay(1),
     );
-
-    /*
-    this.displayMaxSecurity$ = combineLatest([
-      this.settings$.pipe(ops.startWith(null)),
-      this.api.combinedSecurity$.pipe(
-        ops.retry({ count: 5, delay: 2000 }),
-        ops.catchError(() => {
-          this.dbg(
-            "CombinedSecurity swallowing error, probably due to no auth yet.",
-          );
-          return of(null);
-        }),
-        ops.startWith(null),
-      ),
-    ]).pipe(
-      ops.map(([x, y]) => {
-        if (y) {
-          console.log("THis is y: ", y);
-          return y;
-        } else if (x) {
-          return x.presets[0];
-        } else {
-          return "loading";
-        }
-      }),
-      ops.catchError((_e) => of("error")),
-      ops.shareReplay(1),
-    );
-    */
   }
 
   private initalise_user_settings() {

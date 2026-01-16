@@ -377,21 +377,15 @@ export class ApiService {
   }
 
   /**update set of received securities with a new entry*/
-  private addReceivedSecurity(sec: string) {
-    console.log("Received security ", sec);
+  private addReceivedSecurity(sec: string, sec_filter: string) {
     const tmp = this.receivedSecurities$.getValue();
     if (!tmp.has(sec)) {
       // only recompute if set has changed
       tmp.add(sec);
       this.receivedSecurities$.next(tmp);
     }
-  }
-
-  private addSecurityFilter(sec_filter: string) {
-    console.log("SEC FILTER = ", sec_filter);
     this.securityFilter$.next(sec_filter);
   }
-
   /** */
 
   /**
@@ -784,8 +778,9 @@ export class ApiService {
       };
     }
     return this.postOperation("/api/v0/binaries", body, params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handleFindDetailed(e, undefined, [422])),
     );
@@ -797,8 +792,9 @@ export class ApiService {
     body: paths["/api/v0/binaries/all"]["post"]["requestBody"]["content"]["application/json"],
   ): Observable<components["schemas"]["EntityFindSimple"] | undefined> {
     return this.postOperation("/api/v0/binaries/all", body, params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handleFindDetailed(e, undefined, [422])),
     );
@@ -814,8 +810,9 @@ export class ApiService {
       body,
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handleFindDetailed(e, undefined, [422])),
     );
@@ -831,8 +828,9 @@ export class ApiService {
       body,
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handleFindDetailed(e, undefined, [422])),
     );
@@ -869,8 +867,9 @@ export class ApiService {
     return this.getOperation("/api/v0/binaries/{sha256}", query, {
       sha256,
     }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
   }
@@ -885,8 +884,9 @@ export class ApiService {
       { sha256 },
       { cache },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data.items),
       ops.catchError((e) =>
         this.handle(e, [] as components["schemas"]["EntityTag"][], [404]),
@@ -901,8 +901,9 @@ export class ApiService {
     return this.getOperation("/api/v0/binaries/{sha256}/nearby", params, {
       sha256,
     }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
@@ -915,8 +916,9 @@ export class ApiService {
     return this.getOperation("/api/v0/binaries/{sha256}/similar", params, {
       sha256,
     }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
@@ -926,8 +928,9 @@ export class ApiService {
     params: ValidGETPaths["/api/v0/binaries/similar/ssdeep"]["get"]["parameters"]["query"],
   ): Observable<components["schemas"]["SimilarFuzzyMatch"] | undefined> {
     return this.getOperation("/api/v0/binaries/similar/ssdeep", params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
@@ -937,8 +940,9 @@ export class ApiService {
     params: ValidGETPaths["/api/v0/binaries/similar/tlsh"]["get"]["parameters"]["query"],
   ): Observable<components["schemas"]["SimilarFuzzyMatch"] | undefined> {
     return this.getOperation("/api/v0/binaries/similar/tlsh", params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
@@ -952,8 +956,9 @@ export class ApiService {
       {},
       { sha256 },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data.items),
       ops.catchError((e) => {
         this.handle(e, [], [404]);
@@ -969,8 +974,9 @@ export class ApiService {
     return this.getOperation("/api/v0/binaries/{sha256}/new", params, {
       sha256,
     }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
   }
@@ -984,8 +990,9 @@ export class ApiService {
       { event_type },
       { sha256 },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [404])),
     );
@@ -1024,8 +1031,9 @@ export class ApiService {
       {} as never,
       cacheProps,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1036,8 +1044,9 @@ export class ApiService {
     components["schemas"]["EntityModel"] | undefined
   > {
     return this.getOperation("/api/v0/binaries/model").pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1055,8 +1064,9 @@ export class ApiService {
       term,
       offset,
     }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1074,8 +1084,9 @@ export class ApiService {
       { items },
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1093,8 +1104,9 @@ export class ApiService {
       { items },
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1112,8 +1124,9 @@ export class ApiService {
       { items },
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1131,8 +1144,9 @@ export class ApiService {
       { items },
       params,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1176,8 +1190,9 @@ export class ApiService {
       {} as never,
       cacheProps,
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1187,8 +1202,9 @@ export class ApiService {
     tag: string,
   ): Observable<components["schemas"]["ReadFeatureTagValues"] | undefined> {
     return this.getOperation("/api/v0/features/tags/{tag}", {}, { tag }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1199,8 +1215,9 @@ export class ApiService {
     params: paths["/api/v0/features"]["get"]["parameters"]["query"] = {},
   ): Observable<readonly components["schemas"]["Feature"][] | undefined> {
     return this.getOperation("/api/v0/features", params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data.items),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1220,8 +1237,9 @@ export class ApiService {
         feature,
       },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1233,7 +1251,9 @@ export class ApiService {
     params: paths["/api/v0/features/pivot"]["post"]["parameters"]["query"] = {},
   ): Observable<components["schemas"]["FeaturePivotResponse"] | undefined> {
     return this.postOperation("/api/v0/features/pivot", body, params).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1244,8 +1264,9 @@ export class ApiService {
     | undefined
   > {
     return this.getOperation("/api/v0/sources").pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
     );
   }
@@ -1258,8 +1279,9 @@ export class ApiService {
     | undefined
   > {
     return this.getOperation("/api/v0/sources/{name}", {}, { name }).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1274,8 +1296,9 @@ export class ApiService {
       { term },
       { source },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data.items),
       ops.catchError((e) => this.handle(e, [], [404])),
     );
@@ -1291,8 +1314,9 @@ export class ApiService {
       { track_source_references, timestamp },
       { source },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data.items),
       ops.catchError((e) => this.handle(e, [], [404])),
     );
@@ -1344,8 +1368,9 @@ export class ApiService {
     readonly components["schemas"]["LatestPluginWithVersions"][]
   > {
     return this.getOperation("/api/v0/plugins").pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, [], [])),
     );
@@ -1355,8 +1380,9 @@ export class ApiService {
     readonly components["schemas"]["PluginStatusSummary"][]
   > {
     return this.getOperation("/api/v0/plugins/status").pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, [], [])),
     );
@@ -1371,8 +1397,9 @@ export class ApiService {
       {},
       { name, version },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1393,8 +1420,9 @@ export class ApiService {
       { timestamp, purge },
       { track_source_references },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1414,8 +1442,9 @@ export class ApiService {
       { purge },
       { track_link },
     ).pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -1426,8 +1455,9 @@ export class ApiService {
     components["schemas"]["StatisticSummary"] | undefined
   > {
     return this.getOperation("/api/v0/statistics").pipe(
-      ops.tap((d) => this.addReceivedSecurity(d.meta.security)),
-      ops.tap((d) => this.addSecurityFilter(d.meta.sec_filter)),
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
       ops.map((d) => d.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
