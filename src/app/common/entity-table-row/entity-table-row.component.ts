@@ -8,7 +8,13 @@ import {
   Output,
   inject,
 } from "@angular/core";
-import { faEye, faEyeSlash, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faTrash,
+  faShareFromSquare,
+  faClock,
+} from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -56,6 +62,8 @@ export class EntityTableRowComponent {
   protected showGraphLevels$ = of(false);
 
   protected faEye = faEye;
+  protected faClock = faClock;
+  protected faShareFromSquare = faShareFromSquare;
   protected faEyeSlash = faEyeSlash;
 
   protected entropy$: Observable<Entropy>;
