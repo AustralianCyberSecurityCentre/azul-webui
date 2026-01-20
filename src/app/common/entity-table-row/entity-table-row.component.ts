@@ -8,7 +8,12 @@ import {
   Output,
   inject,
 } from "@angular/core";
-import { faEye, faEyeSlash, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faTrash,
+  faClock,
+} from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -64,6 +69,7 @@ export class EntityTableRowComponent {
   protected user = inject(UserService);
   protected allowedToPurge = allowedToPurge;
   protected faTrash = faTrash;
+  protected faClock = faClock;
 
   @Input() set row(data: EntityFindRow) {
     this._row = {
