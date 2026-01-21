@@ -340,10 +340,12 @@ export class DataTabPanesComponent implements OnDestroy {
 
   /** Handles a tab click event */
   protected handleTabClick(event: MouseEvent, tabId: string) {
+    console.log(event);
     switch (event.button) {
       case 0:
         // Left click
-        this.openTab(tabId);
+        // if clicking the close the tab will close, otherwise the user probably want's to do a drag
+        // And happened to click on the tab.
         break;
       case 1:
         // Middle click
