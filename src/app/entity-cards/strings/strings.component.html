@@ -15,29 +15,56 @@
             <option value="regex">Regex</option>
           </select>
           <div class="flex h-6 items-center">
-            @if ((isAISupported$ | async) === false) {
-              <flow-tooltip
-                message="AI filtering is not supported for this file type"
-              >
+            @if ((fileInfo$ | async).file_size >= allStringsMinSize10Mib) {
+              <!--Checkbox to show all the strings in the file which only appears if the file size is greater than 10MiB-->
+              <div class="flex flex-col items-center gap-1 p-1">
+                <flow-tooltip
+                  message="Show all strings for the file instead of just the first 10MiB"
+                >
+                  <flow-toggle
+                    id="show-all-strings-toggle"
+                    [formControlName]="'showAllStringsToggle'"
+                  >
+                  </flow-toggle>
+                </flow-tooltip>
+                <flow-label
+                  class="flex"
+                  fieldSize="small-nopadding"
+                  [noPadding]="true"
+                  for="show-all-strings-toggle"
+                >
+                  All Strings
+                </flow-label>
+              </div>
+            }
+            <div class="flex flex-col items-center gap-1 p-1">
+              @if ((isAISupported$ | async) === false) {
+                <flow-tooltip
+                  message="AI filtering is not supported for this file type"
+                >
+                  <flow-toggle
+                    id="ai-filter-toggle"
+                    [formControlName]="'aiToggle'"
+                    [class]="'cursor-not-allowed opacity-50'"
+                  >
+                  </flow-toggle>
+                </flow-tooltip>
+              } @else {
                 <flow-toggle
                   id="ai-filter-toggle"
                   [formControlName]="'aiToggle'"
-                  [class]="'cursor-not-allowed opacity-50'"
                 >
                 </flow-toggle>
-              </flow-tooltip>
-            } @else {
-              <flow-toggle id="ai-filter-toggle" [formControlName]="'aiToggle'">
-              </flow-toggle>
-            }
-            <flow-label
-              class="flex"
-              fieldSize="small-nopadding"
-              [noPadding]="true"
-              for="ai-filter-toggle"
-            >
-              AI filter
-            </flow-label>
+              }
+              <flow-label
+                class="flex"
+                fieldSize="small-nopadding"
+                [noPadding]="true"
+                for="ai-filter-toggle"
+              >
+                AI filter
+              </flow-label>
+            </div>
           </div>
           @if (isLoading$ | async) {
             <span>
