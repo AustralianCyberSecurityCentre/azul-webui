@@ -27,8 +27,7 @@
                 api.currentExclusions.length === 0 ? "" : "*"
               }}: {{ securityService.displayMaxSecurity$ | async }}
               @if ((api.securityFilter$ | async) === "AND") {
-                (Filter =
-                {{ api.securityFilter$ | async }})
+                (Filter = AND)
               }
             </b>
           </button>
