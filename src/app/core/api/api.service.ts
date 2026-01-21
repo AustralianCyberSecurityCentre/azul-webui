@@ -181,7 +181,6 @@ export class ApiService {
   currentExclusions: string[];
   // list of security inclusions used to filter opensearch using AND for Rels to ensure only documents with the selected RELs are shown
   currentInclusions: string[];
-  currentFilter: string;
   // collection of security dicts received from responses
   public receivedSecurities$ = new BehaviorSubject(new Set<string>());
   public securityFilter$ = new BehaviorSubject<string | null>(null);
@@ -201,7 +200,6 @@ export class ApiService {
     this.currentInclusions = JSON.parse(
       localStorage.getItem("currentInclusions") || "[]",
     );
-    this.currentFilter = localStorage.getItem("filterType");
     if (this.currentExclusions.length > 0) {
       console.warn(
         "Excluding server data with markings:",
@@ -319,22 +317,14 @@ export class ApiService {
   }
 
   /**change the current set of excluded security markings*/
-  changeExclusions(
-    excludedData: string[],
-    filterType: boolean,
-    includedData?: string[],
-  ) {
+  changeExclusions(excludedData: string[], includedData?: string[]) {
     // update local storage with new exclusion list
     localStorage.setItem("currentExclusions", JSON.stringify(excludedData));
+    // if and filter is selected add inclusions to api call
     if (includedData.length > 0) {
       localStorage.setItem("currentInclusions", JSON.stringify(includedData));
     } else {
       localStorage.setItem("currentInclusions", JSON.stringify([]));
-    }
-    if (filterType) {
-      localStorage.setItem("filterType", "AND");
-    } else {
-      localStorage.setItem("filterType", "OR");
     }
     // refresh the page, so we clear our cache and reload using new security controls
     location.reload();
@@ -370,9 +360,6 @@ export class ApiService {
     // add the included RELs if user wants to filter by RELs in opensearch using AND instead of OR
     if (this.currentInclusions.length > 0) {
       p["i"] = this.currentInclusions;
-    }
-    if (this.currentFilter) {
-      p["f"] = this.currentFilter;
     }
   }
 
