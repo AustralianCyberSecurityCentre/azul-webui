@@ -47,7 +47,7 @@ Text can be encoded in various different ways, and Azul will try a variety of me
 
 The location of each string in the file is also displayed.
 
-NOTE - only the first 10MB of a file is checked for strings for efficiency reasons.
+NOTE - only the first 10MB of a file is checked for strings by default toggle 'All strings' to search the whole file.
 `;
   protected faSpinner = faSpinner;
 
@@ -71,6 +71,8 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
   cs: ContinuousScroll;
 
   private _take_n_strings = 1000;
+  // 10 MiB
+  protected readonly allStringsMinSize10Mib = 1000 * 1000 * 10;
 
   private lastRequest: Subscription | undefined = undefined;
   private formSubscription: Subscription | undefined = undefined;
@@ -87,10 +89,12 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
   /** If an update to the strings table has been requested after intial request (shows non intrusive spinner) */
   isLoading$ = new BehaviorSubject(false);
 
+  protected showAllStringsToggle: boolean = false;
+
   private sha256Subject: ReplaySubject<string> = new ReplaySubject();
 
   isAISupported$ = new Observable<boolean>();
-  fileFormat$ = new Observable<string>();
+  fileInfo$ = new Observable<{ file_size: number; file_type: string }>();
 
   form: UntypedFormGroup;
   private filter = "";
@@ -106,7 +110,8 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
     this.form = this.fb.group({
       filter: this.fb.control(""),
       filterType: this.fb.control("filter"),
-      aiToggle: this.fb.control(false),
+      aiToggle: this.fb.control(this.aiToggle),
+      showAllStringsToggle: this.fb.control(this.showAllStringsToggle),
     });
 
     this.data$ = this.sha256Subject.pipe(
@@ -125,19 +130,22 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
     );
 
     // Set these up first so the formSubscription can use the fileFormat$ subscription.
-    this.fileFormat$ = this.data$.pipe(
+    this.fileInfo$ = this.data$.pipe(
       ops.map((data) => {
         if (data?.items?.length > 0) {
           const firstItem = data.items[0];
-          return this.extractFilterType(firstItem.file_format);
+          return {
+            file_size: firstItem.file_size,
+            file_type: this.extractFilterType(firstItem.file_format),
+          };
         } else {
-          return "";
+          return { file_size: 0, file_type: "" };
         }
       }),
       ops.shareReplay(1),
     );
-    this.isAISupported$ = this.fileFormat$.pipe(
-      ops.map((format) => this.isAISupportedType(format)),
+    this.isAISupported$ = this.fileInfo$.pipe(
+      ops.map((fileInfo) => this.isAISupportedType(fileInfo.file_type)),
       ops.shareReplay(1),
     );
     // Needed to fully disable the ai checkbox if AI isn't supported.
@@ -161,6 +169,7 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
         this.filter = this.form.value.filter;
         this.filterType = this.form.value.filterType;
         this.aiToggle = this.form.value.aiToggle;
+        this.showAllStringsToggle = this.form.value.showAllStringsToggle;
         // Force the scroll element to jump to the top
         this.cs.offset = 0;
         this.update();
@@ -203,18 +212,18 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
     // from it
     this.lastRequest?.unsubscribe();
     this.lastRequest = combineLatest([
-      this.fileFormat$,
+      this.fileInfo$,
       this.sha256Subject.asObservable(),
     ])
       .pipe(
-        ops.switchMap(([fileType, sha256]) => {
+        ops.switchMap(([fileInfo, sha256]) => {
           // Compose the cachable part of the query for comparison later
           const searchQuery = {
             take_n_strings: this._take_n_strings,
             min_length: 4,
             //Add extra param if the ai toggle is on to return ai-filtered strings
             ...(this.aiToggle && {
-              file_format: this.extractFilterType(fileType),
+              file_format: this.extractFilterType(fileInfo.file_type),
             }),
           };
 
@@ -224,6 +233,10 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
             searchQuery[this.filterType] = this.filter;
           }
 
+          // Toggle ability to show/hide All strings.
+          if (this.showAllStringsToggle === true) {
+            searchQuery["max_bytes_to_read"] = fileInfo.file_size;
+          }
           return this.entityService.strings(sha256, {
             offset: this.cs.offset,
             ...searchQuery,
