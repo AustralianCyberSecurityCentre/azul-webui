@@ -125,8 +125,8 @@ export class SecurityLimitComponent {
     for (const k in this.allGroups) {
       for (const option of this.allGroups[k].options) {
         if (
-          k === "releasability" &&
           this.formCustom.get("andSearch")?.value &&
+          k === "releasability" &&
           raw[k] &&
           raw[k].indexOf(option.name) >= 0
         ) {
