@@ -184,7 +184,6 @@ export class ApiService {
   // collection of security dicts received from responses
   public receivedSecurities$ = new BehaviorSubject(new Set<string>());
   public securityFilter$ = new BehaviorSubject<string | null>(null);
-  private includedSecurityRels$ = new BehaviorSubject(new Set<string>());
   combinedSecurity$: Observable<string>;
 
   private http: AxiosClient;
