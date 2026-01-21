@@ -22,24 +22,12 @@
                 <flow-toggle
                   id="ai-filter-toggle"
                   [formControlName]="'aiToggle'"
-                  [disabled]="(isAISupported$ | async) === false"
-                  [ngClass]="{
-                    'cursor-not-allowed opacity-50':
-                      (isAISupported$ | async) === false,
-                  }"
+                  [class]="'cursor-not-allowed opacity-50'"
                 >
                 </flow-toggle>
               </flow-tooltip>
             } @else {
-              <flow-toggle
-                id="ai-filter-toggle"
-                [formControlName]="'aiToggle'"
-                [disabled]="(isAISupported$ | async) === false"
-                [ngClass]="{
-                  'cursor-not-allowed opacity-50':
-                    (isAISupported$ | async) === false,
-                }"
-              >
+              <flow-toggle id="ai-filter-toggle" [formControlName]="'aiToggle'">
               </flow-toggle>
             }
             <flow-label

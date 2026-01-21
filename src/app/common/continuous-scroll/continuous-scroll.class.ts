@@ -40,12 +40,19 @@ export class ContinuousScroll {
   constructor() {}
 
   /** Check if we should load next values */
-  loadMore(event: number) {
+  // loadMore(event: number) {
+  //   if (!this._backOff && this._has_more) {
+  //     // this.getDataLength() isn't implemented so this way throws errors
+  //     if (event / this.getDataLength() >= 0.8) {
+  //       this._backOff = true;
+  //       this.update();
+  //     }
+  //   }
+  // }
+  loadMore(_event: number) {
     if (!this._backOff && this._has_more) {
-      if (event / this.getDataLength() >= 0.8) {
-        this._backOff = true;
-        this.update();
-      }
+      this._backOff = true;
+      this.update();
     }
   }
 
