@@ -372,7 +372,6 @@ export class ApiService {
     }
     this.securityFilter$.next(sec_filter);
   }
-  /** */
 
   /**
    * Formats a URL at runtime with the given parameters.
