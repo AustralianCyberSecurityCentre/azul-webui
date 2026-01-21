@@ -10,7 +10,14 @@ import {
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { ToastrService } from "ngx-toastr";
-import { BehaviorSubject, Observable, Subscription, of } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  Subscription,
+  combineLatest,
+  of,
+} from "rxjs";
 import * as ops from "rxjs/operators";
 import { ContinuousScroll } from "src/app/common/continuous-scroll/continuous-scroll.class";
 import { components, operations } from "src/app/core/api/openapi";
@@ -61,16 +68,15 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
   strings$ = new BehaviorSubject<AggregatedStrings>(undefined);
   _stringsLoaded$: Observable<number> = new Observable<number>();
 
-  sha256: string;
   cs: ContinuousScroll;
 
   private _take_n_strings = 1000;
 
   private lastRequest: Subscription | undefined = undefined;
   private formSubscription: Subscription | undefined = undefined;
-  private aiSupportedListener: Subscription | undefined = undefined;
-  private fileFormatListener: Subscription | undefined = undefined;
-  private dataListener: Subscription | undefined = undefined;
+  private summarySubscription: Subscription | undefined = undefined;
+  private aiSupportedSubscription: Subscription | undefined = undefined;
+
   private lastQueryParams:
     | operations["get_strings_api_v0_binaries__sha256__strings_get"]["parameters"]["query"]
     | undefined;
@@ -81,6 +87,8 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
   /** If an update to the strings table has been requested after intial request (shows non intrusive spinner) */
   isLoading$ = new BehaviorSubject(false);
 
+  private sha256Subject: ReplaySubject<string> = new ReplaySubject();
+
   isAISupported$ = new Observable<boolean>();
   fileFormat$ = new Observable<string>();
 
@@ -88,41 +96,35 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
   private filter = "";
   private filterType: "filter" | "regex" = "filter";
   private aiToggle: boolean = false;
-  private fileType = "";
 
-  private resizeObs?: ResizeObserver;
+  private searchQuery:
+    | { take_n_strings: number; min_length: number; file_format: string }
+    | undefined = undefined;
 
-  ngOnInit(): void {
+  constructor() {
+    super();
     this.form = this.fb.group({
       filter: this.fb.control(""),
       filterType: this.fb.control("filter"),
       aiToggle: this.fb.control(false),
     });
 
-    this.formSubscription = this.form.valueChanges
-      .pipe(ops.debounceTime(500))
-      .subscribe(() => {
-        this.filter = this.form.value.filter;
-        this.filterType = this.form.value.filterType;
-        this.aiToggle = this.form.value.aiToggle;
-        // Force the scroll element to jump to the top
-        this.cs.offset = 0;
-        this.update();
-      });
-
-    this.resizeObs.observe(this.host.nativeElement);
-
-    const params = { term: this.sha256 };
-
-    this.data$ = this.entityService.find(params).pipe(
-      ops.catchError((e) => {
-        if (e instanceof HttpErrorResponse) {
-          return of(null);
-        }
-        throw e;
+    this.data$ = this.sha256Subject.pipe(
+      ops.switchMap((sha256: string) => {
+        const params = { term: sha256 };
+        return this.entityService.find(params).pipe(
+          ops.catchError((e) => {
+            if (e instanceof HttpErrorResponse) {
+              return of(null);
+            }
+            throw e;
+          }),
+        );
       }),
+      ops.shareReplay(1),
     );
 
+    // Set these up first so the formSubscription can use the fileFormat$ subscription.
     this.fileFormat$ = this.data$.pipe(
       ops.map((data) => {
         if (data?.items?.length > 0) {
@@ -134,38 +136,48 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
       }),
       ops.shareReplay(1),
     );
-
     this.isAISupported$ = this.fileFormat$.pipe(
       ops.map((format) => this.isAISupportedType(format)),
       ops.shareReplay(1),
     );
+    // Needed to fully disable the ai checkbox if AI isn't supported.
+    this.aiSupportedSubscription = this.isAISupported$.subscribe(
+      (supported) => {
+        const aiToggleControl = this.form.get("aiToggle");
+        aiToggleControl.setValue(false);
+        if (supported) {
+          aiToggleControl?.enable();
+        } else {
+          aiToggleControl?.disable();
+        }
+      },
+    );
+  }
 
-    this.fileFormatListener = this.fileFormat$.subscribe((format) => {
-      this.fileType = format;
-    });
-
-    this.aiSupportedListener = this.isAISupported$.subscribe((supported) => {
-      const aiToggleControl = this.form.get("aiToggle");
-      if (supported) {
-        aiToggleControl?.enable();
-      } else {
-        aiToggleControl?.disable();
-      }
-    });
+  ngOnInit(): void {
+    this.formSubscription = this.form.valueChanges
+      .pipe(ops.debounceTime(500))
+      .subscribe(() => {
+        this.filter = this.form.value.filter;
+        this.filterType = this.form.value.filterType;
+        this.aiToggle = this.form.value.aiToggle;
+        // Force the scroll element to jump to the top
+        this.cs.offset = 0;
+        this.update();
+      });
   }
 
   ngOnDestroy() {
     this.lastRequest?.unsubscribe();
     this.formSubscription?.unsubscribe();
-    this.resizeObs?.disconnect();
-    this.aiSupportedListener?.unsubscribe();
-    this.fileFormatListener?.unsubscribe();
+    this.summarySubscription?.unsubscribe();
+    this.aiSupportedSubscription?.unsubscribe();
   }
 
   updateData() {
-    this.entity.summary$.subscribe((obs) => {
-      this.sha256 = obs.sha256;
-
+    this.summarySubscription?.unsubscribe();
+    this.summarySubscription = this.entity.summary$.subscribe((obs) => {
+      this.sha256Subject.next(obs.sha256);
       this.cs = new ContinuousScroll();
       //override functions that need local context
       this.cs.update = () => {
@@ -190,34 +202,40 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
     // If there is a pending request, make sure we don't get results
     // from it
     this.lastRequest?.unsubscribe();
-
-    // Compose the cachable part of the query for comparison later
-    const searchQuery = {
-      take_n_strings: this._take_n_strings,
-      min_length: 4,
-      //Add extra param if the ai toggle is on to return ai-filtered strings
-      ...(this.aiToggle && {
-        file_format: this.extractFilterType(this.fileType),
-      }),
-    };
-
-    if (this.filter !== "") {
-      searchQuery[this.filterType] = this.filter;
-    }
-
-    this.lastRequest = this.entityService
-      .strings(this.sha256, {
-        offset: this.cs.offset,
-        ...searchQuery,
-      })
+    this.lastRequest = combineLatest([
+      this.fileFormat$,
+      this.sha256Subject.asObservable(),
+    ])
       .pipe(
-        ops.take(1),
+        ops.switchMap(([fileType, sha256]) => {
+          // Compose the cachable part of the query for comparison later
+          const searchQuery = {
+            take_n_strings: this._take_n_strings,
+            min_length: 4,
+            //Add extra param if the ai toggle is on to return ai-filtered strings
+            ...(this.aiToggle && {
+              file_format: this.extractFilterType(fileType),
+            }),
+          };
+
+          this.searchQuery = searchQuery;
+
+          if (this.filter !== "") {
+            searchQuery[this.filterType] = this.filter;
+          }
+
+          return this.entityService.strings(sha256, {
+            offset: this.cs.offset,
+            ...searchQuery,
+          });
+        }),
         ops.catchError((e) => {
           if (e instanceof HttpErrorResponse) {
             return of(null);
           }
           throw e;
         }),
+        ops.take(1),
       )
       .subscribe((s: AggregatedStrings) => {
         // Add previous string entries for pagination to the current set of strings
@@ -226,7 +244,8 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
         // may not match
         if (
           this.strings$?.value != undefined &&
-          JSON.stringify(searchQuery) === JSON.stringify(this.lastQueryParams)
+          JSON.stringify(this.searchQuery) ===
+            JSON.stringify(this.lastQueryParams)
         ) {
           // workaround for when ai string filter is toggled on, off, and back on.
           // stops duplicate strings being added to strings$
@@ -241,7 +260,7 @@ NOTE - only the first 10MB of a file is checked for strings for efficiency reaso
           this.cs.reset(false, s.next_offset, s.has_more);
         }
 
-        this.lastQueryParams = searchQuery;
+        this.lastQueryParams = this.searchQuery;
 
         this.isLoading$.next(false);
         this.isLoadingInitial$.next(false);
