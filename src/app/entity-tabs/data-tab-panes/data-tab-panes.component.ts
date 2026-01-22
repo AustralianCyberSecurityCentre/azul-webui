@@ -343,8 +343,7 @@ export class DataTabPanesComponent implements OnDestroy {
     switch (event.button) {
       case 0:
         // Left click
-        // if clicking the close the tab will close, otherwise the user probably want's to do a drag
-        // And happened to click on the tab.
+        this.openTab(tabId)
         break;
       case 1:
         // Middle click
@@ -389,6 +388,12 @@ export class DataTabPanesComponent implements OnDestroy {
 
     // Just incase a drag was triggered.
     this.showDragOverlay$.next(false);
+  }
+
+  protected closeTabEvent(event: Event, tabId: string){
+    this.closeTab(tabId);
+    // Stop propagation to parent element which would cause the tab to re-open.
+    event.stopPropagation();
   }
 
   protected closeTab(tabId: string) {

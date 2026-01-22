@@ -200,7 +200,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     // Add effect to jump to index on hover.
     effect(() =>{
       const index = this.stringIndexFromHexHoverSignal()
-      if(index > -1){
+      if(index > -1 && this.viewport){
         this.viewport.scrollToIndex(index)
       }
     })
