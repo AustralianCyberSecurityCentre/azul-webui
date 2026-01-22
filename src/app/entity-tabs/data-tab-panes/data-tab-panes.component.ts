@@ -221,7 +221,7 @@ export class DataTabPanesComponent implements OnDestroy {
             const newTabCount = panesPlusSidebar - paneSizes.length;
             const rightPaneSizes = rightmostPaneSize / (newTabCount + 1);
 
-            for (let i = paneSizes.length; i < panes.length + 1; i++) {
+            for (let i = paneSizes.length - 1; i < panes.length + 1; i++) {
               paneSizes[i] = rightPaneSizes;
             }
           } else {
