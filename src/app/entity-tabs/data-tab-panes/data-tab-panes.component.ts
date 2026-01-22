@@ -215,8 +215,7 @@ export class DataTabPanesComponent implements OnDestroy {
           paneSizes = paneSizes.slice(0, panesPlusSidebar);
         } else if (panesPlusSidebar > paneSizes.length) {
           // A new pane has been added - split up the last pane if possible
-          const rightmostPaneSize = paneSizes[panes.length];
-
+          const rightmostPaneSize = paneSizes[paneSizes.length - 1];
           if (typeof rightmostPaneSize === "number") {
             // The last pane has fixed sizing - subdivide it
             const newTabCount = panesPlusSidebar - paneSizes.length;
