@@ -69,14 +69,19 @@
                 <div class="hex-digit font-mono" event="mouseenter">
                   @for (hexNum of row.hex; track hexNum; let i = $index) {
                     <div
-                      (mouseover)="hexStringSyncService.HexOffsetSignal.set(row.address + i)"
+                      (mouseover)="
+                        hexStringSyncService.HexOffsetSignal.set(
+                          row.address + i
+                        )
+                      "
                       (mousedown)="startDrag(row.address + i)"
                       (mousemove)="handleDrag(row.address + i)"
                       (mouseup)="stopDrag(row.address + i)"
                       (focus)="(null)"
                       [ngClass]="{
                         hovered:
-                          hexStringSyncService.HexOffsetSignal() === row.address + i && !isDragging,
+                          hexStringSyncService.HexOffsetSignal() ===
+                            row.address + i && !isDragging,
                         selected: (range$ | async)?.contains(row.address + i),
                         'null-value': hexNum === '00',
                       }"
@@ -87,14 +92,19 @@
                 <div class="ascii-digit font-mono" event="mouseenter">
                   @for (ascii of row.ascii; track i; let i = $index) {
                     <div
-                      (mouseover)="hexStringSyncService.HexOffsetSignal.set(row.address + i)"
+                      (mouseover)="
+                        hexStringSyncService.HexOffsetSignal.set(
+                          row.address + i
+                        )
+                      "
                       (mousedown)="startDrag(row.address + i)"
                       (mousemove)="handleDrag(row.address + i)"
                       (mouseup)="stopDrag(row.address + i)"
                       (focus)="(null)"
                       [ngClass]="{
                         hovered:
-                          hexStringSyncService.HexOffsetSignal() === row.address + i && !isDragging,
+                          hexStringSyncService.HexOffsetSignal() ===
+                            row.address + i && !isDragging,
                         selected: (range$ | async)?.contains(row.address + i),
                       }"
                       [innerText]="ascii"

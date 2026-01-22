@@ -343,7 +343,7 @@ export class DataTabPanesComponent implements OnDestroy {
     switch (event.button) {
       case 0:
         // Left click
-        this.openTab(tabId)
+        this.openTab(tabId);
         break;
       case 1:
         // Middle click
@@ -390,7 +390,7 @@ export class DataTabPanesComponent implements OnDestroy {
     this.showDragOverlay$.next(false);
   }
 
-  protected closeTabEvent(event: Event, tabId: string){
+  protected closeTabEvent(event: Event, tabId: string) {
     this.closeTab(tabId);
     // Stop propagation to parent element which would cause the tab to re-open.
     event.stopPropagation();

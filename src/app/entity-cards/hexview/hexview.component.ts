@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  inject
+  inject,
 } from "@angular/core";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 import { ToastrService } from "ngx-toastr";

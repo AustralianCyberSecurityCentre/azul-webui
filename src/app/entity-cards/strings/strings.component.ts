@@ -105,7 +105,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   // Proxy signal is created to avoid
   stringIndexFromHexHoverSignal: Signal<number>;
 
-
   isAISupported$ = new Observable<boolean>();
   fileInfo$ = new Observable<{ file_size: number; file_type: string }>();
 
@@ -176,34 +175,34 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
     this.stringIndexFromHexHoverSignal = computed(() => {
       const hexOffset = this.hexStringSyncService.HexOffsetSignal();
-      if(hexOffset === -1){
-        return -1
+      if (hexOffset === -1) {
+        return -1;
       }
       // Binary search for string with the correct offset in the list of strings.
-      const stringVal = this.strings$.value
-      let min_index = 0
-      let max_index = stringVal.strings.length
-      let mid_index = -1
-      if(stringVal != undefined){
-        while(min_index < max_index){
-          mid_index = min_index + Math.floor((max_index - min_index) / 2)
-          if(stringVal.strings[mid_index].offset < hexOffset){
+      const stringVal = this.strings$.value;
+      let min_index = 0;
+      let max_index = stringVal.strings.length;
+      let mid_index = -1;
+      if (stringVal != undefined) {
+        while (min_index < max_index) {
+          mid_index = min_index + Math.floor((max_index - min_index) / 2);
+          if (stringVal.strings[mid_index].offset < hexOffset) {
             min_index = mid_index + 1;
-          } else{
+          } else {
             max_index = mid_index;
           }
         }
       }
       // Math max to avoid min_index being -1 when before the first string.
-      return Math.max(0, min_index - 1)
-    })
+      return Math.max(0, min_index - 1);
+    });
     // Add effect to jump to index on hover.
-    effect(() =>{
-      const index = this.stringIndexFromHexHoverSignal()
-      if(index > -1 && this.viewport){
-        this.viewport.scrollToIndex(index)
+    effect(() => {
+      const index = this.stringIndexFromHexHoverSignal();
+      if (index > -1 && this.viewport) {
+        this.viewport.scrollToIndex(index);
       }
-    })
+    });
   }
 
   ngOnInit(): void {
