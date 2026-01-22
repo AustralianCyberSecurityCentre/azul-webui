@@ -43,30 +43,13 @@ export class SecurityService {
     );
 
     this.initalise_user_settings();
-
-    this.displayMaxSecurity$ = combineLatest([
-      this.settings$.pipe(ops.startWith(null)),
-      this.api.combinedSecurity$.pipe(
-        ops.retry({ count: 5, delay: 2000 }),
-        ops.catchError(() => {
-          this.dbg(
-            "CombinedSecurity swallowing error, probably due to no auth yet.",
-          );
-          return of(null);
-        }),
-        ops.startWith(null),
-      ),
-    ]).pipe(
-      ops.map(([x, y]) => {
-        if (y) {
-          return y;
-        } else if (x) {
-          return x.presets[0];
-        } else {
-          return "loading";
+    this.displayMaxSecurity$ = this.api.receivedSecurities$.pipe(
+      ops.map((value) => {
+        if (value instanceof Set) {
+          return Array.from(value).join(", ");
         }
+        return value;
       }),
-      ops.catchError((_e) => of("error")),
       ops.shareReplay(1),
     );
   }
