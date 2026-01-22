@@ -180,7 +180,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       }
       // Binary search for string with the correct offset in the list of strings.
       const stringVal = this.strings$.value;
-      if(stringVal === undefined){
+      if (stringVal === undefined) {
         return -1;
       }
 
