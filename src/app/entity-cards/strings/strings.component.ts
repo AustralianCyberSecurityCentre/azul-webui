@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
   ChangeDetectionStrategy,
@@ -5,6 +6,10 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  Signal,
+  ViewChild,
+  computed,
+  effect,
   inject,
 } from "@angular/core";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
@@ -23,6 +28,7 @@ import { ContinuousScroll } from "src/app/common/continuous-scroll/continuous-sc
 import { components, operations } from "src/app/core/api/openapi";
 import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
+import { HexStringSyncService } from "../hex-string-sync.service";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"] & {
   strings: components["schemas"]["SearchResult"][];
@@ -39,6 +45,7 @@ export class StringsComponent extends BaseCard implements OnInit, OnDestroy {
   private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
   private host = inject(ElementRef);
+  private hexStringSyncService = inject(HexStringSyncService);
 
   help = `
 This panel displays bits of text that were found in the file.
@@ -90,8 +97,14 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   isLoading$ = new BehaviorSubject(false);
 
   protected showAllStringsToggle: boolean = false;
-
   private sha256Subject: ReplaySubject<string> = new ReplaySubject();
+
+  @ViewChild("stringViewport", { read: CdkVirtualScrollViewport })
+  viewport: CdkVirtualScrollViewport;
+
+  // Proxy signal is created to avoid
+  stringIndexFromHexHoverSignal: Signal<number>;
+
 
   isAISupported$ = new Observable<boolean>();
   fileInfo$ = new Observable<{ file_size: number; file_type: string }>();
@@ -160,6 +173,37 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }
       },
     );
+
+    this.stringIndexFromHexHoverSignal = computed(() => {
+      const hexOffset = this.hexStringSyncService.HexOffsetSignal();
+      if(hexOffset === -1){
+        return -1
+      }
+      // Binary search for string with the correct offset in the list of strings.
+      const stringVal = this.strings$.value
+      let min_index = 0
+      let max_index = stringVal.strings.length
+      let mid_index = -1
+      if(stringVal != undefined){
+        while(min_index < max_index){
+          mid_index = min_index + Math.floor((max_index - min_index) / 2)
+          if(stringVal.strings[mid_index].offset < hexOffset){
+            min_index = mid_index + 1;
+          } else{
+            max_index = mid_index;
+          }
+        }
+      }
+      // Math max to avoid min_index being -1 when before the first string.
+      return Math.max(0, min_index - 1)
+    })
+    // Add effect to jump to index on hover.
+    effect(() =>{
+      const index = this.stringIndexFromHexHoverSignal()
+      if(index > -1){
+        this.viewport.scrollToIndex(index)
+      }
+    })
   }
 
   ngOnInit(): void {
