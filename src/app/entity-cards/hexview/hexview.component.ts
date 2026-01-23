@@ -101,8 +101,9 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     for (let i = range.start; i <= range.end; i++) {
       const byteRow = Math.floor(i / this.rowWidth);
       const byteRowIndex = i % this.rowWidth;
-
-      const byte = this.cachedData[byteRow].hex[byteRowIndex];
+      // Ensure that getting the row works between different pages.
+      const byteRowMod = byteRow % this.pageSize;
+      const byte = this.cachedData[byteRowMod].hex[byteRowIndex];
       data.push(byte);
     }
 
