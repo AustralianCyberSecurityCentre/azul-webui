@@ -207,6 +207,9 @@ export class IconService {
 
       default:
         // Handle complex cases like regex and startsWith here, to minimise it's usage.
+        if (typeof ftype !== "string") {
+          return faFile;
+        }
         switch (true) {
           case ftype.startsWith("text/"):
           case ftype.startsWith("code/"):
