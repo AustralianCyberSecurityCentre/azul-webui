@@ -5,11 +5,10 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  Signal,
   ViewChild,
   WritableSignal,
   inject,
-  signal,
+  signal
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
@@ -89,13 +88,11 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   @ViewChild("stringViewport", { read: CdkVirtualScrollViewport })
   viewport: CdkVirtualScrollViewport;
 
-  // Proxy signal is created to avoid
-  stringIndexFromHexHoverSignal: Signal<number>;
+  // Subscription to hex views changing position.
   stringIndexFromHexHoverSub: Subscription;
 
-  isLastActionScroll: boolean = false;
-
   isAISupported$ = new Observable<boolean>();
+  // Holds the current index after every scroll
   currentIndex: number = -1;
 
   form: UntypedFormGroup;
@@ -240,6 +237,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     return match || "";
   }
 
+  // --------------------------------------- Hex viewer synchronization code.
+
   private currentMinByteOffset: number = -1;
   private currentMaxByteOffset: number = -1;
   private _take_n_strings = 1000;
@@ -265,6 +264,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   // Start loading more strings when within 100 of the current edge (up or down)
   protected SCROLL_BUFFER_INDEX = 200;
 
+  // The common API query used to scroll up and down the file.
   __createQueryCommon(
     fileInfo: FileInfo,
     sha256: string,
@@ -295,12 +295,23 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     });
   }
 
+  // Reset the scroll cache, the cache is used to cache strings if the file jump is too large and there are more
+  // than 1000 strings between the jump point and the destination offset.
   _resetScrollUpCache() {
     this.scrollUpCacheMinOffset = -1;
     this.scrollUpCache = [];
     this.scrollUpOffsetMultiplier = 1;
   }
 
+  /* Find the strings that should be above the current point, while scrolling up.
+  NOTE - this jumps a set distance and looks for all strings between that random jump and the previous earliest
+  offset in the file.
+  IF - there are no strings in that range, gradually expands the range to look for strings in a larger and larger
+  section of the file.
+  IF - there are 1000 strings or less between the two points, the strings are loaded into the known list of strings.
+  IF - there are more than 1000 strings, cache the found strings and then search for all the additional strings that
+  will be in-between the space that wasn't searched yet, do this recursively until all strings are found.
+  */
   _scrollUpFileInner(offsetForQuery: number) {
     this.scrollUpSub?.unsubscribe();
     this.scrollUpInProgressSignal.set(true);
@@ -371,11 +382,12 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
         // can now ask for more again
         this.currentMinByteOffset = this.scrollUpCacheMinOffset;
-        this._resetScrollUpCache();
         this.scrollUpInProgressSignal.set(false);
       });
   }
 
+
+  // Calculate how far above the previous offset to jump to try and load strings.
   _calculateScrollUpOffset(): number {
     let offsetForQuery =
       this.currentMinByteOffset -
@@ -392,6 +404,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     if (this.currentMinByteOffset === 0) {
       return false;
     }
+    this._resetScrollUpCache();
     this._scrollUpFileInner(this._calculateScrollUpOffset());
   }
 
@@ -469,9 +482,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       });
   }
 
+  // Handle a scroll event occurring
   scrollOccurred(index: number): boolean {
+    // Set the current index to the scrolled to index, this is used when scrolling up.
     this.currentIndex = index;
-    this.isLastActionScroll = true;
     // Scroll already in progress keep waiting.
     if (
       this.scrollUpInProgressSignal() === true ||
@@ -479,6 +493,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     ) {
       return false;
     }
+    // A scroll can't occur until at least the initial data is loaded so wait for that.
     if (
       this.currentStringsSignal().length === 0 ||
       this.currentStringsSignal() === undefined
@@ -495,16 +510,17 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     return false;
   }
 
-  // Jump to arbitrary offset within file (if it is within the current range of loaded strings or close to just scroll).
+  // Jump to arbitrary offset within file (ignore request if the strings have already been loaded).
   jumpToFileOffset(offset: number) {
-    this.isLastActionScroll = false;
+    // If a scroll is in progress don't start another scroll event.
     if (
       this.scrollUpInProgressSignal() === true ||
       this.scrollDownInProgressSignal() === true
     ) {
       return false;
     }
-    if (offset < 4000) {
+    // If it's within the scroll up windows, just do a scroll down from the top.
+    if (offset < this.SCROLL_UP_JUMP_AMOUNT) {
       this.reset();
       this.currentMinByteOffset = 0;
       this._scrollDownFile();
@@ -512,8 +528,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       offset < this.currentMaxByteOffset &&
       offset > this.currentMinByteOffset
     ) {
+      console.error("Trying to jump to an offset within the loaded file this shouldn't happen.")
       return;
     } else {
+      // Jumping to an offset outside of the current loaded range so clear the current range and then load the strings above and below the target point.
       this.reset();
       this.currentMinByteOffset = offset;
       this.currentMaxByteOffset = offset;
@@ -522,7 +540,15 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     }
   }
 
+  // Clear the existing strings and set scroll relevant properties back to defaults
+  // Can only be called while a scroll is not in progress.
   reset() {
+    if (
+      this.scrollUpInProgressSignal() === true ||
+      this.scrollDownInProgressSignal() === true
+    ) {
+      return false;
+    }
     if (this.currentStringsSignal() !== undefined) {
       this.currentStringsSignal.set([]);
     }
