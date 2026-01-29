@@ -177,9 +177,9 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     ])
       .pipe(
         ops.map(([hexOffset, currentStringList]) => {
-          console.log("STARTING THE THING!");
+          // console.info("STARTING THE THING!");
           if (hexOffset === -1) {
-            console.log("HEX OFFSET is -1");
+            // console.info("HEX OFFSET is -1");
             return -1;
           }
           // Binary search for string with the correct offset in the list of strings.
@@ -219,7 +219,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }),
       )
       .subscribe((indexToJumpTo) => {
-        console.log("looking at scrolling to index.", indexToJumpTo);
+        // console.info("looking at scrolling to index.", indexToJumpTo);
         if (indexToJumpTo > -1 && this.viewport) {
           this.viewport.scrollToIndex(indexToJumpTo);
         }
