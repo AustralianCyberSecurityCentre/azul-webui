@@ -104,6 +104,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   isLastActionScroll: boolean = false;
 
   isAISupported$ = new Observable<boolean>();
+  currentIndex: number = -1;
 
   form: UntypedFormGroup;
   private filter = "";
@@ -406,13 +407,13 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this._scrollUpFileInner(s.strings[s.strings.length - 1].offset);
           return;
         }
-        // Inital scroll provided no data so try scrolling again.
+        // Initial scroll provided no data so try scrolling again.
         if (s.strings.length === 0 && this.scrollUpCache.length === 0) {
           this.scrollUpOffsetMultiplier += 1;
           this._scrollUpFileInner(this._calculateScrollUpOffset());
           return;
         }
-
+        // 01a1a351	&.UKs
         if (
           this.currentStringsSignal() != undefined &&
           JSON.stringify(this.searchQuery) ===
@@ -421,6 +422,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this.currentStringsSignal.update((previous) => {
             return [...this.scrollUpCache, ...previous];
           });
+          // try and keep view port at the same point.
+          this.viewport.scrollToIndex(
+            this.currentIndex + this.scrollUpCache.length,
+          );
         } else {
           this.currentStringsSignal.set([...this.scrollUpCache]);
         }
@@ -544,6 +549,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   }
 
   scrollOccurred(index: number): boolean {
+    this.currentIndex = index;
     this.isLastActionScroll = true;
     // Scroll already in progress keep waiting.
     if (
