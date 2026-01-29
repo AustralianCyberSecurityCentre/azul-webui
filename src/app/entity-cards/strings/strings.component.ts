@@ -24,15 +24,12 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components, operations } from "src/app/core/api/openapi";
+import { components } from "src/app/core/api/openapi";
 import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
-
-// class StringScrollManager{
-// }
 
 type FileInfo = { file_size: number; file_type: string };
 
@@ -84,11 +81,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   private summarySubscription: Subscription | undefined = undefined;
   private aiSupportedSubscription: Subscription | undefined = undefined;
 
-  private lastQueryParams:
-    | operations["get_strings_api_v0_binaries__sha256__strings_get"]["parameters"]["query"]
-    | undefined;
-  data$: Observable<components["schemas"]["EntityFind"] | null>;
-
   /** If an update to the strings table has been requested for first time */
   isLoadingInitial$ = new BehaviorSubject(false);
 
@@ -111,10 +103,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   private filterType: "filter" | "regex" = "filter";
   private aiToggle: boolean = false;
 
-  private searchQuery:
-    | { take_n_strings: number; min_length: number; file_format: string }
-    | undefined = undefined;
-
   constructor() {
     super();
     this.form = this.fb.group({
@@ -124,38 +112,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       showAllStringsToggle: this.fb.control(this.showAllStringsToggle),
     });
 
-    this.data$ = this.sha256Subject.pipe(
-      ops.switchMap((sha256: string) => {
-        const params = { term: sha256 };
-        return this.entityService.find(params).pipe(
-          ops.catchError((e) => {
-            if (e instanceof HttpErrorResponse) {
-              return of(null);
-            }
-            throw e;
-          }),
-        );
-      }),
-      ops.shareReplay(1),
-    );
-
-    // Set these up first so the formSubscription can use the fileFormat$ subscription.
-    this.fileInfo$ = this.data$.pipe(
-      ops.map((data) => {
-        if (data?.items?.length > 0) {
-          const firstItem = data.items[0];
-          return {
-            file_size: firstItem.file_size,
-            file_type: this.extractFilterType(firstItem.file_format),
-          };
-        } else {
-          return { file_size: 0, file_type: "" };
-        }
-      }),
-      ops.shareReplay(1),
-    );
-    this.isAISupported$ = this.fileInfo$.pipe(
-      ops.map((fileInfo) => this.isAISupportedType(fileInfo.file_type)),
+    this.isAISupported$ = combineLatest([
+      this.fileInfoSubject.asObservable(),
+    ]).pipe(
+      ops.map(([fileInfo]) => this.isAISupportedType(fileInfo.file_type)),
       ops.shareReplay(1),
     );
     // Needed to fully disable the ai checkbox if AI isn't supported.
@@ -178,9 +138,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     ])
       .pipe(
         ops.map(([hexOffset, currentStringList]) => {
-          // console.info("STARTING THE THING!");
           if (hexOffset === -1) {
-            // console.info("HEX OFFSET is -1");
             return -1;
           }
           // Binary search for string with the correct offset in the list of strings.
@@ -189,10 +147,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
             return -1;
           }
           if (stringVal.length > 0) {
-            // TODO - remove
-            // console.info("ENTERING CHECK OF");
-            // console.info(`${hexOffset} < ${stringVal[0].offset - this.SCROLL_UP_JUMP_AMOUNT}`)
-            // console.info(`${hexOffset} > ${stringVal[stringVal.length - 1].offset + this.SCROLL_UP_JUMP_AMOUNT}`)
             if (
               hexOffset < stringVal[0].offset - this.SCROLL_UP_JUMP_AMOUNT ||
               hexOffset >
@@ -220,7 +174,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }),
       )
       .subscribe((indexToJumpTo) => {
-        // console.info("looking at scrolling to index.", indexToJumpTo);
         if (indexToJumpTo > -1 && this.viewport) {
           this.viewport.scrollToIndex(indexToJumpTo);
         }
@@ -241,6 +194,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   }
 
   ngOnDestroy() {
+    this.scrollUpSub?.unsubscribe();
+    this.scrollDownSub?.unsubscribe();
     this.lastRequest?.unsubscribe();
     this.formSubscription?.unsubscribe();
     this.summarySubscription?.unsubscribe();
@@ -252,28 +207,23 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.summarySubscription?.unsubscribe();
     this.summarySubscription = this.entity.summary$.subscribe((obs) => {
       this.sha256Subject.next(obs.sha256);
+      let file_size = 0;
+      if (obs?.file_size) {
+        file_size = obs.file_size;
+      }
+      let file_format = "";
+      if (obs?.file_format) {
+        file_format = obs.file_format;
+      }
+
+      this.fileInfoSubject.next({
+        file_size: file_size,
+        file_type: file_format,
+      });
       //get first set of data
       this.jumpToFileOffset(0);
     });
   }
-
-  /** get next values */
-  // update() {
-  //   // If there is a pending request, make sure we don't get results
-  //   // from it
-  //   this.lastRequest?.unsubscribe();
-  //   this.lastRequest =
-  // }
-
-  // protected scrollOccurred(index: number){
-  //   // // console.info("new index")
-  //   // // console.info(index) // Whatever item your up to in the list.
-  //   // // console.info("viewport size", this.viewport.getViewportSize()) // Fixed size based on window
-  //   // // console.info("viewport measureScrollOffset", this.viewport.measureScrollOffset()) // raw valu of the scroll bar index*item height? (22194 @ 765 ~29.01176px)
-  //   // // console.info("viewport render range", this.viewport.getRenderedRange()) // - index range (703-841)
-  //   // // console.info("viewport data length", this.viewport.getDataLength()) // number of strings loaded. e.g 1k then 2k then 3k...
-  //   this.scrollManager.scrollOccurred(index)
-  // }
 
   //check to disable ai toggle for unsupported file_format
   private isAISupportedType(file_format: string): boolean {
@@ -292,13 +242,12 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
   private currentMinByteOffset: number = -1;
   private currentMaxByteOffset: number = -1;
-  private fileLength: number = -1;
   private _take_n_strings = 1000;
   private MIN_LENGTH_STRING = 4;
-  private SCROLL_UP_JUMP_AMOUNT = 1024 * 20; // 20kB jump - TODO optimise a little.
+  private SCROLL_UP_JUMP_AMOUNT = 1024 * 20; // 20kB jump - arbitrary and may need adjusting in the future
 
   sha256Subject: ReplaySubject<string> = new ReplaySubject();
-  fileInfo$ = new Observable<FileInfo>();
+  fileInfoSubject = new ReplaySubject<FileInfo>();
 
   currentStringsSignal: WritableSignal<
     components["schemas"]["SearchResult"][]
@@ -316,11 +265,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   // Start loading more strings when within 100 of the current edge (up or down)
   protected SCROLL_BUFFER_INDEX = 200;
 
-  cleanupSubscriptions() {
-    this.scrollUpSub?.unsubscribe();
-    this.scrollDownSub?.unsubscribe();
-  }
-
   __createQueryCommon(
     fileInfo: FileInfo,
     sha256: string,
@@ -336,8 +280,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         file_format: this.extractFilterType(fileInfo.file_type),
       }),
     };
-
-    this.searchQuery = searchQuery;
 
     if (this.filter !== "") {
       searchQuery[this.filterType] = this.filter;
@@ -364,7 +306,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.scrollUpInProgressSignal.set(true);
 
     this.scrollUpSub = combineLatest([
-      this.fileInfo$,
+      this.fileInfoSubject.asObservable(),
       this.sha256Subject.asObservable(),
     ])
       .pipe(
@@ -393,13 +335,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           return;
         }
 
-        // strings have loaded so process accordingly.
-
-        // Add previous string entries for pagination to the current set of strings
-        // if previous entries exist
-        // If the search query parameters have changed, clear it out as previous hits
-        // may not match
-        if (this.scrollUpCacheMinOffset === -1) {
+        if (this.scrollUpCacheMinOffset < offsetForQuery) {
           this.scrollUpCacheMinOffset = offsetForQuery;
         }
         this.scrollUpCache = [...this.scrollUpCache, ...s.strings];
@@ -413,12 +349,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this._scrollUpFileInner(this._calculateScrollUpOffset());
           return;
         }
-        // 01a1a351	&.UKs
-        if (
-          this.currentStringsSignal() != undefined &&
-          JSON.stringify(this.searchQuery) ===
-            JSON.stringify(this.lastQueryParams)
-        ) {
+
+        if (this.currentStringsSignal() === undefined) {
+          this.currentStringsSignal.set([...this.scrollUpCache]);
+        } else {
           this.currentStringsSignal.update((previous) => {
             return [...this.scrollUpCache, ...previous];
           });
@@ -426,10 +360,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this.viewport.scrollToIndex(
             this.currentIndex + this.scrollUpCache.length,
           );
-        } else {
-          this.currentStringsSignal.set([...this.scrollUpCache]);
         }
-        this.lastQueryParams = this.searchQuery;
         // show toast if AI string filter timed out
         if (s.time_out === true) {
           this.toastrService.warning(
@@ -446,11 +377,13 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   }
 
   _calculateScrollUpOffset(): number {
-    let offsetForQuery = this.currentMinByteOffset - this.SCROLL_UP_JUMP_AMOUNT;
+    let offsetForQuery =
+      this.currentMinByteOffset -
+      this.SCROLL_UP_JUMP_AMOUNT * this.scrollUpOffsetMultiplier;
     if (offsetForQuery < 0) {
       offsetForQuery = 0;
     }
-    return offsetForQuery * this.scrollUpOffsetMultiplier;
+    return offsetForQuery;
   }
 
   // Scroll up a file loading strings before the minimum offset.
@@ -480,7 +413,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.scrollDownInProgressSignal.set(true);
     const offsetForQuery = this.currentMaxByteOffset;
     this.scrollDownSub = combineLatest([
-      this.fileInfo$,
+      this.fileInfoSubject.asObservable(),
       this.sha256Subject.asObservable(),
     ])
       .pipe(
@@ -515,25 +448,13 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this.scrollDownInProgressSignal.set(false);
           return;
         }
-
-        // strings have loaded so process accordingly.
-
-        // Add previous string entries for pagination to the current set of strings
-        // if previous entries exist
-        // If the search query parameters have changed, clear it out as previous hits
-        // may not match
-        if (
-          this.currentStringsSignal() != undefined &&
-          JSON.stringify(this.searchQuery) ===
-            JSON.stringify(this.lastQueryParams)
-        ) {
+        if (this.currentStringsSignal() === undefined) {
+          this.currentStringsSignal.set([...s.strings]);
+        } else {
           this.currentStringsSignal.update((previous) => {
             return [...previous, ...s.strings];
           });
-        } else {
-          this.currentStringsSignal.set([...s.strings]);
         }
-        this.lastQueryParams = this.searchQuery;
         // show toast if AI string filter timed out
         if (s.time_out === true) {
           this.toastrService.warning(
@@ -556,7 +477,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       this.scrollUpInProgressSignal() === true ||
       this.scrollDownInProgressSignal() === true
     ) {
-      // console.info("scroll in progress")
       return false;
     }
     if (
@@ -568,10 +488,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
     // Only load new data if close to the edge of the strings.
     if (index + this.SCROLL_BUFFER_INDEX > this.currentStringsSignal().length) {
-      // console.info("scrolling down!")
       return this._scrollDownFile();
     } else if (index - this.SCROLL_BUFFER_INDEX < 0) {
-      // console.info("scrolling up!")
       return this._scrollUpFile();
     }
     return false;
@@ -584,11 +502,9 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       this.scrollUpInProgressSignal() === true ||
       this.scrollDownInProgressSignal() === true
     ) {
-      // console.info("scroll/jump in progress")
       return false;
     }
     if (offset < 4000) {
-      // console.info("jumping to 0!")
       this.reset();
       this.currentMinByteOffset = 0;
       this._scrollDownFile();
@@ -596,10 +512,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       offset < this.currentMaxByteOffset &&
       offset > this.currentMinByteOffset
     ) {
-      // console.info("already in range dw!")
       return;
     } else {
-      // console.info("Jumping in both directions.")
       this.reset();
       this.currentMinByteOffset = offset;
       this.currentMaxByteOffset = offset;

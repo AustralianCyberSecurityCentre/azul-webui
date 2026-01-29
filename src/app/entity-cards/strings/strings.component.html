@@ -15,7 +15,9 @@
             <option value="regex">Regex</option>
           </select>
           <div class="flex h-6 items-center">
-            @if ((fileInfo$ | async).file_size >= allStringsMinSize10Mib) {
+            @if (
+              (fileInfoSubject | async).file_size >= allStringsMinSize10Mib
+            ) {
               <!--Checkbox to show all the strings in the file which only appears if the file size is greater than 10MiB-->
               <div class="flex flex-col items-center gap-1 p-1">
                 <flow-tooltip
