@@ -1,5 +1,5 @@
 <az-loading-card cardTitle="Strings" [obs$]="_stringsLoaded$" [help]="help">
-  @if (strings$ | async; as d) {
+  @if (currentStringsSignal(); as currentStrings) {
     <div class="flex h-full flex-col">
       <form [formGroup]="form">
         <div class="mb-2 flex items-center gap-2">
@@ -66,7 +66,7 @@
               </flow-label>
             </div>
           </div>
-          @if (isLoading$ | async) {
+          @if (scrollDownInProgressSignal() || scrollUpInProgressSignal()) {
             <span>
               <fa-icon [icon]="faSpinner" animation="spin" />
             </span>
@@ -95,7 +95,7 @@
           maxBufferPx="1800"
           class="min-h-0 shrink grow basis-3"
           style="contain: none"
-          (scrolledIndexChange)="cs.loadMore($event)"
+          (scrolledIndexChange)="scrollOccurred($event)"
         >
           <table
             flowTable
@@ -106,7 +106,7 @@
             }"
           >
             <tbody flowTableBody>
-              <tr flowTableBodyRow *cdkVirtualFor="let row of d.strings">
+              <tr flowTableBodyRow *cdkVirtualFor="let row of currentStrings">
                 <td
                   flowTableBodyCell
                   class="w-20 truncate"
