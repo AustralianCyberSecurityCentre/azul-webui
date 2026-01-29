@@ -8,7 +8,7 @@ import {
   ViewChild,
   WritableSignal,
   inject,
-  signal
+  signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
@@ -386,7 +386,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       });
   }
 
-
   // Calculate how far above the previous offset to jump to try and load strings.
   _calculateScrollUpOffset(): number {
     let offsetForQuery =
@@ -528,7 +527,9 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       offset < this.currentMaxByteOffset &&
       offset > this.currentMinByteOffset
     ) {
-      console.error("Trying to jump to an offset within the loaded file this shouldn't happen.")
+      console.error(
+        "Trying to jump to an offset within the loaded file this shouldn't happen.",
+      );
       return;
     } else {
       // Jumping to an offset outside of the current loaded range so clear the current range and then load the strings above and below the target point.
