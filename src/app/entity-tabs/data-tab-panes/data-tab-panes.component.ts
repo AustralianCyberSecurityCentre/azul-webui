@@ -215,14 +215,13 @@ export class DataTabPanesComponent implements OnDestroy {
           paneSizes = paneSizes.slice(0, panesPlusSidebar);
         } else if (panesPlusSidebar > paneSizes.length) {
           // A new pane has been added - split up the last pane if possible
-          const rightmostPaneSize = paneSizes[panes.length];
-
+          const rightmostPaneSize = paneSizes[paneSizes.length - 1];
           if (typeof rightmostPaneSize === "number") {
             // The last pane has fixed sizing - subdivide it
             const newTabCount = panesPlusSidebar - paneSizes.length;
             const rightPaneSizes = rightmostPaneSize / (newTabCount + 1);
 
-            for (let i = paneSizes.length; i < panes.length + 1; i++) {
+            for (let i = paneSizes.length - 1; i < panes.length + 1; i++) {
               paneSizes[i] = rightPaneSizes;
             }
           } else {
@@ -388,6 +387,12 @@ export class DataTabPanesComponent implements OnDestroy {
 
     // Just incase a drag was triggered.
     this.showDragOverlay$.next(false);
+  }
+
+  protected closeTabEvent(event: Event, tabId: string) {
+    this.closeTab(tabId);
+    // Stop propagation to parent element which would cause the tab to re-open.
+    event.stopPropagation();
   }
 
   protected closeTab(tabId: string) {

@@ -110,8 +110,8 @@
                   {{ tab.name }}
                   <div
                     class="inline-block cursor-pointer px-1 hover:bg-gray-200 dark:hover:bg-gray-900"
-                    (click)="closeTab(tab.tabId)"
-                    (keypress)="closeTab(tab.tabId)"
+                    (click)="closeTabEvent($event, tab.tabId)"
+                    (keypress)="closeTabEvent($event, tab.tabId)"
                     tabindex="0"
                   >
                     <fa-icon [icon]="faXmark" />
