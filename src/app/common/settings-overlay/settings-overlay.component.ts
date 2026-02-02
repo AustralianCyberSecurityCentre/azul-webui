@@ -32,6 +32,7 @@ export class SettingsOverlayComponent implements OnInit {
 
   protected entityBucketSizeForm: FormControl;
   protected entityShowDebugInfoForm: FormControl;
+  protected enableHexStringSyncForm: FormControl;
   protected debugEditorHeightPxForm: FormControl;
 
   protected formBinaryExploreShowEntropy: FormControl;
@@ -220,6 +221,22 @@ export class SettingsOverlayComponent implements OnInit {
             this.store.dispatch(
               globalAction.saveBinaryExploreShowMagic({
                 BinaryExploreShowMagic: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
+      .select(fromGlobalSettings.selectEnableHexStringSync)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.enableHexStringSyncForm = this.fb.control(value);
+        this.enableHexStringSyncForm.valueChanges.subscribe(
+          (state: boolean) => {
+            this.store.dispatch(
+              globalAction.saveEnableHexStringSync({
+                enableHexStringSync: state,
               }),
             );
           },

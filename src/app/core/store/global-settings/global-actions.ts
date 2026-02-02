@@ -38,3 +38,8 @@ export const setColorTheme = createAction(
   "[GlobalSetting] Set Color Theme",
   props<{ newColorTheme: ColorTheme }>(),
 );
+
+export const saveEnableHexStringSync = createAction(
+  "[GlobalSetting] Save Enable Hex String Sync",
+  props<{ enableHexStringSync: boolean }>(),
+);

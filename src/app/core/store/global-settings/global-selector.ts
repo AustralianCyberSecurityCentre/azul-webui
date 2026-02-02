@@ -48,3 +48,10 @@ export const textEditorConfig = createSelector(
     return { theme: state.theme, editorHeight: state.debugQueryEditorHeightPx };
   },
 );
+
+export const selectEnableHexStringSync = createSelector(
+  selectGlobalConfigState,
+  (state: GlobalSettingState) => {
+    return state.enableHexStringSync;
+  },
+);
