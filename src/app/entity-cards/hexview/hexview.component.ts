@@ -26,6 +26,7 @@ import { BaseCard } from "../base-card.component";
 
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { hexValidator } from "src/app/core/validation";
+import { HexStringSyncService } from "../hex-string-sync.service";
 
 /** Data for a row of a 16-byte wide hexdump */
 interface HexRow {
@@ -100,8 +101,9 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     for (let i = range.start; i <= range.end; i++) {
       const byteRow = Math.floor(i / this.rowWidth);
       const byteRowIndex = i % this.rowWidth;
-
-      const byte = this.cachedData[byteRow].hex[byteRowIndex];
+      // Ensure that getting the row works between different pages.
+      const byteRowMod = byteRow % this.pageSize;
+      const byte = this.cachedData[byteRowMod].hex[byteRowIndex];
       data.push(byte);
     }
 
@@ -216,6 +218,7 @@ export class HexviewComponent extends BaseCard implements OnInit, OnDestroy {
   private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
   private host = inject(ElementRef);
+  protected hexStringSyncService = inject(HexStringSyncService);
 
   /* The viewer is limited to 25MB due to a limitation with infinite scroll */
   help = `
@@ -241,8 +244,6 @@ Ctrl-C will copy selected hexadecimal.`;
 
   @ViewChild("hexViewport", { read: CdkVirtualScrollViewport })
   viewport: CdkVirtualScrollViewport;
-
-  protected hover$ = new BehaviorSubject<number>(-1);
 
   private selectStartPoint = -1;
   private range = new PositiveIntegerRange(-1, -1);
@@ -277,6 +278,8 @@ Ctrl-C will copy selected hexadecimal.`;
     });
 
     this.resizeObs.observe(this.host.nativeElement);
+    // Keep the hex offset up to date.
+    this.hexStringSyncService.HexOffsetSignal.set(-1);
   }
 
   ngOnDestroy(): void {
@@ -299,11 +302,8 @@ Ctrl-C will copy selected hexadecimal.`;
   /** Scrolls to the row containing the specified offset, moving chunks if required. */
   focusRow(offset: number): Observable<(HexRow | undefined)[]> {
     const rangedOffset = Math.min(offset, this.totalBytes$.value);
-
     const chunk = Math.trunc(rangedOffset / this.CHUNK_SIZE);
-
     const relativeOffset = rangedOffset - chunk * this.CHUNK_SIZE;
-
     const row = Math.trunc(relativeOffset / 16);
 
     if (chunk != this.chunkIndex$.value) {

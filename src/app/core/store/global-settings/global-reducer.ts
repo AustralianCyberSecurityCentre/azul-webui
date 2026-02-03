@@ -13,6 +13,7 @@ export interface GlobalSettingState {
   showDebugInfo: boolean;
   debugQueryEditorHeightPx: number;
   theme: ColorTheme;
+  enableHexStringSync: boolean;
 }
 
 export const initialState: GlobalSettingState = {
@@ -24,6 +25,7 @@ export const initialState: GlobalSettingState = {
   showDebugInfo: false,
   debugQueryEditorHeightPx: 300,
   theme: ColorTheme.Dark,
+  enableHexStringSync: true,
 };
 
 /**load from local storage*/
@@ -111,6 +113,17 @@ export const globalSettingReducer = createReducer(
       const currentState = {
         ...state,
         BinaryExploreShowMagic: BinaryExploreShowMagic,
+      };
+      saveGlobalSettingState(currentState);
+      return currentState;
+    },
+  ),
+  on(
+    GlobalSettingActions.saveEnableHexStringSync,
+    (state, { enableHexStringSync }) => {
+      const currentState = {
+        ...state,
+        enableHexStringSync: enableHexStringSync,
       };
       saveGlobalSettingState(currentState);
       return currentState;

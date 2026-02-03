@@ -1,5 +1,5 @@
 <az-loading-card cardTitle="Strings" [obs$]="_stringsLoaded$" [help]="help">
-  @if (strings$ | async; as d) {
+  @if (currentStringsSignal(); as currentStrings) {
     <div class="flex h-full flex-col">
       <form [formGroup]="form">
         <div class="mb-2 flex items-center gap-2">
@@ -15,7 +15,9 @@
             <option value="regex">Regex</option>
           </select>
           <div class="flex h-6 items-center">
-            @if ((fileInfo$ | async).file_size >= allStringsMinSize10Mib) {
+            @if (
+              (fileInfoSubject | async).file_size >= allStringsMinSize10Mib
+            ) {
               <!--Checkbox to show all the strings in the file which only appears if the file size is greater than 10MiB-->
               <div class="flex flex-col items-center gap-1 p-1">
                 <flow-tooltip
@@ -66,7 +68,7 @@
               </flow-label>
             </div>
           </div>
-          @if (isLoading$ | async) {
+          @if (scrollDownInProgressSignal() || scrollUpInProgressSignal()) {
             <span>
               <fa-icon [icon]="faSpinner" animation="spin" />
             </span>
@@ -89,12 +91,13 @@
           </span>
         }
         <cdk-virtual-scroll-viewport
+          #stringViewport
           itemSize="29"
           minBufferPx="1800"
           maxBufferPx="1800"
           class="min-h-0 shrink grow basis-3"
           style="contain: none"
-          (scrolledIndexChange)="cs.loadMore($event)"
+          (scrolledIndexChange)="scrollOccurred($event)"
         >
           <table
             flowTable
@@ -105,7 +108,7 @@
             }"
           >
             <tbody flowTableBody>
-              <tr flowTableBodyRow *cdkVirtualFor="let row of d.strings">
+              <tr flowTableBodyRow *cdkVirtualFor="let row of currentStrings">
                 <td
                   flowTableBodyCell
                   class="w-20 truncate"

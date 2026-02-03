@@ -1,14 +1,19 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   OnDestroy,
   OnInit,
+  ViewChild,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import {
   BehaviorSubject,
@@ -19,14 +24,15 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ContinuousScroll } from "src/app/common/continuous-scroll/continuous-scroll.class";
-import { components, operations } from "src/app/core/api/openapi";
+import { components } from "src/app/core/api/openapi";
 import { Entity } from "src/app/core/services";
+import { selectEnableHexStringSync } from "src/app/core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
+import { HexStringSyncService } from "../hex-string-sync.service";
 
-type AggregatedStrings = components["schemas"]["BinaryStrings"] & {
-  strings: components["schemas"]["SearchResult"][];
-};
+type AggregatedStrings = components["schemas"]["BinaryStrings"];
+
+type FileInfo = { file_size: number; file_type: string };
 
 @Component({
   selector: "azec-strings",
@@ -38,7 +44,8 @@ export class StringsComponent extends BaseCard implements OnInit, OnDestroy {
   private toastrService = inject(ToastrService);
   private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
-  private host = inject(ElementRef);
+  private hexStringSyncService = inject(HexStringSyncService);
+  private store = inject(Store);
 
   help = `
 This panel displays bits of text that were found in the file.
@@ -65,12 +72,9 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.updateData();
   }
 
-  strings$ = new BehaviorSubject<AggregatedStrings>(undefined);
-  _stringsLoaded$: Observable<number> = new Observable<number>();
+  _stringsLoaded$: Observable<boolean> = new Observable<boolean>();
+  lastHexOffsetJump: number = -1;
 
-  cs: ContinuousScroll;
-
-  private _take_n_strings = 1000;
   // 10 MiB
   protected readonly allStringsMinSize10Mib = 1000 * 1000 * 10;
 
@@ -79,31 +83,25 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   private summarySubscription: Subscription | undefined = undefined;
   private aiSupportedSubscription: Subscription | undefined = undefined;
 
-  private lastQueryParams:
-    | operations["get_strings_api_v0_binaries__sha256__strings_get"]["parameters"]["query"]
-    | undefined;
-  data$: Observable<components["schemas"]["EntityFind"] | null>;
-
   /** If an update to the strings table has been requested for first time */
   isLoadingInitial$ = new BehaviorSubject(false);
-  /** If an update to the strings table has been requested after intial request (shows non intrusive spinner) */
-  isLoading$ = new BehaviorSubject(false);
 
   protected showAllStringsToggle: boolean = false;
 
-  private sha256Subject: ReplaySubject<string> = new ReplaySubject();
+  @ViewChild("stringViewport", { read: CdkVirtualScrollViewport })
+  viewport: CdkVirtualScrollViewport;
+
+  // Subscription to hex views changing position.
+  stringIndexFromHexHoverSub: Subscription;
 
   isAISupported$ = new Observable<boolean>();
-  fileInfo$ = new Observable<{ file_size: number; file_type: string }>();
+  // Holds the current index after every scroll
+  currentIndex: number = -1;
 
   form: UntypedFormGroup;
   private filter = "";
   private filterType: "filter" | "regex" = "filter";
   private aiToggle: boolean = false;
-
-  private searchQuery:
-    | { take_n_strings: number; min_length: number; file_format: string }
-    | undefined = undefined;
 
   constructor() {
     super();
@@ -114,38 +112,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       showAllStringsToggle: this.fb.control(this.showAllStringsToggle),
     });
 
-    this.data$ = this.sha256Subject.pipe(
-      ops.switchMap((sha256: string) => {
-        const params = { term: sha256 };
-        return this.entityService.find(params).pipe(
-          ops.catchError((e) => {
-            if (e instanceof HttpErrorResponse) {
-              return of(null);
-            }
-            throw e;
-          }),
-        );
-      }),
-      ops.shareReplay(1),
-    );
-
-    // Set these up first so the formSubscription can use the fileFormat$ subscription.
-    this.fileInfo$ = this.data$.pipe(
-      ops.map((data) => {
-        if (data?.items?.length > 0) {
-          const firstItem = data.items[0];
-          return {
-            file_size: firstItem.file_size,
-            file_type: this.extractFilterType(firstItem.file_format),
-          };
-        } else {
-          return { file_size: 0, file_type: "" };
-        }
-      }),
-      ops.shareReplay(1),
-    );
-    this.isAISupported$ = this.fileInfo$.pipe(
-      ops.map((fileInfo) => this.isAISupportedType(fileInfo.file_type)),
+    this.isAISupported$ = combineLatest([
+      this.fileInfoSubject.asObservable(),
+    ]).pipe(
+      ops.map(([fileInfo]) => this.isAISupportedType(fileInfo.file_type)),
       ops.shareReplay(1),
     );
     // Needed to fully disable the ai checkbox if AI isn't supported.
@@ -160,6 +130,59 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }
       },
     );
+
+    // Continually jump to index
+    this.stringIndexFromHexHoverSub = combineLatest([
+      toObservable(this.hexStringSyncService.HexOffsetSignal),
+      toObservable(this.currentStringsSignal),
+      this.store.select(selectEnableHexStringSync),
+    ])
+      .pipe(
+        ops.map(([hexOffset, currentStringList, enableHexStringSync]) => {
+          // If the syncing is disabled do nothing
+          if (enableHexStringSync === false) {
+            return -1;
+          }
+          if (hexOffset === -1) {
+            return -1;
+          }
+          // Binary search for string with the correct offset in the list of strings.
+          const stringVal = currentStringList;
+          if (stringVal === undefined) {
+            return -1;
+          }
+          if (stringVal.length > 0) {
+            if (
+              hexOffset < stringVal[0].offset - this.SCROLL_UP_JUMP_AMOUNT ||
+              hexOffset >
+                stringVal[stringVal.length - 1].offset +
+                  this.SCROLL_UP_JUMP_AMOUNT
+            ) {
+              this.jumpToFileOffset(hexOffset);
+              return -1;
+            }
+          }
+
+          let min_index = 0;
+          let max_index = stringVal.length;
+          let mid_index = -1;
+          while (min_index < max_index) {
+            mid_index = min_index + Math.floor((max_index - min_index) / 2);
+            if (stringVal[mid_index].offset < hexOffset) {
+              min_index = mid_index + 1;
+            } else {
+              max_index = mid_index;
+            }
+          }
+          // Math max to avoid min_index being -1 when before the first string.
+          return Math.max(0, min_index - 1);
+        }),
+      )
+      .subscribe((indexToJumpTo) => {
+        if (indexToJumpTo > -1 && this.viewport) {
+          this.viewport.scrollToIndex(indexToJumpTo);
+        }
+      });
   }
 
   ngOnInit(): void {
@@ -171,120 +194,40 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         this.aiToggle = this.form.value.aiToggle;
         this.showAllStringsToggle = this.form.value.showAllStringsToggle;
         // Force the scroll element to jump to the top
-        this.cs.offset = 0;
-        this.update();
+        this.jumpToFileOffset(0);
       });
   }
 
   ngOnDestroy() {
+    this.scrollUpSub?.unsubscribe();
+    this.scrollDownSub?.unsubscribe();
     this.lastRequest?.unsubscribe();
     this.formSubscription?.unsubscribe();
     this.summarySubscription?.unsubscribe();
     this.aiSupportedSubscription?.unsubscribe();
+    this.stringIndexFromHexHoverSub?.unsubscribe();
   }
 
   updateData() {
     this.summarySubscription?.unsubscribe();
     this.summarySubscription = this.entity.summary$.subscribe((obs) => {
       this.sha256Subject.next(obs.sha256);
-      this.cs = new ContinuousScroll();
-      //override functions that need local context
-      this.cs.update = () => {
-        this.update();
-      };
+      let file_size = 0;
+      if (obs?.file_size) {
+        file_size = obs.file_size;
+      }
+      let file_format = "";
+      if (obs?.file_format) {
+        file_format = obs.file_format;
+      }
 
-      //get first set of data
-      this.cs.update();
-    });
-  }
-
-  /** get next values */
-  update() {
-    // If we are loading the first set of entries, display a loading indicator
-    // else show a less intrusive spinner
-    if (this.cs.offset === 0) {
-      this.isLoadingInitial$.next(true);
-    } else {
-      this.isLoading$.next(true);
-    }
-
-    // If there is a pending request, make sure we don't get results
-    // from it
-    this.lastRequest?.unsubscribe();
-    this.lastRequest = combineLatest([
-      this.fileInfo$,
-      this.sha256Subject.asObservable(),
-    ])
-      .pipe(
-        ops.switchMap(([fileInfo, sha256]) => {
-          // Compose the cachable part of the query for comparison later
-          const searchQuery = {
-            take_n_strings: this._take_n_strings,
-            min_length: 4,
-            //Add extra param if the ai toggle is on to return ai-filtered strings
-            ...(this.aiToggle && {
-              file_format: this.extractFilterType(fileInfo.file_type),
-            }),
-          };
-
-          this.searchQuery = searchQuery;
-
-          if (this.filter !== "") {
-            searchQuery[this.filterType] = this.filter;
-          }
-
-          // Toggle ability to show/hide All strings.
-          if (this.showAllStringsToggle === true) {
-            searchQuery["max_bytes_to_read"] = fileInfo.file_size;
-          }
-          return this.entityService.strings(sha256, {
-            offset: this.cs.offset,
-            ...searchQuery,
-          });
-        }),
-        ops.catchError((e) => {
-          if (e instanceof HttpErrorResponse) {
-            return of(null);
-          }
-          throw e;
-        }),
-        ops.take(1),
-      )
-      .subscribe((s: AggregatedStrings) => {
-        // Add previous string entries for pagination to the current set of strings
-        // if previous entries exist
-        // If the search query parameters have changed, clear it out as previous hits
-        // may not match
-        if (
-          this.strings$?.value != undefined &&
-          JSON.stringify(this.searchQuery) ===
-            JSON.stringify(this.lastQueryParams)
-        ) {
-          // workaround for when ai string filter is toggled on, off, and back on.
-          // stops duplicate strings being added to strings$
-          if (s.strings[0] != this.strings$.value.strings[0]) {
-            s.strings = [...this.strings$.value.strings, ...s.strings];
-          }
-        }
-        this._stringsLoaded$ = of(1);
-        this.strings$.next(s);
-        // can now ask for more again
-        if (s) {
-          this.cs.reset(false, s.next_offset, s.has_more);
-        }
-
-        this.lastQueryParams = this.searchQuery;
-
-        this.isLoading$.next(false);
-        this.isLoadingInitial$.next(false);
-        // show toast if AI string filter timed out
-        if (s && s.time_out === true) {
-          this.toastrService.warning(
-            "String filter timeout",
-            "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
-          );
-        }
+      this.fileInfoSubject.next({
+        file_size: file_size,
+        file_type: file_format,
       });
+      //get first set of data
+      this.jumpToFileOffset(0);
+    });
   }
 
   //check to disable ai toggle for unsupported file_format
@@ -300,5 +243,328 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       file_format.startsWith(type),
     );
     return match || "";
+  }
+
+  // --------------------------------------- Hex viewer synchronization code.
+
+  private currentMinByteOffset: number = -1;
+  private currentMaxByteOffset: number = -1;
+  private _take_n_strings = 1000;
+  private MIN_LENGTH_STRING = 4;
+  private SCROLL_UP_JUMP_AMOUNT = 1024 * 20; // 20kB jump - arbitrary and may need adjusting in the future
+
+  sha256Subject: ReplaySubject<string> = new ReplaySubject();
+  fileInfoSubject = new ReplaySubject<FileInfo>();
+
+  currentStringsSignal: WritableSignal<
+    components["schemas"]["SearchResult"][]
+  > = signal(undefined);
+  scrollUpInProgressSignal: WritableSignal<boolean> = signal(false);
+  scrollDownInProgressSignal: WritableSignal<boolean> = signal(false);
+  scrollUpCache: components["schemas"]["SearchResult"][] = [];
+  scrollUpCacheMinOffset: number = -1;
+  scrollUpOffsetMultiplier: number = 1;
+  reachedEndOfFile: boolean = false;
+
+  scrollUpSub: Subscription = undefined;
+  scrollDownSub: Subscription = undefined;
+
+  // Start loading more strings when within 100 of the current edge (up or down)
+  protected SCROLL_BUFFER_INDEX = 200;
+
+  // The common API query used to scroll up and down the file.
+  __createQueryCommon(
+    fileInfo: FileInfo,
+    sha256: string,
+    startOffset: number,
+    maxBytesToRead: number,
+  ) {
+    // Compose the cachable part of the query for comparison later
+    const searchQuery = {
+      take_n_strings: this._take_n_strings,
+      min_length: this.MIN_LENGTH_STRING,
+      //Add extra param if the ai toggle is on to return ai-filtered strings
+      ...(this.aiToggle && {
+        file_format: this.extractFilterType(fileInfo.file_type),
+      }),
+    };
+
+    if (this.filter !== "") {
+      searchQuery[this.filterType] = this.filter;
+    }
+
+    // If the max bytes to read is less than 0 leave it as the default.
+    if (maxBytesToRead > 0) {
+      searchQuery["max_bytes_to_read"] = maxBytesToRead;
+    }
+    return this.entityService.strings(sha256, {
+      offset: startOffset,
+      ...searchQuery,
+    });
+  }
+
+  // Reset the scroll cache, the cache is used to cache strings if the file jump is too large and there are more
+  // than 1000 strings between the jump point and the destination offset.
+  _resetScrollUpCache() {
+    this.scrollUpCacheMinOffset = -1;
+    this.scrollUpCache = [];
+    this.scrollUpOffsetMultiplier = 1;
+  }
+
+  /* Find the strings that should be above the current point, while scrolling up.
+  NOTE - this jumps a set distance and looks for all strings between that random jump and the previous earliest
+  offset in the file.
+  IF - there are no strings in that range, gradually expands the range to look for strings in a larger and larger
+  section of the file.
+  IF - there are 1000 strings or less between the two points, the strings are loaded into the known list of strings.
+  IF - there are more than 1000 strings, cache the found strings and then search for all the additional strings that
+  will be in-between the space that wasn't searched yet, do this recursively until all strings are found.
+  */
+  _scrollUpFileInner(offsetForQuery: number) {
+    this.scrollUpSub?.unsubscribe();
+    this.scrollUpInProgressSignal.set(true);
+
+    this.scrollUpSub = combineLatest([
+      this.fileInfoSubject.asObservable(),
+      this.sha256Subject.asObservable(),
+    ])
+      .pipe(
+        ops.switchMap(([fileInfo, sha256]) => {
+          // Read all strings from the offset that's been guessed and the target value.
+          const maxBytesToRead = this.currentMinByteOffset - offsetForQuery;
+          return this.__createQueryCommon(
+            fileInfo,
+            sha256,
+            offsetForQuery,
+            maxBytesToRead,
+          );
+        }),
+        ops.catchError((e) => {
+          if (e instanceof HttpErrorResponse) {
+            return of(null);
+          }
+          throw e;
+        }),
+        ops.take(1),
+      )
+      .subscribe((s: AggregatedStrings) => {
+        // If there is an error ensure scroll can recover
+        if (!s) {
+          this.scrollUpInProgressSignal.set(false);
+          return;
+        }
+
+        if (this.scrollUpCacheMinOffset < offsetForQuery) {
+          this.scrollUpCacheMinOffset = offsetForQuery;
+        }
+        this.scrollUpCache = [...this.scrollUpCache, ...s.strings];
+        if (s.strings.length >= this._take_n_strings) {
+          this._scrollUpFileInner(s.strings[s.strings.length - 1].offset);
+          return;
+        }
+        // Initial scroll provided no data so try scrolling again.
+        if (s.strings.length === 0 && this.scrollUpCache.length === 0) {
+          this.scrollUpOffsetMultiplier += 1;
+          this._scrollUpFileInner(this._calculateScrollUpOffset());
+          return;
+        }
+
+        if (this.currentStringsSignal() === undefined) {
+          this.currentStringsSignal.set([...this.scrollUpCache]);
+        } else {
+          this.currentStringsSignal.update((previous) => {
+            return [...this.scrollUpCache, ...previous];
+          });
+          // try and keep view port at the same point.
+          this.viewport.scrollToIndex(
+            this.currentIndex + this.scrollUpCache.length,
+          );
+        }
+        // show toast if AI string filter timed out
+        if (s.time_out === true) {
+          this.toastrService.warning(
+            "String filter timeout",
+            "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+          );
+        }
+
+        // can now ask for more again
+        this.currentMinByteOffset = this.scrollUpCacheMinOffset;
+        this.scrollUpInProgressSignal.set(false);
+      });
+  }
+
+  // Calculate how far above the previous offset to jump to try and load strings.
+  _calculateScrollUpOffset(): number {
+    let offsetForQuery =
+      this.currentMinByteOffset -
+      this.SCROLL_UP_JUMP_AMOUNT * this.scrollUpOffsetMultiplier;
+    if (offsetForQuery < 0) {
+      offsetForQuery = 0;
+    }
+    return offsetForQuery;
+  }
+
+  // Scroll up a file loading strings before the minimum offset.
+  _scrollUpFile(): boolean {
+    // Already up to the start of the file so nothing to do.
+    if (this.currentMinByteOffset === 0) {
+      return false;
+    }
+    this._resetScrollUpCache();
+    this._scrollUpFileInner(this._calculateScrollUpOffset());
+  }
+
+  // Scroll down a file loading strings after the maximum offset.
+  _scrollDownFile(): boolean {
+    // If we are loading the first set of entries, display a loading indicator
+    // else show a less intrusive spinner
+    if (this.currentMaxByteOffset <= -1) {
+      this.currentMaxByteOffset = 0;
+      this.isLoadingInitial$.next(true);
+    }
+
+    // Already have all the strings don't try and scroll any further.
+    if (this.reachedEndOfFile) {
+      return false;
+    }
+
+    this.scrollDownSub?.unsubscribe();
+    this.scrollDownInProgressSignal.set(true);
+    const offsetForQuery = this.currentMaxByteOffset;
+    this.scrollDownSub = combineLatest([
+      this.fileInfoSubject.asObservable(),
+      this.sha256Subject.asObservable(),
+    ])
+      .pipe(
+        ops.switchMap(([fileInfo, sha256]) => {
+          let maxBytesToRead = -1;
+          // Toggle ability to show/hide All strings.
+          if (this.showAllStringsToggle === true) {
+            maxBytesToRead = fileInfo.file_size;
+          }
+          return this.__createQueryCommon(
+            fileInfo,
+            sha256,
+            offsetForQuery,
+            maxBytesToRead,
+          );
+        }),
+        ops.catchError((e) => {
+          if (e instanceof HttpErrorResponse) {
+            return of(null);
+          }
+          throw e;
+        }),
+        ops.take(1),
+      )
+      .subscribe((s: AggregatedStrings) => {
+        this._stringsLoaded$ = of(true);
+        if (this.isLoadingInitial$.value) {
+          this.isLoadingInitial$.next(false);
+        }
+        // If there is an error ensure scroll can recover
+        if (!s) {
+          this.scrollDownInProgressSignal.set(false);
+          return;
+        }
+        if (this.currentStringsSignal() === undefined) {
+          this.currentStringsSignal.set([...s.strings]);
+        } else {
+          this.currentStringsSignal.update((previous) => {
+            return [...previous, ...s.strings];
+          });
+        }
+        // show toast if AI string filter timed out
+        if (s.time_out === true) {
+          this.toastrService.warning(
+            "String filter timeout",
+            "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+          );
+        }
+        // can now ask for more again
+        this.currentMaxByteOffset = s.next_offset;
+        this.reachedEndOfFile = !s.has_more;
+        this.scrollDownInProgressSignal.set(false);
+      });
+  }
+
+  // Handle a scroll event occurring
+  scrollOccurred(index: number): boolean {
+    // Set the current index to the scrolled to index, this is used when scrolling up.
+    this.currentIndex = index;
+    // Scroll already in progress keep waiting.
+    if (
+      this.scrollUpInProgressSignal() === true ||
+      this.scrollDownInProgressSignal() === true
+    ) {
+      return false;
+    }
+    // A scroll can't occur until at least the initial data is loaded so wait for that.
+    if (
+      this.currentStringsSignal().length === 0 ||
+      this.currentStringsSignal() === undefined
+    ) {
+      return false;
+    }
+
+    // Only load new data if close to the edge of the strings.
+    if (index + this.SCROLL_BUFFER_INDEX > this.currentStringsSignal().length) {
+      return this._scrollDownFile();
+    } else if (index - this.SCROLL_BUFFER_INDEX < 0) {
+      return this._scrollUpFile();
+    }
+    return false;
+  }
+
+  // Jump to arbitrary offset within file (ignore request if the strings have already been loaded).
+  jumpToFileOffset(offset: number) {
+    // If a scroll is in progress don't start another scroll event.
+    if (
+      this.scrollUpInProgressSignal() === true ||
+      this.scrollDownInProgressSignal() === true
+    ) {
+      return false;
+    }
+    // If it's within the scroll up windows, just do a scroll down from the top.
+    if (offset < this.SCROLL_UP_JUMP_AMOUNT) {
+      this.reset();
+      this.currentMinByteOffset = 0;
+      this._scrollDownFile();
+    } else if (
+      offset < this.currentMaxByteOffset &&
+      offset > this.currentMinByteOffset
+    ) {
+      console.error(
+        "Trying to jump to an offset within the loaded file this shouldn't happen.",
+      );
+      return;
+    } else {
+      // Jumping to an offset outside of the current loaded range so clear the current range and then load the strings above and below the target point.
+      this.reset();
+      this.currentMinByteOffset = offset;
+      this.currentMaxByteOffset = offset;
+      this._scrollDownFile();
+      this._scrollUpFile();
+    }
+  }
+
+  // Clear the existing strings and set scroll relevant properties back to defaults
+  // Can only be called while a scroll is not in progress.
+  reset() {
+    if (
+      this.scrollUpInProgressSignal() === true ||
+      this.scrollDownInProgressSignal() === true
+    ) {
+      return false;
+    }
+    if (this.currentStringsSignal() !== undefined) {
+      this.currentStringsSignal.set([]);
+    }
+    this.currentMaxByteOffset = -1;
+    this.currentMinByteOffset = -1;
+    this.scrollUpInProgressSignal.set(false);
+    this.scrollDownInProgressSignal.set(false);
+    this.reachedEndOfFile = false;
   }
 }
