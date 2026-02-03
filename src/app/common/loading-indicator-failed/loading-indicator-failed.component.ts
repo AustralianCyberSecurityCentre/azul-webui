@@ -7,5 +7,5 @@ import { Component, Input } from "@angular/core";
 })
 export class LoadingIndicatorFailedComponent {
   @Input()
-  height: string = "100px";
+  height: string = "125px";
 }
