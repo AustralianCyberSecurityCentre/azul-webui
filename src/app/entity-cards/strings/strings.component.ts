@@ -73,7 +73,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   }
 
   _stringsLoaded$: Observable<boolean> = new Observable<boolean>();
-  lastHexOffsetJump: number = -1;
 
   // 10 MiB
   protected readonly allStringsMinSize10Mib = 1000 * 1000 * 10;
@@ -95,8 +94,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   stringIndexFromHexHoverSub: Subscription;
 
   isAISupported$ = new Observable<boolean>();
-  // Holds the current index after every scroll
-  currentIndex: number = -1;
 
   form: UntypedFormGroup;
   private filter = "";
@@ -180,7 +177,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       )
       .subscribe((indexToJumpTo) => {
         if (indexToJumpTo > -1 && this.viewport) {
-          this.viewport.scrollToIndex(indexToJumpTo);
+          this.viewport?.scrollToIndex(indexToJumpTo);
         }
       });
   }
@@ -196,11 +193,13 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         // Force the scroll element to jump to the top
         this.jumpToFileOffset(0);
       });
+    this._setupScrollOccurredSubscription();
   }
 
   ngOnDestroy() {
     this.scrollUpSub?.unsubscribe();
     this.scrollDownSub?.unsubscribe();
+    this.scrollOccurredSub?.unsubscribe();
     this.lastRequest?.unsubscribe();
     this.formSubscription?.unsubscribe();
     this.summarySubscription?.unsubscribe();
@@ -268,12 +267,14 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
   scrollUpSub: Subscription = undefined;
   scrollDownSub: Subscription = undefined;
+  scrollOccurredSub: Subscription = undefined;
+  scrollIndexSubject: BehaviorSubject<number> = new BehaviorSubject(-1);
 
   // Start loading more strings when within 100 of the current edge (up or down)
   protected SCROLL_BUFFER_INDEX = 200;
 
   // The common API query used to scroll up and down the file.
-  __createQueryCommon(
+  private __createQueryCommon(
     fileInfo: FileInfo,
     sha256: string,
     startOffset: number,
@@ -305,7 +306,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
   // Reset the scroll cache, the cache is used to cache strings if the file jump is too large and there are more
   // than 1000 strings between the jump point and the destination offset.
-  _resetScrollUpCache() {
+  private _resetScrollUpCache() {
     this.scrollUpCacheMinOffset = -1;
     this.scrollUpCache = [];
     this.scrollUpOffsetMultiplier = 1;
@@ -320,7 +321,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   IF - there are more than 1000 strings, cache the found strings and then search for all the additional strings that
   will be in-between the space that wasn't searched yet, do this recursively until all strings are found.
   */
-  _scrollUpFileInner(offsetForQuery: number) {
+  private _scrollUpFileInner(offsetForQuery: number) {
     this.scrollUpSub?.unsubscribe();
     this.scrollUpInProgressSignal.set(true);
 
@@ -376,8 +377,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
             return [...this.scrollUpCache, ...previous];
           });
           // try and keep view port at the same point.
-          this.viewport.scrollToIndex(
-            this.currentIndex + this.scrollUpCache.length,
+          this.viewport?.scrollToIndex(
+            this.scrollIndexSubject.value + this.scrollUpCache.length,
           );
         }
         // show toast if AI string filter timed out
@@ -390,12 +391,17 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
         // can now ask for more again
         this.currentMinByteOffset = this.scrollUpCacheMinOffset;
+        // Keep scrolling up until the top of the files or 1000 strings have been found.
+        // This is useful if you start and the very bottom of the file.
+        if (this.currentStringsSignal().length < this._take_n_strings) {
+          this._scrollUpFile();
+        }
         this.scrollUpInProgressSignal.set(false);
       });
   }
 
   // Calculate how far above the previous offset to jump to try and load strings.
-  _calculateScrollUpOffset(): number {
+  private _calculateScrollUpOffset(): number {
     let offsetForQuery =
       this.currentMinByteOffset -
       this.SCROLL_UP_JUMP_AMOUNT * this.scrollUpOffsetMultiplier;
@@ -406,17 +412,18 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   }
 
   // Scroll up a file loading strings before the minimum offset.
-  _scrollUpFile(): boolean {
+  private _scrollUpFile() {
     // Already up to the start of the file so nothing to do.
     if (this.currentMinByteOffset === 0) {
-      return false;
+      // Ensure scrollupinprogress is now false as it may be true when this function is called from _scrollUpFileInner
+      this.scrollUpInProgressSignal.set(false);
     }
     this._resetScrollUpCache();
     this._scrollUpFileInner(this._calculateScrollUpOffset());
   }
 
   // Scroll down a file loading strings after the maximum offset.
-  _scrollDownFile(): boolean {
+  private _scrollDownFile(): boolean {
     // If we are loading the first set of entries, display a loading indicator
     // else show a less intrusive spinner
     if (this.currentMaxByteOffset <= -1) {
@@ -489,36 +496,48 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       });
   }
 
-  // Handle a scroll event occurring
-  scrollOccurred(index: number): boolean {
-    // Set the current index to the scrolled to index, this is used when scrolling up.
-    this.currentIndex = index;
-    // Scroll already in progress keep waiting.
-    if (
-      this.scrollUpInProgressSignal() === true ||
-      this.scrollDownInProgressSignal() === true
-    ) {
-      return false;
-    }
-    // A scroll can't occur until at least the initial data is loaded so wait for that.
-    if (
-      this.currentStringsSignal().length === 0 ||
-      this.currentStringsSignal() === undefined
-    ) {
-      return false;
-    }
+  // Pass the scroll event on to the index subject so it can be slightly throttled.
+  scrollOccurred(index: number) {
+    this.scrollIndexSubject.next(index);
+  }
 
-    // Only load new data if close to the edge of the strings.
-    // Close to the bottom and haven't reached the end of the file.
-    if (
-      index + this.SCROLL_BUFFER_INDEX > this.currentStringsSignal().length &&
-      this.reachedEndOfFile !== true
-    ) {
-      return this._scrollDownFile();
-    } else if (index - this.SCROLL_BUFFER_INDEX < 0) {
-      return this._scrollUpFile();
-    }
-    return false;
+  // Handles a scroll occurring with a throttle to reduce how many events get processed.
+  private _setupScrollOccurredSubscription() {
+    this.scrollOccurredSub?.unsubscribe();
+    this.scrollOccurredSub = this.scrollIndexSubject
+      .pipe(
+        ops.throttleTime(100),
+        ops.filter((_index) => {
+          // Scroll already in progress keep waiting.
+          if (
+            this.scrollUpInProgressSignal() === true ||
+            this.scrollDownInProgressSignal() === true
+          ) {
+            return false;
+          }
+          // A scroll can't occur until at least the initial data is loaded so wait for that.
+          if (
+            this.currentStringsSignal().length === 0 ||
+            this.currentStringsSignal() === undefined
+          ) {
+            return false;
+          }
+          return true;
+        }),
+      )
+      .subscribe((index) => {
+        // Only load new data if close to the edge of the strings.
+        // Close to the bottom and haven't reached the end of the file.
+        if (
+          index + this.SCROLL_BUFFER_INDEX >
+            this.currentStringsSignal().length &&
+          this.reachedEndOfFile !== true
+        ) {
+          return this._scrollDownFile();
+        } else if (index - this.SCROLL_BUFFER_INDEX < 0) {
+          return this._scrollUpFile();
+        }
+      });
   }
 
   // Jump to arbitrary offset within file (ignore request if the strings have already been loaded).
