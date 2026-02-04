@@ -509,7 +509,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     }
 
     // Only load new data if close to the edge of the strings.
-    if (index + this.SCROLL_BUFFER_INDEX > this.currentStringsSignal().length) {
+    // Close to the bottom and haven't reached the end of the file.
+    if ((index + this.SCROLL_BUFFER_INDEX > this.currentStringsSignal().length) && (this.reachedEndOfFile !== true)) {
       return this._scrollDownFile();
     } else if (index - this.SCROLL_BUFFER_INDEX < 0) {
       return this._scrollUpFile();
