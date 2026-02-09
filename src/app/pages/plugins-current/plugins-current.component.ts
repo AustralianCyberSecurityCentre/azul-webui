@@ -152,12 +152,24 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
     // Convert the file type to an object from a string.
     const parsedData = JSON.parse(dataType as string);
     // Guess the type.
-    const typedDataType = parsedData as Map<string, string[]>;
-    const contentList = typedDataType["content"];
-    const finalList = Array<string>();
-    contentList?.forEach((value) => {
-      finalList.push(value);
-    });
-    return finalList.join(", ");
+    const typedDataType = new Map<string, string[]>(Object.entries(parsedData));
+    // Has not form of filtering
+    if (typedDataType.size === 0) {
+      return "This plugin will process files with content with any file format.";
+    }
+    // Has content filtering
+    if (typedDataType.has("content")) {
+      const contentList = typedDataType.get("content");
+      return (
+        "This plugin will process files with the content file format prefix: " +
+        contentList.join(", ")
+      );
+    }
+    const filterLabels = Array.from(typedDataType.keys());
+    // Has filtering that isn't content
+    return (
+      "This plugin has custom filtering on the streams (refer to config for detail): " +
+      filterLabels.join(",")
+    );
   }
 }
