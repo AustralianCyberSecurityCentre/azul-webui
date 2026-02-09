@@ -16,12 +16,12 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
+import { components } from "src/app/core/api/openapi";
 import {
   BulkEntitySummarySubmit,
-  PluginItemsWithSummary,
   PluginItemWithSummary,
+  PluginItemsWithSummary,
 } from "src/app/core/api/state";
-import { components } from "src/app/core/api/openapi";
 import { STATUS_DESCRIPTIONS } from "src/app/core/plugin-status-descriptions";
 import { Api, Entity } from "src/app/core/services";
 import { escapeValue } from "src/app/core/util";
@@ -146,5 +146,18 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
     // Prevent all versions from being shown and hide them if they are being shown.
     clearTimeout(this.expandVersionsFuncRef);
     this.showAllVersions$.next(false);
+  }
+
+  processConfig(dataType: unknown): string{
+    // Convert the file type to an object from a string.
+    const parsedData = JSON.parse(dataType as string)
+    // Guess the type.
+    const typedDataType = parsedData as Map<string, string[]>
+    const contentList = typedDataType["content"]
+    const finalList = Array<string>()
+    contentList?.forEach((value) => {
+      finalList.push(value)
+    })
+    return finalList.join(", ")
   }
 }
