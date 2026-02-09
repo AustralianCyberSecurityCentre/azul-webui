@@ -89,9 +89,12 @@
             }
 
             @if ((d.plugin.config | keyvalue)?.length > 0) {
-              @if(processConfig(d.plugin.config?.filter_data_types).length > 0){
-                This plugin will process files with the file type prefix: {{ processConfig(d.plugin.config.filter_data_types) }}
-              } @else{
+              @if (
+                processConfig(d.plugin.config?.filter_data_types).length > 0
+              ) {
+                This plugin will process files with the file type prefix:
+                {{ processConfig(d.plugin.config.filter_data_types) }}
+              } @else {
                 This plugin will process all file formats.
               }
               <flow-accordion class="overflow-y-auto">

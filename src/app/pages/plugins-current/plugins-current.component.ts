@@ -148,16 +148,16 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
     this.showAllVersions$.next(false);
   }
 
-  processConfig(dataType: unknown): string{
+  processConfig(dataType: unknown): string {
     // Convert the file type to an object from a string.
-    const parsedData = JSON.parse(dataType as string)
+    const parsedData = JSON.parse(dataType as string);
     // Guess the type.
-    const typedDataType = parsedData as Map<string, string[]>
-    const contentList = typedDataType["content"]
-    const finalList = Array<string>()
+    const typedDataType = parsedData as Map<string, string[]>;
+    const contentList = typedDataType["content"];
+    const finalList = Array<string>();
     contentList?.forEach((value) => {
-      finalList.push(value)
-    })
-    return finalList.join(", ")
+      finalList.push(value);
+    });
+    return finalList.join(", ");
   }
 }
