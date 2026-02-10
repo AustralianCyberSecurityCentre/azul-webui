@@ -16,12 +16,12 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
+import { components } from "src/app/core/api/openapi";
 import {
   BulkEntitySummarySubmit,
-  PluginItemsWithSummary,
   PluginItemWithSummary,
+  PluginItemsWithSummary,
 } from "src/app/core/api/state";
-import { components } from "src/app/core/api/openapi";
 import { STATUS_DESCRIPTIONS } from "src/app/core/plugin-status-descriptions";
 import { Api, Entity } from "src/app/core/services";
 import { escapeValue } from "src/app/core/util";
@@ -146,5 +146,30 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
     // Prevent all versions from being shown and hide them if they are being shown.
     clearTimeout(this.expandVersionsFuncRef);
     this.showAllVersions$.next(false);
+  }
+
+  processConfig(dataType: unknown): string {
+    // Convert the file type to an object from a string.
+    const parsedData = JSON.parse(dataType as string);
+    // Guess the type.
+    const typedDataType = new Map<string, string[]>(Object.entries(parsedData));
+    // Has not form of filtering
+    if (typedDataType.size === 0) {
+      return "This plugin will process files with content with any file format.";
+    }
+    // Has content filtering
+    if (typedDataType.has("content")) {
+      const contentList = typedDataType.get("content");
+      return (
+        "This plugin will process files with the content file format prefix: " +
+        contentList.join(", ")
+      );
+    }
+    const filterLabels = Array.from(typedDataType.keys());
+    // Has filtering that isn't content
+    return (
+      "This plugin has custom filtering on the streams (refer to config for detail): " +
+      filterLabels.join(",")
+    );
   }
 }

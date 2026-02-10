@@ -87,7 +87,15 @@
                 }
               </p>
             }
+
             @if ((d.plugin.config | keyvalue)?.length > 0) {
+              @if (d.plugin.config?.filter_data_types) {
+                <flow-tooltip
+                  message='"Content" is the file content submitted or extracted by Azul, it is the content associated with the sha256 of a binary.'
+                >
+                  <p>{{ processConfig(d.plugin.config?.filter_data_types) }}</p>
+                </flow-tooltip>
+              }
               <flow-accordion class="overflow-y-auto">
                 <flow-accordion-panel [open]="false">
                   <flow-accordion-title
