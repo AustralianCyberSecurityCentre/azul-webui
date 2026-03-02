@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      angular-core:
+        patterns:
+          - "@angular/*"
+          - "@ngrx/*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      fortawesome:
+        patterns:
+          - "@fortawesome/*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+
+
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "build(deps): "
+    open-pull-requests-limit: 10
