@@ -17,27 +17,27 @@
   </div>
   <div class="grow">
     <div class="ml-3 text-sm font-normal">
-      @if (title) {
+      @if (title()) {
         <span
           class="mb-1 text-sm font-semibold text-gray-900 dark:text-white"
-          [attr.aria-label]="title"
+          [attr.aria-label]="title()"
         >
-          {{ title }}
+          {{ title() }}
         </span>
       }
 
-      @if (message) {
+      @if (message()) {
         <div
           role="alert"
           class="text-sm font-normal break-words text-ellipsis"
-          [attr.aria-label]="message"
+          [attr.aria-label]="message()"
         >
-          {{ message }}
+          {{ message() }}
         </div>
       }
     </div>
   </div>
-  @if (options.closeButton) {
+  @if (options().closeButton) {
     <div class="flex-none text-right">
       <flow-button (click)="remove()"> Close </flow-button>
     </div>
