@@ -165,6 +165,8 @@ Note - ensure you've got a clean repo (no active changes)
 ```bash
 # Update angular devkit
 ng update @angular-devkit/build-angular
+# Commit and push and then upgrade angular libraries.
+ng update @angular/core@21 @angular/cli@21
 # Remove package.lock.json
 rm -r package.lock.json
 # Update all packages
