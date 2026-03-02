@@ -84,7 +84,7 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
     components["schemas"]["PurgeSimulation"]
   >;
   protected apiPurge$?: Observable<
-    components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"]
+    components["schemas"]["azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults"]
   >;
   protected cacheClear$?: Observable<boolean>;
 
