@@ -845,10 +845,7 @@ export class ApiService {
   entityReadMain(
     sha256: string,
     query: paths["/api/v0/binaries/{sha256}"]["get"]["parameters"]["query"] = {},
-  ): Observable<
-    | components["schemas"]["BinaryMetadata__"]
-    | undefined
-  > {
+  ): Observable<components["schemas"]["BinaryMetadata__"] | undefined> {
     return this.getOperation("/api/v0/binaries/{sha256}", query, {
       sha256,
     }).pipe(
@@ -1245,8 +1242,7 @@ export class ApiService {
   }
 
   sourceReadAll(): Observable<
-    | components["schemas"]["Response_str_Source_"]["data"]
-    | undefined
+    components["schemas"]["Response_str_Source_"]["data"] | undefined
   > {
     return this.getOperation("/api/v0/sources").pipe(
       ops.tap((d) =>
