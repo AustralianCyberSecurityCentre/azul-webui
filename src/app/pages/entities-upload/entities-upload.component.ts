@@ -97,9 +97,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
   form: UntypedFormGroup;
 
-  sources$: Observable<
-    components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"]["data"]
-  >;
+  sources$: Observable<components["schemas"]["Response_str_Source_"]["data"]>;
   paramsSub: Subscription;
   sourceSelectChangeSub: Subscription;
   parentSub: Subscription;
