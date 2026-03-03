@@ -1201,6 +1201,11 @@ export interface components {
       /** Deleted */
       readonly deleted: number;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.AnnotationUpdated'> */
+    readonly AnnotationUpdated__: {
+      readonly data?: components["schemas"]["AnnotationUpdated"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * AutocompleteError
      * @description Autocomplete mode where the current input is invalid.
@@ -1290,24 +1295,34 @@ export interface components {
       /**
        * Id
        * @description A unique identifier for this particular occurrence of the problem.
+       * @default
        */
       readonly id: string;
       /**
        * Ref
        * @description An application-specific error reference.
+       * @default
        */
       readonly ref: string;
+      /** @description Specific error type which has an error method associated with it. */
+      readonly internal: components["schemas"]["ExceptionCodeEnum"];
       /**
-       * Internal
-       * @description Message to return to user of api
+       * External Override
+       * @default
        */
-      readonly internal: string;
+      readonly external_override: string | null;
+      /**
+       * Parameters
+       * @description Keyword parameters to be used when formatting the error message.
+       */
+      readonly parameters?: {
+        readonly [key: string]: string | number | boolean;
+      } | null;
       /**
        * External
-       * @description Message to log to restapi stderr
-       * @default Error details can be found in server logs.
+       * @description Get the value of the message meant to be provided to a user.
        */
-      readonly external: string | null;
+      readonly external: string;
     };
     /**
      * BinaryAction
@@ -1379,6 +1394,11 @@ export interface components {
       readonly count: number;
       /** Newest */
       readonly newest?: string | null;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.BinaryDocuments'> */
+    readonly BinaryDocuments__: {
+      readonly data?: components["schemas"]["BinaryDocuments"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * BinaryFeatureValue
@@ -1539,6 +1559,11 @@ export interface components {
       | "children"
       | "tags"
       | "feature_tags";
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.BinaryMetadata'> */
+    readonly BinaryMetadata__: {
+      readonly data?: components["schemas"]["BinaryMetadata"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * BinarySource
      * @description Metadata collecting various sources into direct and indirect groups.
@@ -2045,6 +2070,11 @@ export interface components {
       /** Timestamp */
       readonly timestamp?: string | null;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily'> */
+    readonly EntityFindSimpleFamily__: {
+      readonly data?: components["schemas"]["EntityFindSimpleFamily"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * EntityFindSimpleItem
      * @description Found entity.
@@ -2052,6 +2082,16 @@ export interface components {
     readonly EntityFindSimpleItem: {
       /** Sha256 */
       readonly sha256?: string | null;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFindSimple'> */
+    readonly EntityFindSimple__: {
+      readonly data?: components["schemas"]["EntityFindSimple"];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFind'> */
+    readonly EntityFind__: {
+      readonly data?: components["schemas"]["EntityFind"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * EntityInstance
@@ -2090,6 +2130,11 @@ export interface components {
       readonly keys: {
         readonly [key: string]: string;
       };
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityModel'> */
+    readonly EntityModel__: {
+      readonly data?: components["schemas"]["EntityModel"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * EntityTag
@@ -2139,6 +2184,236 @@ export interface components {
       /** Track Source References */
       readonly track_source_references?: string | null;
     };
+    /**
+     * ExceptionCodeEnum
+     * @description String enum of possible exceptions from the API.
+     * @enum {string}
+     */
+    readonly ExceptionCodeEnum:
+      | "DevelopmentCodeWithRawExceptionOnly"
+      | "BedrockInvalidCredentialType"
+      | "DPGetEventsBadModelType"
+      | "DPGetEventFailStatusCode"
+      | "DPGetEventNotMultipartForm"
+      | "DPGetEventNotBoundaryFormData"
+      | "DPGetEventsMissingResponseInfo"
+      | "DPGetEventsFilepartMissingFromResponse"
+      | "DPGetEventBadResponseWithContent"
+      | "DPSubmitEventsInvalidModel"
+      | "DPSubmitEventMessageTooLarge"
+      | "DPSubmitEventsUnableToContactDP"
+      | "DPSubmitEventsUnableToSubmitEvents"
+      | "DPSubmitEventsSubmittedEventsWereInvalid"
+      | "DPHasBinaryUnabletoRequestFile"
+      | "DPHasBinaryNotFound"
+      | "DPHasBinaryBadStatusCode"
+      | "DPGetBinaryOffsetTooLarge"
+      | "DPGetBinaryNotFound"
+      | "DPGetBinaryBadStatusCode"
+      | "DPGetBinaryAsyncOffsetTooLarge"
+      | "DPGetBinaryAsyncNotFound"
+      | "DPGetBinaryAsyncBadStatusCode"
+      | "DPAsyncGetBinaryUnexpectedError"
+      | "ConvertingContentToAsyncIterable"
+      | "InvalidAsyncSubmissionStringBuffer"
+      | " InvalidAsyncSubmissionContentStream"
+      | "DPAsyncSubmitBinaryUnableToContactDP"
+      | "DPAsyncSubmitBinaryBadStatusCode"
+      | "DPAsyncSubmitBinaryInvalidResponseFormat"
+      | "DPSubmitBinaryInvalidSubmissionStringBuffer"
+      | "DPSubmitBinaryInvalidSubmissionContentStream"
+      | "DPSubmitBinaryUnableToContactDP"
+      | "DPSubmitBinaryBadStatusCode"
+      | "DPSubmitBinaryInvalidResponseFormat"
+      | "DPCopyBinaryBadStatusCode"
+      | "DPDeleteBinaryBadStatusCode"
+      | "IdentifyDosIdentNotDos"
+      | "NoFiletypeIdentificationHappened"
+      | "FeatureValueEncodingFailure"
+      | "FeatureValueDecodingFailure"
+      | "ConvertingStreamToInputEntityFailure"
+      | "ConvertStringToDurationIncorrectNumberOfValuesAfterSplit"
+      | "ConvertStringToDurationInvalidDuration"
+      | "ConvertStringToDurationInvalidUnitProvided"
+      | "TestRunnerExecutionEventTooLarge"
+      | "MetastoreContextBadSecurity"
+      | "MetastoreContextInsufficientPermissionsForWrite"
+      | "MetastoreEntryBadInputParameters"
+      | "MetastoreIngestorBadStatusDocument"
+      | "MetastoreIngestorGetDataNetworkError"
+      | "MetastoreSettingsPartitionNotSet"
+      | "MetastoreSettingsFieldsAreMissing"
+      | "MetastoreSettingsExtraFieldsAreMissing"
+      | "MetastoreFeatureEnrichmentFailed"
+      | "MetastoreFileFormatTooLargeForUnzip"
+      | "MetastoreFileFormatTooManyFilesToExtract"
+      | "MetastoreFileFormatFileTooLargeToExtract"
+      | "MetastoreFileFormatFilePathTooLong"
+      | "MetastoreFileFormatBadPathElevation"
+      | "MetastoreFileFormatNotAZipFile"
+      | "MetastoreFileFormatUnknownException"
+      | "MetastoreFileFormatZipFileRequiresPassword"
+      | "MetastoreFileFormatZipFileBadPasswordProvided"
+      | "MetastoreFileFormatNoFilesExtractedFromZip"
+      | "MetastoreFileFormatFileTooLargeForUnmalpz"
+      | "MetastoreMemcacheTTLCacheAlreadyCreated"
+      | "MetastoreMemcacheLRUCacheAlreadyCreated"
+      | "MetastoreOpensearchCantGetUserAccountInner"
+      | "MetastoreOpensearchCantGetUserAccount"
+      | "MetastoreSearchDataBadCredentials"
+      | "BedrockBadOpensearchCredential"
+      | "MetastoreSearchQueryMissingToken"
+      | "MetastoreSearchQueryInvalidUnescapeSequence"
+      | "MetastoreSearchQueryUnterminatedEscapeAtEnd"
+      | "MetastoreSearchQueryNumberOfInputTokens"
+      | "MetastoreSearchQueryNumberExpressionNotInteger"
+      | "MetastoreSearchQueryStringFieldNotString"
+      | "MetastoreSearchQueryNumberExpressionUnexpectedTokenCount"
+      | "MetastoreSearchQueryInvalidType"
+      | "MetastoreSearchQueryMissingContext"
+      | "MetastoreSearchQueryTagSearchNotOnStringValue"
+      | "MetastoreSearchQueryTagSearchNotWithEquals"
+      | "MetastoreSearchQueryTagDoesntExist"
+      | "MetastoreFeatureValueTagNotFound"
+      | "MetastoreSearchQueryUnreachableDuringConversion"
+      | "MetastoreSearchQuerySearchForImplicitShouldBeLiteral"
+      | "MetastoreSearchQueryAutocompleteParentNotATag"
+      | "MetastoreSearchQueryInvalidTermKey"
+      | "MetastoreAiStringFilterFailure"
+      | "MetastoreInvalidTLSHFormat"
+      | "MetastoreInvalidTLSHLength"
+      | "MetastoreOpensearchAuthFailure"
+      | "MetastoreOpensearchFailedToCreateIndex"
+      | "MetastoreOpensearchTemplateOldVersion"
+      | "MetastoreOpensearchKnnMisconfigured"
+      | "MetastoreOnlyAllowTopLevelBoolOrKnn"
+      | "MetastoreBadSecurityConversionExclude"
+      | "MetastoreBadSecurityConversionInclude"
+      | "MetastoreKnnTooManySearchTerms"
+      | "MetastoreUnknownDocType"
+      | "MetastoreUnknownAnnotation"
+      | "MetastoreAnnotationBadCharacterInTag"
+      | "MetastoreAnnotationTagTooLong"
+      | "MetastoreAnnotationCommentTooLong"
+      | "MetastoreEncoderInvalidTimestamp"
+      | "MetastoreInvalidPartitionFormatUnits"
+      | "MetastoreEncodeErrorMissingTrackingInfo"
+      | "MetastoreEncodingMissingSource"
+      | "MetastoreEncodingInvalidSSDeep"
+      | "MetastorePreProcessTooManyStreams"
+      | "MetastorePreProcessTooManyFeatures"
+      | "MetastoreEncoderInvalidPluginConfig"
+      | "MetastoreFailedToAgeoffDocs"
+      | "MetastoreCacheTooManyIds"
+      | "MetastoreCannotCreatePurgeFolder"
+      | "MetastoreMetaDataDeletionFailure"
+      | "MetastoreNothingToPurge"
+      | "MetastoreBadMappingToOpensearch"
+      | "MetastoreInvalidAfterProvided"
+      | "MetastoreFailedToParseTermQuery"
+      | "MetastoreSha256NotProvidedForFindFamily"
+      | "MetastoreBinaryFindTooManyBinariesRequested"
+      | "MetastoreBinaryFindFaildToParseSearchTerm"
+      | "MetastoreSha256NotProvidedForFindingStreamRefs"
+      | "MetastoreLibFuzzyFailedToInitalise"
+      | "MetastoreReadSimilarSSDeepBadFuzzyHash"
+      | "MetastoreDispatcherRejectedEvents"
+      | "MetastoreSubmissionsCantCreateInsertionEvents"
+      | "MetastoreNoSourcesForBinarySubmission"
+      | "MetastoreBadAugmentedStreamLabel"
+      | "MetastoreInvalidSourceForBinarySubmission"
+      | "MetastoreBadSourceReferenceDefinition"
+      | "MetastoreUnableToSubmitBinaryEventImmediately"
+      | "MetastoreBinarySubmitDispatcherRejectedEvent"
+      | "MetastoreBadBinarySubmissionBadSecurityString"
+      | "MetastoreBadBinarySubmissionUserSecurity"
+      | "MetastoreBadBinarySubmissionSourceOrParent"
+      | "MetastoreBadBinarySubmissionParentAndSource"
+      | "MetastoreBadBinarySubmissionNoSha256Provided"
+      | "MetastoreBadBinarySubmissionParentNotFound"
+      | "MetastoreUnableToExtractProvidedArchive"
+      | "MetastoreDatalessSubmissionBinaryDoesNotExist"
+      | "MetastoreUnableToExtractAnyFiles"
+      | "MetastoreCheckedBinaryNotFound"
+      | "MetastoreBinaryStreamNotFound"
+      | "MetastoreInvalidSha256Provided"
+      | "MetastoreBulkUnableToDownloadAnyBinaries"
+      | "MetastoreNoBinariesDownloaded"
+      | "MetastoreDownloadingBadStreamType"
+      | "MetastoreInvalidStringsRegexProvided"
+      | "MetastoreInvalidHexPatternProvided"
+      | "MetastoreCannotParseTimestampToUTC"
+      | "MetastoreInvalidJson"
+      | "MetastoreAltStreamsLabelsDoesNotMatch"
+      | "MetastoreFindBinaryInvalidSearch"
+      | "MetastorePotentiallyInvalidQueryOption"
+      | "MetastoreIncludeCousinsInvalidEnum"
+      | "MetastoreTagBinaryBadSecurityString"
+      | "MetastoreTagBinaryInvalidSecurity"
+      | "MetastoreInvalidAnnotationForCreate"
+      | "MetastoreCantDeleteTagFromBinary"
+      | "MetastoreInvalidDeleteTag"
+      | "MetastoreNoFeatureValuesFound"
+      | "MetastoreFeaturesInvalidPivotFeatures"
+      | "MetastoreNoPluginsInAzul"
+      | "MetastoreNoPluginStatusesInAzul"
+      | "MetastorePluginNotInAzul"
+      | "MetastoreUserNotAllowedToPurge"
+      | "MetastoreInvalidTimestampForPurge"
+      | "MetastoreInvalidPurgeExceptionApi"
+      | "MetastoreUserUnauthorized"
+      | "MetastoreSetSecurityHeaderUnexpected"
+      | "MetastoreUserInfoNotAvailable"
+      | "MetastoreNoSourcesInAzul"
+      | "MetastoreSourceNotFound"
+      | "MetastoreSourceNoReferences"
+      | "MetastoreSourceSubmissionNoInformationFound"
+      | "SecurityMissingOrigin"
+      | "SecurityClassificationDoesntSupportReleasability"
+      | "SecurityInvalidReleasabilityGroup"
+      | "SecurityInvalidExclusiveGroup"
+      | "SecurityInvalidInclusiveGroup"
+      | "SecurityInvalidMarkingsGroup"
+      | "SecurityNoClassificationInRawSecurity"
+      | "SecurityInvalidGroupsWhileNormalising"
+      | "SecurityInvalidSecurityStringWhileNormalising"
+      | "SecurityInvalidReleasabilitiesConvertFromLabels"
+      | "SecurityInvalidLabelConvertingFromLabels"
+      | "SecurityMinRequiredAccessNotFound"
+      | "SecuritySecurityDefaultNotSet"
+      | "SecurityNoCommonSecurityUnviewable"
+      | "SecurityUserCannotAccessExclusive"
+      | "SecurityUserCannotAccessInclusive"
+      | "SecurityUserCannotAccessMarkings"
+      | "SecurityUnmatchedLabelsGoingSafeToUnsafe"
+      | "SecurityUnmatchedLabelsGoingUnsafeToSafe"
+      | "SecurityUserDoesNotHaveMinimumAccess"
+      | "SecurityConfigLabelsWithExtraSpaces"
+      | "SecurityConfigReleasabilitiesMissingRequiredPrefix"
+      | "SecurityConfigLabelDefinedTwice"
+      | "SecurityConfigGroupLabelMustNotHaveSpaces"
+      | "SecurityConfigMultipleValuesMappedToSameValue"
+      | "SecurityNormaliseInvalidSecurity"
+      | "SecurityInvalidMaxSecurity"
+      | "SecurityEmptyResultForMaxSecurity"
+      | "SecurityUserInfoCannotBeAcquired"
+      | "RestapiOidcNoAuthProvided"
+      | "RestapiAllowedPATAction"
+      | "RestapiFailedToGetUserCredentials"
+      | "RestapiCreatePatUserDoesntHaveRolesToAssignToPAT"
+      | "RestapiCreatePatCantGetAdminResults"
+      | "RestapiCreatePatDoesntHaveMinimumRequiredAccess"
+      | "RestapiCreatePatAlreadyExists"
+      | "RestapiCreatePatFailedToStorePAT"
+      | "RestapiCreatePatCreatedPATMissingId"
+      | "RestapiDeletePATUnexpected"
+      | "RestapiPatExpiredOrInvalidPAT"
+      | "RestapiPatInvalidFormat"
+      | "RestapiValidPATSerialisationFailure"
+      | "RestapiFailedToCreateSecurityIndex"
+      | "ErrorStringEnumUnset"
+      | "ErrorStringEnumAllEventsAgedOffImmediately"
+      | "ErrorStringEnumAllEventsFiltered";
     /**
      * Feature
      * @description Compilation of information for a specific feature.
@@ -2227,6 +2502,11 @@ export interface components {
        * @default
        */
       readonly reason: string;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.features.FeaturePivotResponse'> */
+    readonly FeaturePivotResponse__: {
+      readonly data?: components["schemas"]["FeaturePivotResponse"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * FeaturePivotValueCount
@@ -2321,6 +2601,11 @@ export interface components {
       /** Items */
       readonly items: readonly components["schemas"]["Feature"][];
     };
+    /** Response:<class 'azul_bedrock.models_restapi.features.Features'> */
+    readonly Features__: {
+      readonly data?: components["schemas"]["Features"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * FindBinariesSortEnum
      * @description Possible options for sorting results.
@@ -2406,6 +2691,11 @@ export interface components {
        */
       readonly origin: string;
       /**
+       * Origin Alt Name
+       * @default
+       */
+      readonly origin_alt_name: string;
+      /**
        * Prefix
        * @default REL:
        */
@@ -2446,6 +2736,7 @@ export interface components {
     readonly Meta: {
       /** Security */
       readonly security?: string | null;
+      /** Sec Filter */
       readonly sec_filter?: string | null;
       /** Queries */
       readonly queries?: readonly components["schemas"]["QueryInfo"][] | null;
@@ -2468,6 +2759,11 @@ export interface components {
       }[];
       /** Total Docs */
       readonly total_docs: number;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.OpensearchDocuments'> */
+    readonly OpensearchDocuments__: {
+      readonly data?: components["schemas"]["OpensearchDocuments"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * PartitionUnitEnum
@@ -2558,6 +2854,11 @@ export interface components {
       /** Status */
       readonly status: readonly components["schemas"]["StatusGroup"][];
     };
+    /** Response:<class 'azul_bedrock.models_restapi.plugins.PluginInfo'> */
+    readonly PluginInfo__: {
+      readonly data?: components["schemas"]["PluginInfo"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * PluginStatusSummary
      * @description Plugin Entity details for the latest version of a plugin, and a list of all the versions of that plugin.
@@ -2581,27 +2882,6 @@ export interface components {
        * @default 0
        */
       readonly error_count: number;
-    };
-    /**
-     * PurgeResults
-     * @description Info about what was purged.
-     */
-    readonly PurgeResults: {
-      /**
-       * Events Purged
-       * @default 0
-       */
-      readonly events_purged: number;
-      /**
-       * Binaries Kept
-       * @default 0
-       */
-      readonly binaries_kept: number;
-      /**
-       * Binaries Purged
-       * @default 0
-       */
-      readonly binaries_purged: number;
     };
     /**
      * PurgeSimulation
@@ -2652,6 +2932,11 @@ export interface components {
       /** Items */
       readonly items: readonly components["schemas"]["EntityTag"][];
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadAllEntityTags'> */
+    readonly ReadAllEntityTags__: {
+      readonly data?: components["schemas"]["ReadAllEntityTags"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * ReadFeatureTagValues
      * @description Feature value tags.
@@ -2659,6 +2944,11 @@ export interface components {
     readonly ReadFeatureTagValues: {
       /** Items */
       readonly items: readonly components["schemas"]["FeatureValueTag"][];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureTagValues'> */
+    readonly ReadFeatureTagValues__: {
+      readonly data?: components["schemas"]["ReadFeatureTagValues"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * ReadFeatureValueTags
@@ -2679,6 +2969,11 @@ export interface components {
       readonly tag: string;
       /** Num Feature Values */
       readonly num_feature_values: number;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureValueTags'> */
+    readonly ReadFeatureValueTags__: {
+      readonly data?: components["schemas"]["ReadFeatureValueTags"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * ReadFeatureValues
@@ -2728,6 +3023,11 @@ export interface components {
        */
       readonly score: number;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureValues'> */
+    readonly ReadFeatureValues__: {
+      readonly data?: components["schemas"]["ReadFeatureValues"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * ReadNearby
      * @description Holds links and nodes surrounding a focus entity.
@@ -2752,6 +3052,11 @@ export interface components {
       readonly child_node: components["schemas"]["PathNode"];
       readonly source?: components["schemas"]["EventSource"] | null;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadNearby'> */
+    readonly ReadNearby__: {
+      readonly data?: components["schemas"]["ReadNearby"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * ReadTags
      * @description Collection of tags in the system, including entity counts.
@@ -2775,6 +3080,11 @@ export interface components {
       readonly num_entities: number;
       /** Num Entities Approx */
       readonly num_entities_approx: boolean;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadTags'> */
+    readonly ReadTags__: {
+      readonly data?: components["schemas"]["ReadTags"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * ReferenceSet
@@ -2802,131 +3112,36 @@ export interface components {
       /** Items */
       readonly items: readonly components["schemas"]["ReferenceSet"][];
     };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.AnnotationUpdated'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.AnnotationUpdated__": {
-      readonly data?: components["schemas"]["AnnotationUpdated"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.BinaryDocuments'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.BinaryDocuments__": {
-      readonly data?: components["schemas"]["BinaryDocuments"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.BinaryMetadata'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__": {
-      readonly data?: components["schemas"]["BinaryMetadata"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily__": {
-      readonly data?: components["schemas"]["EntityFindSimpleFamily"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFindSimple'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimple__": {
-      readonly data?: components["schemas"]["EntityFindSimple"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityFind'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.EntityFind__": {
-      readonly data?: components["schemas"]["EntityFind"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.EntityModel'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.EntityModel__": {
-      readonly data?: components["schemas"]["EntityModel"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.OpensearchDocuments'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.OpensearchDocuments__": {
-      readonly data?: components["schemas"]["OpensearchDocuments"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadAllEntityTags'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.ReadAllEntityTags__": {
-      readonly data?: components["schemas"]["ReadAllEntityTags"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadNearby'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.ReadNearby__": {
-      readonly data?: components["schemas"]["ReadNearby"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadTags'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.ReadTags__": {
-      readonly data?: components["schemas"]["ReadTags"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch__": {
-      readonly data?: components["schemas"]["SimilarFuzzyMatch"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarMatch'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.SimilarMatch__": {
-      readonly data?: components["schemas"]["SimilarMatch"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.Status'> */
-    readonly "Response__class__azul_bedrock.models_restapi.binaries.Status__": {
-      readonly data?: components["schemas"]["Status"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.features.FeaturePivotResponse'> */
-    readonly "Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__": {
-      readonly data?: components["schemas"]["FeaturePivotResponse"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.features.Features'> */
-    readonly "Response__class__azul_bedrock.models_restapi.features.Features__": {
-      readonly data?: components["schemas"]["Features"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureTagValues'> */
-    readonly "Response__class__azul_bedrock.models_restapi.features.ReadFeatureTagValues__": {
-      readonly data?: components["schemas"]["ReadFeatureTagValues"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureValueTags'> */
-    readonly "Response__class__azul_bedrock.models_restapi.features.ReadFeatureValueTags__": {
-      readonly data?: components["schemas"]["ReadFeatureValueTags"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.features.ReadFeatureValues'> */
-    readonly "Response__class__azul_bedrock.models_restapi.features.ReadFeatureValues__": {
-      readonly data?: components["schemas"]["ReadFeatureValues"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.plugins.PluginInfo'> */
-    readonly "Response__class__azul_bedrock.models_restapi.plugins.PluginInfo__": {
-      readonly data?: components["schemas"]["PluginInfo"];
-      readonly meta: components["schemas"]["Meta"];
-    };
     /** Response:<class 'azul_bedrock.models_restapi.sources.References'> */
-    readonly "Response__class__azul_bedrock.models_restapi.sources.References__": {
+    readonly References__: {
       readonly data?: components["schemas"]["References"];
       readonly meta: components["schemas"]["Meta"];
     };
-    /** Response:<class 'azul_bedrock.models_restapi.sources.Source'> */
-    readonly "Response__class__azul_bedrock.models_restapi.sources.Source__": {
-      readonly data?: components["schemas"]["azul_bedrock__models_restapi__sources__Source"];
+    /** Response:list[azul_bedrock.models_restapi.plugins.LatestPluginWithVersions] */
+    readonly Response_LatestPluginWithVersions_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["LatestPluginWithVersions"][];
       readonly meta: components["schemas"]["Meta"];
     };
-    /** Response:<class 'azul_bedrock.models_restapi.statistics.StatisticSummary'> */
-    readonly "Response__class__azul_bedrock.models_restapi.statistics.StatisticSummary__": {
-      readonly data?: components["schemas"]["StatisticSummary"];
+    /** Response:list[azul_bedrock.models_restapi.plugins.PluginStatusSummary] */
+    readonly Response_PluginStatusSummary_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["PluginStatusSummary"][];
       readonly meta: components["schemas"]["Meta"];
     };
-    /** Response:azul_bedrock.models_restapi.purge.PurgeSimulation | azul_bedrock.models_restapi.purge.PurgeResults */
-    readonly "Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults": {
+    /** Response:typing.Annotated[typing.Union[azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError], FieldInfo(annotation=NoneType, required=True, discriminator='type')] */
+    readonly Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___: {
       /** Data */
       readonly data?:
-        | components["schemas"]["PurgeSimulation"]
-        | components["schemas"]["PurgeResults"];
+        | components["schemas"]["AutocompleteNone"]
+        | components["schemas"]["AutocompleteInitial"]
+        | components["schemas"]["AutocompleteFieldName"]
+        | components["schemas"]["AutocompleteFieldValue"]
+        | components["schemas"]["AutocompleteError"];
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:dict[str, azul_bedrock.models_restapi.features.FeatureMulticountRet] */
-    readonly "Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_": {
+    readonly Response_str_FeatureMulticountRet_: {
       /** Data */
       readonly data?: {
         readonly [key: string]: components["schemas"]["FeatureMulticountRet"];
@@ -2934,7 +3149,7 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:dict[str, azul_bedrock.models_settings.Source] */
-    readonly "Response_dict_str__azul_bedrock.models_settings.Source_": {
+    readonly Response_str_Source_: {
       /** Data */
       readonly data?: {
         readonly [
@@ -2944,7 +3159,7 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:dict[str, dict[str, azul_bedrock.models_restapi.features.ValueCountRet]] */
-    readonly "Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValueCountRet__": {
+    readonly Response_str__dict_str_ValueCountRet__: {
       /** Data */
       readonly data?: {
         readonly [key: string]: {
@@ -2954,36 +3169,13 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:dict[str, dict[str, azul_bedrock.models_restapi.features.ValuePartCountRet]] */
-    readonly "Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValuePartCountRet__": {
+    readonly Response_str__dict_str_ValuePartCountRet__: {
       /** Data */
       readonly data?: {
         readonly [key: string]: {
           readonly [key: string]: components["schemas"]["ValuePartCountRet"];
         };
       };
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:list[azul_bedrock.models_restapi.plugins.LatestPluginWithVersions] */
-    readonly "Response_list_azul_bedrock.models_restapi.plugins.LatestPluginWithVersions_": {
-      /** Data */
-      readonly data?: readonly components["schemas"]["LatestPluginWithVersions"][];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:list[azul_bedrock.models_restapi.plugins.PluginStatusSummary] */
-    readonly "Response_list_azul_bedrock.models_restapi.plugins.PluginStatusSummary_": {
-      /** Data */
-      readonly data?: readonly components["schemas"]["PluginStatusSummary"][];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /** Response:typing.Annotated[typing.Union[azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError], FieldInfo(annotation=NoneType, required=True, discriminator='type')] */
-    readonly "Response_typing.Annotated_typing.Union_azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___": {
-      /** Data */
-      readonly data?:
-        | components["schemas"]["AutocompleteNone"]
-        | components["schemas"]["AutocompleteInitial"]
-        | components["schemas"]["AutocompleteFieldName"]
-        | components["schemas"]["AutocompleteFieldValue"]
-        | components["schemas"]["AutocompleteError"];
       readonly meta: components["schemas"]["Meta"];
     };
     /**
@@ -3029,6 +3221,7 @@ export interface components {
        *       "options": [],
        *       "title": "",
        *       "origin": "",
+       *       "origin_alt_name": "",
        *       "prefix": "REL:"
        *     }
        */
@@ -3090,6 +3283,11 @@ export interface components {
       /** Score */
       readonly score: number;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch'> */
+    readonly SimilarFuzzyMatch__: {
+      readonly data?: components["schemas"]["SimilarFuzzyMatch"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * SimilarMatch
      * @description Similarity calculation result.
@@ -3120,6 +3318,11 @@ export interface components {
       readonly score_percent: number;
       /** Contributions */
       readonly contributions: readonly (readonly (string | number)[])[];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarMatch'> */
+    readonly SimilarMatch__: {
+      readonly data?: components["schemas"]["SimilarMatch"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * SourceKafka
@@ -3161,6 +3364,11 @@ export interface components {
        */
       readonly highlight: boolean;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.sources.Source'> */
+    readonly Source__: {
+      readonly data?: components["schemas"]["azul_bedrock__models_restapi__sources__Source"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * StatisticSummary
      * @description Summary statistics about this instance of Azul.
@@ -3168,6 +3376,11 @@ export interface components {
     readonly StatisticSummary: {
       /** Binary Count */
       readonly binary_count: number;
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.statistics.StatisticSummary'> */
+    readonly StatisticSummary__: {
+      readonly data?: components["schemas"]["StatisticSummary"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * Status
@@ -3236,6 +3449,11 @@ export interface components {
       /** Sha256 */
       readonly sha256: string;
     };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.Status'> */
+    readonly Status__: {
+      readonly data?: components["schemas"]["Status"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /**
      * UserAccess
      * @description Opensearch information for user.
@@ -3263,7 +3481,7 @@ export interface components {
        * @default []
        */
       readonly roles: readonly string[];
-      readonly security?: components["schemas"]["UserSecurity"];
+      readonly security?: components["schemas"]["UserSecurity"] | null;
     };
     /**
      * UserInfo
@@ -3344,6 +3562,10 @@ export interface components {
       readonly msg: string;
       /** Error Type */
       readonly type: string;
+      /** Input */
+      readonly input?: unknown;
+      /** Context */
+      readonly ctx?: Record<string, never>;
     };
     /**
      * ValueCountItem
@@ -3420,6 +3642,27 @@ export interface components {
       readonly stream?: string | null;
     };
     /**
+     * PurgeResults
+     * @description Info about what was purged.
+     */
+    readonly azul_bedrock__models_restapi__purge__PurgeResults: {
+      /**
+       * Events Purged
+       * @default 0
+       */
+      readonly events_purged: number;
+      /**
+       * Binaries Kept
+       * @default 0
+       */
+      readonly binaries_kept: number;
+      /**
+       * Binaries Purged
+       * @default 0
+       */
+      readonly binaries_purged: number;
+    };
+    /**
      * Source
      * @description Compilation of source information.
      */
@@ -3493,6 +3736,14 @@ export interface components {
        */
       readonly expire_events_ms: number;
     };
+    /** Response:azul_bedrock.models_restapi.purge.PurgeSimulation | azul_bedrock.models_restapi.purge.PurgeResults */
+    readonly azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults: {
+      /** Data */
+      readonly data?:
+        | components["schemas"]["PurgeSimulation"]
+        | components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"];
+      readonly meta: components["schemas"]["Meta"];
+    };
   };
   responses: never;
   parameters: never;
@@ -3500,7 +3751,7 @@ export interface components {
   headers: never;
   pathItems: never;
 }
-export type AnnotationUpdated = components["schemas"]["AnnotationUpdated"];
+export type AnnotationUpdated = components["schemas"]["AnnotationUpdated__"];
 export type AutocompleteError = components["schemas"]["AutocompleteError"];
 export type AutocompleteFieldName =
   components["schemas"]["AutocompleteFieldName"];
@@ -3512,13 +3763,13 @@ export type BaseError = components["schemas"]["BaseError"];
 export type BinaryAction = components["schemas"]["BinaryAction"];
 export type BinaryData = components["schemas"]["BinaryData"];
 export type BinaryDiagnostic = components["schemas"]["BinaryDiagnostic"];
-export type BinaryDocuments = components["schemas"]["BinaryDocuments"];
+export type BinaryDocuments = components["schemas"]["BinaryDocuments__"];
 export type BinaryFeatureValue = components["schemas"]["BinaryFeatureValue"];
 export type BinaryHexHeader = components["schemas"]["BinaryHexHeader"];
 export type BinaryHexValue = components["schemas"]["BinaryHexValue"];
 export type BinaryHexView = components["schemas"]["BinaryHexView"];
 export type BinaryInfo = components["schemas"]["BinaryInfo"];
-export type BinaryMetadata = components["schemas"]["BinaryMetadata"];
+export type BinaryMetadata = components["schemas"]["BinaryMetadata__"];
 export type BinaryMetadataDetail =
   components["schemas"]["BinaryMetadataDetail"];
 export type BinarySource = components["schemas"]["BinarySource"];
@@ -3565,13 +3816,13 @@ export type CredentialFormat = components["schemas"]["CredentialFormat"];
 export type Credentials = components["schemas"]["Credentials"];
 export type DataLabel = components["schemas"]["DataLabel"];
 export type DatastreamInstances = components["schemas"]["DatastreamInstances"];
-export type EntityFind = components["schemas"]["EntityFind"];
+export type EntityFind = components["schemas"]["EntityFind__"];
 export type EntityFindItem = components["schemas"]["EntityFindItem"];
 export type EntityFindItemSource =
   components["schemas"]["EntityFindItemSource"];
-export type EntityFindSimple = components["schemas"]["EntityFindSimple"];
+export type EntityFindSimple = components["schemas"]["EntityFindSimple__"];
 export type EntityFindSimpleFamily =
-  components["schemas"]["EntityFindSimpleFamily"];
+  components["schemas"]["EntityFindSimpleFamily__"];
 export type EntityFindSimpleFamilyItem =
   components["schemas"]["EntityFindSimpleFamilyItem"];
 export type EntityFindSimpleItem =
@@ -3579,9 +3830,10 @@ export type EntityFindSimpleItem =
 export type EntityInstance = components["schemas"]["EntityInstance"];
 export type EntityInstanceAuthor =
   components["schemas"]["EntityInstanceAuthor"];
-export type EntityModel = components["schemas"]["EntityModel"];
+export type EntityModel = components["schemas"]["EntityModel__"];
 export type EntityTag = components["schemas"]["EntityTag"];
 export type EventSource = components["schemas"]["EventSource"];
+export type ExceptionCodeEnum = components["schemas"]["ExceptionCodeEnum"];
 export type Feature = components["schemas"]["Feature"];
 export type FeatureDescription = components["schemas"]["FeatureDescription"];
 export type FeatureMulticountRet =
@@ -3590,13 +3842,13 @@ export type FeaturePivotNameWithValueCount =
   components["schemas"]["FeaturePivotNameWithValueCount"];
 export type FeaturePivotRequest = components["schemas"]["FeaturePivotRequest"];
 export type FeaturePivotResponse =
-  components["schemas"]["FeaturePivotResponse"];
+  components["schemas"]["FeaturePivotResponse__"];
 export type FeaturePivotValueCount =
   components["schemas"]["FeaturePivotValueCount"];
 export type FeatureType = components["schemas"]["FeatureType"];
 export type FeatureValuePart = components["schemas"]["FeatureValuePart"];
 export type FeatureValueTag = components["schemas"]["FeatureValueTag"];
-export type Features = components["schemas"]["Features"];
+export type Features = components["schemas"]["Features__"];
 export type FindBinariesSortEnum =
   components["schemas"]["FindBinariesSortEnum"];
 export type HttpValidationError = components["schemas"]["HTTPValidationError"];
@@ -3610,107 +3862,59 @@ export type LabelOptionsTlp = components["schemas"]["LabelOptionsTlp"];
 export type LatestPluginWithVersions =
   components["schemas"]["LatestPluginWithVersions"];
 export type Meta = components["schemas"]["Meta"];
-export type OpensearchDocuments = components["schemas"]["OpensearchDocuments"];
+export type OpensearchDocuments =
+  components["schemas"]["OpensearchDocuments__"];
 export type PartitionUnitEnum = components["schemas"]["PartitionUnitEnum"];
 export type PathNode = components["schemas"]["PathNode"];
 export type PluginEntity = components["schemas"]["PluginEntity"];
 export type PluginFeature = components["schemas"]["PluginFeature"];
-export type PluginInfo = components["schemas"]["PluginInfo"];
+export type PluginInfo = components["schemas"]["PluginInfo__"];
 export type PluginStatusSummary = components["schemas"]["PluginStatusSummary"];
-export type PurgeResults = components["schemas"]["PurgeResults"];
 export type PurgeSimulation = components["schemas"]["PurgeSimulation"];
 export type QueryInfo = components["schemas"]["QueryInfo"];
-export type ReadAllEntityTags = components["schemas"]["ReadAllEntityTags"];
+export type ReadAllEntityTags = components["schemas"]["ReadAllEntityTags__"];
 export type ReadFeatureTagValues =
-  components["schemas"]["ReadFeatureTagValues"];
+  components["schemas"]["ReadFeatureTagValues__"];
 export type ReadFeatureValueTags =
-  components["schemas"]["ReadFeatureValueTags"];
+  components["schemas"]["ReadFeatureValueTags__"];
 export type ReadFeatureValueTagsTag =
   components["schemas"]["ReadFeatureValueTagsTag"];
-export type ReadFeatureValues = components["schemas"]["ReadFeatureValues"];
+export type ReadFeatureValues = components["schemas"]["ReadFeatureValues__"];
 export type ReadFeatureValuesValue =
   components["schemas"]["ReadFeatureValuesValue"];
-export type ReadNearby = components["schemas"]["ReadNearby"];
+export type ReadNearby = components["schemas"]["ReadNearby__"];
 export type ReadNearbyLink = components["schemas"]["ReadNearbyLink"];
-export type ReadTags = components["schemas"]["ReadTags"];
+export type ReadTags = components["schemas"]["ReadTags__"];
 export type ReadTagsTag = components["schemas"]["ReadTagsTag"];
 export type ReferenceSet = components["schemas"]["ReferenceSet"];
-export type References = components["schemas"]["References"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesAnnotationUpdated =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.AnnotationUpdated__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesBinaryDocuments =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryDocuments__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesBinaryMetadata =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesEntityFindSimpleFamily =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesEntityFindSimple =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimple__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesEntityFind =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFind__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesEntityModel =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityModel__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesOpensearchDocuments =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.OpensearchDocuments__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesReadAllEntityTags =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadAllEntityTags__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesReadNearby =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadNearby__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesReadTags =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadTags__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesSimilarFuzzyMatch =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesSimilarMatch =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarMatch__"];
-export type ResponseClassAzulBedrockModelsRestapiBinariesStatus =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.Status__"];
-export type ResponseClassAzulBedrockModelsRestapiFeaturesFeaturePivotResponse =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__"];
-export type ResponseClassAzulBedrockModelsRestapiFeaturesFeatures =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.Features__"];
-export type ResponseClassAzulBedrockModelsRestapiFeaturesReadFeatureTagValues =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureTagValues__"];
-export type ResponseClassAzulBedrockModelsRestapiFeaturesReadFeatureValueTags =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureValueTags__"];
-export type ResponseClassAzulBedrockModelsRestapiFeaturesReadFeatureValues =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureValues__"];
-export type ResponseClassAzulBedrockModelsRestapiPluginsPluginInfo =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.plugins.PluginInfo__"];
-export type ResponseClassAzulBedrockModelsRestapiSourcesReferences =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.sources.References__"];
-export type ResponseClassAzulBedrockModelsRestapiSourcesSource =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.sources.Source__"];
-export type ResponseClassAzulBedrockModelsRestapiStatisticsStatisticSummary =
-  components["schemas"]["Response__class__azul_bedrock.models_restapi.statistics.StatisticSummary__"];
-export type ResponseAzulBedrockModelsRestapiPurgePurgeSimulationAzulBedrockModelsRestapiPurgePurgeResults =
-  components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"];
-export type ResponseDictStrAzulBedrockModelsRestapiFeaturesFeatureMulticountRet =
-  components["schemas"]["Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_"];
-export type ResponseDictStrAzulBedrockModelsSettingsSource =
-  components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"];
-export type ResponseDictStrDictStrAzulBedrockModelsRestapiFeaturesValueCountRet =
-  components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValueCountRet__"];
-export type ResponseDictStrDictStrAzulBedrockModelsRestapiFeaturesValuePartCountRet =
-  components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValuePartCountRet__"];
-export type ResponseListAzulBedrockModelsRestapiPluginsLatestPluginWithVersions =
-  components["schemas"]["Response_list_azul_bedrock.models_restapi.plugins.LatestPluginWithVersions_"];
-export type ResponseListAzulBedrockModelsRestapiPluginsPluginStatusSummary =
-  components["schemas"]["Response_list_azul_bedrock.models_restapi.plugins.PluginStatusSummary_"];
-export type ResponseTypingAnnotatedTypingUnionAzulBedrockModelsRestapiBinariesAutoCompleteAutocompleteNoneAzulBedrockModelsRestapiBinariesAutoCompleteAutocompleteInitialAzulBedrockModelsRestapiBinariesAutoCompleteAutocompleteFieldNameAzulBedrockModelsRestapiBinariesAutoCompleteAutocompleteFieldValueAzulBedrockModelsRestapiBinariesAutoCompleteAutocompleteErrorFieldInfoAnnotationNoneTypeRequiredTrueDiscriminatorType =
-  components["schemas"]["Response_typing.Annotated_typing.Union_azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"];
+export type References = components["schemas"]["References__"];
+export type ResponseLatestPluginWithVersions =
+  components["schemas"]["Response_LatestPluginWithVersions_"];
+export type ResponsePluginStatusSummary =
+  components["schemas"]["Response_PluginStatusSummary_"];
+export type ResponseUnionAutocompleteNoneAutocompleteInitialAutocompleteFieldNameAutocompleteFieldValueAutocompleteErrorFieldInfoAnnotationNoneTypeRequiredTrueDiscriminatorType =
+  components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"];
+export type ResponseStrFeatureMulticountRet =
+  components["schemas"]["Response_str_FeatureMulticountRet_"];
+export type ResponseStrSource = components["schemas"]["Response_str_Source_"];
+export type ResponseStrDictStrValueCountRet =
+  components["schemas"]["Response_str__dict_str_ValueCountRet__"];
+export type ResponseStrDictStrValuePartCountRet =
+  components["schemas"]["Response_str__dict_str_ValuePartCountRet__"];
 export type SearchResult = components["schemas"]["SearchResult"];
 export type SearchResultType = components["schemas"]["SearchResultType"];
 export type SecurityLabels = components["schemas"]["SecurityLabels"];
 export type Settings = components["schemas"]["Settings"];
-export type SimilarFuzzyMatch = components["schemas"]["SimilarFuzzyMatch"];
+export type SimilarFuzzyMatch = components["schemas"]["SimilarFuzzyMatch__"];
 export type SimilarFuzzyMatchRow =
   components["schemas"]["SimilarFuzzyMatchRow"];
-export type SimilarMatch = components["schemas"]["SimilarMatch"];
+export type SimilarMatch = components["schemas"]["SimilarMatch__"];
 export type SimilarMatchRow = components["schemas"]["SimilarMatchRow"];
 export type SourceKafka = components["schemas"]["SourceKafka"];
 export type SourceReference = components["schemas"]["SourceReference"];
-export type StatisticSummary = components["schemas"]["StatisticSummary"];
-export type Status = components["schemas"]["Status"];
+export type Source = components["schemas"]["Source__"];
+export type StatisticSummary = components["schemas"]["StatisticSummary__"];
+export type Status = components["schemas"]["Status__"];
 export type StatusEntity = components["schemas"]["StatusEntity"];
 export type StatusEvent = components["schemas"]["StatusEvent"];
 export type StatusGroup = components["schemas"]["StatusGroup"];
@@ -3728,10 +3932,14 @@ export type AzulBedrockModelsNetworkAuthor =
   components["schemas"]["azul_bedrock__models_network__Author"];
 export type AzulBedrockModelsRestapiBasicAuthor =
   components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
+export type AzulBedrockModelsRestapiPurgePurgeResults =
+  components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"];
 export type AzulBedrockModelsRestapiSourcesSource =
   components["schemas"]["azul_bedrock__models_restapi__sources__Source"];
 export type AzulBedrockModelsSettingsSource =
   components["schemas"]["azul_bedrock__models_settings__Source"];
+export type AzulMetastoreRestapiQuickResponseAzulBedrockModelsRestapiPurgePurgeSimulationAzulBedrockModelsRestapiPurgePurgeResults =
+  components["schemas"]["azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults"];
 export type $defs = Record<string, never>;
 export interface operations {
   readonly get_all_tags_on_binaries_api_v0_binaries_tags_get: {
@@ -3756,7 +3964,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadTags__"];
+          readonly "application/json": components["schemas"]["ReadTags__"];
         };
       };
       /** @description Not found */
@@ -3822,7 +4030,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFind__"];
+          readonly "application/json": components["schemas"]["EntityFind__"];
         };
       };
       /** @description Not found */
@@ -3888,7 +4096,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFind__"];
+          readonly "application/json": components["schemas"]["EntityFind__"];
         };
       };
       /** @description Not found */
@@ -3948,7 +4156,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimple__"];
+          readonly "application/json": components["schemas"]["EntityFindSimple__"];
         };
       };
       /** @description Not found */
@@ -4005,7 +4213,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily__"];
+          readonly "application/json": components["schemas"]["EntityFindSimpleFamily__"];
         };
       };
       /** @description Not found */
@@ -4062,7 +4270,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityFindSimpleFamily__"];
+          readonly "application/json": components["schemas"]["EntityFindSimpleFamily__"];
         };
       };
       /** @description Not found */
@@ -4114,7 +4322,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.EntityModel__"];
+          readonly "application/json": components["schemas"]["EntityModel__"];
         };
       };
       /** @description Not found */
@@ -4168,7 +4376,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_typing.Annotated_typing.Union_azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue__azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"];
+          readonly "application/json": components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"];
         };
       };
       /** @description Not found */
@@ -4228,7 +4436,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryMetadata__"];
+          readonly "application/json": components["schemas"]["BinaryMetadata__"];
         };
       };
       /** @description Not found */
@@ -4335,7 +4543,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.BinaryDocuments__"];
+          readonly "application/json": components["schemas"]["BinaryDocuments__"];
         };
       };
       /** @description Not found */
@@ -4391,7 +4599,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch__"];
+          readonly "application/json": components["schemas"]["SimilarFuzzyMatch__"];
         };
       };
       /** @description Not found */
@@ -4447,7 +4655,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch__"];
+          readonly "application/json": components["schemas"]["SimilarFuzzyMatch__"];
         };
       };
       /** @description Not found */
@@ -4502,7 +4710,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.SimilarMatch__"];
+          readonly "application/json": components["schemas"]["SimilarMatch__"];
         };
       };
       /** @description Not found */
@@ -4558,7 +4766,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadNearby__"];
+          readonly "application/json": components["schemas"]["ReadNearby__"];
         };
       };
       /** @description Not found */
@@ -4612,7 +4820,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.ReadAllEntityTags__"];
+          readonly "application/json": components["schemas"]["ReadAllEntityTags__"];
         };
       };
       /** @description Not found */
@@ -4654,8 +4862,8 @@ export interface operations {
       };
       readonly header?: never;
       readonly path: {
-        readonly sha256: string;
         readonly tag: string;
+        readonly sha256: string;
       };
       readonly cookie?: never;
     };
@@ -4713,8 +4921,8 @@ export interface operations {
       };
       readonly header?: never;
       readonly path: {
-        readonly sha256: string;
         readonly tag: string;
+        readonly sha256: string;
       };
       readonly cookie?: never;
     };
@@ -4726,7 +4934,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.AnnotationUpdated__"];
+          readonly "application/json": components["schemas"]["AnnotationUpdated__"];
         };
       };
       /** @description Not found */
@@ -4780,7 +4988,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.Status__"];
+          readonly "application/json": components["schemas"]["Status__"];
         };
       };
       /** @description Not found */
@@ -4838,7 +5046,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.binaries.OpensearchDocuments__"];
+          readonly "application/json": components["schemas"]["OpensearchDocuments__"];
         };
       };
       /** @description Not found */
@@ -5194,7 +5402,7 @@ export interface operations {
         readonly filter?: string | null;
         /** @description Regex pattern to search strings with */
         readonly regex?: string | null;
-        /** @description Optional file type for AI string filter. */
+        /** @description File type for AI string filter (required if using the ai filter). */
         readonly file_format?: string | null;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
@@ -5654,7 +5862,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_"];
+          readonly "application/json": components["schemas"]["Response_str_FeatureMulticountRet_"];
         };
       };
       /** @description Not found */
@@ -5713,7 +5921,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_dict_str__azul_bedrock.models_restapi.features.FeatureMulticountRet_"];
+          readonly "application/json": components["schemas"]["Response_str_FeatureMulticountRet_"];
         };
       };
       /** @description Not found */
@@ -5772,7 +5980,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValueCountRet__"];
+          readonly "application/json": components["schemas"]["Response_str__dict_str_ValueCountRet__"];
         };
       };
       /** @description Not found */
@@ -5831,7 +6039,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_dict_str__dict_str__azul_bedrock.models_restapi.features.ValuePartCountRet__"];
+          readonly "application/json": components["schemas"]["Response_str__dict_str_ValuePartCountRet__"];
         };
       };
       /** @description Not found */
@@ -5883,7 +6091,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureValueTags__"];
+          readonly "application/json": components["schemas"]["ReadFeatureValueTags__"];
         };
       };
       /** @description Not found */
@@ -5937,7 +6145,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureTagValues__"];
+          readonly "application/json": components["schemas"]["ReadFeatureTagValues__"];
         };
       };
       /** @description Not found */
@@ -6107,7 +6315,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.Features__"];
+          readonly "application/json": components["schemas"]["Features__"];
         };
       };
       /** @description Not found */
@@ -6177,7 +6385,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.ReadFeatureValues__"];
+          readonly "application/json": components["schemas"]["ReadFeatureValues__"];
         };
       };
       /** @description Not found */
@@ -6233,7 +6441,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.features.FeaturePivotResponse__"];
+          readonly "application/json": components["schemas"]["FeaturePivotResponse__"];
         };
       };
       /** @description Not found */
@@ -6285,7 +6493,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_list_azul_bedrock.models_restapi.plugins.LatestPluginWithVersions_"];
+          readonly "application/json": components["schemas"]["Response_LatestPluginWithVersions_"];
         };
       };
       /** @description Not found */
@@ -6337,7 +6545,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_list_azul_bedrock.models_restapi.plugins.PluginStatusSummary_"];
+          readonly "application/json": components["schemas"]["Response_PluginStatusSummary_"];
         };
       };
       /** @description Not found */
@@ -6392,7 +6600,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.plugins.PluginInfo__"];
+          readonly "application/json": components["schemas"]["PluginInfo__"];
         };
       };
       /** @description Not found */
@@ -6450,7 +6658,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"];
+          readonly "application/json": components["schemas"]["azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults"];
         };
       };
       /** @description Not found */
@@ -6507,7 +6715,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_azul_bedrock.models_restapi.purge.PurgeSimulation___azul_bedrock.models_restapi.purge.PurgeResults"];
+          readonly "application/json": components["schemas"]["azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults"];
         };
       };
       /** @description Not found */
@@ -6727,7 +6935,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response_dict_str__azul_bedrock.models_settings.Source_"];
+          readonly "application/json": components["schemas"]["Response_str_Source_"];
         };
       };
       /** @description Not found */
@@ -6833,7 +7041,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.sources.Source__"];
+          readonly "application/json": components["schemas"]["Source__"];
         };
       };
       /** @description Not found */
@@ -6888,7 +7096,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.sources.References__"];
+          readonly "application/json": components["schemas"]["References__"];
         };
       };
       /** @description Not found */
@@ -6946,7 +7154,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.sources.References__"];
+          readonly "application/json": components["schemas"]["References__"];
         };
       };
       /** @description Not found */
@@ -6998,7 +7206,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Response__class__azul_bedrock.models_restapi.statistics.StatisticSummary__"];
+          readonly "application/json": components["schemas"]["StatisticSummary__"];
         };
       };
       /** @description Not found */
