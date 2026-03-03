@@ -15,3 +15,4 @@ npx prettier -w src/app/core/api/openapi.d.ts
 
 rm /tmp/azul-openapi.json
 
+
