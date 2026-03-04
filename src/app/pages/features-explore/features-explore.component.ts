@@ -325,7 +325,7 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
     author: string | null,
     authorVersion: string | null,
   ): Params {
-    let termQuery = `feature.name:${escapeValue(featureName)}`;
+    let termQuery = `features.name:${escapeValue(featureName)}`;
     if (author !== undefined && author !== null && author !== "") {
       termQuery = `${termQuery} author.name:"${author}"`;
       if (
