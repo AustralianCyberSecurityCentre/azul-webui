@@ -10,7 +10,7 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   faBackwardStep,
   faForwardStep,
@@ -55,7 +55,6 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
   protected faBackwardStep = faBackwardStep;
   protected faForwardStep = faForwardStep;
   protected ButtonType = ButtonType;
-  protected escapeValue = escapeValue;
 
   featureId$: Observable<string>;
   featureValues$: Observable<FeatureValuesWithNumBinaries>;
@@ -115,7 +114,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
     new Array<FeatureValuesWithNumBinaries>();
 
   author: string;
-  author_version: string;
+  authorVersion: string;
 
   sortOptions: SortOption[] = [
     { title: "ascending", sort_asc: true },
@@ -161,7 +160,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
         ops.debounceTime(200),
         ops.tap((d) => (this.term = d.get("term") || "")),
         ops.tap((d) => (this.author = d.get("author") || "")),
-        ops.tap((d) => (this.author_version = d.get("author_version") || "")),
+        ops.tap((d) => (this.authorVersion = d.get("author_version") || "")),
         ops.tap((d) =>
           this.isSortAscending.set(
             d.get("isSortAscending") === "true" ||
@@ -195,7 +194,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
             this.term,
             this.isSortAscending(),
             this.author,
-            this.author_version,
+            this.authorVersion,
             this.valueCount(),
             this.nextPageAfterValue(),
           );
@@ -290,6 +289,24 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
   decrementPage() {
     this.currentPageSignal.update((value) => value - 1);
     this.triggerLoadPreviousPage$.next(!this.triggerLoadPreviousPage$.value);
+  }
+
+  createBinaryQueryValue(
+    featureName: string,
+    rowValue: string,
+    author: string,
+    authorVersion: string,
+  ): Params {
+    let termQuery = `features_map.${featureName}:${escapeValue(rowValue)}`;
+    if (author !== undefined && author !== "") {
+      termQuery = `${termQuery} author.name:"${author}"`;
+      if (authorVersion !== undefined && authorVersion !== "") {
+        termQuery = `${termQuery} author.version:"${authorVersion}"`;
+      }
+    }
+    return {
+      term: termQuery,
+    };
   }
 
   clearPaginate() {
