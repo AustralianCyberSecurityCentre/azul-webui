@@ -5,17 +5,13 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      minor-and-patch:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      major:
+      all:
         patterns:
           - "*"
         update-types:
           - "major"
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
       - "automated"
