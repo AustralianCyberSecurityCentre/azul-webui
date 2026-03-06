@@ -164,9 +164,10 @@
                               row.XValueDecoded ? row.XValueDecoded : row.value
                             "
                           >
-                            {{
+                            <!--NO White space between the '<span>{{' and '}}</span>' for the span are super important otherwise extra spaces get added around feature values (because of the feature-value-render class)-->
+                            <span class="feature-value-render">{{
                               row.XValueDecoded ? row.XValueDecoded : row.value
-                            }}
+                            }}</span>
                           </td>
                           <td
                             flowTableBodyCell
