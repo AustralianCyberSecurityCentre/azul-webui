@@ -323,8 +323,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   */
   private _scrollUpFileInner(offsetForQuery: number) {
     // Already at the top of the file don't try and scroll.
-    if(this.currentMinByteOffset === 0){
-      return
+    if (this.currentMinByteOffset === 0) {
+      return;
     }
 
     this.scrollUpSub?.unsubscribe();
@@ -398,7 +398,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         this.currentMinByteOffset = this.scrollUpCacheMinOffset;
         // Keep scrolling up until the top of the files or 1000 strings have been found.
         // This is useful if you start and the very bottom of the file.
-        if (this.currentMinByteOffset !== 0 && this.currentStringsSignal().length < this._take_n_strings) {
+        if (
+          this.currentMinByteOffset !== 0 &&
+          this.currentStringsSignal().length < this._take_n_strings
+        ) {
           this._scrollUpFile();
         }
         this.scrollUpInProgressSignal.set(false);
