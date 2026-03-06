@@ -51,8 +51,8 @@
           @if (author) {
             <p>Restricting to {{ author }}</p>
           }
-          @if (author_version) {
-            <p>Restricting to {{ author_version }}</p>
+          @if (authorVersion) {
+            <p>Restricting to {{ authorVersion }}</p>
           }
         }
       </flow-card-body>
@@ -63,14 +63,18 @@
       <flow-card-body>
         <div class="flex justify-center gap-2">
           <p class="py-2">
-            Showing {{ (currentPageSignal() - 1) * valueCount() + 1 }} to
-            {{
-              (currentPageSignal() - 1) * valueCount() +
-                allPageFeatureInfo[currentPageSignal() - 1]?.values?.length
-            }}
-            of {{ totalNumberOfFeatureValuesActual() }}
-            @if (isTotalCountAnApproximation() && !isSearchComplete()) {
-              (approximation)
+            @if (totalNumberOfFeatureValuesActual() === 0) {
+              No
+            } @else {
+              Showing {{ (currentPageSignal() - 1) * valueCount() + 1 }} to
+              {{
+                (currentPageSignal() - 1) * valueCount() +
+                  allPageFeatureInfo[currentPageSignal() - 1]?.values?.length
+              }}
+              of {{ totalNumberOfFeatureValuesActual() }}
+              @if (isTotalCountAnApproximation() && !isSearchComplete()) {
+                (approximation)
+              }
             }
             values for
             @if (featureValues$ | async; as d) {
@@ -93,7 +97,8 @@
           <flow-button
             [type]="
               isDoneLoadingSignal() === false ||
-              currentPageSignal() === totalNumberOfPages()
+              currentPageSignal() === totalNumberOfPages() ||
+              totalNumberOfPages() === 0
                 ? ButtonType.Disabled
                 : ButtonType.Light
             "
@@ -140,13 +145,14 @@
                               class="table-link"
                               title="View binaries with this feature value"
                               [routerLink]="['/pages/binaries/explore']"
-                              [queryParams]="{
-                                term:
-                                  'features_map.' +
-                                  feature +
-                                  ':' +
-                                  escapeValue(row.value),
-                              }"
+                              [queryParams]="
+                                createBinaryQueryValue(
+                                  feature,
+                                  row.value,
+                                  author,
+                                  authorVersion
+                                )
+                              "
                             >
                               {{ (row.XNumBinaries$ | async | number) || "?" }}
                             </a>

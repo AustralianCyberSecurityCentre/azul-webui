@@ -7,7 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute, ParamMap, Router } from "@angular/router";
+import { ActivatedRoute, ParamMap, Params, Router } from "@angular/router";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { Observable, ReplaySubject, Subscription, interval, of } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -55,7 +55,6 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
 
   protected faMagnifyingGlass = faMagnifyingGlass;
 
-  protected escapeValue = escapeValue;
   protected features$: Observable<FeatureWithParsedProperties[]>;
   protected filteredFeatures$: Observable<FeatureWithParsedProperties[]>;
   protected plugins$: Observable<
@@ -316,6 +315,27 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
       ...(this.authorVersion.value && {
         author_version: this.authorVersion.value,
       }),
+    };
+  }
+
+  createBinaryExploreQueryValue(
+    featureName: string,
+    author: string | null,
+    authorVersion: string | null,
+  ): Params {
+    let termQuery = `features.name:${escapeValue(featureName)}`;
+    if (author !== undefined && author !== null && author !== "") {
+      termQuery = `${termQuery} author.name:"${author}"`;
+      if (
+        authorVersion !== undefined &&
+        authorVersion !== null &&
+        authorVersion !== ""
+      ) {
+        termQuery = `${termQuery} author.version:"${authorVersion}"`;
+      }
+    }
+    return {
+      term: termQuery,
     };
   }
 }

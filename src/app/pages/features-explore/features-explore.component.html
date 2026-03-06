@@ -81,9 +81,13 @@
                           class="table-link whitespace-nowrap"
                           title="View binaries with this feature"
                           [routerLink]="['/pages/binaries/explore']"
-                          [queryParams]="{
-                            term: 'features.name:' + escapeValue(row.name),
-                          }"
+                          [queryParams]="
+                            createBinaryExploreQueryValue(
+                              row.name,
+                              author.value,
+                              authorVersion.value
+                            )
+                          "
                         >
                           {{ (row.XNumBinaries$ | async | number) || "?" }}
                         </a>
