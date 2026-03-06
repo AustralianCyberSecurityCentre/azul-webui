@@ -15,7 +15,7 @@ import * as ops from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
 import { FeatureWithParsedProperties } from "src/app/core/api/state";
 import { Api, Feature } from "src/app/core/services";
-import { escapeValue } from "src/app/core/util";
+import { escapeValue } from "../../core/util";
 
 type SearchFilter = {
   term?: string;
@@ -291,11 +291,9 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
   ): string[] {
     const ret = [];
     for (const desc of descs || []) {
-      let uniq = "";
+      let uniq = `${desc?.author_name}`;
       if (desc.author_type != "plugin") {
         uniq = `${desc.author_type}_${desc.author_name}`;
-      } else {
-        uniq = `${desc.author_name}`;
       }
       if (ret.indexOf(uniq) >= 0) {
         continue;

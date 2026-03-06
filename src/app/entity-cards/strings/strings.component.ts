@@ -162,7 +162,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
           let min_index = 0;
           let max_index = stringVal.length;
-          let mid_index = -1;
+          let mid_index;
           while (min_index < max_index) {
             mid_index = min_index + Math.floor((max_index - min_index) / 2);
             if (stringVal[mid_index].offset < hexOffset) {

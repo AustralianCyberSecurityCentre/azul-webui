@@ -167,8 +167,7 @@ export class UserInitialsPipe implements PipeTransform {
     // find suitable candidates to base initials on
     for (const component of components)
       if (component.length > 0) {
-        let isAlpha = false;
-        isAlpha = /[a-zA-Z]/.test(component);
+        const isAlpha = /[a-zA-Z]/.test(component);
         if (isAlpha) {
           validComponents.push(component);
         }

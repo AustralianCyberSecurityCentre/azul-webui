@@ -452,7 +452,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
         ops.mergeMap((x) => x, 2),
         ops.map(([i, d]) => {
           // progress of upload
-          let progress = 0;
+          let progress = 1000;
           // sha256 of uploaded file
           let sha = "";
           // was an extracted archive (multiple submissions in one row)
@@ -464,7 +464,6 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
             // Error
             progress = -1;
           } else {
-            progress = 1000;
             sha = d[0].sha256;
             this.allUploadsData.set(i, d);
             multi = d.length > 1;
