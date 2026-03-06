@@ -204,3 +204,8 @@ a.table-link:visited {
     color: white;
   }
 }
+
+/* Needed so if there is trailing or leading white space on a feature value it still renders the full string.*/
+.feature-value-render {
+  white-space: pre;
+}
