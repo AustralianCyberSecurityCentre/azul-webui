@@ -201,9 +201,9 @@ export function sourceRefsAsParams(
   track_source_references: string,
   timestamp: string | null,
 ) {
-  let base = `source.name:${escapeValue(source)} depth:${source_depth}`;
+  let base = `source.name:${escapeValue(source)} DOCAND depth:${source_depth}`;
   if (track_source_references.length > 0) {
-    base += ` track_source_references:${escapeValue(track_source_references)}`;
+    base += ` DOCAND track_source_references:${escapeValue(track_source_references)}`;
   }
   // optionally filter by source timestamp as well
   if (timestamp) {
