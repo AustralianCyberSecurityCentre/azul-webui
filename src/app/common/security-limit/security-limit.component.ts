@@ -118,7 +118,7 @@ export class SecurityLimitComponent {
 
   onSubmit() {
     // iterate through all groups and find inverted set of what the form controls actually report as being selected
-    // find option that are excluded, not included. If AND searhc is toggled then we include the selected RELS
+    // find option that are excluded, not included. If AND search is toggled then we include the selected RELS
     const raw = this.formCustom.getRawValue();
     const excluded: string[] = [];
     const included: string[] = [];
