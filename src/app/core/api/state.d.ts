@@ -5,7 +5,11 @@
  */
 
 import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
-import { components, SimilarEntropyMatch, SimilarEntropyMatchRow } from "./openapi";
+import {
+  components,
+  SimilarEntropyMatch,
+  SimilarEntropyMatchRow,
+} from "./openapi";
 
 /**
  * The kinds of data that can be returned when downloading a file.
@@ -93,7 +97,6 @@ export type FuzzyMatchRowWithSummary =
 export type FuzzyMatchWithSummary = {
   matches: FuzzyMatchRowWithSummary[];
 };
-
 
 /**
  * Adds entity metadata to an entropy similarity response.

@@ -582,7 +582,9 @@ export class EntityWrap {
       ops.shareReplay(1),
     );
 
-    const parseSimilarEntropyResult = (similar_entropy: SimilarEntropyMatchWithSummary) => {
+    const parseSimilarEntropyResult = (
+      similar_entropy: SimilarEntropyMatchWithSummary,
+    ) => {
       if (!similar_entropy?.matches) {
         return null;
       }
@@ -598,19 +600,18 @@ export class EntityWrap {
       return similar_entropy;
     };
 
-
     this.similar_entropy$ = this.entropy$.pipe(
       ops.mergeMap((d) => {
-        if(d?.blocks !== null && d?.blocks.length >= 40){
-          return this.api.entityReadSimilarEntropy(this.sha256,
-            {max_matches: 20},
-            d.blocks
-          )
-        } else{
-          return of(null)
+        if (d?.blocks !== null && d?.blocks.length >= 40) {
+          return this.api.entityReadSimilarEntropy(
+            this.sha256,
+            { max_matches: 20 },
+            d.blocks,
+          );
+        } else {
+          return of(null);
         }
-        }
-      ),
+      }),
       // Optimize loading of related entities
       ops.map(parseSimilarEntropyResult),
       ops.shareReplay(1),

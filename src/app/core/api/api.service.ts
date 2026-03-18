@@ -930,7 +930,7 @@ export class ApiService {
     );
   }
 
-    entityReadSimilarEntropy(
+  entityReadSimilarEntropy(
     sha256: string,
     params: ValidPOSTPaths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["parameters"]["query"],
     body: paths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["requestBody"]["content"]["application/json"],
@@ -945,7 +945,8 @@ export class ApiService {
         this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
       ),
       ops.map((d) => d.data),
-      ops.catchError((e) => this.handle(e, undefined, [])));
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
   }
 
   entityStatus(

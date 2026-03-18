@@ -9,7 +9,7 @@ const enum TabKey {
   SimilarFeatures = 0,
   SimilarSsdeep = 1,
   SimilarTLSH = 2,
-  SimilarEntropy=3,
+  SimilarEntropy = 3,
   Parents = 4,
   Children = 5,
   Sources = 6,
