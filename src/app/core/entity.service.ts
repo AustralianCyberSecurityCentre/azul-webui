@@ -23,6 +23,7 @@ import {
   FeatureWithDecodedValue,
   FuzzyMatchWithSummary,
   PathWithSummary,
+  SimilarEntropyMatchWithSummary,
   SimilarMatchWithSummary,
   SimilarRowWithSummary,
 } from "./api/state";
@@ -77,6 +78,7 @@ export class EntityWrap {
   nearbyNoCousins$: Observable<components["schemas"]["ReadNearby"]>;
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
+  similar_entropy$: Observable<SimilarEntropyMatchWithSummary>;
   similar$: Observable<SimilarMatchWithSummary>;
   /**tags can be created by user, need to be refetched when this occurs*/
   tags$: BehaviorSubject<readonly components["schemas"]["EntityTag"][] | null> =
@@ -577,6 +579,40 @@ export class EntityWrap {
 
     this.entropy$ = this.infoSpecific$("plugin", "entropy").pipe(
       ops.map((d) => (d ? (d["entropy"] as tInfo.Entropy) : undefined)),
+      ops.shareReplay(1),
+    );
+
+    const parseSimilarEntropyResult = (similar_entropy: SimilarEntropyMatchWithSummary) => {
+      if (!similar_entropy?.matches) {
+        return null;
+      }
+      const allEntities: BulkEntitySummarySubmit[] = [];
+      similar_entropy.matches.forEach((d) => {
+        const sub$ = new ReplaySubject<components["schemas"]["EntityFindItem"]>(
+          1,
+        );
+        allEntities.push({ eid: d.sha256, sub$: sub$ });
+        d._localEntitySummary$ = sub$;
+      });
+      this.entityService.requestBulkEntitySummary(allEntities);
+      return similar_entropy;
+    };
+
+
+    this.similar_entropy$ = this.entropy$.pipe(
+      ops.mergeMap((d) => {
+        if(d?.blocks !== null && d?.blocks.length >= 40){
+          return this.api.entityReadSimilarEntropy(this.sha256,
+            {max_matches: 20},
+            d.blocks
+          )
+        } else{
+          return of(null)
+        }
+        }
+      ),
+      // Optimize loading of related entities
+      ops.map(parseSimilarEntropyResult),
       ops.shareReplay(1),
     );
 

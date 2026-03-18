@@ -9,9 +9,10 @@ const enum TabKey {
   SimilarFeatures = 0,
   SimilarSsdeep = 1,
   SimilarTLSH = 2,
-  Parents = 3,
-  Children = 4,
-  Sources = 5,
+  SimilarEntropy=3,
+  Parents = 4,
+  Children = 5,
+  Sources = 6,
 }
 
 @Component({
@@ -45,6 +46,10 @@ export class RelationsTabComponent {
     {
       key: TabKey.SimilarTLSH,
       name: "Similar TLSH",
+    },
+    {
+      key: TabKey.SimilarEntropy,
+      name: "Similar Entropy",
     },
   ];
   protected activeTab$ = new BehaviorSubject<TabKey>(TabKey.Sources);

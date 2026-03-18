@@ -10,13 +10,16 @@
       @case (2) {
         <azec-similarfuzzyhash [entity]="entity" hashType="tlsh" />
       }
-      @case (3) {
-        <azec-family [entity]="entity" [isParent]="true" />
+      @case(3) {
+        <azec-similar-entropy [entity]="entity" />
       }
       @case (4) {
-        <azec-family [entity]="entity" [isParent]="false" />
+        <azec-family [entity]="entity" [isParent]="true" />
       }
       @case (5) {
+        <azec-family [entity]="entity" [isParent]="false" />
+      }
+      @case (6) {
         <azec-source-table [entity]="entity" />
       }
     }
