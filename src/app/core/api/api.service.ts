@@ -930,6 +930,25 @@ export class ApiService {
     );
   }
 
+  entityReadSimilarEntropy(
+    sha256: string,
+    params: ValidPOSTPaths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["parameters"]["query"],
+    body: paths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["requestBody"]["content"]["application/json"],
+  ): Observable<components["schemas"]["SimilarEntropyMatch"]> {
+    return this.postOperation(
+      "/api/v0/binaries/{sha256}/similar/entropy",
+      body,
+      params,
+      { sha256 },
+    ).pipe(
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
   entityStatus(
     sha256: string,
   ): Observable<readonly components["schemas"]["StatusEvent"][]> {

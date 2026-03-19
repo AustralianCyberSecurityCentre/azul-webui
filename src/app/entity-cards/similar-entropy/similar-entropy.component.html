@@ -1,0 +1,25 @@
+<az-loading-card
+  cardTitle="Similar Entropy"
+  [obs$]="this.entity.similar_entropy$"
+  [help]="help"
+  [isScrollable]="true"
+>
+  @if (this.entity.similar_entropy$ | async; as d) {
+    <az-entity-table
+      [find$]="transformedFind$"
+      [originalSha256]="this.entity.sha256"
+      tablename="Similar Entropy"
+      [scroll]="true"
+      [externalPagination]="false"
+    >
+    </az-entity-table>
+  } @else {
+    <p>
+      This file does not have any or sufficient entropy data for similarity.
+    </p>
+  }
+</az-loading-card>
+
+<ng-template #tplNoSimilar>
+  <p>No similar files found.</p>
+</ng-template>

@@ -259,6 +259,26 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/binaries/{sha256}/similar/entropy": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Get Similar Entropy Binaries
+     * @description Search for binaries with similar entropy to the entropy provided.
+     */
+    readonly post: operations["get_similar_entropy_binaries_api_v0_binaries__sha256__similar_entropy_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/binaries/{sha256}/similar": {
     readonly parameters: {
       readonly query?: never;
@@ -833,6 +853,54 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/authenticate/pat": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Create Pat
+     * @description Create a PAT for a user and store it in Opensearch.
+     *
+     *     To use the PAT put the ready_api_key in a header {"X-API-Key": <ready-api-key>}
+     *     The ready api key is a base64 encoding of the "pat_id:pat_value"
+     *     e.g: base64.b64encode(<pat-id>:<pat>)
+     */
+    readonly post: operations["create_pat_api_v0_authenticate_pat_post"];
+    /**
+     * Delete Pat
+     * @description Delete a PAT from Azul.
+     */
+    readonly delete: operations["delete_pat_api_v0_authenticate_pat_delete"];
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/authenticate/pat/list": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * List Pats
+     * @description List the PATs currently stored in Azul.
+     */
+    readonly get: operations["list_pats_api_v0_authenticate_pat_list_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/plugins": {
     readonly parameters: {
       readonly query?: never;
@@ -1145,26 +1213,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me/opensearch": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return Opensearch access for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me": {
     readonly parameters: {
       readonly query?: never;
@@ -1177,6 +1225,26 @@ export interface paths {
      * @description Return parsed info for for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me/opensearch": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return Opensearch access for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -1705,7 +1773,6 @@ export interface components {
     readonly Body_submit_binary_to_source_api_v0_binaries_source_post: {
       /**
        * Binary
-       * Format: binary
        * @description File to submit
        */
       readonly binary: string;
@@ -1803,7 +1870,6 @@ export interface components {
     readonly Body_submit_child_binary_to_source_api_v0_binaries_child_post: {
       /**
        * Binary
-       * Format: binary
        * @description File to submit
        */
       readonly binary: string;
@@ -2730,6 +2796,19 @@ export interface components {
       readonly newest_version?: components["schemas"]["PluginEntity"] | null;
     };
     /**
+     * ListOfPAT
+     * @description Listing of PAT values.
+     */
+    readonly ListOfPAT: {
+      /** Pats */
+      readonly pats: readonly components["schemas"]["PATView"][];
+      /**
+       * Warnings
+       * @default
+       */
+      readonly warnings: string;
+    };
+    /**
      * Meta
      * @description Meta is where non-data goes (interesting things about the query).
      */
@@ -2764,6 +2843,84 @@ export interface components {
     readonly OpensearchDocuments__: {
       readonly data?: components["schemas"]["OpensearchDocuments"];
       readonly meta: components["schemas"]["Meta"];
+    };
+    /**
+     * PATDeleteEnum
+     * @description Possible results for deletion of a PAT.
+     * @enum {string}
+     */
+    readonly PATDeleteEnum: "failed" | "not found can't delete" | "success";
+    /**
+     * PATDeleteResponse
+     * @description Response to a request to delete a PAT.
+     */
+    readonly PATDeleteResponse: {
+      readonly result: components["schemas"]["PATDeleteEnum"];
+    };
+    /**
+     * PATIssue
+     * @description Issuing of a PAT token.
+     */
+    readonly PATIssue: {
+      /** Id */
+      readonly id: string;
+      /** Pat Name */
+      readonly pat_name: string;
+      /**
+       * Description
+       * @default
+       */
+      readonly description: string;
+      /** Owner Username */
+      readonly owner_username: string;
+      /** Roles */
+      readonly roles: readonly string[];
+      /** Creation Date */
+      readonly creation_date: string;
+      /** Last Used Date */
+      readonly last_used_date: string;
+      /** Pat */
+      readonly pat: string;
+      /** Ready Api Key */
+      readonly ready_api_key: string;
+    };
+    /**
+     * PATRequest
+     * @description Request for a PAT.
+     */
+    readonly PATRequest: {
+      /** Name */
+      readonly name: string;
+      /**
+       * Description
+       * @default
+       */
+      readonly description: string;
+      /** Roles */
+      readonly roles: readonly string[];
+    };
+    /**
+     * PATView
+     * @description The PAT view without the PAT itself.
+     */
+    readonly PATView: {
+      /** Id */
+      readonly id: string;
+      /** Pat Name */
+      readonly pat_name: string;
+      /**
+       * Description
+       * @default
+       */
+      readonly description: string;
+      /** Owner Username */
+      readonly owner_username: string;
+      /** Roles */
+      readonly roles: readonly string[];
+      /** Creation Date */
+      readonly creation_date: string;
+      /** Last Used Date */
+      readonly last_used_date: string;
     };
     /**
      * PartitionUnitEnum
@@ -3264,6 +3421,29 @@ export interface components {
        * @default []
        */
       readonly minimum_required_access: readonly string[];
+    };
+    /**
+     * SimilarEntropyMatch
+     * @description Ssdeep similarity calculation result.
+     */
+    readonly SimilarEntropyMatch: {
+      /** Matches */
+      readonly matches: readonly components["schemas"]["SimilarEntropyMatchRow"][];
+    };
+    /**
+     * SimilarEntropyMatchRow
+     * @description Entropy match result row.
+     */
+    readonly SimilarEntropyMatchRow: {
+      /** Sha256 */
+      readonly sha256: string;
+      /** Score */
+      readonly score: number;
+    };
+    /** Response:<class 'azul_metastore.query.binary2.binary_similar.SimilarEntropyMatch'> */
+    readonly SimilarEntropyMatch__: {
+      readonly data?: components["schemas"]["SimilarEntropyMatch"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * SimilarFuzzyMatch
@@ -3861,9 +4041,15 @@ export type LabelOptionsReleasability =
 export type LabelOptionsTlp = components["schemas"]["LabelOptionsTlp"];
 export type LatestPluginWithVersions =
   components["schemas"]["LatestPluginWithVersions"];
+export type ListOfPat = components["schemas"]["ListOfPAT"];
 export type Meta = components["schemas"]["Meta"];
 export type OpensearchDocuments =
   components["schemas"]["OpensearchDocuments__"];
+export type PatDeleteEnum = components["schemas"]["PATDeleteEnum"];
+export type PatDeleteResponse = components["schemas"]["PATDeleteResponse"];
+export type PatIssue = components["schemas"]["PATIssue"];
+export type PatRequest = components["schemas"]["PATRequest"];
+export type PatView = components["schemas"]["PATView"];
 export type PartitionUnitEnum = components["schemas"]["PartitionUnitEnum"];
 export type PathNode = components["schemas"]["PathNode"];
 export type PluginEntity = components["schemas"]["PluginEntity"];
@@ -3905,6 +4091,10 @@ export type SearchResult = components["schemas"]["SearchResult"];
 export type SearchResultType = components["schemas"]["SearchResultType"];
 export type SecurityLabels = components["schemas"]["SecurityLabels"];
 export type Settings = components["schemas"]["Settings"];
+export type SimilarEntropyMatch =
+  components["schemas"]["SimilarEntropyMatch__"];
+export type SimilarEntropyMatchRow =
+  components["schemas"]["SimilarEntropyMatchRow"];
 export type SimilarFuzzyMatch = components["schemas"]["SimilarFuzzyMatch__"];
 export type SimilarFuzzyMatchRow =
   components["schemas"]["SimilarFuzzyMatchRow"];
@@ -4656,6 +4846,66 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["SimilarFuzzyMatch__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_similar_entropy_binaries_api_v0_binaries__sha256__similar_entropy_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Maximum number of matches to return */
+        readonly max_matches?: number;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly sha256: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": readonly number[];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["SimilarEntropyMatch__"];
         };
       };
       /** @description Not found */
@@ -6471,6 +6721,138 @@ export interface operations {
       };
     };
   };
+  readonly create_pat_api_v0_authenticate_pat_post: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["PATRequest"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["PATIssue"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly delete_pat_api_v0_authenticate_pat_delete: {
+    readonly parameters: {
+      readonly query: {
+        readonly id: string;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["PATDeleteResponse"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly list_pats_api_v0_authenticate_pat_list_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["ListOfPAT"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly get_all_plugins_api_v0_plugins_get: {
     readonly parameters: {
       readonly query?: {
@@ -7236,6 +7618,42 @@ export interface operations {
       };
     };
   };
+  readonly read_users_me_api_v0_users_me_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["UserInfo"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: {
@@ -7276,42 +7694,6 @@ export interface operations {
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
         };
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
-  readonly read_users_me_api_v0_users_me_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
       };
       /** @description Something went wrong */
       readonly 500: {
