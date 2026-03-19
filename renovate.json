@@ -1,14 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "commitMessagePrefix": "chore: ",
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "all non-major dependencies",
-      "automerge": true
-    },
-    {
-      "automerge": true
-    }
-  ]
+  "extends": ["config:best-practices"],
+  "automerge": true
 }
