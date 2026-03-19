@@ -1,5 +1,5 @@
 <az-loading-card
-  [cardTitle]="'Similar Entropy'"
+  cardTitle="Similar Entropy"
   [obs$]="this.entity.similar_entropy$"
   [help]="help"
   [isScrollable]="true"
@@ -8,7 +8,7 @@
     <az-entity-table
       [find$]="transformedFind$"
       [originalSha256]="this.entity.sha256"
-      [tablename]="'Similar Entropy'"
+      tablename="Similar Entropy"
       [scroll]="true"
       [externalPagination]="false"
     >
