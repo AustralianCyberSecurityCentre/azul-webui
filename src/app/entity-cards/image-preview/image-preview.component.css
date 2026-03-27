@@ -5,11 +5,11 @@
 }
 
 /* Stretch the image to fit in the canvas.*/
-.canvas-background-and-size {
+/* .canvas-background-and-size {
   object-fit: contain;
   width: 100%;
   height: 100%;
-}
+} */
 
 .frame-counter {
   display: inline-block;
