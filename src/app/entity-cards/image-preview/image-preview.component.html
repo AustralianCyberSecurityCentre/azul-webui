@@ -1,23 +1,67 @@
 <az-loading-card
   cardTitle="Image"
-  [obs$]="imageUrl$"
+  [obs$]="imageBlob$"
   [help]="help"
   [tplTopRight]="tplTopRight"
-  [show]="(imageUrl$ | async)?.length > 0"
+  [show]="displayImage$ | async"
 >
   <div
     class="flex h-full w-full place-content-center-safe place-items-center-safe overflow-auto"
   >
-    <img
-      [hidden]="isImageHidden"
-      class="image-background"
-      [src]="imageUrl$ | async"
-      alt="Safe image to display."
-    />
+    @if (this.isUsingCanvasSignal()) {
+      <canvas
+        [hidden]="isImageHidden"
+        #imageCanvas
+        class="canvas-background-and-size"
+      >
+      </canvas>
+    } @else {
+      <img
+        [hidden]="isImageHidden"
+        class="image-background"
+        [src]="imageUrl$ | async"
+        alt="Safe image to display."
+      />
+    }
   </div>
 </az-loading-card>
 
 <ng-template #tplTopRight>
+  @if (this.maxIndexSignal() > 1 && this.isUsingCanvasSignal()) {
+    <flow-tooltip [message]="autoPlayEnabled() ? 'Pause' : 'Play'">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+        (click)="toggleAutoPlay()"
+      >
+        <fa-icon [icon]="autoPlayEnabled() ? faPause : faPlay" />
+      </flow-button>
+    </flow-tooltip>
+    <flow-tooltip message="Step Backwards">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+        (click)="retreatImageByFrame()"
+      >
+        <fa-icon [icon]="faBackwardStep" />
+      </flow-button>
+    </flow-tooltip>
+    <flow-tooltip message="Step Forward">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Light"
+        noPadding="true"
+        (click)="advanceByFrameAndStopAutoplay()"
+      >
+        <fa-icon [icon]="faForwardStep" />
+      </flow-button>
+    </flow-tooltip>
+    <div class="frame-counter">
+      Frame {{ currentFrameIndex() }}/{{ maxIndexSignal() - 1 }}
+    </div>
+  }
   <flow-toggle
     class="flex"
     [(ngModel)]="_isImageHidden"

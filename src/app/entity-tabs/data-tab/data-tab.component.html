@@ -29,6 +29,7 @@
             [entity]="entity"
             [streamData]="stream"
             class="grow"
+            [fileFormat]="stream.file_format"
           ></azec-image-preview>
         }
         @case (isObjectStream(stream)) {
