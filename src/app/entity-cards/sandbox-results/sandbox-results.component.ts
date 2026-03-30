@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  inject,
+} from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 
 import { Entity } from "src/app/core/services";

@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Observable, ReplaySubject, Subscription } from "rxjs";

@@ -1,5 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnDestroy,
+  inject,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { editor } from "monaco-types";

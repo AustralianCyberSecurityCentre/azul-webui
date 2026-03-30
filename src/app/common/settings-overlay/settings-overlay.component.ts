@@ -1,5 +1,11 @@
 import { LabelType, Options } from "@angular-slider/ngx-slider";
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import {
   FormControl,
   UntypedFormBuilder,

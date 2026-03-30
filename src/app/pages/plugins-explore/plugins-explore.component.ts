@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";

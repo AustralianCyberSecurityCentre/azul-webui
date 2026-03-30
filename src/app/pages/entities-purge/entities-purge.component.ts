@@ -1,5 +1,11 @@
 import { Location } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Navigation, Router } from "@angular/router";
 import {

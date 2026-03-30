@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Injector, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injector,
+  OnDestroy,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { Store } from "@ngrx/store";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { Subscription } from "rxjs";

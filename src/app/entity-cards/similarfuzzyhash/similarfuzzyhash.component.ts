@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  inject,
+} from "@angular/core";
 import { Observable, combineLatest } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
