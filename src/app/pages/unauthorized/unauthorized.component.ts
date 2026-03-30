@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";
 
@@ -11,6 +11,7 @@ import { config } from "../../settings";
 @Component({
   selector: "app-unauthorized",
   templateUrl: "unauthorized.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class UnauthorizedComponent {

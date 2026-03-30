@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 import { combineLatest, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { components } from "src/app/core/api/openapi";
 import { STATUS_DESCRIPTIONS } from "src/app/core/plugin-status-descriptions";
 import { BaseCard } from "../base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 type LatestStatus = {
   timestamp?: string;
@@ -28,6 +28,7 @@ type CombinedAuthorStatus = {
   selector: "azec-statuses",
   templateUrl: "./status.component.html",
   styleUrls: ["./status.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class StatusComponent extends BaseCard implements OnInit {
@@ -161,6 +162,4 @@ For plugins that have completed and published results, refer to the 'Authors' pa
   protected openDialog(dialog, extra?) {
     this.currentDialog = this.dialogService.open(dialog, extra);
   }
-
-  protected readonly console = console;
 }

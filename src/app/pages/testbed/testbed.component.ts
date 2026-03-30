@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -18,6 +18,7 @@ import { LinkColour } from "src/lib/flow/link/link.directive";
 @Component({
   selector: "app-testbed",
   templateUrl: "./testbed.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class TestbedComponent implements OnInit {

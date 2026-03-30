@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
@@ -39,6 +40,7 @@ function toCapitalCase(input: string): string {
 @Component({
   selector: "app-plugins-current",
   templateUrl: "./plugins-current.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class PluginsCurrentComponent implements OnInit, OnDestroy {

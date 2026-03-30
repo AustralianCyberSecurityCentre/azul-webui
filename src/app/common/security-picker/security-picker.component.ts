@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   inject,
@@ -26,6 +27,7 @@ export type FormControls = {
 @Component({
   selector: "azco-security-picker",
   templateUrl: "./security-picker.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SecurityPickerComponent implements OnInit, OnDestroy {

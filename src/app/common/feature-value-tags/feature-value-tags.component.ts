@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -30,6 +31,7 @@ Enables creation of new tags and deletion of existing tags.
 @Component({
   selector: "az-feature-value-tags",
   templateUrl: "./feature-value-tags.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class FeatureValueTagsComponent implements OnInit {

@@ -1,16 +1,17 @@
-import { Component, OnDestroy, OnInit, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Observable, ReplaySubject, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
+import { FeatureTagsWithNumBinaries } from "src/app/core/api/state";
 import { escapeValue } from "src/app/core/util";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 import { FeatureService } from "../../core/feature.service";
-import { FeatureTagsWithNumBinaries } from "src/app/core/api/state";
 
 @Component({
   selector: "app-features-tags-current",
   templateUrl: "./features-tags-current.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class FeaturesTagsCurrentComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, inject } from "@angular/core";
 import { Observable, combineLatest } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
@@ -12,6 +12,7 @@ type HashType = "ssdeep" | "tlsh";
   selector: "azec-similarfuzzyhash",
   templateUrl: "./similarfuzzyhash.component.html",
   styleUrls: ["./similarfuzzyhash.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SimilarfuzzyhashComponent extends BaseCard {

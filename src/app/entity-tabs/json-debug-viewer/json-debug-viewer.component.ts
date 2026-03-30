@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnDestroy, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { editor } from "monaco-types";
@@ -22,6 +22,7 @@ declare let monaco: any;
 @Component({
   selector: "azco-json-debug-viewer",
   templateUrl: "./json-debug-viewer.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, MonacoEditorModule],
 })
 export class JsonDebugViewerComponent implements OnDestroy {

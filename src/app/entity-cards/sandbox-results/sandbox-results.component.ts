@@ -1,12 +1,12 @@
-import { Component, OnDestroy, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 
 import { Entity } from "src/app/core/services";
 
+import { faCameraRetro, faSlash } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
-import { faCameraRetro, faSlash } from "@fortawesome/free-solid-svg-icons";
 
 // FUTURE update for latest cape plugin and/or remove if can be consolidated
 /**card displaying sandbox/dynamic analysis results*/
@@ -14,6 +14,7 @@ import { faCameraRetro, faSlash } from "@fortawesome/free-solid-svg-icons";
   selector: "azec-sandbox-results",
   templateUrl: "./sandbox-results.component.html",
   styleUrls: ["./sandbox-results.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SandboxResultsComponent extends BaseCard implements OnDestroy {

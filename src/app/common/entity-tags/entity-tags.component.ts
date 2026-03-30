@@ -1,5 +1,6 @@
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -27,6 +28,7 @@ Enables creation of new tags and deletion of existing tags.
 @Component({
   selector: "azco-entity-tags",
   templateUrl: "./entity-tags.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class EntityTagsComponent implements OnInit {
