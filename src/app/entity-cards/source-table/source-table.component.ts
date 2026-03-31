@@ -38,7 +38,10 @@ const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SourceTableComponent extends BaseCard implements AfterViewInit, OnDestroy {
+export class SourceTableComponent
+  extends BaseCard
+  implements AfterViewInit, OnDestroy
+{
   protected user = inject(UserService);
 
   help = `
@@ -100,6 +103,6 @@ Each source will have a table showing the references supplied during an upload, 
   }
 
   ngOnDestroy(): void {
-    this.sourceSub?.unsubscribe()
+    this.sourceSub?.unsubscribe();
   }
 }
