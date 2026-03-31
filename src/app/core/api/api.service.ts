@@ -895,9 +895,10 @@ export class ApiService {
     sha256: string,
     params: ValidGETPaths["/api/v0/binaries/{sha256}/similar"]["get"]["parameters"]["query"] = {},
   ): Observable<components["schemas"]["SimilarMatch"] | undefined> {
+    const cacheProps:CacheRequestConfig = { cache: false };
     return this.getOperation("/api/v0/binaries/{sha256}/similar", params, {
       sha256,
-    }).pipe(
+    }, cacheProps).pipe(
       ops.tap((d) =>
         this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
       ),
