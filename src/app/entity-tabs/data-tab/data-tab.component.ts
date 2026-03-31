@@ -285,7 +285,6 @@ export class DataTabComponent
     ) {
       return true;
     }
-
     return false;
   }
 
