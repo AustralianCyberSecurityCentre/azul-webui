@@ -60,7 +60,7 @@
 </ng-template>
 
 <ng-template #tplTableRows let-row="row" let-kind="kind" let-refKeys="refKeys">
-  @for (item of row; track item) {
+  @for (item of row; track item.name) {
     <tr flowTableBodyRow>
       <td flowTableBodyCell class="flex">
         <flow-tooltip message="View top-level binaries from this submission"
