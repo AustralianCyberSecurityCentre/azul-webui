@@ -1,9 +1,9 @@
 import { ConnectionPositionPair } from "@angular/cdk/overlay";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { Observable, Subject, of } from "rxjs";
+import { ChangeDetectionStrategy, Component, Input, signal, Signal } from "@angular/core";
+import { Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
-import { EntityWrap } from "src/app/core/entity.service";
 import { Entropy } from "src/app/core/api/info";
+import { EntityWrap } from "src/app/core/entity.service";
 
 type Dataset = {
   entropy: number;
@@ -120,7 +120,7 @@ export class EntropyComponent {
   @Input() minBytes: number = 0;
   @Input() horizontal: boolean = true;
   @Input() fullHeightBars: boolean = false;
-  @Input() showLevels$: Observable<boolean> = of(true);
+  @Input() showLevelsSignal: Signal<boolean> = signal(true);
   @Input() height: string = "200px";
   @Input() set rawEntropy$(ent$: EntityWrap["entropy$"]) {
     this.entropy$ = ent$.pipe(ops.shareReplay(1));

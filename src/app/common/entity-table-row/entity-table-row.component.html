@@ -1,4 +1,6 @@
-@if (_row; as innerRow) {
+<div>TODO</div>
+@if (row; as innerRow) {
+  <div>TODO 2</div>
   <div
     class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
   >
@@ -32,12 +34,12 @@
         </a>
       </div>
       <!-- entropy -->
-      @if (showEntropy$ | async) {
+      @if (showEntropySignal()) {
         <azco-entropy
           #entropy
           [rawEntropy$]="entropy$"
           [height]="'10px'"
-          [showLevels$]="showGraphLevels$"
+          [showLevelsSignal]="showGraphLevelsSignal"
           [fullHeightBars]="true"
         ></azco-entropy>
       }
@@ -134,13 +136,13 @@
         <span [title]="'Type: ' + innerRow.file_format">{{
           innerRow.file_format || "?"
         }}</span>
-        @if (showMimetype$ | async) {
+        @if (showMimetypeSignal()) {
           |
           <span [title]="'Mime: ' + innerRow.mime">{{
             innerRow.mime || "?"
           }}</span>
         }
-        @if (showMagic$ | async) {
+        @if (showMagicSignal()) {
           |
           <span [title]="'Magic: ' + innerRow.magic">{{
             innerRow.magic || "?"

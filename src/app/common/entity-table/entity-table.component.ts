@@ -57,19 +57,11 @@ export class EntityTableComponent implements OnChanges {
     );
     // grab row data while unchecking checked rows
     if (changes.find$ && this.find$ !== undefined) {
-      this.filteredFind$ = this.find$.pipe(
-        ops.map((d) =>
-          d.items
-            .filter((val) => val.exists)
-            .map((val) => ({ ...val, checked: false })),
-        ),
-        ops.shareReplay(1),
-      );
       //check any rows that should be checked
       this.filteredFind$ = this.find$.pipe(
         ops.map((d) =>
           d.items
-            .filter((val) => val.exists)
+            // .filter((val) => val.exists)
             .map((val) => {
               const selected = this.selectedRowMap.get(val.sha256);
               return {

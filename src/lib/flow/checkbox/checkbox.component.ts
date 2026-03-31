@@ -6,7 +6,6 @@ import {
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { HostControlDirective } from "src/lib/host-control/host-control.directive";
-import { FlowModule } from "src/lib/flow/flow.module";
 
 // https://flowbite.com/docs/forms/input-field/
 // Includes styling that Flowbite's WIP Angular implementation ships
@@ -15,7 +14,7 @@ import { FlowModule } from "src/lib/flow/flow.module";
   selector: "flow-checkbox",
   templateUrl: "./checkbox.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FlowModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   hostDirectives: [HostControlDirective],
 })
 export class CheckboxComponent {
