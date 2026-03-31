@@ -1,9 +1,10 @@
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { AccordionPanelComponent } from "./accordion-panel.component";
-import { Component, inject } from "@angular/core";
 
 @Component({
   imports: [],
   selector: "flow-accordion-content",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./accordion-content.component.html",
 })
 export class AccordionContentComponent {

@@ -1,16 +1,17 @@
-import { Component, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { AzCommonModule } from "src/app/common/common.module";
-import { CommonModule } from "@angular/common";
+import { components } from "src/app/core/api/openapi";
+import { BaseCard } from "src/app/entity-cards/base-card.component";
 import { FlowModule } from "src/lib/flow/flow.module";
 import { JsonDebugViewerComponent } from "../json-debug-viewer/json-debug-viewer.component";
-import { BaseCard } from "src/app/entity-cards/base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 @Component({
   selector: "azco-debug-tab-query-pane",
   templateUrl: "./debug-tab-query-pane.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AzCommonModule, CommonModule, FlowModule, JsonDebugViewerComponent],
 })
 export class DebugTabQueryPaneComponent extends BaseCard {

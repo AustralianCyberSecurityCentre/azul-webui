@@ -1,4 +1,11 @@
-import { Component, Injector, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injector,
+  OnDestroy,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { Store } from "@ngrx/store";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { Subscription } from "rxjs";
@@ -11,6 +18,7 @@ import { config } from "./settings";
   selector: "app-root",
   template: `<router-outlet></router-outlet>`,
   styleUrls: ["./app.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {

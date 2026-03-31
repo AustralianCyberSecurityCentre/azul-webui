@@ -1,4 +1,9 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
@@ -17,6 +22,7 @@ import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
   selector: "app-front",
   templateUrl: "./front.component.html",
   styleUrls: ["./front.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class FrontComponent implements OnInit {

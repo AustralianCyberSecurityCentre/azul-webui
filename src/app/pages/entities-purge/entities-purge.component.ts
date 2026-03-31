@@ -1,5 +1,11 @@
 import { Location } from "@angular/common";
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Navigation, Router } from "@angular/router";
 import {
@@ -61,6 +67,7 @@ type PurgeRequest = ReferenceSetPurgeRequest | RelationPurgeRequest;
 @Component({
   selector: "app-entities-purge",
   templateUrl: "./entities-purge.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class BinariesPurgeComponent implements OnInit, OnDestroy {

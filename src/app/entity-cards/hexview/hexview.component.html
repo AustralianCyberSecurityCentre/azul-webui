@@ -67,7 +67,7 @@
                   {{ row.address | hex }}:
                 </div>
                 <div class="hex-digit font-mono" event="mouseenter">
-                  @for (hexNum of row.hex; track hexNum; let i = $index) {
+                  @for (hexNum of row.hex; track $index; let i = $index) {
                     <div
                       (mouseover)="
                         hexStringSyncService.HexOffsetSignal.set(

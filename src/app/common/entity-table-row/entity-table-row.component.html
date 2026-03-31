@@ -104,7 +104,7 @@
         <div class="flex min-w-0 flex-wrap">
           @for (
             filename of innerRow.filenames;
-            track filename;
+            track $index;
             let last = $last
           ) {
             <div class="flex min-w-0 text-gray-700 dark:text-gray-300">

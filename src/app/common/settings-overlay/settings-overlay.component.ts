@@ -1,5 +1,11 @@
 import { LabelType, Options } from "@angular-slider/ngx-slider";
-import { Component, inject, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import {
   FormControl,
   UntypedFormBuilder,
@@ -24,6 +30,7 @@ import * as fromGlobalSettings from "../../core/store/global-settings/global-sel
 @Component({
   selector: "az-settings-overlay",
   templateUrl: "./settings-overlay.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SettingsOverlayComponent implements OnInit {

@@ -1,8 +1,9 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 
 @Component({
   imports: [],
   selector: "flow-accordion-panel",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./accordion-panel.component.html",
 })
 export class AccordionPanelComponent {

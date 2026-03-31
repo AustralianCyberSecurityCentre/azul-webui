@@ -1,5 +1,6 @@
 import { AsyncPipe, CommonModule } from "@angular/common";
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   Input,
@@ -22,6 +23,7 @@ import { FlowModule } from "src/lib/flow/flow.module";
     AsyncPipe,
     CommonModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./tag-picker.component.html",
 })
 export class TagPickerComponent implements OnInit {

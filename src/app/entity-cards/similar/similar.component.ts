@@ -1,17 +1,18 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { Entity } from "src/app/core/services";
 
-import { BaseCard } from "../base-card.component";
 import { components, SimilarMatchRow } from "src/app/core/api/openapi";
 import { SimilarMatchWithSummary } from "src/app/core/api/state";
+import { BaseCard } from "../base-card.component";
 
 @Component({
   selector: "azec-similar",
   templateUrl: "./similar.component.html",
   styleUrls: ["./similar.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SimilarComponent extends BaseCard {

@@ -2,6 +2,7 @@ import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 
 import { HttpErrorResponse } from "@angular/common/http";
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   EventEmitter,
@@ -20,17 +21,18 @@ import {
 } from "@angular/forms";
 import { BehaviorSubject, Subscription, of } from "rxjs";
 import * as ops from "rxjs/operators";
+import { paths } from "src/app/core/api/openapi";
+import { MultiPageResults } from "src/app/core/api/state";
 import { Entity } from "src/app/core/services";
 import { hexValidator } from "src/app/core/validation";
 import { BaseCard } from "src/app/entity-cards/base-card.component";
 import { ContinuousScroll } from "../continuous-scroll/continuous-scroll.class";
-import { paths } from "src/app/core/api/openapi";
-import { MultiPageResults } from "src/app/core/api/state";
 
 @Component({
   selector: "az-content-search",
   templateUrl: "./entity-content-search.component.html",
   styleUrls: ["./entity-content-search.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class EntityContentSearchComponent

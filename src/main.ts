@@ -1,6 +1,6 @@
 import { enableProdMode } from "@angular/core";
-import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
+import { platformBrowser } from "@angular/platform-browser";
 import { setConfig } from "./app/settings";
 import { environment } from "./environments/environment";
 
@@ -11,11 +11,8 @@ if (environment.production) {
 /**start the actual angular app*/
 function runAngular() {
   import("./app/app.module").then((appmodule) => {
-    // console.log('appmodule', appmodule)
     // Load the actual app
-    platformBrowserDynamic()
-      .bootstrapModule(appmodule.AppModule)
-      .catch((err) => console.error(err));
+    platformBrowser().bootstrapModule(appmodule.AppModule);
   });
 }
 

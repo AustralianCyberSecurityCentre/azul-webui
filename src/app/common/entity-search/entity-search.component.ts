@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -40,6 +41,7 @@ type Suggestion = {
 @Component({
   selector: "azco-entity-search",
   templateUrl: "./entity-search.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class EntitySearchComponent implements OnInit, OnDestroy {

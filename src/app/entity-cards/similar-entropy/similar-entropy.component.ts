@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Observable, combineLatest } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
@@ -8,6 +8,7 @@ import { BaseCard } from "../base-card.component";
 @Component({
   selector: "azec-similar-entropy",
   templateUrl: "./similar-entropy.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class SimilarEntropyComponent extends BaseCard {

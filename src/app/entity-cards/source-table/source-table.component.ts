@@ -1,29 +1,30 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  Input,
+  OnDestroy,
   TemplateRef,
   ViewChild,
-  AfterViewInit,
-  Input,
   inject,
 } from "@angular/core";
 import { ReplaySubject, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { BaseCard } from "../base-card.component";
 import {
+  faBucket,
   faMagnifyingGlass,
   faTrash,
-  faBucket,
 } from "@fortawesome/free-solid-svg-icons";
+import { components } from "src/app/core/api/openapi";
+import { UserService } from "src/app/core/user.service";
 import {
   allowedToPurge,
   getPurgeQueryParams,
   sourceRefsAsParams,
 } from "src/app/core/util";
-import { UserService } from "src/app/core/user.service";
 import { Tab } from "src/lib/flow/tablist/tablist.component";
-import { components } from "src/app/core/api/openapi";
+import { BaseCard } from "../base-card.component";
 
 type SourceInfo = components["schemas"]["BinarySource"] & {
   refKeys?: string[];
@@ -37,7 +38,10 @@ const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SourceTableComponent extends BaseCard implements AfterViewInit {
+export class SourceTableComponent
+  extends BaseCard
+  implements AfterViewInit, OnDestroy
+{
   protected user = inject(UserService);
 
   help = `
@@ -96,5 +100,9 @@ Each source will have a table showing the references supplied during an upload, 
         this.sourceTabs$.next(sourceTabs);
       });
     }, 0);
+  }
+
+  ngOnDestroy(): void {
+    this.sourceSub?.unsubscribe();
   }
 }

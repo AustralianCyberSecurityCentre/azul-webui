@@ -1,8 +1,7 @@
-import { NgModule } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { DialogModule } from "@angular/cdk/dialog";
 import { OverlayModule } from "@angular/cdk/overlay";
+import { NgModule, provideZonelessChangeDetection } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
 
 import { base_url, config } from "./settings";
 
@@ -16,13 +15,12 @@ import {
   StoreRouterConnectingModule,
 } from "@ngrx/router-store";
 import { StoreModule } from "@ngrx/store";
+import { MonacoEditorModule } from "ngx-monaco-editor-v2";
+import { ToastrModule } from "ngx-toastr";
+import { ToastComponent } from "../lib/flow/toast/toast.component";
 import { AuthConfigModule } from "./auth/auth-config.module";
 import { reducers } from "./core/store/main-store";
 import { PagesModule } from "./pages/pages.module";
-import { ToastrModule } from "ngx-toastr";
-import { ToastComponent } from "../lib/flow/toast/toast.component";
-import { MonacoEditorModule } from "ngx-monaco-editor-v2";
-
 const extraModules: NgModule["imports"] = [];
 
 if (config.oauth_enabled) {
@@ -37,7 +35,6 @@ if (config.oauth_enabled) {
     BrowserModule,
     AppRoutingModule,
     PagesModule,
-    BrowserAnimationsModule,
     DialogModule,
     OverlayModule,
     ToastrModule.forRoot({
@@ -55,7 +52,7 @@ if (config.oauth_enabled) {
       baseUrl: new URL("./assets/monaco/min/vs", base_url).href,
     }),
   ],
-  providers: [IconService],
+  providers: [IconService, provideZonelessChangeDetection()],
   bootstrap: [AppComponent],
 })
 export class AppModule {
