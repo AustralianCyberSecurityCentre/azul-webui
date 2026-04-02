@@ -61,6 +61,7 @@ export class EntityTableComponent implements OnChanges {
       this.filteredFind$ = this.find$.pipe(
         ops.map((d) =>
           d.items
+            // Not filtering to render partial entries, so they can be deleted.
             // .filter((val) => val.exists)
             .map((val) => {
               const selected = this.selectedRowMap.get(val.sha256);

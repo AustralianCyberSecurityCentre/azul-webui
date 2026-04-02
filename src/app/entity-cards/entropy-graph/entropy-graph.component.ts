@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input, signal, WritableSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { BaseCard } from "../base-card.component";
 

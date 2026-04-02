@@ -1,6 +1,4 @@
-<div>TODO</div>
 @if (row; as innerRow) {
-  <div>TODO 2</div>
   <div
     class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
   >
@@ -22,19 +20,34 @@
     </div>
     <div class="flex min-w-0 grow flex-col justify-start gap-1">
       <!-- SHA256 -->
-      <div>
-        <a
-          style="font-size: 120%"
-          class="table-link font-bold break-all text-ellipsis"
-          title="View this binary"
-          [routerLink]="['/pages/binaries/current', innerRow.sha256]"
-          target="_blank"
-        >
-          {{ innerRow.sha256 }}
-        </a>
-      </div>
+      @if (innerRow?.sha256 === undefined || innerRow?.sha256 === "") {
+        <div>
+          {{ innerRow.key }}
+        </div>
+      } @else {
+        <div>
+          {{ innerRow?.sha256 }}
+          <a
+            style="font-size: 120%"
+            class="table-link font-bold break-all text-ellipsis"
+            title="View this binary"
+            [routerLink]="['/pages/binaries/current', innerRow.sha256]"
+            target="_blank"
+          >
+            {{ innerRow.sha256 }}
+          </a>
+        </div>
+      }
       <!-- entropy -->
-      @if (showEntropySignal()) {
+      @if (innerRow?.exists == false) {
+        <div>
+          <fa-icon
+            [icon]="faCircleXmark"
+            size="lg"
+            class="pr-2 text-red-600"
+          />This link is to a binary that is no longer in Azul
+        </div>
+      } @else if (showEntropySignal()) {
         <azco-entropy
           #entropy
           [rawEntropy$]="entropy$"
@@ -61,7 +74,7 @@
                     eType,
                     innerRow.track_link,
                     originalSha256,
-                    innerRow.sha256,
+                    innerRow.sha256 ? innerRow.sha256 : innerRow.key,
                     innerRow.author_name
                   )
                 "
@@ -80,7 +93,7 @@
             <azco-entity-tags
               [addTag]="false"
               entityType="binary"
-              [sha256]="innerRow.sha256"
+              [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
               [tags]="innerRow.tags$.value"
               (changed)="refreshRowTags(innerRow)"
             >
@@ -93,7 +106,7 @@
             <azco-entity-tags
               [addTag]="false"
               entityType="binary"
-              [sha256]="innerRow.sha256"
+              [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
               [tags]="innerRow.tags"
               (changed)="refreshRowTags(innerRow)"
             >

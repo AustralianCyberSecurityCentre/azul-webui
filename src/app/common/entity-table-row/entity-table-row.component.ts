@@ -8,9 +8,10 @@ import {
   Output,
   Signal,
   inject,
-  signal
+  signal,
 } from "@angular/core";
 import {
+  faCircleXmark,
   faClock,
   faEye,
   faEyeSlash,
@@ -72,19 +73,16 @@ export class EntityTableRowComponent {
   protected allowedToPurge = allowedToPurge;
   protected faTrash = faTrash;
   protected faClock = faClock;
+  protected faCircleXmark = faCircleXmark;
 
-  @Input() 
-  get row(): EntityFindRowWithUpdatedTags{
-    return this._row
+  @Input()
+  get row(): EntityFindRowWithUpdatedTags {
+    return this._row;
   }
   set row(data: EntityFindRow) {
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
     };
-    // TODO remove logging
-    console.info("row", this._row)
-    // TODO remove logging
-    console.info("data", data)
     this.entropy$ = this.api
       .entityReadMain(data.sha256, {
         detail: ["info"],

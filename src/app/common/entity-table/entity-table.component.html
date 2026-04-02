@@ -76,7 +76,6 @@
       }
       <div class="flex flex-col gap-2" role="table">
         @for (overrow of filteredFind$ | async; track overrow) {
-          <div>ENTRY!</div>
           <az-entity-table-row
             [row]="overrow"
             [externalPagination]="externalPagination"

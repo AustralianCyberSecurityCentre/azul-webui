@@ -1,5 +1,11 @@
 import { ConnectionPositionPair } from "@angular/cdk/overlay";
-import { ChangeDetectionStrategy, Component, Input, signal, Signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  signal,
+  Signal,
+} from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
 import { Entropy } from "src/app/core/api/info";

@@ -18,11 +18,11 @@
 <ng-template #tplControls>
   <!--Change message based on current state of toggle.-->
   <flow-tooltip
-    message="{{ (showGraphLevelsSignal()) ? 'Hide' : 'Show' }} Levels"
+    message="{{ showGraphLevelsSignal() ? 'Hide' : 'Show' }} Levels"
   >
     <flow-button
       [size]="ButtonSize.Icon"
-      [type]="(showGraphLevelsSignal()) ? ButtonType.Light : ButtonType.Dark"
+      [type]="showGraphLevelsSignal() ? ButtonType.Light : ButtonType.Dark"
       noPadding="true"
       (click)="hideLevelToggle()"
     >
