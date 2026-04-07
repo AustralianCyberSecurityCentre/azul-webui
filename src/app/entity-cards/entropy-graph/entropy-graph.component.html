@@ -9,7 +9,7 @@
       #entropy
       [rawEntropy$]="entity?.entropy$"
       [height]="height"
-      [showLevels$]="showGraphLevels$"
+      [showLevelsSignal]="showGraphLevelsSignal"
     ></azco-entropy>
   </div>
   <!-- Average Entropy: {{(entity?.entropy$ | async)?.overall.toPrecision(3)}} -->
@@ -18,11 +18,11 @@
 <ng-template #tplControls>
   <!--Change message based on current state of toggle.-->
   <flow-tooltip
-    message="{{ (showGraphLevels$ | async) ? 'Hide' : 'Show' }} Levels"
+    message="{{ showGraphLevelsSignal() ? 'Hide' : 'Show' }} Levels"
   >
     <flow-button
       [size]="ButtonSize.Icon"
-      [type]="(showGraphLevels$ | async) ? ButtonType.Light : ButtonType.Dark"
+      [type]="showGraphLevelsSignal() ? ButtonType.Light : ButtonType.Dark"
       noPadding="true"
       (click)="hideLevelToggle()"
     >

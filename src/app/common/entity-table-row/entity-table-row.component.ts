@@ -6,16 +6,19 @@ import {
   HostBinding,
   Input,
   Output,
+  Signal,
   inject,
+  signal,
 } from "@angular/core";
 import {
+  faCircleXmark,
+  faClock,
   faEye,
   faEyeSlash,
   faTrash,
-  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ApiService } from "src/app/core/api/api.service";
 import { Entropy } from "src/app/core/api/info";
@@ -53,11 +56,11 @@ export class EntityTableRowComponent {
 
   @HostBinding("hidden") isHidden = false;
 
-  protected showEntropy$: Observable<boolean>;
-  protected showMimetype$: Observable<boolean>;
-  protected showMagic$: Observable<boolean>;
+  protected showEntropySignal: Signal<boolean>;
+  protected showMimetypeSignal: Signal<boolean>;
+  protected showMagicSignal: Signal<boolean>;
 
-  protected showGraphLevels$ = of(false);
+  protected showGraphLevelsSignal: Signal<boolean> = signal(false);
 
   protected faEye = faEye;
   protected faEyeSlash = faEyeSlash;
@@ -70,8 +73,13 @@ export class EntityTableRowComponent {
   protected allowedToPurge = allowedToPurge;
   protected faTrash = faTrash;
   protected faClock = faClock;
+  protected faCircleXmark = faCircleXmark;
 
-  @Input() set row(data: EntityFindRow) {
+  @Input()
+  get row(): EntityFindRowWithUpdatedTags {
+    return this._row;
+  }
+  set row(data: EntityFindRow) {
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
     };
@@ -92,6 +100,7 @@ export class EntityTableRowComponent {
         }),
       );
   }
+
   @Input() externalPagination: boolean = false;
   @Input() showSources: boolean = true;
   @Input() originalSha256?: string | undefined;
@@ -106,13 +115,13 @@ export class EntityTableRowComponent {
   }
 
   constructor() {
-    this.showEntropy$ = this.store.select(
+    this.showEntropySignal = this.store.selectSignal(
       fromGlobalSettings.selectBinaryExploreShowEntropy,
     );
-    this.showMimetype$ = this.store.select(
+    this.showMimetypeSignal = this.store.selectSignal(
       fromGlobalSettings.selectBinaryExploreShowMimetype,
     );
-    this.showMagic$ = this.store.select(
+    this.showMagicSignal = this.store.selectSignal(
       fromGlobalSettings.selectBinaryExploreShowMagic,
     );
   }

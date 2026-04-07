@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { BehaviorSubject } from "rxjs";
 import { BaseCard } from "../base-card.component";
 
 /**card showing the entropy diagram for an entity*/
@@ -23,10 +28,9 @@ Entropy is only calculated if we have the binary in Azul.
   @Input()
   protected height = "200px";
 
-  protected showGraphLevels$: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(true);
+  protected showGraphLevelsSignal: WritableSignal<boolean> = signal(true);
 
   protected hideLevelToggle() {
-    this.showGraphLevels$.next(!this.showGraphLevels$.value);
+    this.showGraphLevelsSignal.update((val) => !val);
   }
 }

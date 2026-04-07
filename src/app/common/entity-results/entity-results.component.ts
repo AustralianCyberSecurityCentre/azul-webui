@@ -7,8 +7,10 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  signal,
   SimpleChanges,
   ViewChild,
+  WritableSignal,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import {
@@ -75,15 +77,15 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   noSearch: boolean = false;
 
   // pagination variables
-  protected pageCurrentPage: number;
-  protected pageCurrentBinaries: number;
+  protected pageCurrentPageSignal: WritableSignal<number> = signal(0);
+  protected pageCurrentBinariesSignal: WritableSignal<number> = signal(0);
   protected pageAllHashes: { [key: number]: HashEntry } = {}; // all hashes collected so far
-  protected pageDisplayBinaries; // how many binaries to render in binary table
-  protected pageNextKey: string; // 'after' key to send for next page
-  protected pageEstimateBinaries: number; // number of binaries
-  protected pageLoading: boolean; // currently fulfilling a pagination request
-  protected pageMax: number; // only know actual max page when reached
-  protected paginationActive: boolean = false;
+  protected pageDisplayBinariesSignal: WritableSignal<number> = signal(50); // how many binaries to render in binary table
+  protected pageNextKeySignal: WritableSignal<string> = signal(""); // 'after' key to send for next page
+  protected pageEstimateBinariesSignal: WritableSignal<number> = signal(0); // number of binaries
+  protected pageLoadingSignal: WritableSignal<boolean> = signal(false); // currently fulfilling a pagination request
+  protected pageMaxSignal: WritableSignal<number | null> = signal(null); // only know actual max page when reached
+  protected paginationActiveSignal: WritableSignal<boolean> = signal(false);
 
   // Match md5, sha1, sha256, sha512
   private match_hashes =
@@ -131,14 +133,14 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   protected clearPagination() {
-    this.pageCurrentPage = 0;
-    this.pageCurrentBinaries = 0;
+    this.pageCurrentPageSignal.set(0);
+    this.pageCurrentBinariesSignal.set(0);
     this.pageAllHashes = {}; // all hashes collected so far
-    this.pageDisplayBinaries = 50; // how many binaries to render in binary table
-    this.pageNextKey = ""; // 'after' key to send for next page
-    this.pageEstimateBinaries = 0; // number of binaries
-    this.pageLoading = false;
-    this.pageMax = null;
+    this.pageDisplayBinariesSignal.set(50); // how many binaries to render in binary table
+    this.pageNextKeySignal.set(""); // 'after' key to send for next page
+    this.pageEstimateBinariesSignal.set(0); // number of binaries
+    this.pageLoadingSignal.set(false);
+    this.pageMaxSignal.set(null);
     this.find$ = of({ items_count: 0, items: [] });
     this.noSearch = true;
   }
@@ -204,7 +206,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.noSearch = false;
     if (c.max_entities == "all") {
-      this.paginationActive = true;
+      this.paginationActiveSignal.set(true);
       this.switchPage(0);
       return;
     }
@@ -237,6 +239,8 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     return this.entityService.find(c, query_body).pipe(
       ops.map((res: components["schemas"]["EntityFind"]) => {
         const enrichedItems = res.items.map((item) => {
+          // Find by sha256 or key if there is no sha256 because the item doesn't exist
+          const itemFindKey = item.sha256 ? item.sha256 : item.key;
           const extra:
             | {
                 track_link?: string;
@@ -244,8 +248,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
                 author_category?: string;
                 timestamp?: string;
               }
-            | undefined = hashes.find((h) => h.sha256 === item.sha256);
-
+            | undefined = hashes.find((h) => h.sha256 === itemFindKey);
           return {
             ...item,
             track_link: extra?.track_link,
@@ -271,25 +274,31 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   protected switchPage(page_number: number) {
     const supported_pages =
-      Object.keys(this.pageAllHashes).length / this.pageDisplayBinaries;
+      Object.keys(this.pageAllHashes).length / this.pageDisplayBinariesSignal();
 
-    if (this.pageLoading) {
+    if (this.pageLoadingSignal()) {
       console.error("not possible to render page", page_number);
       return;
     }
 
-    if (this.pageNextKey !== undefined && supported_pages < page_number + 1) {
+    if (
+      this.pageNextKeySignal() !== undefined &&
+      supported_pages < page_number + 1
+    ) {
       const c: { [key: string]: unknown } = { term: this.termOption };
 
-      c.num_binaries = this.pageDisplayBinaries;
+      c.num_binaries = this.pageDisplayBinariesSignal();
       c.family_find = this.familyFind;
       c.family_sha256 = this.originalSha256;
       c.parent = this.isParent;
 
-      const b: { [key: string]: unknown } = { after: this.pageNextKey };
+      const b: { [key: string]: unknown } = { after: this.pageNextKeySignal() };
 
-      this.dbg("must retrieve next pagination from server", this.pageNextKey);
-      this.pageLoading = true;
+      this.dbg(
+        "must retrieve next pagination from server",
+        this.pageNextKeySignal(),
+      );
+      this.pageLoadingSignal.set(true);
 
       const endpoint = this.familyFind
         ? this.isParent
@@ -318,21 +327,25 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
         }),
         ops.withLatestFrom(of(page_number)),
         ops.mergeMap(([d, page]) => {
-          this.pageNextKey = d.after;
-          this.dbg("retrieved next page from server", this.pageNextKey, page);
+          this.pageNextKeySignal.set(d.after);
+          this.dbg(
+            "retrieved next page from server",
+            this.pageNextKeySignal(),
+            page,
+          );
           if (d.total > 0) {
-            this.pageEstimateBinaries = d.total;
+            this.pageEstimateBinariesSignal.set(d.total);
           }
 
           this.dbg("retrieved pagination for items", d.items.length);
 
-          if (d.items.length < this.pageDisplayBinaries) {
+          if (d.items.length < this.pageDisplayBinariesSignal()) {
             this.dbg("finished pagination");
-            this.pageNextKey = null;
-            this.pageMax = page_number;
+            this.pageNextKeySignal.set(null);
+            this.pageMaxSignal.set(page_number);
           }
 
-          let start_index = this.pageDisplayBinaries * page;
+          let start_index = this.pageDisplayBinariesSignal() * page;
 
           for (const item of d.items) {
             this.pageAllHashes[start_index] = {
@@ -348,10 +361,9 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
           return this.renderPage(page_number);
         }),
         ops.tap(() => {
-          this.pageLoading = false;
+          this.pageLoadingSignal.set(false);
         }),
       );
-
       return;
     }
 
@@ -361,8 +373,8 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   protected renderPage(page_number: number) {
     // render with current known hashes for the page
-    const start = this.pageDisplayBinaries * page_number;
-    const end = this.pageDisplayBinaries * (page_number + 1);
+    const start = this.pageDisplayBinariesSignal() * page_number;
+    const end = this.pageDisplayBinariesSignal() * (page_number + 1);
 
     const hashes: {
       sha256: string;
@@ -384,15 +396,19 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
-    this.pageCurrentBinaries = hashes.length;
+    this.pageCurrentBinariesSignal.set(hashes.length);
     if (hashes.length == 0) {
       return of({ items_count: 0, items: [] });
     }
-    this.pageCurrentPage = page_number;
-    this.dbg("switch to next page", this.pageCurrentPage, this.pageNextKey);
+    this.pageCurrentPageSignal.set(page_number);
+    this.dbg(
+      "switch to next page",
+      this.pageCurrentPageSignal(),
+      this.pageNextKeySignal(),
+    );
 
     return this.getFind$(
-      { max_entities: this.pageDisplayBinaries },
+      { max_entities: this.pageDisplayBinariesSignal() },
       this.termOption,
       hashes,
     );

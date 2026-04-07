@@ -157,7 +157,7 @@ export class EntityWrap {
             // Re-check ReadSimilar every 5seconds until it's ready
             ops.takeUntil(complete),
             ops.mergeMap(() =>
-              this.api.entityReadSimilar(this.sha256, { recalculate: true }),
+              this.api.entityReadSimilar(this.sha256, { recalculate: false }),
             ),
             ops.startWith(d),
             ops.tap((d) =>

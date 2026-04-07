@@ -27,7 +27,7 @@
             }
           </g>
           <!-- Bounding boxes for important entropy levels -->
-          @if (horizontal && (showLevels$ | async)) {
+          @if (horizontal && showLevelsSignal()) {
             <g>
               @for (d of bounds; track d) {
                 <rect

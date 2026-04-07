@@ -11,7 +11,7 @@ import {
   faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { select, Store } from "@ngrx/store";
-import { Entity } from "src/app/core/services";
+import { EntityService } from "src/app/core/entity.service";
 import { config } from "../settings";
 import { components } from "./api/openapi";
 import * as fromRoute from "./store/route-selector";
@@ -44,7 +44,7 @@ export type MenuItem = InternalMenuItem | ExternalMenuItem;
 export class NavService {
   private readonly store = inject(Store);
   private title = inject(Title);
-  entityService = inject(Entity);
+  entityService = inject(EntityService);
 
   dbg = (...d) => console.debug("NavService:", ...d);
   err = (...d) => console.error("NavService:", ...d);
