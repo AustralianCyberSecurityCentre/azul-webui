@@ -26,7 +26,6 @@
         </div>
       } @else {
         <div>
-          {{ innerRow?.sha256 }}
           <a
             style="font-size: 120%"
             class="table-link font-bold break-all text-ellipsis"
@@ -34,7 +33,7 @@
             [routerLink]="['/pages/binaries/current', innerRow.sha256]"
             target="_blank"
           >
-            {{ innerRow.sha256 }}
+            {{ innerRow?.sha256 }}
           </a>
         </div>
       }
