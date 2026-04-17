@@ -269,12 +269,12 @@ export class ApiService {
       acceptedErrorStatus,
       (innerE: AxiosError) => {
         const etitle = `Term Query Error: ${innerE.message}`;
-        const responseDetail = innerE.response?.data as { detail: string };
-        if (typeof responseDetail?.detail !== "string") {
+        const responseDetail = innerE.response?.data as { message: string };
+        if (typeof responseDetail?.message !== "string") {
           // can't do a detailed handling.
           return this.handle(innerE, allowdata, []);
         }
-        this.toastrService.error(responseDetail?.detail, etitle, {
+        this.toastrService.error(responseDetail?.message, etitle, {
           timeOut: 20000,
         });
         throw innerE;
