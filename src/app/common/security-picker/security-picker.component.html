@@ -36,14 +36,14 @@
             size="10"
             style="width: 100%"
           >
-            @for (opt of settings.labels.classification.options; track opt) {
-              <option [value]="opt.name">
-                {{ opt.name }}
+            @for (optName of classificationSignal(); track optName) {
+              <option [value]="optName">
+                {{ optName }}
               </option>
             }
           </select>
         </div>
-        @if (settings.labels.caveat.options.length > 0) {
+        @if (caveatSignal().length > 0) {
           <div>
             <p>
               <b>{{ settings.labels.caveat.title }}</b>
@@ -57,15 +57,15 @@
               style="width: 100%"
             >
               <option value="">-</option>
-              @for (opt of settings.labels.caveat.options; track opt) {
-                <option [value]="opt.name">
-                  {{ opt.name }}
+              @for (optName of caveatSignal(); track optName) {
+                <option [value]="optName">
+                  {{ optName }}
                 </option>
               }
             </select>
           </div>
         }
-        @if (settings.labels.releasability.options.length > 0) {
+        @if (relSignal().length > 0) {
           <div>
             <p>
               <b>{{ settings.labels.releasability.title }}</b>
@@ -79,15 +79,15 @@
               style="width: 100%"
             >
               <option value="">-</option>
-              @for (opt of settings.labels.releasability.options; track opt) {
-                <option [value]="opt.name">
-                  {{ opt.name }}
+              @for (optName of relSignal(); track optName) {
+                <option [value]="optName">
+                  {{ optName }}
                 </option>
               }
             </select>
           </div>
         }
-        @if (settings.labels.tlp.options.length > 0) {
+        @if (tlpSignal().length > 0) {
           <div>
             <p>
               <b>{{ settings.labels.tlp.title }}</b>
@@ -100,9 +100,9 @@
               style="width: 100%"
             >
               <option value="">-</option>
-              @for (opt of settings.labels.tlp.options; track opt) {
-                <option [value]="opt.name">
-                  {{ opt.name }}
+              @for (optName of tlpSignal(); track optName) {
+                <option [value]="optName">
+                  {{ optName }}
                 </option>
               }
             </select>
@@ -126,14 +126,14 @@
         </flow-alert>
       </div>
     }
-    @if (selectionError$ | async; as selectionError) {
+    @if (selectionErrorSignal().length > 0) {
       <div class="mt-4">
         <flow-alert
           alertType="error"
           title="Invalid security options"
           [withinCard]="true"
         >
-          Invalid selection: {{ selectionError }}
+          Invalid selection: {{ selectionErrorSignal() }}
         </flow-alert>
       </div>
     }

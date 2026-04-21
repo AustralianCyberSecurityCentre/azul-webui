@@ -1213,26 +1213,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return parsed info for for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me/opensearch": {
     readonly parameters: {
       readonly query?: never;
@@ -1245,6 +1225,26 @@ export interface paths {
      * @description Return Opensearch access for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return parsed info for for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -1383,9 +1383,14 @@ export interface components {
        * Parameters
        * @description Keyword parameters to be used when formatting the error message.
        */
-      readonly parameters?: {
-        readonly [key: string]: string | number | boolean;
-      } | null;
+      readonly parameters?:
+        | {
+            readonly [key: string]: string | number | boolean;
+          }
+        | {
+            readonly [key: string]: unknown;
+          }
+        | null;
       /**
        * External
        * @description Get the value of the message meant to be provided to a user.
@@ -1972,6 +1977,7 @@ export interface components {
       | "cs_call_tree"
       | "decompiled_cs"
       | "decompiled_c"
+      | "decompiled_java"
       | "deob_js"
       | "password_dictionary"
       | "pcap"
@@ -2305,11 +2311,13 @@ export interface components {
       | "MetastoreContextBadSecurity"
       | "MetastoreContextInsufficientPermissionsForWrite"
       | "MetastoreEntryBadInputParameters"
+      | "MetastoreIngestorEventTypeNotSet"
       | "MetastoreIngestorBadStatusDocument"
       | "MetastoreIngestorGetDataNetworkError"
       | "MetastoreSettingsPartitionNotSet"
       | "MetastoreSettingsFieldsAreMissing"
       | "MetastoreSettingsExtraFieldsAreMissing"
+      | "MetastoreFailedToParseFeatureValues"
       | "MetastoreFeatureEnrichmentFailed"
       | "MetastoreFileFormatTooLargeForUnzip"
       | "MetastoreFileFormatTooManyFilesToExtract"
@@ -2357,6 +2365,8 @@ export interface components {
       | "MetastoreBadSecurityConversionInclude"
       | "MetastoreKnnTooManySearchTerms"
       | "MetastoreUnknownDocType"
+      | "MetastoreInvalidGetStringsQuantity"
+      | "MetastoreInvalidGetHexQuantity"
       | "MetastoreUnknownAnnotation"
       | "MetastoreAnnotationBadCharacterInTag"
       | "MetastoreAnnotationTagTooLong"
@@ -2418,6 +2428,7 @@ export interface components {
       | "MetastoreTagBinaryInvalidSecurity"
       | "MetastoreInvalidAnnotationForCreate"
       | "MetastoreCantDeleteTagFromBinary"
+      | "MetastoreApiDisabled"
       | "MetastoreInvalidDeleteTag"
       | "MetastoreNoFeatureValuesFound"
       | "MetastoreFeaturesInvalidPivotFeatures"
@@ -2445,6 +2456,7 @@ export interface components {
       | "SecurityInvalidSecurityStringWhileNormalising"
       | "SecurityInvalidReleasabilitiesConvertFromLabels"
       | "SecurityInvalidLabelConvertingFromLabels"
+      | "SecurityClassificationIncompatibleCaveats"
       | "SecurityMinRequiredAccessNotFound"
       | "SecuritySecurityDefaultNotSet"
       | "SecurityNoCommonSecurityUnviewable"
@@ -2696,6 +2708,34 @@ export interface components {
     readonly LabelOption: {
       /** Name */
       readonly name: string;
+    };
+    /**
+     * LabelOptionCaveat
+     * @description Security label for caveat limiting what classifications they are compatible with.
+     *
+     *     By default it should be compatible with all classifications.
+     */
+    readonly LabelOptionCaveat: {
+      /** Name */
+      readonly name: string;
+      /**
+       * Min Priority
+       * @default 0
+       */
+      readonly min_priority: number;
+      /**
+       * Max Priority
+       * @default 1000000
+       */
+      readonly max_priority: number;
+    };
+    /**
+     * LabelOptionClassification
+     * @description Security Label for classifications.
+     */
+    readonly LabelOptionClassification: {
+      /** Name */
+      readonly name: string;
       /**
        * Priority
        * @default 0
@@ -2710,26 +2750,37 @@ export interface components {
       /** Name */
       readonly name: string;
       /**
-       * Priority
-       * @default 0
-       */
-      readonly priority: number;
-      /**
        * Enforce Security
        * @default false
        */
       readonly enforce_security: boolean;
     };
     /**
-     * LabelOptions
-     * @description Information about a particular security group definition.
+     * LabelOptionsCaveat
+     * @description List of Caveats for the classification.
      */
-    readonly LabelOptions: {
+    readonly LabelOptionsCaveat: {
       /**
        * Options
        * @default []
        */
-      readonly options: readonly components["schemas"]["LabelOption"][];
+      readonly options: readonly components["schemas"]["LabelOptionCaveat"][];
+      /**
+       * Title
+       * @default
+       */
+      readonly title: string;
+    };
+    /**
+     * LabelOptionsClassification
+     * @description Label options list for all the classifications.
+     */
+    readonly LabelOptionsClassification: {
+      /**
+       * Options
+       * @default []
+       */
+      readonly options: readonly components["schemas"]["LabelOptionClassification"][];
       /**
        * Title
        * @default
@@ -3365,14 +3416,14 @@ export interface components {
        *       "title": ""
        *     }
        */
-      readonly classification: components["schemas"]["LabelOptions"];
+      readonly classification: components["schemas"]["LabelOptionsClassification"];
       /**
        * @default {
        *       "options": [],
        *       "title": ""
        *     }
        */
-      readonly caveat: components["schemas"]["LabelOptions"];
+      readonly caveat: components["schemas"]["LabelOptionsCaveat"];
       /**
        * @default {
        *       "options": [],
@@ -3440,7 +3491,7 @@ export interface components {
       /** Score */
       readonly score: number;
     };
-    /** Response:<class 'azul_metastore.query.binary2.binary_similar.SimilarEntropyMatch'> */
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarEntropyMatch'> */
     readonly SimilarEntropyMatch__: {
       readonly data?: components["schemas"]["SimilarEntropyMatch"];
       readonly meta: components["schemas"]["Meta"];
@@ -3661,7 +3712,7 @@ export interface components {
        * @default []
        */
       readonly roles: readonly string[];
-      readonly security?: components["schemas"]["UserSecurity"] | null;
+      readonly security: components["schemas"]["UserSecurity"];
     };
     /**
      * UserInfo
@@ -4034,8 +4085,13 @@ export type FindBinariesSortEnum =
 export type HttpValidationError = components["schemas"]["HTTPValidationError"];
 export type IncludeCousinsEnum = components["schemas"]["IncludeCousinsEnum"];
 export type LabelOption = components["schemas"]["LabelOption"];
+export type LabelOptionCaveat = components["schemas"]["LabelOptionCaveat"];
+export type LabelOptionClassification =
+  components["schemas"]["LabelOptionClassification"];
 export type LabelOptionTlp = components["schemas"]["LabelOptionTlp"];
-export type LabelOptions = components["schemas"]["LabelOptions"];
+export type LabelOptionsCaveat = components["schemas"]["LabelOptionsCaveat"];
+export type LabelOptionsClassification =
+  components["schemas"]["LabelOptionsClassification"];
 export type LabelOptionsReleasability =
   components["schemas"]["LabelOptionsReleasability"];
 export type LabelOptionsTlp = components["schemas"]["LabelOptionsTlp"];
@@ -7618,42 +7674,6 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
   readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: {
@@ -7694,6 +7714,42 @@ export interface operations {
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
         };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly read_users_me_api_v0_users_me_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["UserInfo"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Something went wrong */
       readonly 500: {

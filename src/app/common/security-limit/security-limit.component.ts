@@ -56,10 +56,10 @@ export class SecurityLimitComponent {
   });
 
   allGroups: {
-    classification: components["schemas"]["LabelOptions"];
-    caveat: components["schemas"]["LabelOptions"];
+    classification: components["schemas"]["LabelOptionsClassification"];
+    caveat: components["schemas"]["LabelOptionsCaveat"];
     releasability: components["schemas"]["LabelOptionsReleasability"];
-    tlp: components["schemas"]["LabelOptions"];
+    tlp: components["schemas"]["LabelOptionsTlp"];
   };
 
   @Input() set securitySettings(data: components["schemas"]["Settings"]) {
