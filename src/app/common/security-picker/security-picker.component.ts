@@ -54,7 +54,8 @@ export class SecurityPickerComponent implements OnInit, OnDestroy {
   protected formSubscription?: Subscription;
 
   protected customRender$: Observable<string>;
-  protected selectionErrorSignal: WritableSignal<string> = signal("");
+  protected selectionErrorSignal: WritableSignal<string | undefined> =
+    signal(undefined);
 
   // Work around to allow computed signals to work to calculate the displayed values.
   // This should all be rolled into signal forms, but signal forms isn't ready yet.
@@ -239,11 +240,7 @@ export class SecurityPickerComponent implements OnInit, OnDestroy {
       .pipe(
         ops.catchError((err) => {
           if ("response" in err && err["response"]["status"] === 400) {
-            let errorMsg = err["response"]["data"]["detail"];
-            if (errorMsg === undefined) {
-              errorMsg = "";
-            }
-            this.selectionErrorSignal.set(errorMsg);
+            this.selectionErrorSignal.set(err["response"]["data"]["detail"]);
           } else {
             // Something else happened; throw a regular error
             throw err;
@@ -253,7 +250,7 @@ export class SecurityPickerComponent implements OnInit, OnDestroy {
         ops.filter((d) => d !== undefined),
         ops.tap((d) => {
           this.security.emit(d);
-          this.selectionErrorSignal.set("");
+          this.selectionErrorSignal.set(undefined);
         }),
       );
   }

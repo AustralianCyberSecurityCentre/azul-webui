@@ -126,7 +126,7 @@
         </flow-alert>
       </div>
     }
-    @if (selectionErrorSignal().length > 0) {
+    @if (selectionErrorSignal() !== undefined) {
       <div class="mt-4">
         <flow-alert
           alertType="error"
