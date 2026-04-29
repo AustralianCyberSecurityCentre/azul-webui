@@ -21,6 +21,14 @@ import {
   TabSpec,
 } from "../data-tab-panes/data-tab-panes.component";
 
+enum StreamType {
+  YARA_STREAM = "yara_stream",
+  TEXT_STREAM = "text_stream",
+  IMAGE_STREAM = "image_stream",
+  OBJECT_STREAM = "object_stream",
+  OTHER_STREAM = "other_stream",
+}
+
 @Component({
   selector: "azco-data-tab",
   templateUrl: "./data-tab.component.html",
@@ -59,11 +67,17 @@ export class DataTabComponent
   protected contentStreams$: Observable<
     Map<string, StreamMetadataWithAuthor[]>
   >;
-  protected streamsRender$: Observable<StreamMetadataWithAuthor[]>;
+  protected streamsRender$: Observable<
+    Map<StreamType, StreamMetadataWithAuthor[]>
+  >;
+
+  protected yaraStreamKey = "Yara Hits";
 
   protected tabs$: BehaviorSubject<TabSpec[]> = new BehaviorSubject<TabSpec[]>(
     [],
   );
+
+  protected StreamType = StreamType;
 
   @Output()
   badgeCount = new EventEmitter<number>();
@@ -159,6 +173,29 @@ export class DataTabComponent
 
     this.streamsRender$ = this.contentStreams$.pipe(
       ops.map((map) => Array.from(map.values()).flat()),
+      ops.map((valArr) => {
+        const newMap = new Map<StreamType, StreamMetadataWithAuthor[]>();
+        const addStreamFunc = (st: StreamType, v: StreamMetadataWithAuthor) => {
+          if (!newMap.has(st)) {
+            newMap.set(st, []);
+          }
+          newMap.get(st)?.push(v);
+        };
+        valArr.forEach((v) => {
+          if (this.isYaraHitStream(v)) {
+            addStreamFunc(StreamType.YARA_STREAM, v);
+          } else if (this.isTextStream(v)) {
+            addStreamFunc(StreamType.TEXT_STREAM, v);
+          } else if (this.isImageStream(v)) {
+            addStreamFunc(StreamType.IMAGE_STREAM, v);
+          } else if (this.isObjectStream(v)) {
+            addStreamFunc(StreamType.OBJECT_STREAM, v);
+          } else {
+            addStreamFunc(StreamType.OTHER_STREAM, v);
+          }
+        });
+        return newMap;
+      }),
     );
 
     const template$ = this.templates.changes.pipe(
@@ -178,13 +215,16 @@ export class DataTabComponent
           const tabs: TabSpec[] = [];
 
           let foundViableTab = false;
-
+          let yara_stream_added = false;
           for (const authorStreams of textStreams.values()) {
             for (const stream of authorStreams) {
               // These templates might not always be instantly available
-              const template = this.resolveTemplate(
-                this.getKeyForStream(stream),
-              );
+              let template = this.resolveTemplate(this.getKeyForStream(stream));
+              // Add the yara stream only once regardless of how many times it appears.
+              if (yara_stream_added === false && this.isYaraHitStream(stream)) {
+                yara_stream_added = true;
+                template = this.resolveTemplate(this.yaraStreamKey);
+              }
 
               if (template) {
                 const version = stream.version ? ` v${stream.version}` : "";
@@ -209,8 +249,13 @@ export class DataTabComponent
                   foundViableTab = true;
                   label = "Image Preview";
                 }
+                let name = `${label} (${stream.author}${version})`;
 
-                const name = `${label} (${stream.author}${version})`;
+                // Special case of name override for yara hits
+                if (this.isYaraHitStream(stream)) {
+                  name = this.yaraStreamKey;
+                }
+
                 tabs.push({
                   tabId: this.getKeyForStream(stream),
                   name: name,
@@ -297,5 +342,12 @@ export class DataTabComponent
     }
 
     return false;
+  }
+
+  /**
+   * Checks whether a stream is a yara hit stream and should be merged with other yara hits.
+   */
+  protected isYaraHitStream(stream: StreamMetadataWithAuthor): boolean {
+    return stream.label === "yara_rule_hit";
   }
 }
