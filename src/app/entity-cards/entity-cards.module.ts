@@ -24,6 +24,7 @@ import { SimilarComponent } from "./similar/similar.component";
 import { SimilarfuzzyhashComponent } from "./similarfuzzyhash/similarfuzzyhash.component";
 import { SourceTableComponent } from "./source-table/source-table.component";
 import { StatusComponent } from "./status/status.component";
+import { StreamMergedTextTabMonacoComponent } from "./stream-merged-text-tab-monaco/stream-merged-text-tab-monaco.component";
 import { StreamTextTabMonacoComponent } from "./stream-text-tab-monaco/stream-text-tab-monaco.component";
 import { StringsComponent } from "./strings/strings.component";
 
@@ -35,6 +36,7 @@ import { StringsComponent } from "./strings/strings.component";
     FamilyComponent,
     PdfPreviewComponent,
     StreamTextTabMonacoComponent,
+    StreamMergedTextTabMonacoComponent,
     SourceTableComponent,
     HexviewComponent,
     StringsComponent,
@@ -64,6 +66,7 @@ import { StringsComponent } from "./strings/strings.component";
     FamilyComponent,
     PdfPreviewComponent,
     StreamTextTabMonacoComponent,
+    StreamMergedTextTabMonacoComponent,
     SourceTableComponent,
     HexviewComponent,
     StringsComponent,

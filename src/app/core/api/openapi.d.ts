@@ -1985,7 +1985,8 @@ export interface components {
       | "safe_png"
       | "screenshot"
       | "test"
-      | "text";
+      | "text"
+      | "yara_rule_hit";
     /**
      * DatastreamInstances
      * @description Stream + embedded authors info.

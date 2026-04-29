@@ -11,38 +11,63 @@
       <azec-strings [entity]="entity" class="grow" />
     </div>
   </div>
-  @for (stream of streamsRender$ | async; track stream) {
-    <div
-      #tabTemplate
-      [attr.key]="getKeyForStream(stream)"
-      class="flex h-full min-h-0 w-full grow"
-    >
-      @switch (true) {
-        @case (isTextStream(stream)) {
-          <azec-stream-text-tab-monaco
-            [textData]="stream"
-            class="flex min-h-0 w-full"
-          />
-        }
-        @case (isImageStream(stream)) {
-          <azec-image-preview
-            [entity]="entity"
-            [streamData]="stream"
-            class="grow"
-            [fileFormat]="stream.file_format"
-          ></azec-image-preview>
-        }
-        @case (isObjectStream(stream)) {
-          <azec-pdf-preview
-            [entity]="entity"
-            [streamData]="stream"
-            class="grow"
-          ></azec-pdf-preview>
+  @if (streamsRender$ | async; as streamRenderDict) {
+    @for (
+      keyWithStreamList of streamRenderDict | keyvalue;
+      track keyWithStreamList.key
+    ) {
+      @switch (keyWithStreamList.key) {
+        <!--All list based displays-->
+        @case (StreamType.YARA_STREAM) {
+          <div
+            #tabTemplate
+            [attr.key]="yaraStreamKey"
+            class="flex h-full min-h-0 w-full grow"
+          >
+            <azec-stream-merged-text-tab-monaco
+              [textData]="keyWithStreamList.value"
+              class="flex min-h-0 w-full"
+            />
+          </div>
         }
         @default {
-          <div>No preview available for {{ stream.file_format }}</div>
+          <!--All none list based displays-->
+          @for (stream of keyWithStreamList.value; track stream) {
+            <div
+              #tabTemplate
+              [attr.key]="getKeyForStream(stream)"
+              class="flex h-full min-h-0 w-full grow"
+            >
+              @switch (keyWithStreamList.key) {
+                @case (StreamType.TEXT_STREAM) {
+                  <azec-stream-text-tab-monaco
+                    [textData]="stream"
+                    class="flex min-h-0 w-full"
+                  />
+                }
+                @case (StreamType.IMAGE_STREAM) {
+                  <azec-image-preview
+                    [entity]="entity"
+                    [streamData]="stream"
+                    class="grow"
+                    [fileFormat]="stream.file_format"
+                  ></azec-image-preview>
+                }
+                @case (StreamType.OBJECT_STREAM) {
+                  <azec-pdf-preview
+                    [entity]="entity"
+                    [streamData]="stream"
+                    class="grow"
+                  ></azec-pdf-preview>
+                }
+                @default {
+                  <div>No preview available for {{ stream.file_format }}</div>
+                }
+              }
+            </div>
+          }
         }
       }
-    </div>
+    }
   }
 </div>
