@@ -538,6 +538,28 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/binaries/{sha256A}/{sha256B}/strings": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Common Strings
+     * @description Return strings found in the binary.
+     *
+     *     Looks for ASCII, UTF-16 and UTF-32 big and little endian strings.
+     */
+    readonly get: operations["get_common_strings_api_v0_binaries__sha256A___sha256B__strings_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/binaries/source": {
     readonly parameters: {
       readonly query?: never;
@@ -1004,6 +1026,114 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/retrohunts/{hunt_id}": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Hunt Results
+     * @description Fetch details of specified hunt.
+     */
+    readonly get: operations["hunt_results_api_retrohunts__hunt_id__get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/retrohunts": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * List Hunts
+     * @description Return list of hunts.
+     */
+    readonly get: operations["list_hunts_api_retrohunts_get"];
+    readonly put?: never;
+    /**
+     * Submit Hunt
+     * @description Submit a new retrohunt for processing.
+     */
+    readonly post: operations["submit_hunt_api_retrohunts_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/retrohunt/retrohunts/{hunt_id}": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Hunt Results Route
+     * @description Fetch details of specified hunt.
+     */
+    readonly get: operations["hunt_results_route_api_v0_retrohunt_retrohunts__hunt_id__get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/retrohunt/retrohunts": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * List Hunts Route
+     * @description Return list of hunts.
+     */
+    readonly get: operations["list_hunts_route_api_v0_retrohunt_retrohunts_get"];
+    readonly put?: never;
+    /**
+     * Submit Hunt Route
+     * @description Submit a new retrohunt for processing.
+     */
+    readonly post: operations["submit_hunt_route_api_v0_retrohunt_retrohunts_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/retrohunt/retrohunts/{hunt_id}/cancel": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Cancel Hunt Route
+     * @description Cancel a retrohunt.
+     */
+    readonly post: operations["cancel_hunt_route_api_v0_retrohunt_retrohunts__hunt_id__cancel_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/security": {
     readonly parameters: {
       readonly query?: never;
@@ -1397,6 +1527,8 @@ export interface components {
        */
       readonly external: string;
     };
+    /** BaseModel */
+    readonly BaseModel: Record<string, never>;
     /**
      * BinaryAction
      * @description Valid event types.
@@ -1943,6 +2075,16 @@ export interface components {
        * @default
        */
       readonly security: string;
+    };
+    /**
+     * CommonBinaryStrings
+     * @description Binary string return format.
+     */
+    readonly CommonBinaryStrings: {
+      /** Strings */
+      readonly strings: readonly string[];
+      /** Incomplete */
+      readonly incomplete: boolean;
     };
     /**
      * CredentialFormat
@@ -2697,6 +2839,20 @@ export interface components {
       readonly detail?: readonly components["schemas"]["ValidationError"][];
     };
     /**
+     * HuntState
+     * @description Strings for the possible states of a retrohunt.
+     * @enum {string}
+     */
+    readonly HuntState:
+      | "submitted"
+      | "starting"
+      | "parsing-rules"
+      | "searching-wide"
+      | "searching-narrow"
+      | "completed"
+      | "failed"
+      | "cancelled";
+    /**
      * IncludeCousinsEnum
      * @description Enum to decide how wide the cousin search should be for nearby searches.
      * @enum {string}
@@ -3388,6 +3544,159 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * RetrohuntEntity
+     * @description Retrohunt Data Model.
+     */
+    readonly RetrohuntEntity: {
+      /**
+       * Id
+       * @default
+       */
+      readonly id: string;
+      /**
+       * Search Type
+       * @default
+       */
+      readonly search_type: string;
+      /**
+       * Search
+       * @default
+       */
+      readonly search: string;
+      /** Security */
+      readonly security?: string | null;
+      /** @default submitted */
+      readonly status: components["schemas"]["HuntState"];
+      /**
+       * Submitter
+       * @default unknown
+       */
+      readonly submitter: string;
+      /** Submitted Time */
+      readonly submitted_time?: string;
+      /** Updated */
+      readonly updated?: string;
+      /** Processing Start */
+      readonly processing_start?: string;
+      /** Processing End */
+      readonly processing_end?: string;
+      /** Duration */
+      readonly duration?: number | null;
+      /**
+       * Logs
+       * @default
+       */
+      readonly logs: string;
+      /**
+       * Index Searches Total
+       * @default 0
+       */
+      readonly index_searches_total: number;
+      /**
+       * Index Searches Done
+       * @default 0
+       */
+      readonly index_searches_done: number;
+      /**
+       * Rules Parsed Total
+       * @default 0
+       */
+      readonly rules_parsed_total: number;
+      /**
+       * Rules Parsed Done
+       * @default 0
+       */
+      readonly rules_parsed_done: number;
+      /**
+       * Atom Count
+       * @default 0
+       */
+      readonly atom_count: number;
+      /**
+       * Index Match Count
+       * @default 0
+       */
+      readonly index_match_count: number;
+      /**
+       * Tool Matches Total
+       * @default 0
+       */
+      readonly tool_matches_total: number;
+      /**
+       * Tool Matches Done
+       * @default 0
+       */
+      readonly tool_matches_done: number;
+      /**
+       * Tool Match Count
+       * @default 0
+       */
+      readonly tool_match_count: number;
+      /**
+       * Results
+       * @default {}
+       */
+      readonly results: {
+        readonly [key: string]: readonly {
+          readonly [key: string]: unknown;
+        }[];
+      };
+      /**
+       * Error
+       * @default
+       */
+      readonly error: string;
+    };
+    /**
+     * RetrohuntResponse
+     * @description Retrohunt message response.
+     */
+    readonly RetrohuntResponse: {
+      readonly data: components["schemas"]["RetrohuntEntity"];
+    };
+    /**
+     * RetrohuntSubmission
+     * @description Retrohunt submission request model.
+     */
+    readonly RetrohuntSubmission: {
+      /** Search Type */
+      readonly search_type: string;
+      /** Search */
+      readonly search: string;
+      /**
+       * Submitter
+       * @default RetrohuntServer
+       */
+      readonly submitter: string;
+      /** Security */
+      readonly security?: string | null;
+    };
+    /**
+     * RetrohuntSubmitResponse
+     * @description Return basic response on successful submission.
+     */
+    readonly RetrohuntSubmitResponse: {
+      /** Data */
+      readonly data:
+        | {
+            readonly [key: string]: unknown;
+          }
+        | components["schemas"]["BaseModel"]
+        | readonly {
+            readonly [key: string]: unknown;
+          }[]
+        | readonly components["schemas"]["BaseModel"][];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /**
+     * RetrohuntsResponse
+     * @description Retrohunts list message response.
+     */
+    readonly RetrohuntsResponse: {
+      /** Data */
+      readonly data: readonly components["schemas"]["RetrohuntEntity"][];
+    };
+    /**
      * SearchResult
      * @description A discovered instance of a particular string in a file.
      */
@@ -3992,6 +4301,7 @@ export type AutocompleteFieldValue =
 export type AutocompleteInitial = components["schemas"]["AutocompleteInitial"];
 export type AutocompleteNone = components["schemas"]["AutocompleteNone"];
 export type BaseError = components["schemas"]["BaseError"];
+export type BaseModel = components["schemas"]["BaseModel"];
 export type BinaryAction = components["schemas"]["BinaryAction"];
 export type BinaryData = components["schemas"]["BinaryData"];
 export type BinaryDiagnostic = components["schemas"]["BinaryDiagnostic"];
@@ -4044,6 +4354,7 @@ export type BodySubmitChildBinaryToSourceApiV0BinariesChildPost =
   components["schemas"]["Body_submit_child_binary_to_source_api_v0_binaries_child_post"];
 export type BodySubmitChildBinaryToSourceDatalessApiV0BinariesChildDatalessPost =
   components["schemas"]["Body_submit_child_binary_to_source_dataless_api_v0_binaries_child_dataless_post"];
+export type CommonBinaryStrings = components["schemas"]["CommonBinaryStrings"];
 export type CredentialFormat = components["schemas"]["CredentialFormat"];
 export type Credentials = components["schemas"]["Credentials"];
 export type DataLabel = components["schemas"]["DataLabel"];
@@ -4084,6 +4395,7 @@ export type Features = components["schemas"]["Features__"];
 export type FindBinariesSortEnum =
   components["schemas"]["FindBinariesSortEnum"];
 export type HttpValidationError = components["schemas"]["HTTPValidationError"];
+export type HuntState = components["schemas"]["HuntState"];
 export type IncludeCousinsEnum = components["schemas"]["IncludeCousinsEnum"];
 export type LabelOption = components["schemas"]["LabelOption"];
 export type LabelOptionCaveat = components["schemas"]["LabelOptionCaveat"];
@@ -4144,6 +4456,12 @@ export type ResponseStrDictStrValueCountRet =
   components["schemas"]["Response_str__dict_str_ValueCountRet__"];
 export type ResponseStrDictStrValuePartCountRet =
   components["schemas"]["Response_str__dict_str_ValuePartCountRet__"];
+export type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
+export type RetrohuntResponse = components["schemas"]["RetrohuntResponse"];
+export type RetrohuntSubmission = components["schemas"]["RetrohuntSubmission"];
+export type RetrohuntSubmitResponse =
+  components["schemas"]["RetrohuntSubmitResponse"];
+export type RetrohuntsResponse = components["schemas"]["RetrohuntsResponse"];
 export type SearchResult = components["schemas"]["SearchResult"];
 export type SearchResultType = components["schemas"]["SearchResultType"];
 export type SecurityLabels = components["schemas"]["SecurityLabels"];
@@ -5844,6 +6162,80 @@ export interface operations {
       };
     };
   };
+  readonly get_common_strings_api_v0_binaries__sha256A___sha256B__strings_get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Minimum length of string (when decoded). */
+        readonly min_length?: number;
+        /** @description Maximum length of string (when decoded). */
+        readonly max_length?: number;
+        /** @description How many bytes to search for, if this is not set, returns 10MB of the file, if it set to larger than the file the whole file will be searched. */
+        readonly max_bytes_to_read?: number;
+        /** @description How many strings to return */
+        readonly take_n_strings?: number;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        /** @description SHA256 A to get common strings for. */
+        readonly sha256A: string;
+        /** @description SHA256 B to get common strings for. */
+        readonly sha256B: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Strings found in binary */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["CommonBinaryStrings"];
+        };
+      };
+      /** @description Unsupported */
+      readonly 400: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly submit_binary_to_source_api_v0_binaries_source_post: {
     readonly parameters: {
       readonly query?: {
@@ -7163,6 +7555,396 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly hunt_results_api_retrohunts__hunt_id__get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly hunt_id: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntResponse"];
+        };
+      };
+      /** @description The retrohunt was not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly list_hunts_api_retrohunts_get: {
+    readonly parameters: {
+      readonly query?: {
+        readonly limit?: number;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntsResponse"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly submit_hunt_api_retrohunts_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["RetrohuntSubmission"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntResponse"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly hunt_results_route_api_v0_retrohunt_retrohunts__hunt_id__get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly hunt_id: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntResponse"];
+        };
+      };
+      /** @description The retrohunt was not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly list_hunts_route_api_v0_retrohunt_retrohunts_get: {
+    readonly parameters: {
+      readonly query?: {
+        readonly limit?: number;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntsResponse"];
+        };
+      };
+      /** @description No retrohunts found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly submit_hunt_route_api_v0_retrohunt_retrohunts_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["RetrohuntSubmission"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntSubmitResponse"];
+        };
+      };
+      /** @description Issue submitting hunt */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly cancel_hunt_route_api_v0_retrohunt_retrohunts__hunt_id__cancel_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly hunt_id: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetrohuntResponse"];
+        };
+      };
+      /** @description Hunt not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
       };
       /** @description Validation Error */
       readonly 422: {
