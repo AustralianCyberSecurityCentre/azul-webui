@@ -63,28 +63,26 @@
       <flow-card style="width: 100%">
         <flow-card-header title="Strings" />
         <flow-card-body>
-          <div class="max-h-card-height overflow-y-auto">
-            <cdk-virtual-scroll-viewport
-              itemSize="29"
-              minBufferPx="1200"
-              maxBufferPx="1200"
-              class="min-h-0 shrink grow basis-3"
-              style="contain: none"
-            >
-              <table flowTable class="w-full">
-                <tbody flowTableBody>
-                  <tr
-                    flowTableBodyRow
-                    *cdkVirtualFor="let row of loadedCommonStrings.strings"
-                  >
+          <cdk-virtual-scroll-viewport
+            itemSize="29"
+            minBufferPx="100"
+            maxBufferPx="500"
+            class="max-h-card-height min-h-100 w-full shrink grow justify-self-stretch"
+          >
+            <table flowTable class="w-full overflow-y-auto">
+              <tbody flowTableBody>
+                <ng-container
+                  *cdkVirtualFor="let row of loadedCommonStrings.strings"
+                >
+                  <tr flowTableBodyRow>
                     <td flowTableBodyCell class="truncate" [title]="row">
                       {{ row }}
                     </td>
                   </tr>
-                </tbody>
-              </table>
-            </cdk-virtual-scroll-viewport>
-          </div>
+                </ng-container>
+              </tbody>
+            </table>
+          </cdk-virtual-scroll-viewport>
         </flow-card-body>
       </flow-card>
     </div>
@@ -94,75 +92,70 @@
       <flow-card-header title="Features" />
       <flow-card-body>
         @if (entities$ | async; as entities) {
-          <div class="max-h-card-height overflow-y-auto">
-            @if (featureData$ | async; as fdata) {
-              <table class="feature-table-width" flowTable>
-                <thead>
-                  <tr class="sticky-header" flowTableBodyRow>
+          @if (featureData$ | async; as fdata) {
+            <table class="feature-table-width" flowTable>
+              <thead>
+                <tr class="sticky-header" flowTableBodyRow>
+                  <th
+                    flowTableHeaderCell
+                    flowTableHeaderResizable
+                    class="border-highlight"
+                  ></th>
+                  @for (entity of entities$ | async; track entity) {
                     <th
                       flowTableHeaderCell
-                      flowTableHeaderResizable
-                      class="border-highlight"
-                    ></th>
-                    @for (entity of entities$ | async; track entity) {
-                      <th
-                        flowTableHeaderCell
-                        class="limit-small sticky truncate font-mono"
-                        [title]="entity.sha256"
-                      >
-                        {{ entity.sha256 }}
-                      </th>
-                    }
+                      class="limit-small sticky truncate font-mono"
+                      [title]="entity.sha256"
+                    >
+                      {{ entity.sha256 }}
+                    </th>
+                  }
+                </tr>
+              </thead>
+              @for (feat of fdata.features; track feat) {
+                <tbody flowTableBody>
+                  <tr flowTableBodyRow>
+                    <th class="local-left-most-cell text-center" [title]="feat">
+                      {{ feat }}
+                    </th>
+                    <td colspan="100"></td>
                   </tr>
-                </thead>
-                @for (feat of fdata.features; track feat) {
-                  <tbody flowTableBody>
-                    <tr flowTableBodyRow>
-                      <th
-                        class="local-left-most-cell text-center"
-                        [title]="feat"
-                      >
-                        {{ feat }}
-                      </th>
-                      <td colspan="100"></td>
-                    </tr>
-                    @for (value of fdata.values.get(feat); track value) {
-                      @if (fdata.entities.get(feat + value); as presents) {
-                        <tr flowTableBodyRow>
+                  @for (value of fdata.values.get(feat); track value) {
+                    @if (fdata.entities.get(feat + value); as presents) {
+                      <tr flowTableBodyRow>
+                        <td
+                          class="local-left-most-cell limit-large truncate"
+                          [title]="value"
+                        >
+                          {{ value }}
+                        </td>
+                        @for (entity of entities; track entity) {
                           <td
-                            class="local-left-most-cell limit-large truncate"
-                            [title]="value"
+                            [title]="entity.sha256"
+                            [ngClass]="{
+                              'feature-compare-highlight': presents.has(
+                                entity.sha256
+                              ),
+                            }"
                           >
-                            {{ value }}
+                            @if (presents.has(entity.sha256)) {
+                              <div class="grid justify-items-center">
+                                <fa-icon [icon]="faCheck" />
+                              </div>
+                            }
                           </td>
-                          @for (entity of entities; track entity) {
-                            <td
-                              [title]="entity.sha256"
-                              [ngClass]="{
-                                'feature-compare-highlight': presents.has(
-                                  entity.sha256
-                                ),
-                              }"
-                            >
-                              @if (presents.has(entity.sha256)) {
-                                <div class="grid justify-items-center">
-                                  <fa-icon [icon]="faCheck" />
-                                </div>
-                              }
-                            </td>
-                          }
-                        </tr>
-                      }
+                        }
+                      </tr>
                     }
-                    <tr flowTableBodyRow>
-                      <td class="local-left-most-cell">&nbsp;</td>
-                      <td colspan="100">&nbsp;</td>
-                    </tr>
-                  </tbody>
-                }
-              </table>
-            }
-          </div>
+                  }
+                  <tr flowTableBodyRow>
+                    <td class="local-left-most-cell">&nbsp;</td>
+                    <td colspan="100">&nbsp;</td>
+                  </tr>
+                </tbody>
+              }
+            </table>
+          }
         }
       </flow-card-body>
     </flow-card>
