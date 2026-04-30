@@ -68,7 +68,11 @@
               <table class="feature-table-width" flowTable>
                 <thead>
                   <tr class="sticky-header" flowTableBodyRow>
-                    <th flowTableHeaderCell></th>
+                    <th
+                      flowTableHeaderCell
+                      tableHeaderResizable
+                      class="border-highlight"
+                    ></th>
                     @for (entity of entities$ | async; track entity) {
                       <th
                         flowTableHeaderCell

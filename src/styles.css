@@ -229,3 +229,23 @@ a.table-link:visited {
 .feature-value-render {
   white-space: pre;
 }
+
+/* Styling to allow table resizing to work.*/
+
+th {
+  position: relative;
+  white-space: nowrap;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  inset-inline-end: 0;
+  transform: translateX(50%);
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 1000;
+}

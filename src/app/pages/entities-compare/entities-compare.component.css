@@ -8,6 +8,10 @@
   width: stretch;
 }
 
+.border-highlight {
+  border-right: 2px solid;
+}
+
 .low-pad tr td {
   padding-left: 0;
   padding-right: 5px;
