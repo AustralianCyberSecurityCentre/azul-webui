@@ -6,11 +6,6 @@
 
 .feature-table-width {
   width: stretch;
-  border-collapse: separate;
-}
-
-.border-highlight {
-  border-right: 2px solid;
 }
 
 .low-pad td:not(:last-child) {

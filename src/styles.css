@@ -213,6 +213,11 @@ a.table-link:visited {
   .feature-compare-highlight {
     background-color: darkseagreen;
   }
+
+  .border-highlight {
+    /* Fake the border to allow it to work with sticky */
+    box-shadow: inset -2px 0 0 black;
+  }
 }
 
 .dark {
@@ -222,6 +227,11 @@ a.table-link:visited {
 
   .feature-compare-highlight {
     background-color: darkgreen;
+  }
+
+  .border-highlight {
+    /* Fake the border to allow it to work with sticky */
+    box-shadow: inset -2px 0 0 white;
   }
 }
 
