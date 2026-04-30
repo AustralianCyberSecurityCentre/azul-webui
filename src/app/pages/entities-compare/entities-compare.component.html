@@ -58,6 +58,37 @@
       </flow-card-body>
     </flow-card>
   </div>
+  @if (commonStrings$ | async; as loadedCommonStrings) {
+    <div>
+      <flow-card style="width: 100%">
+        <flow-card-header title="Strings" />
+        <flow-card-body>
+          <div class="max-h-card-height overflow-y-auto">
+            <cdk-virtual-scroll-viewport
+              itemSize="29"
+              minBufferPx="1200"
+              maxBufferPx="1200"
+              class="min-h-0 shrink grow basis-3"
+              style="contain: none"
+            >
+              <table flowTable class="w-full">
+                <tbody flowTableBody>
+                  <tr
+                    flowTableBodyRow
+                    *cdkVirtualFor="let row of loadedCommonStrings.strings"
+                  >
+                    <td flowTableBodyCell class="truncate" [title]="row">
+                      {{ row }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </cdk-virtual-scroll-viewport>
+          </div>
+        </flow-card-body>
+      </flow-card>
+    </div>
+  }
   <div>
     <flow-card>
       <flow-card-header title="Features" />
@@ -70,7 +101,7 @@
                   <tr class="sticky-header" flowTableBodyRow>
                     <th
                       flowTableHeaderCell
-                      tableHeaderResizable
+                      flowTableHeaderResizable
                       class="border-highlight"
                     ></th>
                     @for (entity of entities$ | async; track entity) {

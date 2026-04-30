@@ -8,6 +8,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
+import { ApiService } from "src/app/core/api/api.service";
+import { components } from "src/app/core/api/openapi";
 
 import { Entity, EntityWrap, Nav, Security } from "src/app/core/services";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
@@ -26,6 +28,8 @@ type FeatureData = {
   standalone: false,
 })
 export class BinariesCompareComponent implements OnInit {
+  private api = inject(ApiService);
+
   entityService = inject(Entity);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -46,12 +50,17 @@ export class BinariesCompareComponent implements OnInit {
   rawBinaries: string[] = [];
   rawBinaries$: Observable<string[]>;
 
+  // Only get common strings when there is exactly 2 binaries being compared.
+  numberOfBinariesForCommonStrings: number = 2;
+  commonStrings$: Observable<components["schemas"]["CommonBinaryStrings"]>;
+
   ngOnInit(): void {
     this.rawBinaries$ = this.route.queryParamMap.pipe(
       ops.map((d) => {
         this.rawBinaries = d.getAll("entity");
         return this.rawBinaries;
       }),
+      ops.shareReplay(1),
     );
 
     this.entities$ = this.rawBinaries$.pipe(
@@ -125,6 +134,15 @@ export class BinariesCompareComponent implements OnInit {
           entities: entities,
         };
       }),
+      ops.shareReplay(1),
+    );
+
+    this.commonStrings$ = this.rawBinaries$.pipe(
+      ops.filter((rb) => rb.length === this.numberOfBinariesForCommonStrings),
+      ops.switchMap((sha256s) => {
+        return this.api.getCommonStrings(sha256s[0], sha256s[1], {});
+      }),
+      ops.filter((strings) => strings !== undefined),
       ops.shareReplay(1),
     );
   }
