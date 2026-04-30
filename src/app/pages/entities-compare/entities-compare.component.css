@@ -13,9 +13,14 @@
   border-right: 2px solid;
 }
 
-.low-pad tr td {
+.low-pad td:not(:last-child) {
   padding-left: 0;
   padding-right: 3px;
+}
+
+.low-pad tr {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .local-entity-list-item {
