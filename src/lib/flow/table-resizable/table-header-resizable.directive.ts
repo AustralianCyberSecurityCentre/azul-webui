@@ -1,16 +1,19 @@
-import { AfterViewInit, Directive, ElementRef, Renderer2 } from "@angular/core";
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  inject,
+  Renderer2,
+} from "@angular/core";
 
 @Directive({
-  selector: "[tableHeaderResizable]",
+  selector: "[flowTableHeaderResizable]",
 })
 export class TableHeaderResizableDirective implements AfterViewInit {
   private startX = 0;
   private startWidth = 0;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-  ) {}
+  private el = inject(ElementRef);
+  private renderer = inject(Renderer2);
 
   ngAfterViewInit(): void {
     const resizer = this.renderer.createElement("span");
