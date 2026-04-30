@@ -28,16 +28,19 @@
     <flow-card style="width: 100%">
       <flow-card-header title="Entropy" />
       <flow-card-body>
-        <table class="local-no-pad" style="width: 100%">
-          <tbody>
-            <tr>
+        <table class="low-pad" style="width: 100%" flowTable>
+          <tbody flowTableBody>
+            <tr flowTableHeaderRow>
               @for (entity of entities$ | async; track entity) {
-                <th class="limit-small sticky truncate font-mono">
+                <th
+                  class="limit-small truncate text-center font-mono"
+                  flowTableHeader
+                >
                   {{ entity.sha256 }}
                 </th>
               }
             </tr>
-            <tr class="local-no-hover">
+            <tr class="local-no-hover low-pad">
               @for (entity of entities$ | async; track entity) {
                 <td>
                   <azco-entropy
@@ -61,12 +64,13 @@
         @if (entities$ | async; as entities) {
           <div class="max-h-card-height overflow-y-auto">
             @if (featureData$ | async; as fdata) {
-              <table>
+              <table class="feature-table-width" flowTable>
                 <thead>
-                  <tr>
-                    <th class="sticky"></th>
+                  <tr class="sticky-header" flowTableBodyRow>
+                    <th flowTableHeaderCell></th>
                     @for (entity of entities$ | async; track entity) {
                       <th
+                        flowTableHeaderCell
                         class="limit-small sticky truncate font-mono"
                         [title]="entity.sha256"
                       >
@@ -76,24 +80,32 @@
                   </tr>
                 </thead>
                 @for (feat of fdata.features; track feat) {
-                  <tbody>
-                    <tr>
-                      <th class="local-left-most-cell">
+                  <tbody flowTableBody>
+                    <tr flowTableBodyRow>
+                      <th
+                        class="local-left-most-cell text-center"
+                        [title]="feat"
+                      >
                         {{ feat }}
                       </th>
                       <td colspan="100"></td>
                     </tr>
                     @for (value of fdata.values.get(feat); track value) {
                       @if (fdata.entities.get(feat + value); as presents) {
-                        <tr>
-                          <td class="local-left-most-cell limit-large truncate">
+                        <tr flowTableBodyRow>
+                          <td
+                            class="local-left-most-cell limit-large truncate"
+                            [title]="value"
+                          >
                             {{ value }}
                           </td>
                           @for (entity of entities; track entity) {
                             <td
                               [title]="entity.sha256"
                               [ngClass]="{
-                                'local-present': presents.has(entity.sha256),
+                                'feature-compare-highlight': presents.has(
+                                  entity.sha256
+                                ),
                               }"
                             >
                               @if (presents.has(entity.sha256)) {
@@ -106,7 +118,7 @@
                         </tr>
                       }
                     }
-                    <tr>
+                    <tr flowTableBodyRow>
                       <td class="local-left-most-cell">&nbsp;</td>
                       <td colspan="100">&nbsp;</td>
                     </tr>

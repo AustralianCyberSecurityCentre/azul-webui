@@ -205,6 +205,26 @@ a.table-link:visited {
   }
 }
 
+:not(.dark) {
+  .feature-compare-highlight:hover {
+    background-color: greenyellow;
+  }
+
+  .feature-compare-highlight {
+    background-color: darkseagreen;
+  }
+}
+
+.dark {
+  .feature-compare-highlight:hover {
+    background-color: mediumseagreen;
+  }
+
+  .feature-compare-highlight {
+    background-color: darkgreen;
+  }
+}
+
 /* Needed so if there is trailing or leading white space on a feature value it still renders the full string.*/
 .feature-value-render {
   white-space: pre;
