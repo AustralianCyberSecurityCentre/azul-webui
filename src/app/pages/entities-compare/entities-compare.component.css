@@ -6,6 +6,7 @@
 
 .feature-table-width {
   width: stretch;
+  border-collapse: separate;
 }
 
 .border-highlight {
@@ -14,7 +15,7 @@
 
 .low-pad tr td {
   padding-left: 0;
-  padding-right: 5px;
+  padding-right: 3px;
 }
 
 .local-entity-list-item {
