@@ -34,6 +34,7 @@
               @for (entity of entities$ | async; track entity) {
                 <th
                   class="limit-small truncate text-center font-mono"
+                  [title]="entity.sha256"
                   flowTableHeader
                 >
                   {{ entity.sha256 }}
