@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  WritableSignal,
   inject,
   signal,
 } from "@angular/core";
@@ -132,18 +133,19 @@ export class BinariesCompareComponent implements OnInit {
 
   featureData$: Observable<FeatureData>;
 
-  rawBinaries: string[] = [];
+  rawBinaries: WritableSignal<string[]> = signal([]);
   rawBinaries$: Observable<string[]>;
 
   // Only get common strings when there is exactly 2 binaries being compared.
   numberOfBinariesForCommonStrings: number = 2;
   commonStrings$: Observable<components["schemas"]["CommonBinaryStrings"]>;
+  loadingCommonStringsSignal: WritableSignal<boolean> = signal(true);
 
   ngOnInit(): void {
     this.rawBinaries$ = this.route.queryParamMap.pipe(
       ops.map((d) => {
-        this.rawBinaries = d.getAll("entity");
-        return this.rawBinaries;
+        this.rawBinaries.set(d.getAll("entity"));
+        return this.rawBinaries();
       }),
       ops.shareReplay(1),
     );
@@ -226,6 +228,7 @@ export class BinariesCompareComponent implements OnInit {
       ops.filter((rb) => rb.length === this.numberOfBinariesForCommonStrings),
       ops.combineLatestWith(this.stringSearchSizeObservable$),
       ops.switchMap(([sha256s, sizeParams]) => {
+        this.loadingCommonStringsSignal.set(true);
         const sp = this.searchSizes.get(sizeParams.searchSize);
         if (sp === undefined) {
           console.warn(
@@ -240,9 +243,12 @@ export class BinariesCompareComponent implements OnInit {
           };
         return this.api.getCommonStrings(sha256s[0], sha256s[1], params);
       }),
+      ops.tap(() => {
+        this.loadingCommonStringsSignal.set(false);
+      }),
       ops.filter((strings) => strings !== undefined),
       ops.combineLatestWith(this.stringFilterObservable$),
-      // ops.debounceTime(200),
+      ops.debounceTime(200),
       // Filter strings locally.
       ops.map(([strings, filtering]) => {
         if (filtering === undefined || filtering.filterValue.length === 0) {
@@ -278,7 +284,7 @@ export class BinariesCompareComponent implements OnInit {
   }
 
   removeEntity(id: string) {
-    const nexts = this.rawBinaries.filter((x) => x != id);
+    const nexts = this.rawBinaries().filter((x) => x != id);
     this.router.navigate([], { queryParams: { entity: nexts } });
   }
 }

@@ -58,100 +58,119 @@
       </flow-card-body>
     </flow-card>
   </div>
-  @if (commonStrings$ | async; as loadedCommonStrings) {
+  @if (numberOfBinariesForCommonStrings === rawBinaries()?.length) {
     <div>
       <flow-card style="width: 100%">
         <flow-card-header title="Common Strings">
           <div role="alert" class="text-sm font-normal break-all text-ellipsis">
-            @if (loadedCommonStrings.incomplete) {
-              <flow-tooltip
-                message="Not all common strings were found consider increasing the size of the search if you want more results."
-              >
+            @if (loadingCommonStringsSignal()) {
+              <span>
+                <fa-icon [icon]="faSpinner" animation="spin" />
+              </span>
+            } @else if (commonStrings$ | async; as loadedCommonStrings) {
+              @if (loadedCommonStrings.incomplete) {
+                <flow-tooltip
+                  message="Not all common strings were found consider increasing the size of the search if you want more results."
+                >
+                  <fa-icon
+                    [icon]="faCircleExclamation"
+                    size="lg"
+                    class="pr-2 text-orange-400"
+                  />
+                  Only Partial Strings found!
+                </flow-tooltip>
+              } @else {
                 <fa-icon
-                  [icon]="faCircleExclamation"
+                  [icon]="faCircleCheck"
                   size="lg"
-                  class="pr-2 text-orange-400"
+                  class="pr-2 text-green-400"
                 />
-                Only Partial Strings found!
-              </flow-tooltip>
-            } @else {
-              <fa-icon
-                [icon]="faCircleCheck"
-                size="lg"
-                class="pr-2 text-green-400"
-              />
-              All Strings Found
+                All Strings Found
+              }
             }
           </div>
         </flow-card-header>
         <flow-card-body>
-          <form>
-            <div class="mb-2 flex items-center gap-2">
-              <flow-signal-input
-                class="grow"
-                id="filter"
-                placeholder="Filter"
-                fieldSize="small"
-                [formField]="stringFilterForm.filterValue"
-              />
-              <div class="flex h-6 items-center">
-                <!--Selection of search size-->
-                <flow-tooltip
-                  message="Criteria for the search term (case sensitivity)"
-                >
-                  <select
-                    [formField]="stringFilterForm.searchFilterType"
-                    flowSelect
+          @if (commonStrings$ | async; as loadedCommonStrings) {
+            @if (
+              loadedCommonStrings?.strings?.length === 0 &&
+              stringFormSignal().filterValue.length === 0
+            ) {
+              <div>No common strings found</div>
+            } @else {
+              <form>
+                <div class="mb-2 flex items-center gap-2">
+                  <flow-signal-input
+                    class="grow"
+                    id="filter"
+                    placeholder="Filter"
                     fieldSize="small"
-                  >
-                    @for (
-                      filterOpt of CommonStringSearchType | keyvalue;
-                      track filterOpt.value
-                    ) {
-                      <option [value]="filterOpt.value">
-                        {{ filterOpt.value }}
-                      </option>
-                    }
-                  </select>
-                </flow-tooltip>
-                <flow-tooltip
-                  message="Size of search larger will provide more results but may take a very long time."
-                >
-                  <select
-                    [formField]="stringSearchSizeForm.searchSize"
-                    flowSelect
-                    fieldSize="small"
-                  >
-                    @for (sizeOpt of searchSizes.keys(); track sizeOpt) {
-                      <option [value]="sizeOpt">
-                        {{ sizeOpt }}
-                      </option>
-                    }
-                  </select>
-                </flow-tooltip>
-              </div>
-            </div>
-          </form>
-          <cdk-virtual-scroll-viewport
-            itemSize="29"
-            minBufferPx="100"
-            maxBufferPx="500"
-            class="max-h-card-height min-h-100 w-full shrink grow justify-self-stretch"
-          >
-            <table flowTable class="w-full overflow-y-auto">
-              <tbody flowTableBody>
-                <ng-container
-                  *cdkVirtualFor="let row of loadedCommonStrings.strings"
-                >
-                  <tr flowTableBodyRow>
-                    <td flowTableBodyCell class="truncate" [title]="row">
-                      {{ row }}
-                    </td>
-                  </tr>
-                </ng-container>
-              </tbody>
-            </table>
-          </cdk-virtual-scroll-viewport>
+                    [formField]="stringFilterForm.filterValue"
+                  />
+                  <div class="flex h-6 items-center">
+                    <!--Selection of search size-->
+                    <flow-tooltip
+                      message="Criteria for the search term (case sensitivity)"
+                    >
+                      <select
+                        [formField]="stringFilterForm.searchFilterType"
+                        flowSelect
+                        fieldSize="small"
+                      >
+                        @for (
+                          filterOpt of CommonStringSearchType | keyvalue;
+                          track filterOpt.value
+                        ) {
+                          <option [value]="filterOpt.value">
+                            {{ filterOpt.value }}
+                          </option>
+                        }
+                      </select>
+                    </flow-tooltip>
+                    <flow-tooltip
+                      message="Size of search larger will provide more results but may take a very long time."
+                    >
+                      <select
+                        [formField]="stringSearchSizeForm.searchSize"
+                        flowSelect
+                        fieldSize="small"
+                      >
+                        @for (sizeOpt of searchSizes.keys(); track sizeOpt) {
+                          <option [value]="sizeOpt">
+                            {{ sizeOpt }}
+                          </option>
+                        }
+                      </select>
+                    </flow-tooltip>
+                  </div>
+                </div>
+              </form>
+              <cdk-virtual-scroll-viewport
+                itemSize="29"
+                minBufferPx="100"
+                maxBufferPx="500"
+                class="max-h-card-height min-h-100 w-full shrink grow justify-self-stretch"
+              >
+                <table flowTable class="w-full overflow-y-auto">
+                  <tbody flowTableBody>
+                    <ng-container
+                      *cdkVirtualFor="let row of loadedCommonStrings.strings"
+                    >
+                      <tr flowTableBodyRow>
+                        <td flowTableBodyCell class="truncate" [title]="row">
+                          {{ row }}
+                        </td>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </table>
+              </cdk-virtual-scroll-viewport>
+            }
+          } @else {
+            <span>
+              <fa-icon [icon]="faSpinner" animation="spin" size="xl" />
+            </span>
+          }
         </flow-card-body>
       </flow-card>
     </div>
@@ -226,7 +245,7 @@
             </table>
           } @else {
             <span>
-              <fa-icon [icon]="faSpinner" animation="spin" />
+              <fa-icon [icon]="faSpinner" animation="spin" size="xl" />
             </span>
           }
         }
