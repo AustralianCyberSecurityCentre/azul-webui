@@ -248,7 +248,7 @@ export class BinariesCompareComponent implements OnInit {
         if (filtering === undefined || filtering.filterValue.length === 0) {
           return strings;
         }
-        let filteredStrings: string[] = [];
+        let filteredStrings: string[];
         if (
           filtering.searchFilterType === CommonStringSearchType.CaseSensitive
         ) {
