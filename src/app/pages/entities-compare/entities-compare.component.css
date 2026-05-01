@@ -1,21 +1,19 @@
-.local-present {
-  background-color: darkgreen;
+.sticky-header {
+  position: sticky;
+  top: 66px;
+  z-index: 100;
 }
 
-.local-absent {
-  background-color: darkred;
+.feature-table-width {
+  width: stretch;
 }
 
-.local-present:hover {
-  background-color: green;
+.low-pad td:not(:last-child) {
+  padding-left: 0;
+  padding-right: 3px;
 }
 
-.local-absent:hover {
-  background-color: red;
-}
-
-.local-no-pad th,
-.local-no-pad td {
+.low-pad tr {
   padding-left: 0;
   padding-right: 0;
 }
@@ -33,9 +31,14 @@ tr.local-no-hover:hover {
   background-color: inherit;
 }
 
+/* These max/min widths are being used as ratios*/
 .limit-small {
-  max-width: 8ch;
+  max-width: 10em;
 }
 .limit-large {
-  max-width: 24ch;
+  max-width: 1em;
+}
+
+td.td-padding {
+  padding-right: 10px;
 }

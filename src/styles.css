@@ -205,7 +205,57 @@ a.table-link:visited {
   }
 }
 
+:not(.dark) {
+  .feature-compare-highlight:hover {
+    background-color: greenyellow;
+  }
+
+  .feature-compare-highlight {
+    background-color: darkseagreen;
+  }
+
+  .border-highlight {
+    /* Fake the border to allow it to work with sticky */
+    box-shadow: inset -2px 0 0 black;
+  }
+}
+
+.dark {
+  .feature-compare-highlight:hover {
+    background-color: mediumseagreen;
+  }
+
+  .feature-compare-highlight {
+    background-color: darkgreen;
+  }
+
+  .border-highlight {
+    /* Fake the border to allow it to work with sticky */
+    box-shadow: inset -2px 0 0 white;
+  }
+}
+
 /* Needed so if there is trailing or leading white space on a feature value it still renders the full string.*/
 .feature-value-render {
   white-space: pre;
+}
+
+/* Styling to allow table resizing to work.*/
+
+th {
+  position: relative;
+  white-space: nowrap;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  inset-inline-end: 0;
+  transform: translateX(50%);
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 1000;
 }
