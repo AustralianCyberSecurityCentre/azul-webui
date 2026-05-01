@@ -61,8 +61,77 @@
   @if (commonStrings$ | async; as loadedCommonStrings) {
     <div>
       <flow-card style="width: 100%">
-        <flow-card-header title="Strings" />
+        <flow-card-header title="Common Strings">
+          <div role="alert" class="text-sm font-normal break-all text-ellipsis">
+            @if (loadedCommonStrings.incomplete) {
+              <flow-tooltip
+                message="Not all common strings were found consider increasing the size of the search if you want more results."
+              >
+                <fa-icon
+                  [icon]="faCircleExclamation"
+                  size="lg"
+                  class="pr-2 text-orange-400"
+                />
+                Only Partial Strings found!
+              </flow-tooltip>
+            } @else {
+              <fa-icon
+                [icon]="faCircleCheck"
+                size="lg"
+                class="pr-2 text-green-400"
+              />
+              All Strings Found
+            }
+          </div>
+        </flow-card-header>
         <flow-card-body>
+          <form>
+            <div class="mb-2 flex items-center gap-2">
+              <flow-signal-input
+                class="grow"
+                id="filter"
+                placeholder="Filter"
+                fieldSize="small"
+                [formField]="stringFilterForm.filterValue"
+              />
+              <div class="flex h-6 items-center">
+                <!--Selection of search size-->
+                <flow-tooltip
+                  message="Criteria for the search term (case sensitivity)"
+                >
+                  <select
+                    [formField]="stringFilterForm.searchFilterType"
+                    flowSelect
+                    fieldSize="small"
+                  >
+                    @for (
+                      filterOpt of CommonStringSearchType | keyvalue;
+                      track filterOpt.value
+                    ) {
+                      <option [value]="filterOpt.value">
+                        {{ filterOpt.value }}
+                      </option>
+                    }
+                  </select>
+                </flow-tooltip>
+                <flow-tooltip
+                  message="Size of search larger will provide more results but may take a very long time."
+                >
+                  <select
+                    [formField]="stringSearchSizeForm.searchSize"
+                    flowSelect
+                    fieldSize="small"
+                  >
+                    @for (sizeOpt of searchSizes.keys(); track sizeOpt) {
+                      <option [value]="sizeOpt">
+                        {{ sizeOpt }}
+                      </option>
+                    }
+                  </select>
+                </flow-tooltip>
+              </div>
+            </div>
+          </form>
           <cdk-virtual-scroll-viewport
             itemSize="29"
             minBufferPx="100"
@@ -104,7 +173,7 @@
                   @for (entity of entities$ | async; track entity) {
                     <th
                       flowTableHeaderCell
-                      class="limit-small sticky truncate font-mono"
+                      class="limit-small truncate font-mono"
                       [title]="entity.sha256"
                     >
                       {{ entity.sha256 }}
@@ -155,6 +224,10 @@
                 </tbody>
               }
             </table>
+          } @else {
+            <span>
+              <fa-icon [icon]="faSpinner" animation="spin" />
+            </span>
           }
         }
       </flow-card-body>

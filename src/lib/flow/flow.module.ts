@@ -16,6 +16,7 @@ import { CheckboxLabelComponent } from "./checkbox-label/checkbox-label.componen
 import { CheckboxComponent } from "./checkbox/checkbox.component";
 import { HRComponent } from "./hr/hr.component";
 import { IndicatorComponent } from "./indicator/indicator.component";
+import { SignalInputComponent } from "./input-signal/input-signal.component";
 import { InputComponent } from "./input/input.component";
 import { LabelComponent } from "./label/label.component";
 import { LinkDirective } from "./link/link.directive";
@@ -56,6 +57,7 @@ import { TooltipComponent } from "./tooltip/tooltip.component";
     InputComponent,
     MarkdownComponent,
     ProgressComponent,
+    SignalInputComponent,
     SelectDirective,
     TableDirective,
     TableBodyDirective,
@@ -93,6 +95,7 @@ import { TooltipComponent } from "./tooltip/tooltip.component";
     InputComponent,
     MarkdownComponent,
     ProgressComponent,
+    SignalInputComponent,
     SelectDirective,
     TableDirective,
     TableBodyDirective,

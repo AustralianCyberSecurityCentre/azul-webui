@@ -3,22 +3,84 @@ import {
   Component,
   OnInit,
   inject,
+  signal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { form } from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
-import { faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faCircleCheck,
+  faCircleExclamation,
+  faSpinner,
+  faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ApiService } from "src/app/core/api/api.service";
-import { components } from "src/app/core/api/openapi";
-
+import { components, paths } from "src/app/core/api/openapi";
 import { Entity, EntityWrap, Nav, Security } from "src/app/core/services";
 import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
-
 type FeatureData = {
   features: string[];
   values: Map<string, string[]>;
   entities: Map<string, Set<string>>;
 };
+
+type CommonStringSearchSizes = {
+  max_bytes_to_read: number;
+  take_n_strings: number;
+};
+
+const MaxByteToReadFactor = 10 * 1024 * 1024; // 10MiB
+const MaxStringsFactor = 1000;
+const searchSizes: Map<string, CommonStringSearchSizes> = new Map<
+  string,
+  CommonStringSearchSizes
+>([
+  [
+    "default",
+    {
+      max_bytes_to_read: MaxByteToReadFactor,
+      take_n_strings: MaxStringsFactor,
+    },
+  ],
+  [
+    "medium",
+    {
+      max_bytes_to_read: MaxByteToReadFactor * 2,
+      take_n_strings: MaxStringsFactor * 5,
+    },
+  ],
+  [
+    "large",
+    {
+      max_bytes_to_read: MaxByteToReadFactor * 5,
+      take_n_strings: MaxStringsFactor * 10,
+    },
+  ],
+  [
+    "max",
+    {
+      max_bytes_to_read: null,
+      take_n_strings: MaxStringsFactor * 50,
+    },
+  ],
+]);
+
+enum CommonStringSearchType {
+  IgnoreCase = "ignore case",
+  CaseSensitive = "case sensitive",
+}
+
+interface StringFilter {
+  filterValue: string;
+  searchFilterType: CommonStringSearchType;
+}
+
+interface StringSearchSize {
+  searchSize: string;
+}
 
 @Component({
   selector: "app-entities-compare",
@@ -38,9 +100,32 @@ export class BinariesCompareComponent implements OnInit {
 
   protected faTrashCan = faTrashCan;
   protected faCheck = faCheck;
+  protected faSpinner = faSpinner;
+  protected faCircleExclamation = faCircleExclamation;
+  protected faCircleCheck = faCircleCheck;
 
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
+
+  protected searchSizes = searchSizes;
+  protected CommonStringSearchType = CommonStringSearchType;
+
+  protected stringFormSignal = signal<StringFilter>({
+    filterValue: "",
+    searchFilterType: CommonStringSearchType.IgnoreCase,
+  });
+
+  protected stringSearchSizeFormSignal = signal<StringSearchSize>({
+    searchSize: "default",
+  });
+
+  protected stringFilterForm = form(this.stringFormSignal);
+  protected stringSearchSizeForm = form(this.stringSearchSizeFormSignal);
+
+  protected stringFilterObservable$ = toObservable(this.stringFormSignal);
+  protected stringSearchSizeObservable$ = toObservable(
+    this.stringSearchSizeFormSignal,
+  );
 
   entities$: Observable<EntityWrap[]>;
   maxBytes$: Observable<number>;
@@ -139,10 +224,55 @@ export class BinariesCompareComponent implements OnInit {
 
     this.commonStrings$ = this.rawBinaries$.pipe(
       ops.filter((rb) => rb.length === this.numberOfBinariesForCommonStrings),
-      ops.switchMap((sha256s) => {
-        return this.api.getCommonStrings(sha256s[0], sha256s[1], {});
+      ops.combineLatestWith(this.stringSearchSizeObservable$),
+      ops.switchMap(([sha256s, sizeParams]) => {
+        const sp = this.searchSizes.get(sizeParams.searchSize);
+        if (sp === undefined) {
+          console.warn(
+            "Common string search size could not be found using default.",
+          );
+          return this.api.getCommonStrings(sha256s[0], sha256s[1], {});
+        }
+        const params: paths["/api/v0/binaries/{sha256A}/{sha256B}/strings"]["get"]["parameters"]["query"] =
+          {
+            max_bytes_to_read: sp.max_bytes_to_read,
+            take_n_strings: sp.take_n_strings,
+          };
+        return this.api.getCommonStrings(sha256s[0], sha256s[1], params);
       }),
       ops.filter((strings) => strings !== undefined),
+      ops.combineLatestWith(this.stringFilterObservable$),
+      // ops.debounceTime(200),
+      // Filter strings locally.
+      ops.map(([strings, filtering]) => {
+        if (filtering === undefined || filtering.filterValue.length === 0) {
+          return strings;
+        }
+        let filteredStrings: string[] = [];
+        if (
+          filtering.searchFilterType === CommonStringSearchType.CaseSensitive
+        ) {
+          filteredStrings = strings.strings.filter((v) =>
+            v.includes(filtering.filterValue),
+          );
+        } else if (
+          filtering.searchFilterType === CommonStringSearchType.IgnoreCase
+        ) {
+          filteredStrings = strings.strings.filter((v) =>
+            v.toLowerCase().includes(filtering.filterValue.toLowerCase()),
+          );
+        } else {
+          console.warn(
+            `Failing to filter strings due to unrecognized filterType ${filtering.searchFilterType}`,
+          );
+          return strings;
+        }
+        const stringsResult: components["schemas"]["CommonBinaryStrings"] = {
+          strings: filteredStrings,
+          incomplete: strings.incomplete,
+        };
+        return stringsResult;
+      }),
       ops.shareReplay(1),
     );
   }
