@@ -1,7 +1,7 @@
 .sticky-header {
   position: sticky;
   top: 66px;
-  z-index: 100;
+  z-index: 10;
 }
 
 .feature-table-width {

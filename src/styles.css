@@ -257,5 +257,5 @@ th {
   height: 100%;
   cursor: col-resize;
   user-select: none;
-  z-index: 1000;
+  z-index: 10;
 }
