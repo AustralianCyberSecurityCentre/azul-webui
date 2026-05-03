@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  signal,
+} from "@angular/core";
 
 @Component({
   imports: [],
@@ -7,9 +12,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   templateUrl: "./accordion-panel.component.html",
 })
 export class AccordionPanelComponent {
-  @Input() open?: boolean;
+  openInitial = input<boolean>(false);
 
-  setOpen(open: boolean) {
-    this.open = open;
-  }
+  openState = signal(this.openInitial());
 }
