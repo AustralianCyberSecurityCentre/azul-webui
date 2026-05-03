@@ -1360,6 +1360,18 @@ export class ApiService {
     }).pipe(ops.catchError((e) => this.handle(e, undefined, [404])));
   }
 
+  getCommonStrings(
+    sha256A: string,
+    sha256B: string,
+    params: paths["/api/v0/binaries/{sha256A}/{sha256B}/strings"]["get"]["parameters"]["query"] = {},
+  ): Observable<components["schemas"]["CommonBinaryStrings"] | undefined> {
+    return this.getOperation(
+      "/api/v0/binaries/{sha256A}/{sha256B}/strings",
+      params,
+      { sha256A, sha256B },
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, [404])));
+  }
+
   /**get string information for entity */
   entitySearchHex(
     sha256: string,

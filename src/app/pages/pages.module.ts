@@ -1,10 +1,10 @@
-import { NgModule } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-
 import { NgxSliderModule } from "@angular-slider/ngx-slider";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormField } from "@angular/forms/signals";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { AzCommonModule } from "src/app/common/common.module";
 import { AzCoreModule } from "src/app/core/core.module";
 import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
@@ -72,6 +72,7 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     TextIconComponent,
     ScrollingModule,
     NgxSliderModule,
+    FormField,
   ],
   exports: [CallbackComponent, BinariesExploreComponent],
 })
