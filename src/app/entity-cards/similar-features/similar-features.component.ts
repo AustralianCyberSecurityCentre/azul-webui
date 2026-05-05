@@ -4,8 +4,8 @@ import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { Entity } from "src/app/core/services";
 
-import { components, SimilarMatchRow } from "src/app/core/api/openapi";
-import { SimilarMatchWithSummary } from "src/app/core/api/state";
+import { components, SimilarFeatureMatchRow } from "src/app/core/api/openapi";
+import { SimilarFeatureMatchWithSummary } from "src/app/core/api/state";
 import { BaseCard } from "../base-card.component";
 
 @Component({
@@ -50,16 +50,16 @@ For performance reasons, the results are only calculated after a user clicks the
     );
   }
 
-  selected: components["schemas"]["SimilarMatchRow"][] = [];
+  selected: components["schemas"]["SimilarFeatureMatchRow"][] = [];
 
-  similarFeatures$: Observable<SimilarMatchWithSummary>;
+  similarFeatures$: Observable<SimilarFeatureMatchWithSummary>;
 
   clickRecalculate() {
     this.entity.refreshSimilar();
     this.onEntityChange();
   }
 
-  clickRow(row: SimilarMatchRow) {
+  clickRow(row: SimilarFeatureMatchRow) {
     // if (!this.compareSelect) { return }
     if (this.selected.includes(row)) {
       this.selected = this.selected.filter((x) => x != row);

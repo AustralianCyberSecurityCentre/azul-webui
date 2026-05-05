@@ -24,7 +24,7 @@ import {
   FuzzyMatchWithSummary,
   PathWithSummary,
   SimilarEntropyMatchWithSummary,
-  SimilarMatchWithSummary,
+  SimilarFeatureMatchWithSummary,
   SimilarRowWithSummary,
 } from "./api/state";
 import * as fromGlobalSettings from "./store/global-settings/global-selector";
@@ -79,7 +79,7 @@ export class EntityWrap {
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
   similar_entropy$: Observable<SimilarEntropyMatchWithSummary>;
-  similarFeatures$: Observable<SimilarMatchWithSummary>;
+  similarFeatures$: Observable<SimilarFeatureMatchWithSummary>;
   /**tags can be created by user, need to be refetched when this occurs*/
   tags$: BehaviorSubject<readonly components["schemas"]["EntityTag"][] | null> =
     new BehaviorSubject(null);
@@ -145,7 +145,7 @@ export class EntityWrap {
     );
   }
 
-  _pollSimilar(obs$: Observable<components["schemas"]["SimilarMatch"]>) {
+  _pollSimilar(obs$: Observable<components["schemas"]["SimilarFeatureMatch"]>) {
     return obs$
       .pipe(
         ops.mergeMap((d) => {
@@ -169,7 +169,7 @@ export class EntityWrap {
       )
       .pipe(
         // Optimize loading of related entities
-        ops.map((similarFeatures: SimilarMatchWithSummary) => {
+        ops.map((similarFeatures: SimilarFeatureMatchWithSummary) => {
           const allEntities: BulkEntitySummarySubmit[] = [];
           similarFeatures?.matches.forEach((d: SimilarRowWithSummary) => {
             const sub$ = new ReplaySubject<
