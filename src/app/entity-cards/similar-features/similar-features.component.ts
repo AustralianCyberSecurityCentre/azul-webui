@@ -9,13 +9,13 @@ import { SimilarMatchWithSummary } from "src/app/core/api/state";
 import { BaseCard } from "../base-card.component";
 
 @Component({
-  selector: "azec-similar",
-  templateUrl: "./similar.component.html",
-  styleUrls: ["./similar.component.css"],
+  selector: "azec-similar-features",
+  templateUrl: "./similar-features.component.html",
+  styleUrls: ["./similar-features.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SimilarComponent extends BaseCard {
+export class SimilarFeatureComponent extends BaseCard {
   entityService = inject(Entity);
   private router = inject(Router);
 
@@ -34,7 +34,7 @@ For performance reasons, the results are only calculated after a user clicks the
 
   protected override onEntityChange() {
     this.ready$.next(true);
-    this.similar$ = this.entity.similar$.pipe(
+    this.similarFeatures$ = this.entity.similarFeatures$.pipe(
       ops.tap((d) => {
         this.selected = [];
         for (const row of d?.matches || []) {
@@ -52,7 +52,7 @@ For performance reasons, the results are only calculated after a user clicks the
 
   selected: components["schemas"]["SimilarMatchRow"][] = [];
 
-  similar$: Observable<SimilarMatchWithSummary>;
+  similarFeatures$: Observable<SimilarMatchWithSummary>;
 
   clickRecalculate() {
     this.entity.refreshSimilar();

@@ -20,7 +20,7 @@ import { PdfPreviewComponent } from "./pdf-preview/pdf-preview.component";
 import { RelationGraphComponent } from "./relation-graph/relation-graph.component";
 import { SandboxResultsComponent } from "./sandbox-results/sandbox-results.component";
 import { SimilarEntropyComponent } from "./similar-entropy/similar-entropy.component";
-import { SimilarComponent } from "./similar/similar.component";
+import { SimilarFeatureComponent } from "./similar-features/similar-features.component";
 import { SimilarfuzzyhashComponent } from "./similarfuzzyhash/similarfuzzyhash.component";
 import { SourceTableComponent } from "./source-table/source-table.component";
 import { StatusComponent } from "./status/status.component";
@@ -41,7 +41,7 @@ import { StringsComponent } from "./strings/strings.component";
     HexviewComponent,
     StringsComponent,
     StatusComponent,
-    SimilarComponent,
+    SimilarFeatureComponent,
     SandboxResultsComponent,
     SimilarfuzzyhashComponent,
     SimilarEntropyComponent,
@@ -71,7 +71,7 @@ import { StringsComponent } from "./strings/strings.component";
     HexviewComponent,
     StringsComponent,
     StatusComponent,
-    SimilarComponent,
+    SimilarFeatureComponent,
     SimilarfuzzyhashComponent,
     SimilarEntropyComponent,
     SandboxResultsComponent,
