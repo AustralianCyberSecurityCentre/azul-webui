@@ -39,13 +39,28 @@ class AxiosClient {
   private cache = setupCache(this.axios);
 
   constructor(private oidcSecurityService: OidcSecurityService) {
-    if (config.oauth_enabled) {
+    if (config?.oauth_enabled) {
       this.axios.interceptors.request.use(async (config) => {
         const accessToken = await firstValueFrom(
           this.oidcSecurityService.getAccessToken(),
         );
+        const controller = new AbortController();
         config.headers.set("Authorization", "Bearer " + accessToken);
-        return config;
+
+        if (
+          accessToken === undefined ||
+          accessToken === null ||
+          accessToken.length === 0
+        ) {
+          console.warn(
+            "Aborting API request as JWT is invalid (no value found)",
+          );
+          controller.abort();
+        } else {
+          config.headers.set("Authorization", "Bearer " + accessToken);
+        }
+
+        return { ...config, signal: controller.signal };
       });
     }
   }
