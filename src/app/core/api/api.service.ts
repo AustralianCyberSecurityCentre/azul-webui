@@ -893,11 +893,11 @@ export class ApiService {
 
   entityReadSimilar(
     sha256: string,
-    params: ValidGETPaths["/api/v0/binaries/{sha256}/similar"]["get"]["parameters"]["query"] = {},
+    params: ValidGETPaths["/api/v0/binaries/{sha256}/similar/features"]["get"]["parameters"]["query"] = {},
   ): Observable<components["schemas"]["SimilarMatch"] | undefined> {
     const cacheProps: CacheRequestConfig = { cache: false };
     return this.getOperation(
-      "/api/v0/binaries/{sha256}/similar",
+      "/api/v0/binaries/{sha256}/similar/features",
       params,
       {
         sha256,

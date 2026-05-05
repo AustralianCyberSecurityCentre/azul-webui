@@ -279,7 +279,7 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/binaries/{sha256}/similar": {
+  readonly "/api/v0/binaries/{sha256}/similar/features": {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
