@@ -33,11 +33,12 @@
           <select
             flowSelect
             formControlName="classification"
-            size="10"
+            size="6"
             style="width: 100%"
+            class="rounded-xs pr-0 mt-1"
           >
             @for (optName of classificationSignal(); track optName) {
-              <option [value]="optName">
+              <option class="py-2 pr-4 pl-4" [value]="optName">
                 {{ optName }}
               </option>
             }
@@ -53,12 +54,13 @@
               flowSelect
               formControlName="caveat"
               multiple
-              size="10"
+              size="8"
               style="width: 100%"
+              class="rounded-xs pr-0 mt-1"
             >
-              <option value="">-</option>
+              <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of caveatSignal(); track optName) {
-                <option [value]="optName">
+                <option class="py-2 pr-4 pl-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -75,12 +77,13 @@
               flowSelect
               formControlName="releasability"
               multiple
-              size="10"
+              size="8"
               style="width: 100%"
+              class="rounded-xs pr-0 mt-1"
             >
-              <option value="">-</option>
+              <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of relSignal(); track optName) {
-                <option [value]="optName">
+                <option class="py-2 pr-4 pl-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -98,10 +101,11 @@
               formControlName="tlp"
               size="10"
               style="width: 100%"
+              class="rounded-xs pr-0 mt-1"
             >
-              <option value="">-</option>
+              <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of tlpSignal(); track optName) {
-                <option [value]="optName">
+                <option class="py-2 pr-4 pl-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
