@@ -178,6 +178,7 @@ export class NavService {
           { title: "Hash Lookup", link: "/pages/binaries/hash_lookup" },
           { title: "Upload", link: "/pages/binaries/upload" },
           { title: "Tags", link: "/pages/binaries/tags" },
+          { title: "Retrohunt", link: "/pages/binaries/retrohunt" },
           // { title: 'Compare', link: '/pages/binaries/compare' },
         ];
         if (d.length > 0) {
@@ -298,6 +299,10 @@ export class NavService {
       {
         re: new RegExp("^/pages/features/current/([^/]+)"),
         t: (d) => `${d[0]} - Feature`,
+      },
+      {
+        re: new RegExp("^/pages/binaries/retrohunt"),
+        t: () => `Retrohunt`,
       },
     ];
 

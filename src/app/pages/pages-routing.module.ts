@@ -8,6 +8,7 @@ import { BinariesExploreComponent } from "./entities-explore/entities-explore.co
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
+import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
@@ -52,6 +53,7 @@ const routes: Routes = [
           { path: "compare", component: BinariesCompareComponent },
           { path: "hash_lookup", component: BinariesHashLookupComponent },
           { path: "purge", component: BinariesPurgeComponent },
+          { path: "retrohunt", component: BinariesRetrohuntComponent },
         ],
       },
       // 'entities' used to be what we would path to for all binaries

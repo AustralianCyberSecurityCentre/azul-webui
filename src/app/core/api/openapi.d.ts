@@ -1253,6 +1253,26 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/retrohunt/retrohunts": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get All Retrohunts
+     * @description Returns all retrohunt jobs in the system.
+     */
+    readonly get: operations["get_all_retrohunts_api_v0_retrohunt_retrohunts_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3388,6 +3408,98 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * RetroHuntEntity
+     * @description Retrohunt job metadata and status.
+     */
+    readonly RetroHuntEntity: {
+      /** Retrohunt ID (e.g. "hunt_20260430123000") */
+      readonly id: string;
+
+      /** Search type (e.g. "Yara" or "BigGrep") */
+      readonly search_type: string;
+
+      /** Search query string */
+      readonly search: string;
+
+      /** Security label associated with the submission */
+      readonly security?: string | null;
+
+      /** Status of the retrohunt job */
+      readonly status: string; // HuntState enum as string
+
+      /** User who submitted the retrohunt */
+      readonly submitter: string;
+
+      /** Time the retrohunt was submitted */
+      readonly submitted_time?: string | null;
+
+      /** Last update time */
+      readonly updated?: string | null;
+
+      /** Time processing started */
+      readonly processing_start?: string | null;
+
+      /** Time processing ended */
+      readonly processing_end?: string | null;
+
+      /** Duration of the retrohunt in seconds */
+      readonly duration?: number | null;
+
+      /** Log output */
+      readonly logs: string;
+
+      /** Total index searches */
+      readonly index_searches_total: number;
+
+      /** Completed index searches */
+      readonly index_searches_done: number;
+
+      /** Total rules parsed */
+      readonly rules_parsed_total: number;
+
+      /** Completed rules parsed */
+      readonly rules_parsed_done: number;
+
+      /** Atom count */
+      readonly atom_count: number;
+
+      /** Index match count */
+      readonly index_match_count: number;
+
+      /** Total tool matches */
+      readonly tool_matches_total: number;
+
+      /** Completed tool matches */
+      readonly tool_matches_done: number;
+
+      /** Number of tool matches */
+      readonly tool_match_count: number;
+
+      /** Free‑form results */
+      readonly results: {
+        readonly [key: string]: readonly Record<string, unknown>[];
+      };
+
+      /** Error message, if any */
+      readonly error: string;
+    };
+    /**
+     * RetroHuntList
+     * @description List of retrohunt entities.
+     */
+    readonly RetroHuntEntities: {
+      /** Items */
+      readonly items: readonly components["schemas"]["RetroHuntEntity"][];
+    };
+    /** Response:list[azul_bedrock.models_network.RetrohuntEvent.RetrohuntEntity]] */
+    readonly RetroHuntEntities__: {
+      /** Data */
+      readonly data?: components["schemas"]["RetroHuntEntities"];
+      /** Metadata */
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /**
+     * 
      * SearchResult
      * @description A discovered instance of a particular string in a file.
      */
@@ -7743,6 +7855,42 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["UserInfo"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_all_retrohunts_api_v0_retrohunt_retrohunts_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["RetroHuntEntities__"];
         };
       };
       /** @description Not found */
