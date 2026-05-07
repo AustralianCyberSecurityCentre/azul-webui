@@ -1,13 +1,14 @@
 <button
   class="flex w-full cursor-pointer items-center justify-between px-5 py-5 text-left font-medium text-gray-500 dark:text-gray-400"
   [ngClass]="{
-    'text-gray-900 dark:text-white': accordionPanel.open,
-    'bg-gray-100 dark:bg-gray-800': accordionPanel.open && !accordion.flush,
+    'text-gray-900 dark:text-white': accordionPanel.openState(),
+    'bg-gray-100 dark:bg-gray-800':
+      accordionPanel.openState() && !accordion.flush(),
     'hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:hover:bg-gray-800 dark:focus:ring-gray-800':
-      !accordion.flush,
+      !accordion.flush(),
   }"
   type="button"
-  (click)="accordionPanel.setOpen(!accordionPanel.open)"
+  (click)="accordionPanel.openState.set(!accordionPanel.openState())"
 >
   <h2>
     <ng-content></ng-content>
@@ -18,7 +19,7 @@
     stroke-width="0"
     viewBox="0 0 20 20"
     class="h-6 w-6 shrink-0 duration-200"
-    [class.rotate-180]="accordionPanel.open"
+    [class.rotate-180]="accordionPanel.openState()"
     height="1em"
     width="1em"
     xmlns="http://www.w3.org/2000/svg"

@@ -39,13 +39,28 @@ class AxiosClient {
   private cache = setupCache(this.axios);
 
   constructor(private oidcSecurityService: OidcSecurityService) {
-    if (config.oauth_enabled) {
+    if (config?.oauth_enabled) {
       this.axios.interceptors.request.use(async (config) => {
         const accessToken = await firstValueFrom(
           this.oidcSecurityService.getAccessToken(),
         );
+        const controller = new AbortController();
         config.headers.set("Authorization", "Bearer " + accessToken);
-        return config;
+
+        if (
+          accessToken === undefined ||
+          accessToken === null ||
+          accessToken.length === 0
+        ) {
+          console.warn(
+            "Aborting API request as JWT is invalid (no value found)",
+          );
+          controller.abort();
+        } else {
+          config.headers.set("Authorization", "Bearer " + accessToken);
+        }
+
+        return { ...config, signal: controller.signal };
       });
     }
   }
@@ -1358,6 +1373,18 @@ export class ApiService {
     return this.getOperation("/api/v0/binaries/{sha256}/strings", params, {
       sha256,
     }).pipe(ops.catchError((e) => this.handle(e, undefined, [404])));
+  }
+
+  getCommonStrings(
+    sha256A: string,
+    sha256B: string,
+    params: paths["/api/v0/binaries/{sha256A}/{sha256B}/strings"]["get"]["parameters"]["query"] = {},
+  ): Observable<components["schemas"]["CommonBinaryStrings"] | undefined> {
+    return this.getOperation(
+      "/api/v0/binaries/{sha256A}/{sha256B}/strings",
+      params,
+      { sha256A, sha256B },
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, [404])));
   }
 
   /**get string information for entity */

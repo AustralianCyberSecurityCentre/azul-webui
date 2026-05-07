@@ -1,5 +1,5 @@
 import { NgClass } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 @Component({
   imports: [NgClass],
@@ -8,5 +8,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   templateUrl: "./accordion.component.html",
 })
 export class AccordionComponent {
-  @Input() flush?: boolean;
+  flush = input<boolean>();
 }
