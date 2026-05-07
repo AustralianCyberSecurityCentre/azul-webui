@@ -37,7 +37,6 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
 
 @NgModule({
   declarations: [
-    AsyncPipe,
     PagesComponent,
     BinariesExploreComponent,
     BinariesCurrentComponent,
