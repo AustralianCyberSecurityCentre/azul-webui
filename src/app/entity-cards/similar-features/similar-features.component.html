@@ -1,5 +1,5 @@
 <az-loading-card cardTitle="Similar Features" [obs$]="ready$" [help]="help">
-  @if (similar$ | async; as d) {
+  @if (similarFeatures$ | async; as d) {
     <div class="flex gap-2">
       <flow-button [type]="ButtonType.Light" (click)="clickRecalculate()">
         @if (d.status === "complete") {

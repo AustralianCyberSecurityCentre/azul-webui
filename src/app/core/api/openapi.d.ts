@@ -279,7 +279,7 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/binaries/{sha256}/similar": {
+  readonly "/api/v0/binaries/{sha256}/similar/features": {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -3830,24 +3830,24 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
-     * SimilarMatch
+     * SimilarFeatureMatch
      * @description Similarity calculation result.
      */
-    readonly SimilarMatch: {
+    readonly SimilarFeatureMatch: {
       /** Num Feature Values */
       readonly num_feature_values: number;
       /** Matches */
-      readonly matches: readonly components["schemas"]["SimilarMatchRow"][];
+      readonly matches: readonly components["schemas"]["SimilarFeatureMatchRow"][];
       /** Timestamp */
       readonly timestamp: string;
       /** Status */
       readonly status: string;
     };
     /**
-     * SimilarMatchRow
+     * SimilarFeatureMatchRow
      * @description Similarity result row.
      */
-    readonly SimilarMatchRow: {
+    readonly SimilarFeatureMatchRow: {
       /** Sha256 */
       readonly sha256: string;
       /** Score Sum */
@@ -3860,9 +3860,9 @@ export interface components {
       /** Contributions */
       readonly contributions: readonly (readonly (string | number)[])[];
     };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarMatch'> */
-    readonly SimilarMatch__: {
-      readonly data?: components["schemas"]["SimilarMatch"];
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarFeatureMatch'> */
+    readonly SimilarFeatureMatch__: {
+      readonly data?: components["schemas"]["SimilarFeatureMatch"];
       readonly meta: components["schemas"]["Meta"];
     };
     /**
@@ -4473,8 +4473,10 @@ export type SimilarEntropyMatchRow =
 export type SimilarFuzzyMatch = components["schemas"]["SimilarFuzzyMatch__"];
 export type SimilarFuzzyMatchRow =
   components["schemas"]["SimilarFuzzyMatchRow"];
-export type SimilarMatch = components["schemas"]["SimilarMatch__"];
-export type SimilarMatchRow = components["schemas"]["SimilarMatchRow"];
+export type SimilarFeatureMatch =
+  components["schemas"]["SimilarFeatureMatch__"];
+export type SimilarFeatureMatchRow =
+  components["schemas"]["SimilarFeatureMatchRow"];
 export type SourceKafka = components["schemas"]["SourceKafka"];
 export type SourceReference = components["schemas"]["SourceReference"];
 export type Source = components["schemas"]["Source__"];
@@ -5335,7 +5337,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["SimilarMatch__"];
+          readonly "application/json": components["schemas"]["SimilarFeatureMatch__"];
         };
       };
       /** @description Not found */

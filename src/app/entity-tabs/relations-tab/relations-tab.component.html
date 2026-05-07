@@ -2,7 +2,7 @@
   <div class="min-h-0 w-full grow overflow-auto p-8 text-sm">
     @switch (activeTab$ | async) {
       @case (0) {
-        <azec-similar [entity]="entity" />
+        <azec-similar-features [entity]="entity" />
       }
       @case (1) {
         <azec-similarfuzzyhash [entity]="entity" hashType="ssdeep" />
