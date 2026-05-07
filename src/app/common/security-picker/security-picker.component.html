@@ -35,6 +35,7 @@
             formControlName="classification"
             size="10"
             style="width: 100%"
+            class="select-no-dropdown"
           >
             @for (optName of classificationSignal(); track optName) {
               <option [value]="optName">
@@ -98,6 +99,7 @@
               formControlName="tlp"
               size="10"
               style="width: 100%"
+              class="select-no-dropdown"
             >
               <option value="">-</option>
               @for (optName of tlpSignal(); track optName) {
