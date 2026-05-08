@@ -24,7 +24,7 @@ import {
   FuzzyMatchWithSummary,
   PathWithSummary,
   SimilarEntropyMatchWithSummary,
-  SimilarMatchWithSummary,
+  SimilarFeatureMatchWithSummary,
   SimilarRowWithSummary,
 } from "./api/state";
 import * as fromGlobalSettings from "./store/global-settings/global-selector";
@@ -79,7 +79,7 @@ export class EntityWrap {
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
   similar_entropy$: Observable<SimilarEntropyMatchWithSummary>;
-  similar$: Observable<SimilarMatchWithSummary>;
+  similarFeatures$: Observable<SimilarFeatureMatchWithSummary>;
   /**tags can be created by user, need to be refetched when this occurs*/
   tags$: BehaviorSubject<readonly components["schemas"]["EntityTag"][] | null> =
     new BehaviorSubject(null);
@@ -140,12 +140,12 @@ export class EntityWrap {
   }
 
   refreshSimilar() {
-    this.similar$ = this._pollSimilar(
+    this.similarFeatures$ = this._pollSimilar(
       this.api.entityReadSimilar(this.sha256, { recalculate: true }),
     );
   }
 
-  _pollSimilar(obs$: Observable<components["schemas"]["SimilarMatch"]>) {
+  _pollSimilar(obs$: Observable<components["schemas"]["SimilarFeatureMatch"]>) {
     return obs$
       .pipe(
         ops.mergeMap((d) => {
@@ -169,9 +169,9 @@ export class EntityWrap {
       )
       .pipe(
         // Optimize loading of related entities
-        ops.map((similar: SimilarMatchWithSummary) => {
+        ops.map((similarFeatures: SimilarFeatureMatchWithSummary) => {
           const allEntities: BulkEntitySummarySubmit[] = [];
-          similar?.matches.forEach((d: SimilarRowWithSummary) => {
+          similarFeatures?.matches.forEach((d: SimilarRowWithSummary) => {
             const sub$ = new ReplaySubject<
               components["schemas"]["EntityFindItem"]
             >(1);
@@ -179,7 +179,7 @@ export class EntityWrap {
             d._localEntitySummary$ = sub$;
           });
           this.entityService.requestBulkEntitySummary(allEntities);
-          return similar;
+          return similarFeatures;
         }),
         ops.shareReplay(1),
       );
@@ -311,7 +311,7 @@ export class EntityWrap {
       ops.shareReplay(1),
     );
 
-    this.similar$ = this._pollSimilar(
+    this.similarFeatures$ = this._pollSimilar(
       mainData$.pipe(
         ops.mergeMap((_) =>
           this.api.entityReadSimilar(this.sha256, { recalculate: false }),

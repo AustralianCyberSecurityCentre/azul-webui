@@ -40,16 +40,18 @@ export type QueryInfoExpanded = components["schemas"]["QueryInfo"] & {
 /**
  * Adds entity metadata to a similarity response.
  */
-export type SimilarRowWithSummary = components["schemas"]["SimilarMatchRow"] & {
-  _localEntitySummary$: Observable<components["schemas"]["EntityFindItem"]>;
-};
+export type SimilarRowWithSummary =
+  components["schemas"]["SimilarFeatureMatchRow"] & {
+    _localEntitySummary$: Observable<components["schemas"]["EntityFindItem"]>;
+  };
 
 /**
  * Adds entity metadata to a series of rows.
  */
-export type SimilarMatchWithSummary = components["schemas"]["SimilarMatch"] & {
-  matches: SimilarRowWithSummary[];
-};
+export type SimilarFeatureMatchWithSummary =
+  components["schemas"]["SimilarFeatureMatch"] & {
+    matches: SimilarRowWithSummary[];
+  };
 
 /**
  * Adds entity metadata to a related entity response.
