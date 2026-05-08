@@ -24,7 +24,7 @@
   <br />
   <form [formGroup]="formCustom">
     @if (securityService.userSpecificSecuritySettings$ | async; as settings) {
-      <div class="flex flex-wrap gap-8">
+      <div class="flex flex-wrap gap-8 mb-4">
         <div>
           <p>
             <b>{{ settings.labels.classification.title }}</b>
@@ -32,10 +32,11 @@
           <p>Users must have this access to view.</p>
           <select
             flowSelect
+            [noRightPadding]="true"
             formControlName="classification"
-            size="6"
+            size="8"
             style="width: 100%"
-            class="rounded-xs pr-0 mt-1"
+            class="rounded-xs mt-1"
           >
             @for (optName of classificationSignal(); track optName) {
               <option class="py-2 pr-4 pl-4" [value]="optName">
@@ -52,11 +53,12 @@
             <p>Users must have all of selected to view.</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="caveat"
               multiple
               size="8"
               style="width: 100%"
-              class="rounded-xs pr-0 mt-1"
+              class="rounded-xs mt-1"
             >
               <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of caveatSignal(); track optName) {
@@ -75,11 +77,12 @@
             <p>Users must have one of selected to view.</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="releasability"
               multiple
               size="8"
               style="width: 100%"
-              class="rounded-xs pr-0 mt-1"
+              class="rounded-xs mt-1"
             >
               <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of relSignal(); track optName) {
@@ -98,10 +101,11 @@
             <p>Can restrict access (if configured).</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="tlp"
-              size="10"
+              size="8"
               style="width: 100%"
-              class="rounded-xs pr-0 mt-1"
+              class="rounded-xs mt-1"
             >
               <option class="py-2 pr-4 pl-4" value="">-</option>
               @for (optName of tlpSignal(); track optName) {
