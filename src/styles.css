@@ -36,7 +36,7 @@
 }
 
 @layer components {
-  select:not([multiple]) {
+  select:not([multiple]):not([size]) {
     /* This is normally an inline svg from tailwindcss/forms, which we don't like */
     background-image: url(assets/dropdown.svg);
   }
@@ -258,14 +258,4 @@ th {
   cursor: col-resize;
   user-select: none;
   z-index: 10;
-}
-
-/*Lots of options for various browsers.*/
-select.select-no-dropdown {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* Blank SVG to hide drop-down arrow override default arrow */
-  background-image: url("data:image/svg+xml,%3Csvg width='0' height='0'%3E%3C/svg%3E");
-  background-repeat: no-repeat;
 }
