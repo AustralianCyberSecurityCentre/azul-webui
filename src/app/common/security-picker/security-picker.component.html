@@ -24,7 +24,7 @@
   <br />
   <form [formGroup]="formCustom">
     @if (securityService.userSpecificSecuritySettings$ | async; as settings) {
-      <div class="flex flex-wrap gap-8 mb-4">
+      <div class="mb-4 flex flex-wrap gap-8">
         <div>
           <p>
             <b>{{ settings.labels.classification.title }}</b>
@@ -36,10 +36,10 @@
             formControlName="classification"
             size="8"
             style="width: 100%"
-            class="rounded-xs mt-1"
+            class="mt-1 rounded-xs"
           >
             @for (optName of classificationSignal(); track optName) {
-              <option class="py-2 px-4" [value]="optName">
+              <option class="px-4 py-2" [value]="optName">
                 {{ optName }}
               </option>
             }
@@ -58,11 +58,11 @@
               multiple
               size="8"
               style="width: 100%"
-              class="rounded-xs mt-1"
+              class="mt-1 rounded-xs"
             >
-              <option class="py-2 px-4" value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of caveatSignal(); track optName) {
-                <option class="py-2 px-4" [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -82,11 +82,11 @@
               multiple
               size="8"
               style="width: 100%"
-              class="rounded-xs mt-1"
+              class="mt-1 rounded-xs"
             >
-              <option class="py-2 px-4" value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of relSignal(); track optName) {
-                <option class="py-2 px-4" [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -105,11 +105,11 @@
               formControlName="tlp"
               size="8"
               style="width: 100%"
-              class="rounded-xs mt-1"
+              class="mt-1 rounded-xs"
             >
-              <option class="py-2 px-4" value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of tlpSignal(); track optName) {
-                <option class="py-2 px-4" [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }
