@@ -57,6 +57,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
   protected ButtonType = ButtonType;
 
   featureId$: Observable<string>;
+  featureDescription$: Observable<string>;
   featureValues$: Observable<FeatureValuesWithNumBinaries>;
   XNumValues$: Observable<string>;
 
@@ -139,6 +140,13 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.featureId$ = this.route.params.pipe(
       ops.map((p) => p.feature),
+      ops.shareReplay(1),
+    );
+
+    // Get the description whenever the selected feature or the map changes
+    this.featureDescription$ = this.featureId$.pipe(
+      ops.combineLatestWith(this.featureService.descriptionMap$),
+      ops.map(([id, descMap]) => descMap.get(id) ?? ""),
       ops.shareReplay(1),
     );
 
