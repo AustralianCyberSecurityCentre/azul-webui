@@ -39,7 +39,7 @@
             class="rounded-xs mt-1"
           >
             @for (optName of classificationSignal(); track optName) {
-              <option class="py-2 pr-4 pl-4" [value]="optName">
+              <option class="py-2 px-4" [value]="optName">
                 {{ optName }}
               </option>
             }
@@ -60,9 +60,9 @@
               style="width: 100%"
               class="rounded-xs mt-1"
             >
-              <option class="py-2 pr-4 pl-4" value="">-</option>
+              <option class="py-2 px-4" value="">-</option>
               @for (optName of caveatSignal(); track optName) {
-                <option class="py-2 pr-4 pl-4" [value]="optName">
+                <option class="py-2 px-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -84,9 +84,9 @@
               style="width: 100%"
               class="rounded-xs mt-1"
             >
-              <option class="py-2 pr-4 pl-4" value="">-</option>
+              <option class="py-2 px-4" value="">-</option>
               @for (optName of relSignal(); track optName) {
-                <option class="py-2 pr-4 pl-4" [value]="optName">
+                <option class="py-2 px-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -107,9 +107,9 @@
               style="width: 100%"
               class="rounded-xs mt-1"
             >
-              <option class="py-2 pr-4 pl-4" value="">-</option>
+              <option class="py-2 px-4" value="">-</option>
               @for (optName of tlpSignal(); track optName) {
-                <option class="py-2 pr-4 pl-4" [value]="optName">
+                <option class="py-2 px-4" [value]="optName">
                   {{ optName }}
                 </option>
               }
