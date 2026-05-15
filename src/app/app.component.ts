@@ -4,8 +4,17 @@ import {
   Injector,
   OnDestroy,
   OnInit,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from "@angular/router";
 import { Store } from "@ngrx/store";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { Subscription } from "rxjs";
@@ -16,7 +25,12 @@ import { config } from "./settings";
 
 @Component({
   selector: "app-root",
-  template: `<router-outlet></router-outlet>`,
+  template: `<router-outlet></router-outlet>
+    @if (!isLoadingCompleteSignal()) {
+      <div class="m-16 text-center text-xl dark:text-white">
+        Loading Angular components...
+      </div>
+    }`,
   styleUrls: ["./app.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
@@ -24,11 +38,27 @@ import { config } from "./settings";
 export class AppComponent implements OnInit, OnDestroy {
   private injector = inject(Injector);
   private store = inject(Store);
+  private router = inject(Router);
 
   title = "azul-webui";
 
   private appTerminationController = new AbortController();
   private storeSubscription: Subscription;
+  protected isLoadingCompleteSignal: WritableSignal<boolean> = signal(false);
+
+  constructor() {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.isLoadingCompleteSignal.set(false);
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        this.isLoadingCompleteSignal.set(true);
+      }
+    });
+  }
 
   ngOnInit(): void {
     if (config.oauth_enabled) {
