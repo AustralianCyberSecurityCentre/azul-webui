@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, KeyValuePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -30,6 +30,7 @@ import {
 import { OverlayModule } from "@angular/cdk/overlay";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { FormsModule } from "@angular/forms";
+import { FormField } from "@angular/forms/signals";
 import { FlowModule } from "src/lib/flow/flow.module";
 import { BannersComponent } from "./banners/banners.component";
 import { EntitySearchComponent } from "./entity-search/entity-search.component";
@@ -40,8 +41,8 @@ import { LoadingIndicatorFailedComponent } from "./loading-indicator-failed/load
 import { LoadingIndicatorComponent } from "./loading-indicator/loading-indicator.component";
 import { OffsetPickerComponent } from "./offset-picker/offset-picker.component";
 import { SettingsOverlayComponent } from "./settings-overlay/settings-overlay.component";
+import { SourcePickerComponent } from "./source-picker/source-picker.component";
 import { TagPickerComponent } from "./tag-picker/tag-picker.component";
-
 @NgModule({
   declarations: [
     SincePipe,
@@ -69,14 +70,17 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     LoadingContentComponent,
     OffsetPickerComponent,
     SettingsOverlayComponent,
+    SourcePickerComponent,
     HoverTextableComponent,
   ],
   imports: [
     CommonModule,
     ScrollingModule,
+    FormField,
     AzCoreModule,
     RouterModule,
     FontAwesomeModule,
+    KeyValuePipe,
     FlowModule,
     OverlayModule,
     FormsModule,
@@ -103,6 +107,7 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     EntitySearchComponent,
     EntitySummaryComponent,
     EntropyComponent,
+    SourcePickerComponent,
     EntityResultsComponent,
     LoadingIndicatorFailedComponent,
     LoadingIndicatorComponent,

@@ -17,7 +17,8 @@
     [ngClass]="{
       'pl-10': !!icon,
       'pr-10': !!suffixTpl,
-      'border-red-500 dark:border-red-500': invalid(),
+      'border-red-500 dark:border-red-500':
+        (touched() && invalid()) || (isForceShowInvalid() && invalid()),
       'border-gray-300 dark:border-gray-600': !invalid(),
       'sm:text-md p-4': fieldSize === 'large',
       'p-2.5 text-sm': fieldSize === 'medium',
@@ -29,7 +30,7 @@
     [attr.step]="step"
     [attr.size]="size"
     (focus)="inputFocus.emit($event)"
-    (blur)="inputBlur.emit($event)"
+    (blur)="inputBlur.emit($event); touched.set(true)"
     (focusout)="inputFocusOut.emit($event)"
     (selectionchange)="inputSelectionChange.emit($event)"
     [value]="value()"
@@ -44,8 +45,10 @@
 
   <span
     [ngClass]="{
-      'text-slate-600 dark:text-slate-400': !invalid && helpText,
-      'text-red-600 dark:text-red-500': invalid && helpText,
+      'text-slate-600 dark:text-slate-400': !invalid() && helpText,
+      'text-red-600 dark:text-red-500':
+        (touched() && invalid() && helpText) ||
+        (isForceShowInvalid() && invalid() && helpText),
       hidden: !helpText,
     }"
     class="mt-2 ml-2 text-xs font-semibold"

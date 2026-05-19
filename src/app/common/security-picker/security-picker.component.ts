@@ -2,15 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  EventEmitter,
   inject,
-  Input,
+  input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   Signal,
   signal,
-  WritableSignal,
+  WritableSignal
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Observable, of, Subscription } from "rxjs";
@@ -38,8 +37,8 @@ export class SecurityPickerComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   entityService = inject(Entity);
 
-  @Output() security = new EventEmitter<string>();
-  @Input() fullWidth?: boolean;
+  security = output<string | null>();
+  fullWidth = input<boolean>(false);
 
   protected preset = new FormControl<string | null>(null);
   protected presetSubscription?: Subscription;

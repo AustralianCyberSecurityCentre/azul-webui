@@ -38,6 +38,10 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   @Input() id: string = null;
   required = input<boolean>(false);
   invalid = input<boolean>(false);
+  dirty = input<boolean>(false);
+  // Is a model so it can be updated by blur.
+  touched = model<boolean>(false);
+  isForceShowInvalid = input<boolean>(false);
   placeholder = input<string>("");
 
   @Input() helpText?: string;
