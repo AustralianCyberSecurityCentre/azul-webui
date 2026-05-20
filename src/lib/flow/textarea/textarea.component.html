@@ -4,7 +4,7 @@
   [attr.spellcheck]="spellcheck"
   [formControl]="hcd.control"
   [value]="value()"
-  (input)="input.emit($event)"
+  (input)="valueChanged.emit($event)"
   [ngClass]="{
     'border-red-500 dark:border-red-500': invalid(),
     'focus:border-red-500 focus:dark:border-red-500': invalid(),

@@ -9,7 +9,7 @@ import {
   output,
   Signal,
   signal,
-  WritableSignal
+  WritableSignal,
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Observable, of, Subscription } from "rxjs";

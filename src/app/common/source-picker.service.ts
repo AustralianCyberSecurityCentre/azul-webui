@@ -98,10 +98,7 @@ export class SourcePickerService {
           setSource: this.setSourceSignal(),
         };
       },
-      computation: (
-        { sources, queryParams, userDetails, setSource },
-        previous,
-      ) => {
+      computation: ({ sources, queryParams, userDetails, setSource }) => {
         // If there are no sources nothing can be done.
         if (sources === undefined) {
           return {
@@ -109,14 +106,13 @@ export class SourcePickerService {
             refs: [],
           };
         }
-        let currentSource = setSource;
-
+        const currentSource = setSource;
         let hasRouteRefs = false;
         // Reference default values
         // Reference route based overrides
         const referenceDefaults = new Map<string, string>();
-        if (queryParams !== undefined) {
-          for (const key of queryParams?.keys) {
+        if (queryParams !== undefined && queryParams.keys !== undefined) {
+          for (const key of queryParams.keys) {
             if (key.startsWith("ref_")) {
               hasRouteRefs = true;
               const ref = key.slice(4);
@@ -135,7 +131,7 @@ export class SourcePickerService {
           }
         }
 
-        for (let sourceKey in sources) {
+        for (const sourceKey in sources) {
           if (sourceKey.toLowerCase() === currentSource.toLowerCase()) {
             const refList = sources[sourceKey]?.references;
             // References should be set as the source is valid.

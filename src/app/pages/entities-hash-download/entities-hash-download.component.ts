@@ -162,20 +162,7 @@ export class BinariesHashDownloadComponent {
     });
   }
 
-  getFieldPath(field: any): string {
-    const segments: string[] = [];
-
-    let current = field;
-    while (current) {
-      if (current.name) {
-        segments.unshift(current.name);
-      }
-      current = current.parent;
-    }
-
-    return segments.join(".");
-  }
-
+  // Validate all form fields except security confirmation and return any errors.
   getRequiredFields(): string[] {
     const invalid = [];
     // Only run this section if the form is invalid
@@ -225,7 +212,7 @@ export class BinariesHashDownloadComponent {
     const downloadModel = this.downloadModel();
     const sourceModel = this.sourcePicker.sourceModel();
 
-    let references: Map<string, string> = new Map<string, string>();
+    const references: Map<string, string> = new Map<string, string>();
     sourceModel.refs.forEach((srcRef) => {
       references.set(srcRef.name, srcRef.value);
     });
@@ -234,7 +221,7 @@ export class BinariesHashDownloadComponent {
       string,
       Observable<components["schemas"]["DownloadResponse"] | undefined>
     >();
-    for (let hash of downloadModel.hashes) {
+    for (const hash of downloadModel.hashes) {
       allHashDownloadRequestMap.set(
         hash,
         this.api.hashDownloadRequest({
@@ -254,13 +241,13 @@ export class BinariesHashDownloadComponent {
 
     const allHashesWithContent = new Map<string, Observable<boolean>>();
 
-    for (let hash of downloadModel.hashes) {
+    for (const hash of downloadModel.hashes) {
       // Query for status every refresh interval.
       const statusObservable = interval(
         this.RefreshIntervalSeconds * 1000,
       ).pipe(
         ops.switchMap(() => {
-          return this.api.hashDownloadStatusRequest(hash);
+          return this.api.hashDownloadStatusRequest(hash, true);
         }),
       );
       allHashDownloadStatusRequestsMap.set(hash, statusObservable);

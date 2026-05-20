@@ -24,7 +24,7 @@ export class TextareaComponent {
   @Input() spellcheck: boolean | null = null;
   value = input<string>();
   invalid = input<boolean>(false);
-  input = output<Event>();
+  valueChanged = output<Event>();
 
   hcd = inject(HostControlDirective);
 }
