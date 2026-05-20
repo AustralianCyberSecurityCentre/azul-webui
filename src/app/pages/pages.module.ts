@@ -15,6 +15,7 @@ import { CallbackComponent } from "./callback/callback.component";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
+import { BinariesHashDownloadComponent } from "./entities-hash-download/entities-hash-download.component";
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
@@ -57,6 +58,7 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     BinariesHashLookupComponent,
     UnauthorizedComponent,
     CallbackComponent,
+    BinariesHashDownloadComponent,
   ],
   imports: [
     CommonModule,

@@ -259,3 +259,11 @@ th {
   user-select: none;
   z-index: 10;
 }
+
+.fa-icon-green {
+  color: green;
+}
+
+.fa-icon-red {
+  color: red;
+}

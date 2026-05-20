@@ -1,0 +1,225 @@
+<form (ngSubmit)="onSubmit()">
+  <div id="Top">
+    <div class="container mx-auto">
+      <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
+      <azco-source-picker
+        [isForceShowInvalid]="showInvalidRefs()"
+      ></azco-source-picker>
+      <ng-container *ngTemplateOutlet="tplHashes"></ng-container>
+      <ng-container *ngTemplateOutlet="tplSubmit"></ng-container>
+    </div>
+  </div>
+
+  <!--Templates below-->
+  <ng-template #tplHeader>
+    <flow-card style="width: 100%">
+      <flow-card-header title="External Download of Sha256s" />
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplSubmit>
+    <flow-card>
+      <flow-card-header title="Submit" />
+      <flow-card-body class="container" style="width: 80%">
+        <div class="flex flex-col gap-2">
+          <azco-security-picker
+            [fullWidth]="true"
+            (security)="securityEmit($event)"
+          ></azco-security-picker>
+          @if (
+            downloadModel().security &&
+            downloadModel().security?.length > 0 &&
+            getRequiredFields().length > 0
+          ) {
+            <div class="mt-4">
+              <flow-alert
+                alertType="warning"
+                [withinCard]="true"
+                title="Incomplete submission"
+              >
+                <span class="font-medium"
+                  >Please ensure the following fields are specified:</span
+                >
+                <ul class="mt-1.5 ml-4 list-inside list-disc">
+                  @for (ref2 of getRequiredFields(); track ref2) {
+                    <li>
+                      {{ ref2 }}
+                    </li>
+                  }
+                </ul>
+              </flow-alert>
+            </div>
+          }
+          <flow-button
+            [fullWidth]="true"
+            (click)="confirmedSecurity()"
+            [type]="
+              downloadModel().security?.length > 0 &&
+              !downloadModel().securityConfirmed
+                ? ButtonType.Primary
+                : ButtonType.Disabled
+            "
+          >
+            @if (downloadModel().security?.length > 0) {
+              I confirm that all hashes are "{{ downloadModel().security }}"
+            } @else {
+              Select security first
+            }
+            <ng-template #missingSecuritySelection>
+              Select security first
+            </ng-template>
+          </flow-button>
+          <flow-button
+            [fullWidth]="true"
+            [submit]="true"
+            [type]="
+              downloadForm().invalid() || getRequiredFields().length > 0
+                ? ButtonType.Disabled
+                : ButtonType.Primary
+            "
+            status="primary"
+          >
+            Request Download files
+            @if (downloadModel().security !== undefined) {
+              at "{{ downloadModel().security }}"
+            }
+          </flow-button>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplHashes>
+    <flow-card style="width: 100%">
+      <flow-card-header title="Hashes" />
+      <flow-card-body>
+        <p class="pb-1">
+          Hashes to download, space, comma or new line separated
+        </p>
+        <p class="pb-1">
+          Remember to click away from the text box to update results.
+        </p>
+        <div class="flex">
+          <flow-textarea
+            [value]="hashTextAreaSignal()"
+            (valueChanged)="setArea($event)"
+            class="grow"
+            [spellcheck]="false"
+            [rows]="10"
+            [invalid]="
+              downloadForm.hashes().invalid() &&
+              (this.downloadForm.hashes().touched() || showInvalidRefs())
+            "
+          ></flow-textarea>
+        </div>
+        @if (downloadModel().hashes?.length > 0) {
+          <div class="mt-4">
+            <span class="font-medium">Hashes to request download for:</span>
+            <table flowTable class="w-full">
+              <thead flowTableBody>
+                <tr flowTableBodyRow>
+                  <th flowTableBodyCell>sha256</th>
+                  <th flowTableBodyCell>Request Sent</th>
+                  <th flowTableBodyCell>
+                    <flow-tooltip
+                      message="Display a download plugins name and current status"
+                    >
+                      Download Status
+                    </flow-tooltip>
+                  </th>
+                </tr>
+              </thead>
+              <tbody flowTableBody>
+                @for (hash of downloadModel().hashes; track hash) {
+                  <tr flowTableBodyRow>
+                    <td flowTableBodyCell>
+                      @if (
+                        allHashesWithContent() !== undefined &&
+                          allHashesWithContent().get(hash) | async;
+                        as isContentAvailable
+                      ) {
+                        @if (isContentAvailable) {
+                          <a
+                            flowLink
+                            [href]="'pages/binaries/current/' + hash"
+                            target="_blank"
+                          >
+                            {{ hash }}
+                            <fa-icon [icon]="faSquareUpRight" class="pl-2"
+                          /></a>
+                        } @else {
+                          {{ hash }}
+                        }
+                      } @else {
+                        {{ hash }}
+                      }
+                    </td>
+                    @if (allHashDownloadRequests() === undefined) {
+                      <td flowTableBodyCell>-</td>
+                      <td flowTableBodyCell>-</td>
+                    } @else {
+                      <td flowTableBodyCell>
+                        @if (
+                          allHashDownloadRequests().get(hash) | async;
+                          as finishedRequest
+                        ) {
+                          @if (finishedRequest?.sha256 === hash) {
+                            <fa-icon class="fa-icon-green" [icon]="faCheck" />
+                          } @else {
+                            <fa-icon
+                              class="fa-icon-red"
+                              [icon]="faCircleXmark"
+                            />
+                          }
+                        } @else {
+                          <fa-icon [icon]="faSpinner" animation="spin" />
+                        }
+                      </td>
+                      <td flowTableBodyCell>
+                        @if (
+                          allHashDownloadStatusReports().get(hash) | async;
+                          as finishedStatusRequest
+                        ) {
+                          <ng-container
+                            *ngTemplateOutlet="
+                              tplPluginStatus;
+                              context: {
+                                finishedStatusRequest: finishedStatusRequest,
+                              }
+                            "
+                          ></ng-container>
+                        } @else {
+                          <fa-icon [icon]="faSpinner" animation="spin" />
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template
+    #tplPluginStatus
+    let-finishedStatusRequest="finishedStatusRequest"
+  >
+    <tbody flowTableBody>
+      @for (statusEvent of finishedStatusRequest; track $index) {
+        <tr flowTableBodyRow>
+          <td flowTableBodyCell>{{ statusEvent.author.name }}</td>
+          <td flowTableBodyCell>{{ statusEvent.entity.status }}</td>
+        </tr>
+      }
+
+      @if (finishedStatusRequest.length === 0) {
+        <tr flowTableBodyRow>
+          <td flowTableBodyCell>No plugins working yet.</td>
+        </tr>
+      }
+    </tbody>
+  </ng-template>
+</form>

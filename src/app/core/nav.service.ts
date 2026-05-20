@@ -176,6 +176,7 @@ export class NavService {
         const items: MenuItem[] = [
           { title: "Explore", link: "/pages/binaries/explore" },
           { title: "Hash Lookup", link: "/pages/binaries/hash_lookup" },
+          { title: "Hash Download", link: "/pages/binaries/hash_download" },
           { title: "Upload", link: "/pages/binaries/upload" },
           { title: "Tags", link: "/pages/binaries/tags" },
           // { title: 'Compare', link: '/pages/binaries/compare' },
@@ -273,6 +274,10 @@ export class NavService {
       {
         re: new RegExp("^/pages/binaries/hash_lookup"),
         t: () => `Hash Lookup`,
+      },
+      {
+        re: new RegExp("^/pages/binaries/hash_download"),
+        t: () => `Hash Download`,
       },
       { re: new RegExp("^/pages/binaries/tags"), t: () => `Binary Tags` },
       {
