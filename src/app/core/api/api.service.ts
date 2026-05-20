@@ -789,16 +789,31 @@ export class ApiService {
       {
         include_download_requests: includeDownloadRequestStatus,
       };
+    const emptyReturn: components["schemas"]["Response_StatusEvent_"] = {
+      data: [],
+      meta: {
+        sec_filter: null,
+        complete: false,
+      },
+    };
     return this.getOperation(
       "/api/v0/binaries/source/download/{sha256}",
       params,
       { sha256 },
       { cache: false },
     ).pipe(
-      ops.tap((d) =>
-        this.addReceivedSecurity(d.meta?.security, d.meta.sec_filter),
-      ),
-      ops.map((d) => d?.data),
+      ops.catchError((e) => this.handle(e, emptyReturn, [404])),
+      ops.tap((d) => {
+        if (d !== undefined) {
+          this.addReceivedSecurity(d.meta?.security, d.meta?.sec_filter);
+        }
+      }),
+      ops.map((d) => {
+        if (d !== undefined) {
+          return d?.data;
+        }
+        return d;
+      }),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
   }
