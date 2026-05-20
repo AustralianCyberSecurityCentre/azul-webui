@@ -247,7 +247,7 @@ export class BinariesHashDownloadComponent {
         this.RefreshIntervalSeconds * 1000,
       ).pipe(
         ops.switchMap(() => {
-          return this.api.hashDownloadStatusRequest(hash, true);
+          return this.api.hashDownloadStatusRequest(hash);
         }),
       );
       allHashDownloadStatusRequestsMap.set(hash, statusObservable);
