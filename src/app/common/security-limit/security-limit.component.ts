@@ -12,6 +12,7 @@ import {
   faCheckDouble,
   faSquareMinus,
 } from "@fortawesome/free-solid-svg-icons";
+import * as ops from "rxjs/operators";
 
 import { ApiService } from "src/app/core/api/api.service";
 import { components } from "src/app/core/api/openapi";
@@ -62,7 +63,12 @@ export class SecurityLimitComponent {
     tlp: components["schemas"]["LabelOptionsTlp"];
   };
 
-  @Input() set securitySettings(data: components["schemas"]["Settings"]) {
+  @Input() set securitySettings(
+    data: components["schemas"]["Settings"] | null,
+  ) {
+    if (data === null) {
+      return;
+    }
     this.settings = data;
 
     this.allGroups = {
@@ -105,6 +111,14 @@ export class SecurityLimitComponent {
     this.updateForm(on);
   }
 
+  // Reset form to the default state.
+  resetForm() {
+    this.updateForm(true);
+    // Reset the form value and the storage value for the filter
+    this.formCustom.get("andSearch")?.setValue(false);
+    this.api.changeRelFilterOption(false);
+  }
+
   ensureReleasabilityOriginIsSelected() {
     const raw = this.formCustom.getRawValue();
     if (raw.releasability.indexOf(this.allGroups.releasability.origin) === -1) {
@@ -119,6 +133,9 @@ export class SecurityLimitComponent {
   onSubmit() {
     // iterate through all groups and find inverted set of what the form controls actually report as being selected
     // find option that are excluded, not included. If AND search is toggled then we include the selected RELS
+    // Clear all cache, to ensure no bad security caching.
+    this.api.clearCache().pipe(ops.take(1)).subscribe();
+
     const raw = this.formCustom.getRawValue();
     const excluded: string[] = [];
     const included: string[] = [];
