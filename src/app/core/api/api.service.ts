@@ -358,6 +358,7 @@ export class ApiService {
 
   /** Clears all storage. */
   clearCache(): Observable<void> {
+    this.receivedSecurities$.next(new Set<string>());
     return this.http.clearCache();
   }
 
