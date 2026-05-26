@@ -1,5 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices"],
-  "automerge": true
+  "automerge": true,
+  "packageRules": [
+    {
+      "description": "Ensure packages that just break things don't update",
+      "matchCategories": ["js"],
+      "matchPackageNames": ["typescript"],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "7 days"
+    }
+  ]
 }
