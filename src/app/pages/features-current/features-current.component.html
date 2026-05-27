@@ -17,7 +17,12 @@
     <flow-card class="w-full">
       <flow-card-header title="Feature | {{ featureId$ | async }}" />
       <flow-card-body>
-        <div class="flex flex-wrap gap-2">
+        @if (featureDescription$ | async; as desc) {
+          @if (desc) {
+            <p class="pb-2 text-sm text-gray-400">{{ desc }}</p>
+          }
+        }
+        <div class="flex flex-wrap gap-2 pt-2">
           <flow-input
             [icon]="faMagnifyingGlass"
             placeholder="Search"

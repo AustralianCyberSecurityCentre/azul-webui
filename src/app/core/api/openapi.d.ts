@@ -279,7 +279,7 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/binaries/{sha256}/similar": {
+  readonly "/api/v0/binaries/{sha256}/similar/features": {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -288,9 +288,9 @@ export interface paths {
     };
     /**
      * Get Similar Feature Binaries
-     * @description Return info about similar entities.
+     * @description Return info about entities with similar features to the provided sha256.
      */
-    readonly get: operations["get_similar_feature_binaries_api_v0_binaries__sha256__similar_get"];
+    readonly get: operations["get_similar_feature_binaries_api_v0_binaries__sha256__similar_features_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -552,6 +552,49 @@ export interface paths {
      *     Looks for ASCII, UTF-16 and UTF-32 big and little endian strings.
      */
     readonly get: operations["get_common_strings_api_v0_binaries__sha256A___sha256B__strings_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/binaries/source/download": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Submit Binary Download Request
+     * @description Submit a request to download a file from a remote source.
+     *
+     *     NOTE - this source will be at the classification of the system.
+     *     Ensure you don't submit sha256's that are classified at a higher classification.
+     */
+    readonly post: operations["submit_binary_download_request_api_v0_binaries_source_download_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/binaries/source/download/{sha256}": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Binary Download Request Status
+     * @description Get the status per plugin for a download request that was submitted.
+     */
+    readonly get: operations["get_binary_download_request_status_api_v0_binaries_source_download__sha256__get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -978,6 +1021,26 @@ export interface paths {
      * @description Read data for one plugin version.
      */
     readonly get: operations["get_plugin_api_v0_plugins__name__versions__version__get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/plugins/download": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Download Plugins
+     * @description Find all plugins that are able to download files.
+     */
+    readonly get: operations["get_download_plugins_api_v0_plugins_download_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -1606,6 +1669,49 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * BinaryEvent
+     * @description Binary event message from plugin execution or data source.
+     */
+    readonly BinaryEvent: {
+      /** Model Version */
+      readonly model_version: number;
+      /** Kafka Key */
+      readonly kafka_key: string;
+      /** Timestamp */
+      readonly timestamp: string;
+      readonly author: components["schemas"]["azul_bedrock__models_network__Author"];
+      readonly entity: components["schemas"]["azul_bedrock__models_network__BinaryEvent__Entity"];
+      readonly action: components["schemas"]["BinaryAction"];
+      readonly source: components["schemas"]["azul_bedrock__models_network__Source"];
+      /** Dequeued */
+      readonly dequeued?: string | null;
+      /** Retries */
+      readonly retries?: number | null;
+      /**
+       * @default {
+       *       "bypass_cache": false,
+       *       "expedite": false,
+       *       "retry": false
+       *     }
+       */
+      readonly flags: components["schemas"]["BinaryFlags"];
+      /**
+       * Track Source References
+       * @default
+       */
+      readonly track_source_references: string;
+      /**
+       * Track Links
+       * @default []
+       */
+      readonly track_links: readonly string[];
+      /**
+       * Track Authors
+       * @default []
+       */
+      readonly track_authors: readonly string[];
+    };
+    /**
      * BinaryFeatureValue
      * @description Feature value that has been aggregated over binary events.
      */
@@ -1637,6 +1743,27 @@ export interface components {
        * @default []
        */
       readonly tags: readonly components["schemas"]["FeatureValueTag"][];
+    };
+    /**
+     * BinaryFlags
+     * @description Flags that can appear on a binary event.
+     */
+    readonly BinaryFlags: {
+      /**
+       * Bypass Cache
+       * @default false
+       */
+      readonly bypass_cache: boolean;
+      /**
+       * Expedite
+       * @default false
+       */
+      readonly expedite: boolean;
+      /**
+       * Retry
+       * @default false
+       */
+      readonly retry: boolean;
     };
     /**
      * BinaryHexHeader
@@ -1906,6 +2033,41 @@ export interface components {
        */
       readonly security: string;
     };
+    /** Body_submit_binary_download_request_api_v0_binaries_source_download_post */
+    readonly Body_submit_binary_download_request_api_v0_binaries_source_download_post: {
+      /**
+       * Sha256
+       * @description Sha256 of file to download from external source.
+       */
+      readonly sha256: string;
+      /**
+       * Security
+       * @description Space separated list of security labels e.g 'OFFICIAL TLP:CLEAR'
+       * @default
+       */
+      readonly security: string;
+      /**
+       * Source Id
+       * @description Source/grouping to submit the file into
+       */
+      readonly source_id: string;
+      /**
+       * References
+       * @description Reference key value pairs.
+       * @default {}
+       */
+      readonly references: {
+        readonly [key: string]: string;
+      };
+      /**
+       * Settings
+       * @description Settings key value pairs.
+       * @default {}
+       */
+      readonly settings: {
+        readonly [key: string]: string;
+      };
+    };
     /** Body_submit_binary_to_source_api_v0_binaries_source_post */
     readonly Body_submit_binary_to_source_api_v0_binaries_source_post: {
       /**
@@ -2130,6 +2292,42 @@ export interface components {
       | "text"
       | "yara_rule_hit";
     /**
+     * Datastream
+     * @description Struct containing data expected to be returned from dispatcher after uploading a file via the Streams API.
+     */
+    readonly Datastream: {
+      /** Sha256 */
+      readonly sha256?: string | null;
+      /** Sha512 */
+      readonly sha512?: string | null;
+      /** Sha1 */
+      readonly sha1?: string | null;
+      /** Md5 */
+      readonly md5?: string | null;
+      /** Ssdeep */
+      readonly ssdeep?: string | null;
+      /** Tlsh */
+      readonly tlsh?: string | null;
+      /** Size */
+      readonly size?: number | null;
+      /** File Format */
+      readonly file_format?: string | null;
+      /** File Extension */
+      readonly file_extension?: string | null;
+      /** Mime */
+      readonly mime?: string | null;
+      /** Magic */
+      readonly magic?: string | null;
+      /**
+       * Identify Version
+       * @default 0
+       */
+      readonly identify_version: number;
+      readonly label: components["schemas"]["DataLabel"];
+      /** Language */
+      readonly language?: string | null;
+    };
+    /**
      * DatastreamInstances
      * @description Stream + embedded authors info.
      */
@@ -2167,6 +2365,27 @@ export interface components {
       readonly language?: string | null;
       /** Instances */
       readonly instances: readonly string[];
+    };
+    /**
+     * DownloadResponse
+     * @description Response from a download request.
+     */
+    readonly DownloadResponse: {
+      /** Sha256 */
+      readonly sha256: string;
+      /** Last Download Security */
+      readonly last_download_security: string;
+      /** Last Download Timestamp */
+      readonly last_download_timestamp: string;
+      /** Last Download Author Name */
+      readonly last_download_author_name: string;
+      /** Plugin Statuses */
+      readonly plugin_statuses: readonly components["schemas"]["azul_bedrock__models_network__StatusEvent"][];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries_download.DownloadResponse'> */
+    readonly DownloadResponse__: {
+      readonly data?: components["schemas"]["DownloadResponse"];
+      readonly meta: components["schemas"]["Meta"];
     };
     /**
      * EntityFind
@@ -2561,6 +2780,7 @@ export interface components {
       | "MetastoreDownloadingBadStreamType"
       | "MetastoreInvalidStringsRegexProvided"
       | "MetastoreInvalidHexPatternProvided"
+      | "MetastoreDownloadRequestNotMade"
       | "MetastoreCannotParseTimestampToUTC"
       | "MetastoreInvalidJson"
       | "MetastoreAltStreamsLabelsDoesNotMatch"
@@ -2578,6 +2798,7 @@ export interface components {
       | "MetastoreNoPluginsInAzul"
       | "MetastoreNoPluginStatusesInAzul"
       | "MetastorePluginNotInAzul"
+      | "MetastoreNoDownloadPluginsInAzul"
       | "MetastoreUserNotAllowedToPurge"
       | "MetastoreInvalidTimestampForPurge"
       | "MetastoreInvalidPurgeExceptionApi"
@@ -2752,6 +2973,23 @@ export interface components {
       | "datetime"
       | "filepath"
       | "uri";
+    /**
+     * FeatureValue
+     * @description Used by the comms API, in which features are passed as a simple list of (feat_name, value, <other meta>).
+     */
+    readonly FeatureValue: {
+      /** Name */
+      readonly name: string;
+      readonly type: components["schemas"]["FeatureType"];
+      /** Value */
+      readonly value: string;
+      /** Label */
+      readonly label?: string | null;
+      /** Offset */
+      readonly offset?: number | null;
+      /** Size */
+      readonly size?: number | null;
+    };
     /**
      * FeatureValuePart
      * @description Sub elements of a feature value.
@@ -3137,32 +3375,6 @@ export interface components {
      */
     readonly PartitionUnitEnum: "all" | "year" | "month" | "week" | "day";
     /**
-     * PathNode
-     * @description Relationship link from a parent entity to a child, or the top level link in a path (no parent).
-     */
-    readonly PathNode: {
-      /** Sha256 */
-      readonly sha256: string;
-      readonly action: components["schemas"]["BinaryAction"];
-      /** Timestamp */
-      readonly timestamp: string;
-      readonly author: components["schemas"]["azul_bedrock__models_network__Author"];
-      /** Relationship */
-      readonly relationship?: {
-        readonly [key: string]: unknown;
-      } | null;
-      /** File Format */
-      readonly file_format?: string | null;
-      /** Size */
-      readonly size?: number | null;
-      /** Filename */
-      readonly filename?: string | null;
-      /** Language */
-      readonly language?: string | null;
-      /** Track Link */
-      readonly track_link?: string | null;
-    };
-    /**
      * PluginEntity
      * @description More detailed plugin info.
      */
@@ -3482,6 +3694,12 @@ export interface components {
       readonly data?: components["schemas"]["References"];
       readonly meta: components["schemas"]["Meta"];
     };
+    /** Response:list[azul_bedrock.models_restapi.basic.Author] */
+    readonly Response_Author_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["azul_bedrock__models_restapi__basic__Author"][];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /** Response:list[azul_bedrock.models_restapi.plugins.LatestPluginWithVersions] */
     readonly Response_LatestPluginWithVersions_: {
       /** Data */
@@ -3492,6 +3710,12 @@ export interface components {
     readonly Response_PluginStatusSummary_: {
       /** Data */
       readonly data?: readonly components["schemas"]["PluginStatusSummary"][];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /** Response:list[azul_bedrock.models_restapi.binaries.StatusEvent] */
+    readonly Response_StatusEvent_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["StatusEvent"][];
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:typing.Annotated[typing.Union[azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError], FieldInfo(annotation=NoneType, required=True, discriminator='type')] */
@@ -3807,6 +4031,42 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * SimilarFeatureMatch
+     * @description Similarity calculation result.
+     */
+    readonly SimilarFeatureMatch: {
+      /** Num Feature Values */
+      readonly num_feature_values: number;
+      /** Matches */
+      readonly matches: readonly components["schemas"]["SimilarFeatureMatchRow"][];
+      /** Timestamp */
+      readonly timestamp: string;
+      /** Status */
+      readonly status: string;
+    };
+    /**
+     * SimilarFeatureMatchRow
+     * @description Similarity result row.
+     */
+    readonly SimilarFeatureMatchRow: {
+      /** Sha256 */
+      readonly sha256: string;
+      /** Score Sum */
+      readonly score_sum: number;
+      /**
+       * Score Percent
+       * @default 0
+       */
+      readonly score_percent: number;
+      /** Contributions */
+      readonly contributions: readonly (readonly (string | number)[])[];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarFeatureMatch'> */
+    readonly SimilarFeatureMatch__: {
+      readonly data?: components["schemas"]["SimilarFeatureMatch"];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /**
      * SimilarFuzzyMatch
      * @description Ssdeep similarity calculation result.
      */
@@ -3827,42 +4087,6 @@ export interface components {
     /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarFuzzyMatch'> */
     readonly SimilarFuzzyMatch__: {
       readonly data?: components["schemas"]["SimilarFuzzyMatch"];
-      readonly meta: components["schemas"]["Meta"];
-    };
-    /**
-     * SimilarMatch
-     * @description Similarity calculation result.
-     */
-    readonly SimilarMatch: {
-      /** Num Feature Values */
-      readonly num_feature_values: number;
-      /** Matches */
-      readonly matches: readonly components["schemas"]["SimilarMatchRow"][];
-      /** Timestamp */
-      readonly timestamp: string;
-      /** Status */
-      readonly status: string;
-    };
-    /**
-     * SimilarMatchRow
-     * @description Similarity result row.
-     */
-    readonly SimilarMatchRow: {
-      /** Sha256 */
-      readonly sha256: string;
-      /** Score Sum */
-      readonly score_sum: number;
-      /**
-       * Score Percent
-       * @default 0
-       */
-      readonly score_percent: number;
-      /** Contributions */
-      readonly contributions: readonly (readonly (string | number)[])[];
-    };
-    /** Response:<class 'azul_bedrock.models_restapi.binaries.SimilarMatch'> */
-    readonly SimilarMatch__: {
-      readonly data?: components["schemas"]["SimilarMatch"];
       readonly meta: components["schemas"]["Meta"];
     };
     /**
@@ -3947,22 +4171,25 @@ export interface components {
       readonly input: components["schemas"]["StatusInput"];
     };
     /**
-     * StatusEvent
-     * @description Status information to return from the api.
+     * StatusEnum
+     * @description Valid 'status' entries for StatusEvent.Entity.status.
+     * @enum {string}
      */
-    readonly StatusEvent: {
-      /** Timestamp */
-      readonly timestamp: string;
-      readonly author: components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
-      readonly entity: components["schemas"]["StatusEntity"];
-      /**
-       * Completed
-       * @default 0
-       */
-      readonly completed: number;
-      /** Security */
-      readonly security: string;
-    };
+    readonly StatusEnum:
+      | "completed"
+      | "completed-empty"
+      | "completed-with-errors"
+      | "opt-out"
+      | "heartbeat"
+      | "dequeued"
+      | "download-requested"
+      | "error-exception"
+      | "error-network"
+      | "error-runner"
+      | "error-input"
+      | "error-output"
+      | "error-timeout"
+      | "error-out-of-memory";
     /**
      * StatusGroup
      * @description Info for events matching a status type of a plugin.
@@ -4167,6 +4394,139 @@ export interface components {
       readonly security?: string | null;
     };
     /**
+     * Entity
+     * @description Details for binary after being processed by a plugin or data source.
+     */
+    readonly azul_bedrock__models_network__BinaryEvent__Entity: {
+      /** Sha256 */
+      readonly sha256?: string | null;
+      /** Sha512 */
+      readonly sha512?: string | null;
+      /** Sha1 */
+      readonly sha1?: string | null;
+      /** Md5 */
+      readonly md5?: string | null;
+      /** Ssdeep */
+      readonly ssdeep?: string | null;
+      /** Tlsh */
+      readonly tlsh?: string | null;
+      /** Size */
+      readonly size?: number | null;
+      /** File Format */
+      readonly file_format?: string | null;
+      /** File Extension */
+      readonly file_extension?: string | null;
+      /** Mime */
+      readonly mime?: string | null;
+      /** Magic */
+      readonly magic?: string | null;
+      /**
+       * Features
+       * @default []
+       */
+      readonly features: readonly components["schemas"]["FeatureValue"][];
+      /**
+       * Datastreams
+       * @default []
+       */
+      readonly datastreams: readonly components["schemas"]["Datastream"][];
+      /**
+       * Info
+       * @default {}
+       */
+      readonly info: {
+        readonly [key: string]: unknown;
+      };
+    };
+    /**
+     * PathNode
+     * @description A node on the source path - the relationship hierarchy to the original source-event.
+     */
+    readonly azul_bedrock__models_network__PathNode: {
+      /** Sha256 */
+      readonly sha256: string;
+      readonly action: components["schemas"]["BinaryAction"];
+      /** Timestamp */
+      readonly timestamp: string;
+      readonly author: components["schemas"]["azul_bedrock__models_network__Author"];
+      /**
+       * Relationship
+       * @default {}
+       */
+      readonly relationship: {
+        readonly [key: string]: string;
+      };
+      /** File Format */
+      readonly file_format?: string | null;
+      /** Size */
+      readonly size?: number | null;
+      /** Filename */
+      readonly filename?: string | null;
+      /** Language */
+      readonly language?: string | null;
+    };
+    /**
+     * Source
+     * @description Source struct.
+     */
+    readonly azul_bedrock__models_network__Source: {
+      /** Security */
+      readonly security?: string | null;
+      /** Name */
+      readonly name: string;
+      /** Timestamp */
+      readonly timestamp: string;
+      /**
+       * References
+       * @default {}
+       */
+      readonly references: {
+        readonly [key: string]: string;
+      };
+      /** Path */
+      readonly path: readonly components["schemas"]["azul_bedrock__models_network__PathNode"][];
+      /**
+       * Settings
+       * @default {}
+       */
+      readonly settings: {
+        readonly [key: string]: string;
+      };
+    };
+    /**
+     * StatusEvent
+     * @description Status event.
+     */
+    readonly azul_bedrock__models_network__StatusEvent: {
+      /** Model Version */
+      readonly model_version: number;
+      /** Kafka Key */
+      readonly kafka_key: string;
+      /** Timestamp */
+      readonly timestamp: string;
+      readonly author: components["schemas"]["azul_bedrock__models_network__Author"];
+      readonly entity: components["schemas"]["azul_bedrock__models_network__StatusEvent__Entity"];
+    };
+    /**
+     * Entity
+     * @description Status message.
+     */
+    readonly azul_bedrock__models_network__StatusEvent__Entity: {
+      readonly input: components["schemas"]["BinaryEvent"];
+      readonly status: components["schemas"]["StatusEnum"];
+      /** Runtime */
+      readonly runtime?: number | null;
+      /** Error */
+      readonly error?: string | null;
+      /** Message */
+      readonly message?: string | null;
+      /**
+       * Results
+       * @default []
+       */
+      readonly results: readonly components["schemas"]["BinaryEvent"][];
+    };
+    /**
      * Author
      * @description A single author.
      */
@@ -4181,6 +4541,49 @@ export interface components {
       readonly version?: string | null;
       /** Stream */
       readonly stream?: string | null;
+    };
+    /**
+     * PathNode
+     * @description Relationship link from a parent entity to a child, or the top level link in a path (no parent).
+     */
+    readonly PathNode: {
+      /** Sha256 */
+      readonly sha256: string;
+      readonly action: components["schemas"]["BinaryAction"];
+      /** Timestamp */
+      readonly timestamp: string;
+      readonly author: components["schemas"]["azul_bedrock__models_network__Author"];
+      /** Relationship */
+      readonly relationship?: {
+        readonly [key: string]: unknown;
+      } | null;
+      /** File Format */
+      readonly file_format?: string | null;
+      /** Size */
+      readonly size?: number | null;
+      /** Filename */
+      readonly filename?: string | null;
+      /** Language */
+      readonly language?: string | null;
+      /** Track Link */
+      readonly track_link?: string | null;
+    };
+    /**
+     * StatusEvent
+     * @description Status information to return from the api.
+     */
+    readonly StatusEvent: {
+      /** Timestamp */
+      readonly timestamp: string;
+      readonly author: components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
+      readonly entity: components["schemas"]["StatusEntity"];
+      /**
+       * Completed
+       * @default 0
+       */
+      readonly completed: number;
+      /** Security */
+      readonly security: string;
     };
     /**
      * PurgeResults
@@ -4306,7 +4709,9 @@ export type BinaryAction = components["schemas"]["BinaryAction"];
 export type BinaryData = components["schemas"]["BinaryData"];
 export type BinaryDiagnostic = components["schemas"]["BinaryDiagnostic"];
 export type BinaryDocuments = components["schemas"]["BinaryDocuments__"];
+export type BinaryEvent = components["schemas"]["BinaryEvent"];
 export type BinaryFeatureValue = components["schemas"]["BinaryFeatureValue"];
+export type BinaryFlags = components["schemas"]["BinaryFlags"];
 export type BinaryHexHeader = components["schemas"]["BinaryHexHeader"];
 export type BinaryHexValue = components["schemas"]["BinaryHexValue"];
 export type BinaryHexView = components["schemas"]["BinaryHexView"];
@@ -4346,6 +4751,8 @@ export type BodyFindValuesInFeatureApiV0FeaturesFeatureFeaturePost =
   components["schemas"]["Body_find_values_in_feature_api_v0_features_feature__feature__post"];
 export type BodyNormaliseSecurityApiV1SecurityNormalisePost =
   components["schemas"]["Body_normalise_security_api_v1_security_normalise_post"];
+export type BodySubmitBinaryDownloadRequestApiV0BinariesSourceDownloadPost =
+  components["schemas"]["Body_submit_binary_download_request_api_v0_binaries_source_download_post"];
 export type BodySubmitBinaryToSourceApiV0BinariesSourcePost =
   components["schemas"]["Body_submit_binary_to_source_api_v0_binaries_source_post"];
 export type BodySubmitBinaryToSourceDatalessApiV0BinariesSourceDatalessPost =
@@ -4358,7 +4765,9 @@ export type CommonBinaryStrings = components["schemas"]["CommonBinaryStrings"];
 export type CredentialFormat = components["schemas"]["CredentialFormat"];
 export type Credentials = components["schemas"]["Credentials"];
 export type DataLabel = components["schemas"]["DataLabel"];
+export type Datastream = components["schemas"]["Datastream"];
 export type DatastreamInstances = components["schemas"]["DatastreamInstances"];
+export type DownloadResponse = components["schemas"]["DownloadResponse__"];
 export type EntityFind = components["schemas"]["EntityFind__"];
 export type EntityFindItem = components["schemas"]["EntityFindItem"];
 export type EntityFindItemSource =
@@ -4389,6 +4798,7 @@ export type FeaturePivotResponse =
 export type FeaturePivotValueCount =
   components["schemas"]["FeaturePivotValueCount"];
 export type FeatureType = components["schemas"]["FeatureType"];
+export type FeatureValue = components["schemas"]["FeatureValue"];
 export type FeatureValuePart = components["schemas"]["FeatureValuePart"];
 export type FeatureValueTag = components["schemas"]["FeatureValueTag"];
 export type Features = components["schemas"]["Features__"];
@@ -4420,7 +4830,6 @@ export type PatIssue = components["schemas"]["PATIssue"];
 export type PatRequest = components["schemas"]["PATRequest"];
 export type PatView = components["schemas"]["PATView"];
 export type PartitionUnitEnum = components["schemas"]["PartitionUnitEnum"];
-export type PathNode = components["schemas"]["PathNode"];
 export type PluginEntity = components["schemas"]["PluginEntity"];
 export type PluginFeature = components["schemas"]["PluginFeature"];
 export type PluginInfo = components["schemas"]["PluginInfo__"];
@@ -4443,10 +4852,13 @@ export type ReadTags = components["schemas"]["ReadTags__"];
 export type ReadTagsTag = components["schemas"]["ReadTagsTag"];
 export type ReferenceSet = components["schemas"]["ReferenceSet"];
 export type References = components["schemas"]["References__"];
+export type ResponseAuthor = components["schemas"]["Response_Author_"];
 export type ResponseLatestPluginWithVersions =
   components["schemas"]["Response_LatestPluginWithVersions_"];
 export type ResponsePluginStatusSummary =
   components["schemas"]["Response_PluginStatusSummary_"];
+export type ResponseStatusEvent =
+  components["schemas"]["Response_StatusEvent_"];
 export type ResponseUnionAutocompleteNoneAutocompleteInitialAutocompleteFieldNameAutocompleteFieldValueAutocompleteErrorFieldInfoAnnotationNoneTypeRequiredTrueDiscriminatorType =
   components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"];
 export type ResponseStrFeatureMulticountRet =
@@ -4470,18 +4882,20 @@ export type SimilarEntropyMatch =
   components["schemas"]["SimilarEntropyMatch__"];
 export type SimilarEntropyMatchRow =
   components["schemas"]["SimilarEntropyMatchRow"];
+export type SimilarFeatureMatch =
+  components["schemas"]["SimilarFeatureMatch__"];
+export type SimilarFeatureMatchRow =
+  components["schemas"]["SimilarFeatureMatchRow"];
 export type SimilarFuzzyMatch = components["schemas"]["SimilarFuzzyMatch__"];
 export type SimilarFuzzyMatchRow =
   components["schemas"]["SimilarFuzzyMatchRow"];
-export type SimilarMatch = components["schemas"]["SimilarMatch__"];
-export type SimilarMatchRow = components["schemas"]["SimilarMatchRow"];
 export type SourceKafka = components["schemas"]["SourceKafka"];
 export type SourceReference = components["schemas"]["SourceReference"];
 export type Source = components["schemas"]["Source__"];
 export type StatisticSummary = components["schemas"]["StatisticSummary__"];
 export type Status = components["schemas"]["Status__"];
 export type StatusEntity = components["schemas"]["StatusEntity"];
-export type StatusEvent = components["schemas"]["StatusEvent"];
+export type StatusEnum = components["schemas"]["StatusEnum"];
 export type StatusGroup = components["schemas"]["StatusGroup"];
 export type StatusInput = components["schemas"]["StatusInput"];
 export type StatusInputEntity = components["schemas"]["StatusInputEntity"];
@@ -4495,8 +4909,22 @@ export type ValuePartCountItem = components["schemas"]["ValuePartCountItem"];
 export type ValuePartCountRet = components["schemas"]["ValuePartCountRet"];
 export type AzulBedrockModelsNetworkAuthor =
   components["schemas"]["azul_bedrock__models_network__Author"];
+export type AzulBedrockModelsNetworkBinaryEventEntity =
+  components["schemas"]["azul_bedrock__models_network__BinaryEvent__Entity"];
+export type AzulBedrockModelsNetworkPathNode =
+  components["schemas"]["azul_bedrock__models_network__PathNode"];
+export type AzulBedrockModelsNetworkSource =
+  components["schemas"]["azul_bedrock__models_network__Source"];
+export type AzulBedrockModelsNetworkStatusEvent =
+  components["schemas"]["azul_bedrock__models_network__StatusEvent"];
+export type AzulBedrockModelsNetworkStatusEventEntity =
+  components["schemas"]["azul_bedrock__models_network__StatusEvent__Entity"];
 export type AzulBedrockModelsRestapiBasicAuthor =
   components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
+export type AzulBedrockModelsRestapiBinariesPathNode =
+  components["schemas"]["PathNode"];
+export type AzulBedrockModelsRestapiBinariesStatusEvent =
+  components["schemas"]["StatusEvent"];
 export type AzulBedrockModelsRestapiPurgePurgeResults =
   components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"];
 export type AzulBedrockModelsRestapiSourcesSource =
@@ -5310,7 +5738,7 @@ export interface operations {
       };
     };
   };
-  readonly get_similar_feature_binaries_api_v0_binaries__sha256__similar_get: {
+  readonly get_similar_feature_binaries_api_v0_binaries__sha256__similar_features_get: {
     readonly parameters: {
       readonly query?: {
         readonly recalculate?: boolean;
@@ -5335,7 +5763,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["SimilarMatch__"];
+          readonly "application/json": components["schemas"]["SimilarFeatureMatch__"];
         };
       };
       /** @description Not found */
@@ -6170,8 +6598,8 @@ export interface operations {
         /** @description Maximum length of string (when decoded). */
         readonly max_length?: number;
         /** @description How many bytes to search for, if this is not set, returns 10MB of the file, if it set to larger than the file the whole file will be searched. */
-        readonly max_bytes_to_read?: number;
-        /** @description How many strings to return */
+        readonly max_bytes_to_read?: number | null;
+        /** @description Stop once at least this many common strings are found. */
         readonly take_n_strings?: number;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
@@ -6207,6 +6635,119 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly submit_binary_download_request_api_v0_binaries_source_download_post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["Body_submit_binary_download_request_api_v0_binaries_source_download_post"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["DownloadResponse__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid file */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_binary_download_request_status_api_v0_binaries_source_download__sha256__get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Include the Download requests with the plugin statuses. */
+        readonly include_download_requests?: boolean;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        /** @description Sha256 of file that download was requested for. */
+        readonly sha256: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["Response_StatusEvent_"];
         };
       };
       /** @description Not found */
@@ -7432,6 +7973,58 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["PluginInfo__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_download_plugins_api_v0_plugins_download_get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["Response_Author_"];
         };
       };
       /** @description Not found */

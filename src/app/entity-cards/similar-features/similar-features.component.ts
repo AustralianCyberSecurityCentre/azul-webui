@@ -4,18 +4,18 @@ import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { Entity } from "src/app/core/services";
 
-import { components, SimilarMatchRow } from "src/app/core/api/openapi";
-import { SimilarMatchWithSummary } from "src/app/core/api/state";
+import { components, SimilarFeatureMatchRow } from "src/app/core/api/openapi";
+import { SimilarFeatureMatchWithSummary } from "src/app/core/api/state";
 import { BaseCard } from "../base-card.component";
 
 @Component({
-  selector: "azec-similar",
-  templateUrl: "./similar.component.html",
-  styleUrls: ["./similar.component.css"],
+  selector: "azec-similar-features",
+  templateUrl: "./similar-features.component.html",
+  styleUrls: ["./similar-features.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SimilarComponent extends BaseCard {
+export class SimilarFeatureComponent extends BaseCard {
   entityService = inject(Entity);
   private router = inject(Router);
 
@@ -34,7 +34,7 @@ For performance reasons, the results are only calculated after a user clicks the
 
   protected override onEntityChange() {
     this.ready$.next(true);
-    this.similar$ = this.entity.similar$.pipe(
+    this.similarFeatures$ = this.entity.similarFeatures$.pipe(
       ops.tap((d) => {
         this.selected = [];
         for (const row of d?.matches || []) {
@@ -50,16 +50,16 @@ For performance reasons, the results are only calculated after a user clicks the
     );
   }
 
-  selected: components["schemas"]["SimilarMatchRow"][] = [];
+  selected: components["schemas"]["SimilarFeatureMatchRow"][] = [];
 
-  similar$: Observable<SimilarMatchWithSummary>;
+  similarFeatures$: Observable<SimilarFeatureMatchWithSummary>;
 
   clickRecalculate() {
     this.entity.refreshSimilar();
     this.onEntityChange();
   }
 
-  clickRow(row: SimilarMatchRow) {
+  clickRow(row: SimilarFeatureMatchRow) {
     // if (!this.compareSelect) { return }
     if (this.selected.includes(row)) {
       this.selected = this.selected.filter((x) => x != row);

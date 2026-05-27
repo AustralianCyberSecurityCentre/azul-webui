@@ -1,6 +1,6 @@
 <div>
   <select
-    [class]="{ 'w-full': fullWidth }"
+    [class]="{ 'w-full': fullWidth() }"
     flowSelect
     placeholder="Select Security Preset"
     fullWidth="true"
@@ -24,7 +24,7 @@
   <br />
   <form [formGroup]="formCustom">
     @if (securityService.userSpecificSecuritySettings$ | async; as settings) {
-      <div class="flex flex-wrap gap-8">
+      <div class="mb-4 flex flex-wrap gap-8">
         <div>
           <p>
             <b>{{ settings.labels.classification.title }}</b>
@@ -32,12 +32,14 @@
           <p>Users must have this access to view.</p>
           <select
             flowSelect
+            [noRightPadding]="true"
             formControlName="classification"
-            size="10"
+            size="8"
             style="width: 100%"
+            class="mt-1 rounded-xs"
           >
             @for (optName of classificationSignal(); track optName) {
-              <option [value]="optName">
+              <option class="px-4 py-2" [value]="optName">
                 {{ optName }}
               </option>
             }
@@ -51,14 +53,16 @@
             <p>Users must have all of selected to view.</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="caveat"
               multiple
-              size="10"
+              size="8"
               style="width: 100%"
+              class="mt-1 rounded-xs"
             >
-              <option value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of caveatSignal(); track optName) {
-                <option [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -73,14 +77,16 @@
             <p>Users must have one of selected to view.</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="releasability"
               multiple
-              size="10"
+              size="8"
               style="width: 100%"
+              class="mt-1 rounded-xs"
             >
-              <option value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of relSignal(); track optName) {
-                <option [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }
@@ -95,13 +101,15 @@
             <p>Can restrict access (if configured).</p>
             <select
               flowSelect
+              [noRightPadding]="true"
               formControlName="tlp"
-              size="10"
+              size="8"
               style="width: 100%"
+              class="mt-1 rounded-xs"
             >
-              <option value="">-</option>
+              <option class="px-4 py-2" value="">-</option>
               @for (optName of tlpSignal(); track optName) {
-                <option [value]="optName">
+                <option class="px-4 py-2" [value]="optName">
                   {{ optName }}
                 </option>
               }

@@ -497,15 +497,14 @@ export class ApiService {
     url: T,
     params?: ValidHEADPaths[T]["head"]["parameters"]["query"],
     path?: ValidHEADPaths[T]["head"]["parameters"]["path"],
+    config?: CacheRequestConfig,
   ): Observable<
     ValidHEADPaths[T]["head"]["responses"][200]["content"]["application/json"]
   > {
     this.addExcl(params);
     return this.http.head<
       ValidHEADPaths[T]["head"]["responses"][200]["content"]["application/json"]
-    >(this.formatURL(url, path), {
-      params: params,
-    });
+    >(this.formatURL(url, path), { ...config, params: params });
   }
 
   /**
@@ -766,6 +765,70 @@ export class ApiService {
     ).pipe(ops.catchError((e) => this.handle(e, 333, [])));
   }
 
+  hashDownloadRequest(
+    data: paths["/api/v0/binaries/source/download"]["post"]["requestBody"]["content"]["application/json"],
+  ): Observable<components["schemas"]["DownloadResponse"] | undefined> {
+    return this.postOperation(
+      "/api/v0/binaries/source/download",
+      data,
+      {},
+    ).pipe(
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta?.security, d.meta.sec_filter),
+      ),
+      ops.map((d) => d?.data),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
+  hashDownloadStatusRequest(
+    sha256: string,
+    includeDownloadRequestStatus: boolean = false,
+  ): Observable<components["schemas"]["StatusEvent"][] | undefined> {
+    const params: paths["/api/v0/binaries/source/download/{sha256}"]["get"]["parameters"]["query"] =
+      {
+        include_download_requests: includeDownloadRequestStatus,
+      };
+    const emptyReturn: components["schemas"]["Response_StatusEvent_"] = {
+      data: [],
+      meta: {
+        sec_filter: null,
+        complete: false,
+      },
+    };
+    return this.getOperation(
+      "/api/v0/binaries/source/download/{sha256}",
+      params,
+      { sha256 },
+      { cache: false },
+    ).pipe(
+      ops.catchError((e) => this.handle(e, emptyReturn, [404])),
+      ops.tap((d) => {
+        if (d !== undefined) {
+          this.addReceivedSecurity(d.meta?.security, d.meta?.sec_filter);
+        }
+      }),
+      ops.map((d) => {
+        if (d !== undefined) {
+          return d?.data;
+        }
+        return d;
+      }),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
+  getDownloadPluginList(): Observable<
+    readonly components["schemas"]["azul_bedrock__models_restapi__basic__Author"][]
+  > {
+    return this.getOperation("/api/v0/plugins/download").pipe(
+      ops.tap((d) =>
+        this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),
+      ),
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, [], [])),
+    );
+  }
   /**search azul for binaries matching certain criteria*/
   entityFind(
     params: paths["/api/v0/binaries"]["post"]["parameters"]["query"],
@@ -838,7 +901,12 @@ export class ApiService {
 
   /**check that an entity exists in azul*/
   entityCheckExists(sha256: string): Observable<boolean> {
-    return this.headOperation("/api/v0/binaries/{sha256}", {}, { sha256 }).pipe(
+    return this.headOperation(
+      "/api/v0/binaries/{sha256}",
+      {},
+      { sha256 },
+      { cache: false },
+    ).pipe(
       ops.map((_d) => true),
       ops.catchError((e) => this.handle(e, false, [404])),
     );
@@ -850,6 +918,7 @@ export class ApiService {
       "/api/v0/binaries/{sha256}/content",
       {},
       { sha256 },
+      { cache: false },
     ).pipe(
       ops.map((_d) => true),
       ops.catchError((e) => this.handle(e, false, [404])),
@@ -908,11 +977,11 @@ export class ApiService {
 
   entityReadSimilar(
     sha256: string,
-    params: ValidGETPaths["/api/v0/binaries/{sha256}/similar"]["get"]["parameters"]["query"] = {},
-  ): Observable<components["schemas"]["SimilarMatch"] | undefined> {
+    params: ValidGETPaths["/api/v0/binaries/{sha256}/similar/features"]["get"]["parameters"]["query"] = {},
+  ): Observable<components["schemas"]["SimilarFeatureMatch"] | undefined> {
     const cacheProps: CacheRequestConfig = { cache: false };
     return this.getOperation(
-      "/api/v0/binaries/{sha256}/similar",
+      "/api/v0/binaries/{sha256}/similar/features",
       params,
       {
         sha256,
@@ -977,6 +1046,7 @@ export class ApiService {
       "/api/v0/binaries/{sha256}/statuses",
       {},
       { sha256 },
+      { cache: false },
     ).pipe(
       ops.tap((d) =>
         this.addReceivedSecurity(d.meta.security, d.meta.sec_filter),

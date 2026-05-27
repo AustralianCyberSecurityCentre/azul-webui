@@ -36,7 +36,7 @@
 }
 
 @layer components {
-  select:not([multiple]) {
+  select:not([multiple]):not([size]) {
     /* This is normally an inline svg from tailwindcss/forms, which we don't like */
     background-image: url(assets/dropdown.svg);
   }
@@ -258,4 +258,12 @@ th {
   cursor: col-resize;
   user-select: none;
   z-index: 10;
+}
+
+.fa-icon-green {
+  color: green;
+}
+
+.fa-icon-red {
+  color: red;
 }

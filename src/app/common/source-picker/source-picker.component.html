@@ -1,0 +1,102 @@
+<flow-card>
+  <flow-card-header title="Source" />
+  <flow-card-body>
+    <az-loading-card
+      [obs$]="sourcePicker.sources$"
+      [show]="(sourcePicker.sources$ | async) !== null"
+      class="w-full"
+    >
+      <div class="grid grid-cols-3 gap-1">
+        <div class="col-span-3 mb-3 p-1 text-sm leading-loose">
+          The source information of uploaded files represents the
+          'where/when/why' of the files.
+          <br />
+          There should be enough information such that a person 5 years from now
+          can understand where your files were collected and why.
+          <br />
+          If you feel your files don't fit into an existing source, please
+          contact the system administrators to have another source or fields
+          added.
+        </div>
+        <!--Source select drop downs.-->
+        @if (sourcePicker.sources$ | async; as sf) {
+          <div class="col-span-3">
+            <select
+              flowSelect
+              [formField]="sourceForm.selectedSource"
+              (change)="sourcePicker.changeSource()"
+            >
+              @for (row of sf | keyvalue; track row) {
+                <option [value]="row.key">
+                  {{ toTitleCase(row.key) }}
+                </option>
+              }
+            </select>
+          </div>
+          <!--Source related disclaimers if source info exists.-->
+          <ng-container>
+            @if (sf[sourceModel().selectedSource]; as sourceInfo) {
+              <div class="col-span-3">
+                <div class="ml-2">
+                  <flow-label>
+                    {{ sourceInfo.description }}
+                  </flow-label>
+                  @if (
+                    sourceInfo?.expire_events_after?.length > 0 &&
+                    sourceInfo?.expire_events_after !== "0"
+                  ) {
+                    <flow-alert
+                      alertType="warning"
+                      [withinCard]="true"
+                      title="Age Off Warning"
+                    >
+                      <span class="font-medium">
+                        Files submitted to this source will age off after
+                        {{ sourceInfo.expire_events_after }}</span
+                      >
+                    </flow-alert>
+                  } @else {
+                    <flow-alert
+                      alertType="info"
+                      [withinCard]="true"
+                      title="No Age Off"
+                    >
+                      <span class="font-medium">
+                        Files submitted to this source never expire
+                      </span>
+                    </flow-alert>
+                  }
+                </div>
+              </div>
+            }
+            @if (sf | keyvalue; as d) {
+              <ng-container>
+                @for (
+                  refControl of sourceForm.refs().controlValue();
+                  let i = $index;
+                  track i
+                ) {
+                  <div class="col-span-3">
+                    <flow-signal-input
+                      [id]="refControl.name + '.val'"
+                      [formField]="sourceForm.refs[i].value"
+                      placeholder="{{ toTitleCase(refControl.name, '_') }}{{
+                        refControl.required ? ' (required)' : ''
+                      }}"
+                      [isForceShowInvalid]="isForceShowInvalid()"
+                    />
+                    <div class="mt-2 mb-4 ml-4 grow">
+                      <flow-label [for]="refControl.name + '.val'">
+                        {{ refControl.description }}
+                      </flow-label>
+                    </div>
+                  </div>
+                }
+              </ng-container>
+            }
+          </ng-container>
+        }
+      </div>
+    </az-loading-card>
+  </flow-card-body>
+</flow-card>

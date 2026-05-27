@@ -5,6 +5,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
+import { BinariesHashDownloadComponent } from "./entities-hash-download/entities-hash-download.component";
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
@@ -52,6 +53,7 @@ const routes: Routes = [
           { path: "tags", component: BinariesTagsExploreComponent },
           { path: "compare", component: BinariesCompareComponent },
           { path: "hash_lookup", component: BinariesHashLookupComponent },
+          { path: "hash_download", component: BinariesHashDownloadComponent },
           { path: "purge", component: BinariesPurgeComponent },
           { path: "retrohunt", component: BinariesRetrohuntComponent },
         ],
