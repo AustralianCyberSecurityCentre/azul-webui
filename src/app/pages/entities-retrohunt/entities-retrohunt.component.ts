@@ -54,9 +54,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   protected helpHunts = `
     The panel below displays the list of hunts currently in the database.
-    It includes the submit user, the hunt status and the submit time.
-    Hit the refresh button to get the latest list from the database.
-    You can select a refresh time from the dropdown to refresh automatically every selected period.`;
+    It includes the submit user, the hunt status and the submit time.`;
   protected helpResults = `
     This panel displays the binary results for the selected hunt.
     You can navigate to a binary by clicking the link or compare binaries by checking the boxes on the left of each binary and clicking Compare.`;
@@ -65,6 +63,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   protected helpButtons = `
     Use the pane below to paste/write your rules. Once you are happy hit the Submit New Hunt button to submit your hunt.
     Alternativley, you can edit the rules of a hunt you have already submitted by selecting the hunt and when you have finisehd editing hit the Submit New Hunt button.`;
+  protected helpRefresh = `
+    Hit the refresh button to get the latest list from the database.
+    You can select a refresh time from the dropdown to refresh automatically every selected period.`;
 
   selectHunt(hunt: RetrohuntEntity) {
     this.selectedHunt = hunt;
@@ -152,7 +153,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     };
 
     this.retro.submitHunt(body).subscribe({
-      next: (resp) => {
+      next: () => {
         this.retro.refresh();
         this.cdr.markForCheck();
       },
