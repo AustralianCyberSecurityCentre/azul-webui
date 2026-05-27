@@ -47,7 +47,7 @@ export class EntityTableComponent implements OnChanges {
   @Input() originalSha256?: string | undefined;
   @Input() eType: "parents" | "children" | undefined;
   @Input() entity?: EntityWrap | undefined;
-
+  @Input() noResults: string = "No binaries match the search criteria";
   @Input() purgeQueryParams: Record<string, string> | undefined;
 
   ngOnChanges(changes: SimpleChanges) {

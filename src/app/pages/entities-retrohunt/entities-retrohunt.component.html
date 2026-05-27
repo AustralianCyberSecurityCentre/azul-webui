@@ -101,6 +101,8 @@
                         type="button"
                         class="absolute right-1 bottom-1 rounded p-1 text-gray-500 hover:text-red-600"
                         (click)="deleteHunt(hunt); $event.stopPropagation()"
+                        (keyup.enter)="deleteHunt(hunt)"
+                        (keyup.space)="deleteHunt(hunt)"
                       >
                         <fa-icon [icon]="faTrash" />
                       </button>
@@ -219,6 +221,7 @@
                   [find$]="huntFind$"
                   [externalPagination]="false"
                   [scroll]="true"
+                  [noResults]="'No search results... yet'"
                 />
               </div>
             } @else {
