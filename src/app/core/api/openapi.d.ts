@@ -2753,6 +2753,7 @@ export interface components {
       | "MetastoreBinaryFindTooManyBinariesRequested"
       | "MetastoreBinaryFindFaildToParseSearchTerm"
       | "MetastoreSha256NotProvidedForFindingStreamRefs"
+      | "MetastoreInvalidDataLabel"
       | "MetastoreLibFuzzyFailedToInitalise"
       | "MetastoreReadSimilarSSDeepBadFuzzyHash"
       | "MetastoreDispatcherRejectedEvents"
@@ -4316,6 +4317,11 @@ export interface components {
        * @default
        */
       readonly max_access: string;
+      /**
+       * Max Access Display
+       * @default
+       */
+      readonly max_access_display: string;
       /**
        * Allowed Presets
        * @default []

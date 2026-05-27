@@ -358,7 +358,9 @@
       <tr flowTableBodyRow>
         <td flowTableBodyCell>User Max Access</td>
         <td flowTableBodyCell>
-          {{ (user.userDetailsOpensearch$ | async)?.security.max_access }}
+          {{
+            (user.userDetailsOpensearch$ | async)?.security.max_access_display
+          }}
         </td>
       </tr>
       <tr flowTableBodyRow>
