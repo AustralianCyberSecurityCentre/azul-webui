@@ -5,11 +5,7 @@ import * as ops from "rxjs/operators";
 
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faUncharted } from "@fortawesome/free-brands-svg-icons";
-import {
-  faBook,
-  faCameraRetro,
-  faCode,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBook, faCode } from "@fortawesome/free-solid-svg-icons";
 import { select, Store } from "@ngrx/store";
 import { EntityService } from "src/app/core/entity.service";
 import { config } from "../settings";
