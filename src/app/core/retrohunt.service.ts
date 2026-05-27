@@ -38,19 +38,13 @@ export class RetrohuntService {
     //combine params$ and refreshTrigger$ so either one triggers a reload
     combineLatest([this.params$, this.refreshTrigger$])
       .pipe(
-        tap(([params]) => console.log("Fetching hunts with params:", params)),
-
         switchMap(([params]) =>
           this.api.listRetrohunts(params).pipe(
-            tap((raw) => console.log("API returned (raw):", raw)),
-
             map((raw) => {
               // Normalize BEFORE typing
               const wrapped: RetrohuntsResponse = Array.isArray(raw)
                 ? { data: raw }
                 : raw;
-
-              console.log("API normalized (wrapped):", wrapped);
               return wrapped;
             }),
 
@@ -58,8 +52,6 @@ export class RetrohuntService {
               console.error("RetrohuntService error:", err);
 
               const fallback: RetrohuntsResponse = { data: [] };
-              console.log("API fallback:", fallback);
-
               return of(fallback);
             }),
           ),

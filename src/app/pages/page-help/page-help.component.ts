@@ -26,7 +26,6 @@ export class PageHelpComponent {
   private helpDialog?: DialogRef<unknown>;
 
   openDialog(ref: TemplateRef<unknown>) {
-    console.log("opening");
     this.helpDialog = this.dialogService.open(ref);
   }
 

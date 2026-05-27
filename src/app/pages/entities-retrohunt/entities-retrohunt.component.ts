@@ -119,8 +119,6 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   deleteHunt(hunt: RetrohuntEntity) {
     this.retro.cancelHunt(hunt.id).subscribe({
       next: () => {
-        console.log("Hunt cancelled:", hunt.id);
-
         this.retro.removeHuntLocally(hunt.id);
 
         if (this.selectedHunt?.id === hunt.id) {
@@ -155,7 +153,6 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
     this.retro.submitHunt(body).subscribe({
       next: (resp) => {
-        console.log("Hunt submitted:", resp);
         this.retro.refresh();
         this.cdr.markForCheck();
       },
@@ -173,9 +170,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     }
 
     // If Off (0), stop here
-    console.log("interval ", this.refreshInterval);
     if (this.refreshInterval === 0) {
-      console.log("Returning");
       return;
     }
 
