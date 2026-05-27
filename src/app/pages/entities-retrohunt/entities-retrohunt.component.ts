@@ -28,6 +28,8 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private retro = inject(RetrohuntService);
   private cdr = inject(ChangeDetectorRef);
+  protected user = inject(UserService);
+
   private refreshTimer: number | null = null;
   private paramsSub: Subscription;
   private SEARCH_TYPE_MAP: Record<string, string> = {
@@ -37,11 +39,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   };
   private hasSelectedInitialHunt = false;
 
-  protected userService = inject(UserService);
-  protected sizes = [20, 45, 35];
+  protected sizes = [25, 40, 35];
   protected ButtonType = ButtonType;
   protected entitySearchTerm = new FormControl("");
-  protected user = inject(UserService);
   protected username: string = "";
   protected refreshInterval = 0; // default: Off
   protected faTrash = faTrash;
@@ -100,7 +100,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   err = (...d) => console.error("BinariesRetrohuntComponent:", ...d);
 
   ngOnInit(): void {
-    this.userService.username$.subscribe((name) => {
+    this.user.username$.subscribe((name) => {
       this.username = name ?? "";
       this.cdr.markForCheck();
     });
