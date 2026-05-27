@@ -38,7 +38,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private hasSelectedInitialHunt = false;
 
   protected userService = inject(UserService);
-  protected sizes = [20, 50, 30];
+  protected sizes = [20, 45, 35];
   protected ButtonType = ButtonType;
   protected entitySearchTerm = new FormControl("");
   protected user = inject(UserService);

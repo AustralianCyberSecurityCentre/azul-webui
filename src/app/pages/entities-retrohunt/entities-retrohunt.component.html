@@ -81,12 +81,13 @@
 
                     <div class="text-sm text-gray-600 dark:text-gray-300">
                       {{ hunt.submitter }} -
-                      <span
-                        class="cursor-pointer text-blue-600 underline"
+                      <button
+                        type="button"
+                        class="cursor-pointer border-0 bg-transparent p-0 text-blue-600 underline"
                         (click)="openLogsModal(hunt); $event.stopPropagation()"
                       >
                         {{ hunt.status }}
-                      </span>
+                      </button>
                       <br />
                       Submitted:
                       {{ hunt.submitted_time | date: "dd/MM/yyyy h:mm a" }}
