@@ -1,8 +1,182 @@
-<flow-card style="width: 100%">
-  <flow-card-header title="Retrohunt" />
-  <flow-card-body>
-    <div class="p-4 text-lg">
-      {{ message }}
-    </div>
-  </flow-card-body>
-</flow-card>
+<div class="relative flex h-full w-full grow">
+  <div class="flex min-w-0 grow flex-col overflow-hidden">
+    <as-split
+      unit="percent"
+      direction="horizontal"
+      restrictMove="true"
+      class="w-full dark:[&_.as-split-gutter]:bg-slate-900! [&_.as-split-gutter-icon]:bg-none!"
+    >
+      <!-- LEFT PANE: Hunts -->
+      <as-split-area
+        [size]="sizes[0]"
+        class="flex flex-col text-sm select-none dark:bg-slate-800"
+      >
+        <div class="bg-azul-900 p-2 font-medium text-white">Retrohunt Jobs</div>
+
+        <div
+          class="relative min-h-0 grow overflow-y-auto bg-white p-3 dark:bg-slate-800"
+        >
+          <div class="mb-2 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <flow-button [type]="ButtonType.Primary" (click)="reload()">
+                Refresh
+              </flow-button>
+
+              <select
+                flowSelect
+                [ngModel]="refreshInterval"
+                (ngModelChange)="
+                  refreshInterval = $event; onRefreshIntervalChange()
+                "
+              >
+                <option [ngValue]="0">Off</option>
+                <option [ngValue]="5000">5s</option>
+                <option [ngValue]="10000">10s</option>
+                <option [ngValue]="30000">30s</option>
+                <option [ngValue]="60000">1m</option>
+              </select>
+            </div>
+            <az-page-help
+              [title]="'Retrohunt'"
+              [help]="helpHunts"
+              bgClass="bg-azul-100/80 dark:bg-azul-500"
+            ></az-page-help>
+          </div>
+          <div class="mt-4">
+            @if (hunts$ | async; as hunts) {
+              @if (hunts === null) {
+                <p class="text-red-600">Failed to load retrohunt jobs.</p>
+              } @else if (hunts.length === 0) {
+                <p>No retrohunt jobs found.</p>
+              } @else {
+                @for (hunt of hunts; track hunt.id) {
+                  <div
+                    class="hover:bg-azul-100 dark:hover:bg-azul-500 relative mb-2 cursor-pointer rounded-md border border-slate-300 p-3 transition-colors dark:border-slate-600"
+                    (click)="selectHunt(hunt)"
+                    [ngClass]="{
+                      '!border-blue-500 !bg-blue-100 dark:!bg-blue-900':
+                        selectedHunt?.id === hunt.id,
+                    }"
+                  >
+                    <div class="font-semibold text-gray-900 dark:text-gray-100">
+                      {{ hunt.id }}
+                    </div>
+
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                      {{ hunt.submitter }} — {{ hunt.status }}
+                    </div>
+
+                    <flow-tooltip
+                      message="Delete / Cancel this hunt."
+                      subText="This action cannot be undone."
+                      direction="top"
+                    >
+                      <button
+                        class="absolute right-1 bottom-1 rounded p-1 text-gray-500 hover:text-red-600"
+                        (click)="deleteHunt(hunt); $event.stopPropagation()"
+                      >
+                        <fa-icon [icon]="faTrash" />
+                      </button>
+                    </flow-tooltip>
+                  </div>
+                }
+              }
+            } @else {
+              <p>Loading…</p>
+            }
+          </div>
+        </div>
+      </as-split-area>
+
+      <!-- CENTER PANE: Binaries -->
+      <as-split-area [size]="sizes[1]" class="flex flex-col dark:bg-slate-800">
+        <div class="bg-azul-900 p-2 font-medium text-white">Binary Results</div>
+        <az-page-help
+          [title]="'Retrohunt'"
+          [help]="helpResults"
+          bgClass="bg-azul-100/80 dark:bg-azul-500"
+        ></az-page-help>
+        <div
+          class="relative min-h-0 grow overflow-y-auto bg-white p-4 dark:bg-slate-800"
+        >
+          @if (huntFind$ | async; as huntFind) {
+            @if (huntFind !== null) {
+              <div class="text-white dark:text-white">
+                <az-entity-table
+                  [tablename]="'Retrohunt Results'"
+                  [find$]="huntFind$"
+                  [externalPagination]="false"
+                  [scroll]="true"
+                />
+              </div>
+            } @else {
+              <p class="text-gray-500">Select a hunt to view binaries…</p>
+            }
+          }
+        </div>
+      </as-split-area>
+
+      <!-- RIGHT PANE: Rules -->
+      <as-split-area [size]="sizes[2]" class="flex flex-col dark:bg-slate-800">
+        <div class="bg-azul-900 p-2 font-medium text-white">Rules</div>
+
+        <div
+          class="relative min-h-0 grow overflow-y-auto bg-white p-4 dark:bg-slate-800"
+        >
+          <div class="flex h-full flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between">
+                <select flowSelect [(ngModel)]="selectedLanguage">
+                  <option value="yara">YARA</option>
+                  <!-- Future: <option value="suricata">Suricata</option> -->
+                </select>
+                <az-page-help
+                  [title]="'Retrohunt'"
+                  [help]="helpDropdown"
+                  bgClass="bg-azul-100/80 dark:bg-azul-500"
+                ></az-page-help>
+              </div>
+              <div class="flex gap-2">
+                <div class="flex items-center justify-between">
+                  <az-page-help
+                    [title]="'Retrohunt'"
+                    [help]="helpButtons"
+                    bgClass="bg-azul-100/80 dark:bg-azul-500"
+                  ></az-page-help>
+                  <div class="flex gap-2">
+                    <flow-button
+                      [type]="ButtonType.Light"
+                      (click)="resetRules()"
+                    >
+                      Reset
+                    </flow-button>
+
+                    <flow-button
+                      [type]="ButtonType.Primary"
+                      (click)="submitNewHunt()"
+                    >
+                      Submit New Hunt
+                    </flow-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <az-yara-editor
+              class="h-full min-h-0 grow"
+              [code]="ruleControl.value || ''"
+              [language]="selectedLanguage"
+              (codeChange)="ruleControl.setValue($event)"
+            ></az-yara-editor>
+
+            @if (!selectedHunt) {
+              <p class="mt-2 text-sm text-gray-500">
+                No hunt selected — editing a new rule.
+              </p>
+            }
+          </div>
+        </div>
+      </as-split-area>
+    </as-split>
+  </div>
+</div>

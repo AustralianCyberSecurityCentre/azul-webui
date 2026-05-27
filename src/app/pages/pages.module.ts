@@ -19,7 +19,7 @@ import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-has
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
-//import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
+import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
 import { FeaturesPivotComponent } from "./features-pivot/features-pivot.component";
@@ -34,6 +34,10 @@ import { SourcesCurrentComponent } from "./sources-current/sources-current.compo
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
+import { AngularSplitModule } from "angular-split";
+import { YaraEditorComponent } from "./yara-editor.component";
+import { MonacoEditorModule } from "ngx-monaco-editor-v2";
+import { PageHelpComponent } from "./page-help/page-help.component";
 
 @NgModule({
   declarations: [
@@ -45,7 +49,7 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     FeaturesCurrentComponent,
     FeaturesPivotComponent,
     BinariesUploadComponent,
-    //BinariesRetrohuntComponent,
+    BinariesRetrohuntComponent,
     SourcesCurrentComponent,
     FrontComponent,
     BinariesTagsExploreComponent,
@@ -59,6 +63,7 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     BinariesHashLookupComponent,
     UnauthorizedComponent,
     CallbackComponent,
+    PageHelpComponent,
   ],
   imports: [
     CommonModule,
@@ -75,6 +80,11 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     ScrollingModule,
     NgxSliderModule,
     FormField,
+    AngularSplitModule,
+    YaraEditorComponent,
+    MonacoEditorModule.forRoot({
+      baseUrl: "./assets/monaco/min/vs",
+    }),
   ],
   exports: [CallbackComponent, BinariesExploreComponent],
 })

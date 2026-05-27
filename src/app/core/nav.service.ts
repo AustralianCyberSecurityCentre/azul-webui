@@ -92,18 +92,6 @@ export class NavService {
       });
     }
 
-    if (config.global_external_links?.retrohunt_url) {
-      this.topbarExternal.push({
-        title: "Retrohunt",
-        icon: faCameraRetro,
-        external: true,
-        // Security: these are specifically indicated to be external URLs
-        link: sanitizer.bypassSecurityTrustUrl(
-          config.global_external_links.retrohunt_url,
-        ),
-      });
-    }
-
     if (config.global_external_links?.nsrl_url) {
       this.topbarExternal.push({
         title: "NSRL",

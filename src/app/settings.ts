@@ -35,7 +35,6 @@ export type BinaryExternalLink =
     };
 
 export type GlobalExternalLinks = {
-  retrohunt_url: string;
   nsrl_url: string;
 };
 

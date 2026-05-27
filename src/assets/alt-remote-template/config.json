@@ -15,7 +15,6 @@
   "banner_severity": "info",
   "banner_dismissable": true,
   "global_external_links": {
-    "not_retrohunt_url": "https://example.internal",
     "nsrl_url": "https://example.internal"
   },
   "binary_external_links": [

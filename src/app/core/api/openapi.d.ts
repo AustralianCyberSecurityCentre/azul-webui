@@ -1383,26 +1383,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/retrohunt/retrohunts": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Get All Retrohunts
-     * @description Returns all retrohunt jobs in the system.
-     */
-    readonly get: operations["get_all_retrohunts_api_v0_retrohunt_retrohunts_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -7657,11 +7637,11 @@ export interface operations {
       readonly query?: {
         readonly limit?: number;
         /** @description Exclude these security labels during queries */
-        readonly x?: readonly string[];
+        //readonly x?: readonly string[];
         /** @description Include these RELs for AND search in opensearch during queries */
-        readonly i?: readonly string[];
+        //readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
-        readonly include_queries?: boolean;
+        //readonly include_queries?: boolean;
       };
       readonly header?: never;
       readonly path?: never;
@@ -7822,9 +7802,9 @@ export interface operations {
       readonly query?: {
         readonly limit?: number;
         /** @description Exclude these security labels during queries */
-        readonly x?: readonly string[];
+        //readonly x?: readonly string[];
         /** @description Include these RELs for AND search in opensearch during queries */
-        readonly i?: readonly string[];
+        //readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };
@@ -8545,42 +8525,6 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["UserInfo"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
-  readonly get_all_retrohunts_api_v0_retrohunt_retrohunts_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["RetroHuntEntities__"];
         };
       };
       /** @description Not found */

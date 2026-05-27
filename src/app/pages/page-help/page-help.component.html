@@ -1,0 +1,25 @@
+<div class="flex items-center">
+  <div
+    [ngClass]="bgClass"
+    class="cursor-pointer rounded-xs p-1 text-base"
+    (click)="openDialog(helpDialog)"
+    role="button"
+    tabindex="0"
+  >
+    <fa-icon [icon]="questionIcon" class="text-white" />
+  </div>
+</div>
+
+<ng-template #helpDialog>
+  <flow-card class="max-w-(--breakpoint-lg)">
+    <flow-card-header [title]="'Help for ' + title" />
+    <flow-card-body>
+      <span class="block p-2 text-left text-sm whitespace-pre-wrap">
+        {{ help }}
+      </span>
+    </flow-card-body>
+    <flow-card-footer>
+      <flow-button (click)="closeDialog()">Close</flow-button>
+    </flow-card-footer>
+  </flow-card>
+</ng-template>

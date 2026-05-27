@@ -10,7 +10,6 @@
   "oidc_scopes": "openid profile email offline_access",
   "unauthorized_help": "This is a help message displayed to users who need help with *unauthorized* errors, potentially with email contacts for support or [links](https://localhost) to ticketing systems.\n\nThis can be configured in the Azul Helm chart.",
   "global_external_links": {
-    "retrohunt_url": "https://retrohunt/",
     "nsrl_url": "https://nsrllookupserver/"
   },
   "binary_external_links": [
