@@ -60,21 +60,16 @@ export class EntityTableComponent implements OnChanges {
       // check any rows that should be checked
       this.filteredFind$ = this.find$.pipe(
         ops.map((d) => {
-          // ⭐ d may be null — make it safe
+          //d may be null — make it safe
           const items = d?.items ?? [];
 
-          return (
-            items
-              // Not filtering to render partial entries, so they can be deleted.
-              // .filter((val) => val.exists)
-              .map((val) => {
-                const selected = this.selectedRowMap.get(val.sha256);
-                return {
-                  ...val,
-                  checked: selected ? true : false,
-                };
-              })
-          );
+          return items.map((val) => {
+            const selected = this.selectedRowMap.get(val.sha256);
+            return {
+              ...val,
+              checked: selected ? true : false,
+            };
+          });
         }),
         ops.shareReplay(1),
       );

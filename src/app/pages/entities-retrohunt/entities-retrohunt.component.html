@@ -17,6 +17,17 @@
           class="relative min-h-0 grow overflow-y-auto bg-white p-3 dark:bg-slate-800"
         >
           <div class="mb-2 flex items-center justify-between">
+            <!-- LEFT SIDE -->
+            <div class="flex items-center gap-2">
+              <flow-button
+                [type]="ButtonType.Primary"
+                (click)="openCreateModal()"
+              >
+                Create Hunt
+              </flow-button>
+            </div>
+
+            <!-- RIGHT SIDE -->
             <div class="flex items-center gap-2">
               <flow-button [type]="ButtonType.Primary" (click)="reload()">
                 Refresh
@@ -35,18 +46,15 @@
                 <option [ngValue]="30000">30s</option>
                 <option [ngValue]="60000">1m</option>
               </select>
+
               <az-page-help
                 [title]="'Retrohunt'"
-                [help]="helpRefresh"
+                [help]="helpHuntsList"
                 bgClass="bg-azul-100/80 dark:bg-azul-500"
               ></az-page-help>
             </div>
-            <az-page-help
-              [title]="'Retrohunt'"
-              [help]="helpHunts"
-              bgClass="bg-azul-100/80 dark:bg-azul-500"
-            ></az-page-help>
           </div>
+
           <div class="mt-4">
             @if (hunts$ | async; as hunts) {
               @if (hunts === null) {
@@ -72,7 +80,14 @@
                     </div>
 
                     <div class="text-sm text-gray-600 dark:text-gray-300">
-                      {{ hunt.submitter }} - {{ hunt.status }} <br />
+                      {{ hunt.submitter }} -
+                      <span
+                        class="cursor-pointer text-blue-600 underline"
+                        (click)="openLogsModal(hunt); $event.stopPropagation()"
+                      >
+                        {{ hunt.status }}
+                      </span>
+                      <br />
                       Submitted:
                       {{ hunt.submitted_time | date: "dd/MM/yyyy h:mm a" }}
                     </div>
@@ -98,6 +113,91 @@
             }
           </div>
         </div>
+        @if (showCreateHunt) {
+          <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          >
+            <div
+              class="both flex resize flex-col overflow-auto rounded-lg bg-white p-4 shadow-xl dark:bg-slate-800"
+              [style.width]="modalWidth"
+              [style.height]="modalHeight"
+            >
+              <h2
+                class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
+                Create New Retrohunt
+              </h2>
+
+              <div class="mb-3 flex items-center gap-2">
+                <select flowSelect [(ngModel)]="newHuntLanguage">
+                  <option value="yara">YARA</option>
+                </select>
+              </div>
+
+              <!-- Editor container MUST flex-grow -->
+              <div class="min-h-0 flex-1">
+                <az-yara-editor
+                  class="h-full w-full rounded border border-slate-300 dark:border-slate-600"
+                  [code]="newHuntCode"
+                  [language]="newHuntLanguage"
+                  (codeChange)="newHuntCode = $event"
+                  [readonly]="false"
+                ></az-yara-editor>
+              </div>
+
+              <div class="mt-4 flex justify-end gap-2">
+                <flow-button
+                  [type]="ButtonType.Light"
+                  (click)="closeCreateHunt()"
+                >
+                  Cancel
+                </flow-button>
+
+                <flow-button
+                  [type]="ButtonType.Primary"
+                  (click)="submitNewHuntFromModal()"
+                >
+                  Submit Hunt
+                </flow-button>
+              </div>
+            </div>
+          </div>
+        }
+        @if (showLogsModal) {
+          <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          >
+            <div
+              class="flex resize flex-col overflow-auto rounded-lg bg-white p-4 shadow-xl dark:bg-slate-800"
+              style="width: 700px; height: 60vh"
+            >
+              <h2
+                class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
+                Hunt Logs
+              </h2>
+
+              <div
+                class="min-h-0 flex-1 overflow-auto rounded border border-slate-300 bg-slate-50 p-2 dark:border-slate-600 dark:bg-slate-900"
+              >
+                <pre
+                  class="text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200"
+                  >{{ logsText }}
+        </pre
+                >
+              </div>
+
+              <div class="mt-4 flex justify-end">
+                <flow-button
+                  [type]="ButtonType.Light"
+                  (click)="closeLogsModal()"
+                >
+                  Close
+                </flow-button>
+              </div>
+            </div>
+          </div>
+        }
       </as-split-area>
 
       <!-- CENTER PANE: Binaries -->
@@ -137,38 +237,20 @@
         >
           <div class="flex h-full flex-col gap-3">
             <div class="flex items-center justify-between">
-              <div class="flex items-center justify-between">
-                <select flowSelect [(ngModel)]="selectedLanguage">
-                  <option value="yara">YARA</option>
-                  <!-- Future: <option value="suricata">Suricata</option> -->
-                </select>
-                <az-page-help
-                  [title]="'Retrohunt'"
-                  [help]="helpDropdown"
-                  bgClass="bg-azul-100/80 dark:bg-azul-500"
-                ></az-page-help>
-              </div>
               <div class="flex gap-2">
                 <div class="flex items-center justify-between">
-                  <az-page-help
-                    [title]="'Retrohunt'"
-                    [help]="helpButtons"
-                    bgClass="bg-azul-100/80 dark:bg-azul-500"
-                  ></az-page-help>
                   <div class="flex gap-2">
                     <flow-button
-                      [type]="ButtonType.Light"
-                      (click)="resetRules()"
-                    >
-                      Reset
-                    </flow-button>
-
-                    <flow-button
                       [type]="ButtonType.Primary"
-                      (click)="submitNewHunt()"
+                      (click)="openEditModal()"
                     >
-                      Submit New Hunt
+                      Edit Hunt
                     </flow-button>
+                    <az-page-help
+                      [title]="'Retrohunt'"
+                      [help]="helpYara"
+                      bgClass="bg-azul-100/80 dark:bg-azul-500"
+                    ></az-page-help>
                   </div>
                 </div>
               </div>
@@ -179,6 +261,7 @@
               [code]="ruleControl.value || ''"
               [language]="selectedLanguage"
               (codeChange)="ruleControl.setValue($event)"
+              [readonly]="true"
             ></az-yara-editor>
 
             @if (!selectedHunt) {

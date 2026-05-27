@@ -35,6 +35,8 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     suricata: "Suricata",
     // add more in future
   };
+  private hasSelectedInitialHunt = false;
+
   protected userService = inject(UserService);
   protected sizes = [20, 50, 30];
   protected ButtonType = ButtonType;
@@ -51,21 +53,26 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     null,
   );
   protected selectedHunt: RetrohuntEntity | null = null;
+  protected showCreateHunt = false;
+  protected newHuntCode = "";
+  protected newHuntLanguage = "yara";
+  protected modalWidth = "800px";
+  protected modalHeight = "80vh";
+  protected showLogsModal = false;
+  protected logsText = "";
 
-  protected helpHunts = `
+  protected helpHuntsList = `
     The panel below displays the list of hunts currently in the database.
-    It includes the submit user, the hunt status and the submit time.`;
+    It includes the submit user, the hunt status and the submit time.
+    Click Create Hunt to submit a new hunt.
+    Hit the refresh button to get the latest list from the database.
+    You can select a refresh time from the dropdown to refresh automatically every selected period.`;
   protected helpResults = `
     This panel displays the binary results for the selected hunt.
     You can navigate to a binary by clicking the link or compare binaries by checking the boxes on the left of each binary and clicking Compare.`;
-  protected helpDropdown = `
-    This dropdown will be used to select the language you will be submitting for the search. Currently we only support Yara.`;
-  protected helpButtons = `
-    Use the pane below to paste/write your rules. Once you are happy hit the Submit New Hunt button to submit your hunt.
-    Alternativley, you can edit the rules of a hunt you have already submitted by selecting the hunt and when you have finisehd editing hit the Submit New Hunt button.`;
-  protected helpRefresh = `
-    Hit the refresh button to get the latest list from the database.
-    You can select a refresh time from the dropdown to refresh automatically every selected period.`;
+  protected helpYara = `
+    The pane below shows the search rules for the selected hunt.
+    Click the Edit Hunt button if you need to resubmit the hunt with changes to the search rules.`;
 
   selectHunt(hunt: RetrohuntEntity) {
     this.selectedHunt = hunt;
@@ -101,6 +108,17 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     this.paramsSub = this.route.queryParamMap.pipe(take(1)).subscribe(() => {
       this.retro.refresh();
       this.cdr.markForCheck();
+    });
+
+    this.hunts$.subscribe((hunts) => {
+      if (!hunts || hunts.length === 0) return;
+
+      // Only auto-select on first load
+      if (!this.hasSelectedInitialHunt) {
+        this.hasSelectedInitialHunt = true;
+        this.selectHunt(hunts[0]);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -180,5 +198,56 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       this.retro.refresh();
       this.cdr.markForCheck();
     }, this.refreshInterval);
+  }
+
+  closeCreateHunt() {
+    this.showCreateHunt = false;
+    this.newHuntCode = "";
+  }
+
+  submitNewHuntFromModal() {
+    const body = {
+      search_type: this.SEARCH_TYPE_MAP[this.newHuntLanguage],
+      search: this.newHuntCode,
+      submitter: this.username,
+      security: "",
+    };
+
+    this.retro.submitHunt(body).subscribe({
+      next: () => {
+        this.retro.refresh();
+        this.closeCreateHunt();
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error("Failed to submit hunt:", err),
+    });
+  }
+
+  openCreateModal() {
+    this.newHuntCode = "";
+    this.newHuntLanguage = "yara";
+    this.showCreateHunt = true;
+  }
+
+  openEditModal() {
+    if (!this.selectedHunt) return;
+
+    // Load the existing hunt’s rule into the modal editor
+    this.newHuntCode = this.selectedHunt?.search ?? "";
+    this.newHuntLanguage = this.selectedLanguage;
+
+    // Open the same modal
+    this.showCreateHunt = true;
+  }
+
+  openLogsModal(hunt: RetrohuntEntity) {
+    console.log("opening logs modal");
+    this.logsText = hunt.logs ?? "No logs available.";
+    this.showLogsModal = true;
+  }
+
+  closeLogsModal() {
+    this.showLogsModal = false;
+    this.logsText = "";
   }
 }

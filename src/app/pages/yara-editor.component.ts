@@ -38,6 +38,7 @@ export class YaraEditorComponent implements AfterViewInit, OnChanges {
   @ViewChild("container", { static: true }) container!: ElementRef;
 
   @Input() code = "";
+  @Input() readonly = false;
   @Output() codeChange = new EventEmitter<string>();
 
   @Input() language = "yara";
@@ -47,13 +48,17 @@ export class YaraEditorComponent implements AfterViewInit, OnChanges {
     getDefaultMonacoSettings();
 
   ngAfterViewInit() {
-    this.editorOptions.readOnly = false;
+    this.editorOptions.readOnly = this.readonly;
     this.loadMonacoLoader()
       .then(() => this.waitForMonaco())
       .then(() => this.initEditor());
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes["readonly"] && this.editor) {
+      this.editor.updateOptions({ readOnly: this.readonly });
+    }
+
     if (changes["code"] && this.editor) {
       const newValue = changes["code"].currentValue ?? "";
       const currentValue = this.editor.getValue();

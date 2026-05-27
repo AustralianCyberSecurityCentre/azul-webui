@@ -5,6 +5,7 @@ import {
   catchError,
   of,
   map,
+  tap,
   combineLatest,
 } from "rxjs";
 import { ApiService } from "src/app/core/api/api.service";
@@ -46,7 +47,9 @@ export class RetrohuntService {
                 : raw;
               return wrapped;
             }),
-
+            tap((wrapped) => {
+              console.log("🔥 Retrohunts loaded:", wrapped.data);
+            }),
             catchError((err) => {
               console.error("RetrohuntService error:", err);
 
