@@ -1,7 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
-
+import { NgModule, inject } from "@angular/core";
+import { RouterModule, Routes, CanMatchFn } from "@angular/router";
+import { of, Observable } from "rxjs";
+import { Store } from "@ngrx/store";
+import { selectRetrohuntEnabled } from "src/app/core/store/global-settings/global-selector";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
@@ -24,6 +26,12 @@ import { SourcesCurrentComponent } from "./sources-current/sources-current.compo
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
 
+const retrohuntEnabledGuard: CanMatchFn = (): Observable<boolean> => {
+  const store = inject(Store);
+  const enabled = store.selectSignal(selectRetrohuntEnabled);
+  return of(enabled()); // Observable<boolean>
+};
+
 const routes: Routes = [
   {
     path: "",
@@ -41,7 +49,6 @@ const routes: Routes = [
           },
           { path: "explore", component: BinariesExploreComponent },
           {
-            // Redirect old current/binary/:sha256 to new current/:sha256 for peoples old links.
             path: "current/:entityType/:sha256",
             redirectTo: "current/:sha256",
           },
@@ -55,12 +62,16 @@ const routes: Routes = [
           { path: "hash_lookup", component: BinariesHashLookupComponent },
           { path: "hash_download", component: BinariesHashDownloadComponent },
           { path: "purge", component: BinariesPurgeComponent },
-          { path: "retrohunt", component: BinariesRetrohuntComponent },
+          {
+            path: "retrohunt",
+            component: BinariesRetrohuntComponent,
+            canMatch: [retrohuntEnabledGuard],
+          },
         ],
       },
-      // 'entities' used to be what we would path to for all binaries
-      // to prevent dead links, this is redirected since 2022-02
+
       { path: "entities", redirectTo: "binaries", pathMatch: "prefix" },
+
       {
         path: "sources",
         children: [
@@ -69,6 +80,7 @@ const routes: Routes = [
           { path: "current/:sourceId", component: SourcesCurrentComponent },
         ],
       },
+
       {
         path: "features",
         children: [
@@ -84,6 +96,7 @@ const routes: Routes = [
           { path: "current/:feature", component: FeaturesCurrentComponent },
         ],
       },
+
       {
         path: "plugins",
         children: [
@@ -95,6 +108,7 @@ const routes: Routes = [
           },
         ],
       },
+
       { path: "test", component: TestbedComponent },
       { path: "", redirectTo: "home", pathMatch: "full" },
       { path: "**", redirectTo: "home", pathMatch: "full" },
@@ -104,7 +118,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, RouterModule.forChild(routes)],
-  declarations: [],
   exports: [RouterModule],
 })
 export class PagesRoutingModule {}

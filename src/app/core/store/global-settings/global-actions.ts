@@ -43,3 +43,8 @@ export const saveEnableHexStringSync = createAction(
   "[GlobalSetting] Save Enable Hex String Sync",
   props<{ enableHexStringSync: boolean }>(),
 );
+
+export const setRetrohuntEnabled = createAction(
+  "[Global Settings] Set Retrohunt Enabled",
+  props<{ enabled: boolean }>(),
+);

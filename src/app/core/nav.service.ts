@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { DomSanitizer, SafeUrl, Title } from "@angular/platform-browser";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
+import { selectRetrohuntEnabled } from "src/app/core/store/global-settings/global-selector";
 
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faUncharted } from "@fortawesome/free-brands-svg-icons";
@@ -40,6 +41,8 @@ export type MenuItem = InternalMenuItem | ExternalMenuItem;
 export class NavService {
   private readonly store = inject(Store);
   private title = inject(Title);
+  private retrohuntEnabled$ = this.store.select(selectRetrohuntEnabled);
+
   entityService = inject(EntityService);
 
   dbg = (...d) => console.debug("NavService:", ...d);
@@ -155,7 +158,8 @@ export class NavService {
     // assemble menu for entity dropdown
     this.topbarEntity$ = this.store.pipe(
       select(fromRoute.selectLastEntityUrls),
-      ops.map((d) => {
+      ops.withLatestFrom(this.store.select(selectRetrohuntEnabled)),
+      ops.map(([d, retrohuntEnabled]) => {
         // construct entity menu
         const items: MenuItem[] = [
           { title: "Explore", link: "/pages/binaries/explore" },
@@ -163,7 +167,11 @@ export class NavService {
           { title: "Hash Download", link: "/pages/binaries/hash_download" },
           { title: "Upload", link: "/pages/binaries/upload" },
           { title: "Tags", link: "/pages/binaries/tags" },
-          { title: "Retrohunt", link: "/pages/binaries/retrohunt" },
+          {
+            title: "Retrohunt",
+            link: "/pages/binaries/retrohunt",
+            disabled: !retrohuntEnabled,
+          },
           // { title: 'Compare', link: '/pages/binaries/compare' },
         ];
         if (d.length > 0) {
