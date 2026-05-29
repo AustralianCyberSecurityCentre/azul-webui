@@ -87,8 +87,6 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes["theme"] && this.editor) {
-      console.log("Monaco ngOnChanges fired:", changes);
-
       const monacoGlobal = (window as unknown as MonacoWindow).monaco;
       if (!monacoGlobal) return;
 
