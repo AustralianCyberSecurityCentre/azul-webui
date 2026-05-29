@@ -38,12 +38,11 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   private refreshTimer: number | null = null;
   private paramsSub: Subscription;
+  private hasSelectedInitialHunt = false;
 
   protected SEARCH_TYPE_MAP: Record<string, string> = {
     yara: "Yara",
   };
-
-  private hasSelectedInitialHunt = false;
 
   protected sizes = [25, 40, 35];
   protected ButtonType = ButtonType;

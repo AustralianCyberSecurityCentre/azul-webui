@@ -1,6 +1,8 @@
 import {
   Component,
   Input,
+  effect,
+  input,
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
@@ -38,50 +40,58 @@ interface MonacoWindow extends Window {
 export class MonacoEditorComponent implements AfterViewInit, OnChanges {
   @ViewChild("container", { static: true }) container!: ElementRef;
 
-  @Input() code = "";
-  @Input() readonly = false;
-  @Output() codeChange = new EventEmitter<string>();
+  code = input<string>("");
+  readonly = input<boolean>(false);
+  language = input<string>("yara");
   @Input() theme: ColorTheme = ColorTheme.Dark;
-  @Input() language = "yara";
+  @Output() codeChange = new EventEmitter<string>();
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
   private editorOptions: monaco.editor.IStandaloneEditorConstructionOptions =
     getDefaultMonacoSettings();
 
+  constructor() {
+    effect(() => {
+      if (this.editor) {
+        this.editor.updateOptions({ readOnly: this.readonly() });
+      }
+    });
+
+    effect(() => {
+      if (!this.editor) return;
+      const newValue = this.code() ?? "";
+      if (newValue !== this.editor.getValue()) {
+        this.editor.setValue(newValue);
+      }
+    });
+
+    effect(() => {
+      if (!this.editor) return;
+
+      const monacoGlobal = (window as unknown as MonacoWindow).monaco;
+      if (!monacoGlobal) return;
+
+      const model = this.editor.getModel();
+      if (model) {
+        monacoGlobal.editor.setModelLanguage(model, this.language());
+      }
+    });
+  }
+
   ngAfterViewInit() {
-    this.editorOptions.readOnly = this.readonly;
+    this.editorOptions.readOnly = this.readonly();
     this.loadMonacoLoader()
       .then(() => this.waitForMonaco())
       .then(() => this.initEditor());
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["readonly"] && this.editor) {
-      this.editor.updateOptions({ readOnly: this.readonly });
-    }
-
-    if (changes["code"] && this.editor) {
-      const newValue = changes["code"].currentValue ?? "";
-      const currentValue = this.editor.getValue();
-
-      if (newValue !== currentValue) {
-        this.editor.setValue(newValue);
-      }
-    }
-
-    if (changes["language"] && this.editor) {
-      const monacoGlobal = (window as unknown as { monaco: typeof monaco })
-        .monaco;
-      const model = this.editor.getModel();
-
-      if (model) {
-        monacoGlobal.editor.setModelLanguage(model, this.language);
-      }
-    }
-
     if (changes["theme"] && this.editor) {
       console.log("Monaco ngOnChanges fired:", changes);
-      const monacoGlobal = (window as any).monaco;
+
+      const monacoGlobal = (window as unknown as MonacoWindow).monaco;
+      if (!monacoGlobal) return;
+
       const isDark = this.theme === ColorTheme.Dark;
 
       monacoGlobal.editor.setTheme(isDark ? "vs-dark" : "vs");
@@ -138,8 +148,8 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
 
     this.editor = monacoGlobal.editor.create(this.container.nativeElement, {
       ...this.editorOptions,
-      value: String(this.code ?? ""),
-      language: this.language,
+      value: String(this.code() ?? ""),
+      language: this.language(),
       automaticLayout: true,
     });
 
