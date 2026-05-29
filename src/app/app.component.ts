@@ -62,10 +62,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log("APP COMPONENT INITIALIZED");
     // Load backend config
     fetch("/api/config")
       .then((res) => res.json())
       .then((cfg) => {
+        console.log("CONFIG FROM BACKEND:", cfg);
         this.store.dispatch(
           setRetrohuntEnabled({ enabled: cfg.retrohuntEnabled }),
         );
