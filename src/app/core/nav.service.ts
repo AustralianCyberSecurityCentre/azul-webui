@@ -155,10 +155,14 @@ export class NavService {
       }),
     );
 
+    this.store
+      .select(selectRetrohuntEnabled)
+      .subscribe((v) => console.log("NAV SERVICE retrohuntEnabled:", v));
+
     // assemble menu for entity dropdown
     this.topbarEntity$ = this.store.pipe(
       select(fromRoute.selectLastEntityUrls),
-      ops.withLatestFrom(this.store.select(selectRetrohuntEnabled)),
+      ops.combineLatestWith(this.store.select(selectRetrohuntEnabled)),
       ops.map(([d, retrohuntEnabled]) => {
         // construct entity menu
         const items: MenuItem[] = [
