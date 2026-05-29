@@ -32,7 +32,6 @@ type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
 export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private retro = inject(RetrohuntService);
-  protected user = inject(UserService);
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
 
@@ -40,6 +39,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private paramsSub: Subscription;
   private hasSelectedInitialHunt = false;
 
+  protected user = inject(UserService);
   protected SEARCH_TYPE_MAP: Record<string, string> = {
     yara: "Yara",
   };
