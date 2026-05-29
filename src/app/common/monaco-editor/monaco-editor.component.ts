@@ -31,7 +31,7 @@ interface MonacoWindow extends Window {
   selector: "az-monaco-editor",
   standalone: true,
   template: `
-    <div class="h-full w-full border border-red-500">
+    <div class="h-full w-full">
       <div #container class="h-full w-full border border-blue-500"></div>
     </div>
   `,
@@ -189,7 +189,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
   }
 
   private applyTheme() {
-    const monacoGlobal = (window as any).monaco;
+    const monacoGlobal = (window as unknown as MonacoWindow).monaco;
     if (!monacoGlobal) return;
 
     const isDark = document.documentElement.classList.contains("dark");

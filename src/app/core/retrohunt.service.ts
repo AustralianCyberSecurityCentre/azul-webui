@@ -5,7 +5,6 @@ import {
   catchError,
   of,
   map,
-  tap,
   combineLatest,
 } from "rxjs";
 import { ApiService } from "src/app/core/api/api.service";
