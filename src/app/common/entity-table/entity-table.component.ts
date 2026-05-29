@@ -52,7 +52,7 @@ export class EntityTableComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(
-      ops.map((d) => d.items_count ?? 0),
+      ops.map((d) => d?.items_count ?? 0),
       ops.shareReplay(1),
     );
     // grab row data while unchecking checked rows

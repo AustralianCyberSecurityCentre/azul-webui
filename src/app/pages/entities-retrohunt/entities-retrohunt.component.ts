@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnInit,
   OnDestroy,
   inject,
-  ChangeDetectorRef,
+  signal,
+  effect,
 } from "@angular/core";
 import { Subscription, BehaviorSubject, take } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
@@ -15,6 +17,9 @@ import { EntityFindWithPurgeExtras } from "src/app/core/api/state";
 import { faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { UserService } from "src/app/core/user.service";
 import type { components } from "src/app/core/api/openapi";
+import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
+import { Store } from "@ngrx/store";
+import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
 
 type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
 
@@ -27,39 +32,47 @@ type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
 export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private retro = inject(RetrohuntService);
-  private cdr = inject(ChangeDetectorRef);
   protected user = inject(UserService);
+  private store = inject(Store);
+  private cdr = inject(ChangeDetectorRef);
 
   private refreshTimer: number | null = null;
   private paramsSub: Subscription;
-  private SEARCH_TYPE_MAP: Record<string, string> = {
+
+  protected SEARCH_TYPE_MAP: Record<string, string> = {
     yara: "Yara",
-    suricata: "Suricata",
-    // add more in future
   };
+
   private hasSelectedInitialHunt = false;
 
   protected sizes = [25, 40, 35];
   protected ButtonType = ButtonType;
-  protected entitySearchTerm = new FormControl("");
-  protected username: string = "";
-  protected refreshInterval = 0; // default: Off
+  protected username = signal<string | null>(null);
+
+  protected refreshInterval = signal(0);
+
   protected faTrash = faTrash;
   protected faTrashAlt = faTrashAlt;
   protected ruleControl = new FormControl("");
   protected selectedLanguage = "yara";
-  protected hunts$ = this.retro.retrohunts$;
+  protected hunts = this.retro.retrohunts;
+
   protected huntFind$ = new BehaviorSubject<EntityFindWithPurgeExtras | null>(
     null,
   );
-  protected selectedHunt: RetrohuntEntity | null = null;
-  protected showCreateHunt = false;
-  protected newHuntCode = "";
-  protected newHuntLanguage = "yara";
-  protected modalWidth = "800px";
-  protected modalHeight = "80vh";
+
+  protected selectedHunt = signal<RetrohuntEntity | null>(null);
+
+  protected showCreateHunt = signal(false);
+  protected newHuntCode = signal("");
+  protected newHuntLanguage = signal("yara");
+  protected logsText = signal("");
+  protected modalWidth = "2000px";
+  protected modalHeight = "100vh";
+
   protected showLogsModal = false;
-  protected logsText = "";
+
+  protected currentTheme: ColorTheme = ColorTheme.Dark;
 
   protected helpHuntsList = `
     The panel below displays the list of hunts currently in the database.
@@ -74,8 +87,33 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     The pane below shows the search rules for the selected hunt.
     Click the Edit Hunt button if you need to resubmit the hunt with changes to the search rules.`;
 
+  private refreshIntervalEffect = effect(() => {
+    const interval = this.refreshInterval();
+
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+
+    if (interval === 0) return;
+
+    this.refreshTimer = setInterval(() => {
+      this.retro.refresh();
+    }, interval);
+  });
+
+  private autoSelectEffect = effect(() => {
+    const hunts = this.hunts();
+    if (!hunts || hunts.length === 0) return;
+
+    if (!this.hasSelectedInitialHunt) {
+      this.hasSelectedInitialHunt = true;
+      this.selectHunt(hunts[0]);
+    }
+  });
+
   selectHunt(hunt: RetrohuntEntity) {
-    this.selectedHunt = hunt;
+    this.selectedHunt.set(hunt);
 
     const rows: EntityFindWithPurgeExtras["items"] = (
       hunt.results?.retrohunt_test ?? []
@@ -96,43 +134,29 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     this.ruleControl.setValue(hunt.search ?? "");
   }
 
-  dbg = (...d) => console.info("BinariesRetrohuntComponent:", ...d);
-  err = (...d) => console.error("BinariesRetrohuntComponent:", ...d);
-
   ngOnInit(): void {
     this.user.username$.subscribe((name) => {
-      this.username = name ?? "";
-      this.cdr.markForCheck();
+      this.username.set(name ?? null);
     });
 
     this.paramsSub = this.route.queryParamMap.pipe(take(1)).subscribe(() => {
       this.retro.refresh();
-      this.cdr.markForCheck();
     });
-
-    this.hunts$.subscribe((hunts) => {
-      if (!hunts || hunts.length === 0) return;
-
-      // Only auto-select on first load
-      if (!this.hasSelectedInitialHunt) {
-        this.hasSelectedInitialHunt = true;
-        this.selectHunt(hunts[0]);
-        this.cdr.markForCheck();
+    this.store.select(colorThemeConfig).subscribe((theme) => {
+      if (theme) {
+        this.currentTheme = theme;
       }
+      this.cdr.detectChanges();
     });
   }
 
   ngOnDestroy(): void {
     this.paramsSub?.unsubscribe();
-
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-    }
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
   reload() {
     this.retro.refresh();
-    this.cdr.markForCheck();
   }
 
   deleteHunt(hunt: RetrohuntEntity) {
@@ -140,23 +164,18 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       next: () => {
         this.retro.removeHuntLocally(hunt.id);
 
-        if (this.selectedHunt?.id === hunt.id) {
-          this.selectedHunt = null;
-          this.huntFind$.next({
-            items: [],
-            items_count: 0,
-          });
+        if (this.selectedHunt()?.id === hunt.id) {
+          this.selectedHunt.set(null);
+          this.huntFind$.next({ items: [], items_count: 0 });
         }
       },
-      error: (err) => {
-        console.error("Failed to cancel hunt:", err);
-      },
+      error: (err) => console.error("Failed to cancel hunt:", err),
     });
   }
 
   resetRules() {
-    if (this.selectedHunt) {
-      this.ruleControl.setValue(this.selectedHunt.search ?? "");
+    if (this.selectedHunt()) {
+      this.ruleControl.setValue(this.selectedHunt()?.search ?? "");
     }
   }
 
@@ -164,52 +183,30 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     const rules = this.ruleControl.value ?? "";
 
     const body = {
-      search_type: this.SEARCH_TYPE_MAP[this.selectedLanguage], // "Yara only. Possible to support more languages in future"
+      search_type: this.SEARCH_TYPE_MAP[this.selectedLanguage],
       search: rules,
-      submitter: this.username,
-      security: "", // leave blank for now
+      submitter: this.username(),
+      security: "",
     };
 
     this.retro.submitHunt(body).subscribe({
       next: () => {
         this.retro.refresh();
-        this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error("Failed to submit hunt:", err);
-      },
+      error: (err) => console.error("Failed to submit hunt:", err),
     });
   }
 
-  onRefreshIntervalChange() {
-    // Clear any existing timer
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-
-    // If Off (0), stop here
-    if (this.refreshInterval === 0) {
-      return;
-    }
-
-    // Start new interval
-    this.refreshTimer = setInterval(() => {
-      this.retro.refresh();
-      this.cdr.markForCheck();
-    }, this.refreshInterval);
-  }
-
   closeCreateHunt() {
-    this.showCreateHunt = false;
-    this.newHuntCode = "";
+    this.showCreateHunt.set(false);
+    this.newHuntCode.set("");
   }
 
   submitNewHuntFromModal() {
     const body = {
-      search_type: this.SEARCH_TYPE_MAP[this.newHuntLanguage],
-      search: this.newHuntCode,
-      submitter: this.username,
+      search_type: this.SEARCH_TYPE_MAP[this.newHuntLanguage()],
+      search: this.newHuntCode(),
+      submitter: this.username(),
       security: "",
     };
 
@@ -217,37 +214,32 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       next: () => {
         this.retro.refresh();
         this.closeCreateHunt();
-        this.cdr.markForCheck();
       },
       error: (err) => console.error("Failed to submit hunt:", err),
     });
   }
 
   openCreateModal() {
-    this.newHuntCode = "";
-    this.newHuntLanguage = "yara";
-    this.showCreateHunt = true;
+    this.newHuntCode.set("");
+    this.newHuntLanguage.set("yara");
+    this.showCreateHunt.set(true);
   }
 
   openEditModal() {
-    if (!this.selectedHunt) return;
+    if (!this.selectedHunt()) return;
 
-    // Load the existing hunt’s rule into the modal editor
-    this.newHuntCode = this.selectedHunt?.search ?? "";
-    this.newHuntLanguage = this.selectedLanguage;
-
-    // Open the same modal
-    this.showCreateHunt = true;
+    this.newHuntCode.set(this.selectedHunt()?.search ?? "");
+    this.newHuntLanguage.set(this.selectedLanguage);
+    this.showCreateHunt.set(true);
   }
 
   openLogsModal(hunt: RetrohuntEntity) {
-    console.log("opening logs modal");
-    this.logsText = hunt.logs ?? "No logs available.";
+    this.logsText.set(hunt.logs ?? "No logs available.");
     this.showLogsModal = true;
   }
 
   closeLogsModal() {
     this.showLogsModal = false;
-    this.logsText = "";
+    this.logsText.set("");
   }
 }

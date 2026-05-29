@@ -10,6 +10,7 @@ import {
 } from "rxjs";
 import { ApiService } from "src/app/core/api/api.service";
 import { components } from "src/app/core/api/openapi";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 type RetrohuntsResponse = components["schemas"]["RetrohuntsResponse"];
 
@@ -32,10 +33,11 @@ export class RetrohuntService {
   );
 
   //public observable the component subscribes to
-  retrohunts$ = this._retrohuntSubject.asObservable();
+  retrohunts = toSignal(this._retrohuntSubject.asObservable(), {
+    initialValue: [],
+  });
 
   constructor() {
-    //combine params$ and refreshTrigger$ so either one triggers a reload
     combineLatest([this.params$, this.refreshTrigger$])
       .pipe(
         switchMap(([params]) =>
@@ -46,9 +48,6 @@ export class RetrohuntService {
                 ? { data: raw }
                 : raw;
               return wrapped;
-            }),
-            tap((wrapped) => {
-              console.log("🔥 Retrohunts loaded:", wrapped.data);
             }),
             catchError((err) => {
               console.error("RetrohuntService error:", err);

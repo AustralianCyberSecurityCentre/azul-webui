@@ -8230,11 +8230,11 @@ export interface operations {
       readonly query?: {
         readonly limit?: number;
         /** @description Exclude these security labels during queries */
-        //readonly x?: readonly string[];
+        readonly x?: readonly string[];
         /** @description Include these RELs for AND search in opensearch during queries */
-        //readonly i?: readonly string[];
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
-        //readonly include_queries?: boolean;
+        readonly include_queries?: boolean;
       };
       readonly header?: never;
       readonly path?: never;
@@ -8395,9 +8395,9 @@ export interface operations {
       readonly query?: {
         readonly limit?: number;
         /** @description Exclude these security labels during queries */
-        //readonly x?: readonly string[];
+        readonly x?: readonly string[];
         /** @description Include these RELs for AND search in opensearch during queries */
-        //readonly i?: readonly string[];
+        readonly i?: readonly string[];
         /** @description Include all Opensearch queries run during request. */
         readonly include_queries?: boolean;
       };

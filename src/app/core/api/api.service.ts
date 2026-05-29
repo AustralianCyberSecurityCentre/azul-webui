@@ -1586,6 +1586,7 @@ export class ApiService {
       { cache: false },
     ).pipe(
       ops.map((d) => d.data),
+      // FUTURE: add addReceivedSecurity once security is implemented in retrohunt
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
   }

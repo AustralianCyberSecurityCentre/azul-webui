@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 
 import { getDefaultMonacoSettings, recalculateFonts } from "src/app/core/util";
+import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
 import * as monaco from "monaco-editor";
 
 interface MonacoAmdRequire {
@@ -25,7 +26,7 @@ interface MonacoWindow extends Window {
 }
 
 @Component({
-  selector: "az-yara-editor",
+  selector: "az-monaco-editor",
   standalone: true,
   template: `
     <div class="h-full w-full border border-red-500">
@@ -34,13 +35,13 @@ interface MonacoWindow extends Window {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class YaraEditorComponent implements AfterViewInit, OnChanges {
+export class MonacoEditorComponent implements AfterViewInit, OnChanges {
   @ViewChild("container", { static: true }) container!: ElementRef;
 
   @Input() code = "";
   @Input() readonly = false;
   @Output() codeChange = new EventEmitter<string>();
-
+  @Input() theme: ColorTheme = ColorTheme.Dark;
   @Input() language = "yara";
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
@@ -76,6 +77,15 @@ export class YaraEditorComponent implements AfterViewInit, OnChanges {
       if (model) {
         monacoGlobal.editor.setModelLanguage(model, this.language);
       }
+    }
+
+    if (changes["theme"] && this.editor) {
+      console.log("Monaco ngOnChanges fired:", changes);
+      const monacoGlobal = (window as any).monaco;
+      const isDark = this.theme === ColorTheme.Dark;
+
+      monacoGlobal.editor.setTheme(isDark ? "vs-dark" : "vs");
+      this.editor.layout();
     }
   }
 
@@ -141,6 +151,7 @@ export class YaraEditorComponent implements AfterViewInit, OnChanges {
 
     requestAnimationFrame(() => {
       this.editor.layout();
+      this.applyTheme();
     });
   }
 
@@ -165,5 +176,13 @@ export class YaraEditorComponent implements AfterViewInit, OnChanges {
 
       monacoInstance.languages.setMonarchTokensProvider("yara", yaraTokens);
     }
+  }
+
+  private applyTheme() {
+    const monacoGlobal = (window as any).monaco;
+    if (!monacoGlobal) return;
+
+    const isDark = document.documentElement.classList.contains("dark");
+    monacoGlobal.editor.setTheme(isDark ? "vs-dark" : "vs");
   }
 }

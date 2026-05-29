@@ -36,8 +36,6 @@ import { SourcesExploreComponent } from "./sources-explore/sources-explore.compo
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
 import { AngularSplitModule } from "angular-split";
-import { YaraEditorComponent } from "./yara-editor.component";
-import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { PageHelpComponent } from "./page-help/page-help.component";
 
 @NgModule({
@@ -83,10 +81,6 @@ import { PageHelpComponent } from "./page-help/page-help.component";
     NgxSliderModule,
     FormField,
     AngularSplitModule,
-    YaraEditorComponent,
-    MonacoEditorModule.forRoot({
-      baseUrl: "./assets/monaco/min/vs",
-    }),
   ],
   exports: [CallbackComponent, BinariesExploreComponent],
 })

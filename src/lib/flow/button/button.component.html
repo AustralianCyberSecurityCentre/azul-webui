@@ -41,7 +41,7 @@
     'rounded-lg': rounded,
     'focus:ring-4': outline,
   }"
-  [disabled]="type === 'disabled'"
+  [disabled]="disabled || type === 'disabled'"
   class="font-medium focus:outline-hidden"
 >
   <ng-content></ng-content>
