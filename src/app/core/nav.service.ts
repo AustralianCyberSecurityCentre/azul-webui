@@ -69,6 +69,9 @@ export class NavService {
 
   constructor() {
     const sanitizer = inject(DomSanitizer);
+    this.store.subscribe((state) => {
+      console.log("FULL STORE STATE:", state);
+    });
 
     // monitor for when users switch away from this window
     window.addEventListener("blur-sm", () => this.windowFocus$.next(false));
