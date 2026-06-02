@@ -43,6 +43,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
   code = input<string>("");
   readonly = input<boolean>(false);
   language = input<string>("yara");
+  key = input<string | number | null>(null);
   @Input() theme: ColorTheme = ColorTheme.Dark;
   @Output() codeChange = new EventEmitter<string>();
 
@@ -51,6 +52,21 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
     getDefaultMonacoSettings();
 
   constructor() {
+    effect(() => {
+      const k = this.key();
+      if (!k) return;
+
+      // If editor exists, dispose it
+      if (this.editor) {
+        this.editor.dispose();
+        this.editor = undefined!;
+      }
+
+      // Recreate the editor with the new key
+      if (this.container?.nativeElement) {
+        this.initEditor();
+      }
+    });
     effect(() => {
       if (this.editor) {
         this.editor.updateOptions({ readOnly: this.readonly() });

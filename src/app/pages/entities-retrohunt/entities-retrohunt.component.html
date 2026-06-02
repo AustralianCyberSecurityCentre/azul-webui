@@ -138,9 +138,10 @@
               <div class="min-h-0 flex-1">
                 <az-monaco-editor
                   class="h-full w-full rounded border border-slate-300 dark:border-slate-600"
-                  [code]="newHuntCode()"
+                  [key]="selectedHunt()?.id"
                   [language]="newHuntLanguage()"
-                  (codeChange)="newHuntCode.set($event)"
+                  [code]="ruleText()"
+                  (codeChange)="ruleText.set($event)"
                   [readonly]="false"
                   [theme]="currentTheme"
                 ></az-monaco-editor>
@@ -261,9 +262,10 @@
 
             <az-monaco-editor
               class="h-full min-h-0 grow"
-              [code]="ruleControl.value || ''"
+              [key]="selectedHunt()?.id"
               [language]="selectedLanguage"
-              (codeChange)="ruleControl.setValue($event)"
+              [code]="ruleText()"
+              (codeChange)="ruleText.set($event)"
               [readonly]="true"
               [theme]="currentTheme"
             ></az-monaco-editor>

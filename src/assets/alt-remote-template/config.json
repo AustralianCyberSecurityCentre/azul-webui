@@ -7,6 +7,7 @@
   "motd_footer": "",
   "deployment_title": "Local Azul",
   "deployment_text": "LOCAL WITH REMOTE",
+  "retrohunt_enabled": true,
   "oidc_url": "https://example.com",
   "oidc_client": "example",
   "oidc_scopes": "openid profile offline_access",

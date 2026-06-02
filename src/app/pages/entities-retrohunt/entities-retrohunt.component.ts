@@ -12,7 +12,6 @@ import { Subscription, BehaviorSubject, take } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
 import { RetrohuntService } from "src/app/core/retrohunt.service";
 import { ButtonType } from "src/lib/flow/button/button.component";
-import { FormControl } from "@angular/forms";
 import { EntityFindWithPurgeExtras } from "src/app/core/api/state";
 import { faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { UserService } from "src/app/core/user.service";
@@ -52,7 +51,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   protected faTrash = faTrash;
   protected faTrashAlt = faTrashAlt;
-  protected ruleControl = new FormControl("");
+  protected ruleText = signal("");
   protected selectedLanguage = "yara";
   protected hunts = this.retro.retrohunts;
 
@@ -130,7 +129,8 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       items_count: rows.length,
     });
 
-    this.ruleControl.setValue(hunt.search ?? "");
+    this.ruleText.set(hunt.search ?? "");
+    console.log("Selected hunt search:", hunt.search);
   }
 
   ngOnInit(): void {
@@ -174,13 +174,12 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   resetRules() {
     if (this.selectedHunt()) {
-      this.ruleControl.setValue(this.selectedHunt()?.search ?? "");
+      this.ruleText.set(this.selectedHunt()?.search ?? "");
     }
   }
 
   submitNewHunt() {
-    const rules = this.ruleControl.value ?? "";
-
+    const rules = this.ruleText() ?? "";
     const body = {
       search_type: this.SEARCH_TYPE_MAP[this.selectedLanguage],
       search: rules,

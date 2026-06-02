@@ -170,7 +170,7 @@ export class NavService {
           {
             title: "Retrohunt",
             link: "/pages/binaries/retrohunt",
-            disabled: !retrohuntEnabled,
+            disabled: !config?.retrohunt_enabled,
           },
           // { title: 'Compare', link: '/pages/binaries/compare' },
         ];
