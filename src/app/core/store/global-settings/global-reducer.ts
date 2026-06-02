@@ -131,9 +131,4 @@ export const globalSettingReducer = createReducer(
       return currentState;
     },
   ),
-  on(GlobalSettingActions.setRetrohuntEnabled, (state, { enabled }) => {
-    const currentState = { ...state, retrohuntEnabled: enabled };
-    saveGlobalSettingState(currentState);
-    return currentState;
-  }),
 );

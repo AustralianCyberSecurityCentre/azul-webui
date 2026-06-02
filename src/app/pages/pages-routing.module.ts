@@ -1,9 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { NgModule, inject } from "@angular/core";
-import { RouterModule, Routes, CanMatchFn } from "@angular/router";
-import { of, Observable } from "rxjs";
-import { Store } from "@ngrx/store";
-import { selectRetrohuntEnabled } from "src/app/core/store/global-settings/global-selector";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
@@ -25,12 +22,6 @@ import { PluginsExploreComponent } from "./plugins-explore/plugins-explore.compo
 import { SourcesCurrentComponent } from "./sources-current/sources-current.component";
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
-
-const retrohuntEnabledGuard: CanMatchFn = (): Observable<boolean> => {
-  const store = inject(Store);
-  const enabled = store.selectSignal(selectRetrohuntEnabled);
-  return of(enabled()); // Observable<boolean>
-};
 
 const routes: Routes = [
   {
@@ -62,11 +53,7 @@ const routes: Routes = [
           { path: "hash_lookup", component: BinariesHashLookupComponent },
           { path: "hash_download", component: BinariesHashDownloadComponent },
           { path: "purge", component: BinariesPurgeComponent },
-          {
-            path: "retrohunt",
-            component: BinariesRetrohuntComponent,
-            canMatch: [retrohuntEnabledGuard],
-          },
+          { path: "retrohunt", component: BinariesRetrohuntComponent },
         ],
       },
 

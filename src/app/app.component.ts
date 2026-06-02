@@ -19,7 +19,6 @@ import { Store } from "@ngrx/store";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { Subscription } from "rxjs";
 import * as globalAction from "./core/store/global-settings/global-actions";
-import { setRetrohuntEnabled } from "./core/store/global-settings/global-actions";
 import { colorThemeConfig } from "./core/store/global-settings/global-selector";
 import { ColorTheme } from "./core/store/global-settings/global-state.types";
 import { config } from "./settings";
@@ -62,19 +61,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Load backend config
-    fetch("/api/config")
-      .then((res) => res.json())
-      .then((cfg) => {
-        this.store.dispatch(
-          setRetrohuntEnabled({ enabled: cfg.retrohuntEnabled }),
-        );
-      })
-      .catch(() => {
-        // If endpoint missing or server disabled retrohunt
-        this.store.dispatch(setRetrohuntEnabled({ enabled: false }));
-      });
-
     if (config.oauth_enabled) {
       const oidcSecurityService = this.injector.get(OidcSecurityService);
       oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {

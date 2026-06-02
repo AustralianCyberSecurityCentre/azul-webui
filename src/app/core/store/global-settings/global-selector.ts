@@ -55,8 +55,3 @@ export const selectEnableHexStringSync = createSelector(
     return state.enableHexStringSync;
   },
 );
-
-export const selectRetrohuntEnabled = createSelector(
-  selectGlobalConfigState,
-  (state: GlobalSettingState) => state.retrohuntEnabled,
-);
