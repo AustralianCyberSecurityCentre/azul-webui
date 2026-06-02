@@ -14,7 +14,6 @@ export interface GlobalSettingState {
   debugQueryEditorHeightPx: number;
   theme: ColorTheme;
   enableHexStringSync: boolean;
-  retrohuntEnabled: boolean;
 }
 
 export const initialState: GlobalSettingState = {
@@ -27,7 +26,6 @@ export const initialState: GlobalSettingState = {
   debugQueryEditorHeightPx: 300,
   theme: ColorTheme.Dark,
   enableHexStringSync: true,
-  retrohuntEnabled: false,
 };
 
 /**load from local storage*/
