@@ -139,8 +139,8 @@
                 <az-monaco-editor
                   class="h-full w-full rounded border border-slate-300 dark:border-slate-600"
                   [language]="newHuntLanguage()"
-                  [code]="ruleText()"
-                  (codeChange)="ruleText.set($event)"
+                  [code]="newHuntCode()"
+                  (codeChange)="newHuntCode.set($event)"
                   [readonly]="false"
                   [theme]="currentTheme"
                 ></az-monaco-editor>
