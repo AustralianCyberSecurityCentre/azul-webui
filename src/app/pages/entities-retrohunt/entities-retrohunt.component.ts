@@ -130,7 +130,6 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     });
 
     this.ruleText.set(hunt.search ?? "");
-    console.log("Selected hunt search:", hunt.search);
   }
 
   ngOnInit(): void {
@@ -239,5 +238,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   closeLogsModal() {
     this.showLogsModal = false;
     this.logsText.set("");
+  }
+
+  isEmptyResults(hunt: RetrohuntEntity): boolean {
+    return !hunt.results || Object.keys(hunt.results).length === 0;
   }
 }

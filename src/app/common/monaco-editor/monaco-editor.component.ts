@@ -53,35 +53,6 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
 
   constructor() {
     effect(() => {
-      const k = this.key();
-      if (!k) return;
-
-      // If editor exists, dispose it
-      if (this.editor) {
-        this.editor.dispose();
-        this.editor = undefined!;
-      }
-
-      // Recreate the editor with the new key
-      if (this.container?.nativeElement) {
-        this.initEditor();
-      }
-    });
-    effect(() => {
-      if (this.editor) {
-        this.editor.updateOptions({ readOnly: this.readonly() });
-      }
-    });
-
-    effect(() => {
-      if (!this.editor) return;
-      const newValue = this.code() ?? "";
-      if (newValue !== this.editor.getValue()) {
-        this.editor.setValue(newValue);
-      }
-    });
-
-    effect(() => {
       if (!this.editor) return;
 
       const monacoGlobal = (window as unknown as MonacoWindow).monaco;
@@ -96,12 +67,30 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
 
   ngAfterViewInit() {
     this.editorOptions.readOnly = this.readonly();
+
     this.loadMonacoLoader()
       .then(() => this.waitForMonaco())
-      .then(() => this.initEditor());
+      .then(() => {
+        this.initEditor();
+        this.editor.updateOptions({ readOnly: this.readonly() });
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    // If editor isn't ready yet, skip
+    if (!this.editor) return;
+    // Update readonly if it changes later
+    if (changes["readonly"] && this.editor) {
+      this.editor.updateOptions({ readOnly: this.readonly() });
+    }
+
+    // Update code when input changes
+    if (changes["code"] && this.editor) {
+      const newValue = this.code() ?? "";
+      if (newValue !== this.editor.getValue()) {
+        this.editor.setValue(newValue);
+      }
+    }
     if (changes["theme"] && this.editor) {
       const monacoGlobal = (window as unknown as MonacoWindow).monaco;
       if (!monacoGlobal) return;

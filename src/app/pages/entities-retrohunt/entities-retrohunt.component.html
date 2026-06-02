@@ -138,7 +138,6 @@
               <div class="min-h-0 flex-1">
                 <az-monaco-editor
                   class="h-full w-full rounded border border-slate-300 dark:border-slate-600"
-                  [key]="selectedHunt()?.id"
                   [language]="newHuntLanguage()"
                   [code]="ruleText()"
                   (codeChange)="ruleText.set($event)"
@@ -217,14 +216,26 @@
           class="relative flex min-h-0 grow gap-4 overflow-y-auto rounded-md p-2 dark:text-white"
         >
           @if (huntFind$ | async; as huntFind) {
-            @if (huntFind !== null) {
-              <az-entity-table
-                [tablename]="'Retrohunt Results'"
-                [find$]="huntFind$"
-                [externalPagination]="false"
-                [scroll]="true"
-                [noResults]="'No search results... yet'"
-              />
+            @if (selectedHunt(); as hunt) {
+              <!-- FAILED -->
+              @if (hunt.status === "failed") {
+                <p class="text-red-500">
+                  This hunt failed.<br />
+                  <span class="text-sm text-gray-500">{{ hunt.error }}</span>
+                </p>
+
+                <!-- COMPLETED WITH NO RESULTS -->
+              } @else if (hunt.status === "completed" && isEmptyResults(hunt)) {
+                <p class="text-gray-500">No results found for this hunt.</p>
+              } @else {
+                <az-entity-table
+                  [tablename]="'Retrohunt Results'"
+                  [find$]="huntFind$"
+                  [externalPagination]="false"
+                  [scroll]="true"
+                  [noResults]="'No search results... yet'"
+                />
+              }
             } @else {
               <p class="text-gray-500">Select a hunt to view binaries…</p>
             }
@@ -262,7 +273,6 @@
 
             <az-monaco-editor
               class="h-full min-h-0 grow"
-              [key]="selectedHunt()?.id"
               [language]="selectedLanguage"
               [code]="ruleText()"
               (codeChange)="ruleText.set($event)"
