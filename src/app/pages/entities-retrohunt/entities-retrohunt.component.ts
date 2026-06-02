@@ -9,6 +9,7 @@ import {
   effect,
   runInInjectionContext,
   Injector,
+  Signal,
 } from "@angular/core";
 import { Subscription, BehaviorSubject, take } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
@@ -59,7 +60,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   protected faTrashAlt = faTrashAlt;
   protected ruleText = signal("");
   protected selectedLanguage = "yara";
-  protected hunts = this.retro.retrohunts;
+  protected hunts: Signal<readonly RetrohuntEntity[]> = this.retro.retrohunts;
 
   protected huntFind$ = new BehaviorSubject<EntityFindWithPurgeExtras | null>(
     null,
