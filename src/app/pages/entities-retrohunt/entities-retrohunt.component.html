@@ -91,13 +91,21 @@
                     </div>
 
                     <flow-tooltip
-                      message="Delete / Cancel this hunt."
-                      subText="This action cannot be undone."
+                      [message]="
+                        hunt.status === 'completed' || hunt.status === 'failed'
+                          ? 'Delete this hunt'
+                          : 'Cancel this hunt'
+                      "
+                      [subText]="
+                        hunt.status === 'completed' || hunt.status === 'failed'
+                          ? 'This action cannot be undone.'
+                          : 'Stop this hunt before it finishes.'
+                      "
                       direction="top"
                     >
                       <button
                         type="button"
-                        class="absolute right-1 bottom-1 rounded p-1 text-gray-500 hover:text-red-600"
+                        class="absolute right-1 bottom-1 cursor-pointer rounded p-1 text-gray-500 hover:text-red-600"
                         (click)="deleteHunt(hunt); $event.stopPropagation()"
                         (keyup.enter)="deleteHunt(hunt)"
                         (keyup.space)="deleteHunt(hunt)"

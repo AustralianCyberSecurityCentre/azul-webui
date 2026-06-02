@@ -7,6 +7,8 @@ import {
   inject,
   signal,
   effect,
+  runInInjectionContext,
+  Injector,
 } from "@angular/core";
 import { Subscription, BehaviorSubject, take } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
@@ -21,6 +23,9 @@ import { Store } from "@ngrx/store";
 import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
 
 type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
+type RetrohuntCreateResponse = {
+  retrohunt_id: string;
+};
 
 @Component({
   selector: "app-binaries-retrohunt",
@@ -33,6 +38,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private retro = inject(RetrohuntService);
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
+  private injector = inject(Injector);
 
   private refreshTimer: number | null = null;
   private paramsSub: Subscription;
@@ -108,6 +114,19 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       this.hasSelectedInitialHunt = true;
       this.selectHunt(hunts[0]);
     }
+  });
+
+  private refreshSelectedHuntEffect = effect(() => {
+    const hunts = this.hunts();
+    const selected = this.selectedHunt();
+
+    if (!hunts || !selected) return;
+
+    const updated = hunts.find((h) => h.id === selected.id);
+    if (!updated) return;
+
+    // Re-select to refresh huntFind$
+    this.selectHunt(updated);
   });
 
   selectHunt(hunt: RetrohuntEntity) {
@@ -187,9 +206,25 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     };
 
     this.retro.submitHunt(body).subscribe({
-      next: () => {
+      next: (created: RetrohuntCreateResponse) => {
+        const newId = created.retrohunt_id;
+
+        // Refresh the hunt list
         this.retro.refresh();
+
+        // Wait for the hunts signal to update, then select the new hunt
+        runInInjectionContext(this.injector, () => {
+          const stop = effect(() => {
+            const hunts = this.hunts();
+            const found = hunts.find((h) => h.id === newId);
+            if (found) {
+              this.selectHunt(found);
+              stop.destroy();
+            }
+          });
+        });
       },
+
       error: (err) => console.error("Failed to submit hunt:", err),
     });
   }
@@ -208,8 +243,28 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     };
 
     this.retro.submitHunt(body).subscribe({
-      next: () => {
+      next: (created: RetrohuntCreateResponse) => {
+        const newId = created?.retrohunt_id;
+        if (!newId) {
+          this.retro.refresh();
+          this.closeCreateHunt();
+          return;
+        }
+
         this.retro.refresh();
+
+        // Wait for hunts to refresh, then select the new one
+        runInInjectionContext(this.injector, () => {
+          const stop = effect(() => {
+            const hunts = this.hunts();
+            const found = hunts.find((h) => h.id === newId);
+            if (found) {
+              this.selectHunt(found);
+              stop.destroy();
+            }
+          });
+        });
+
         this.closeCreateHunt();
       },
       error: (err) => console.error("Failed to submit hunt:", err),
