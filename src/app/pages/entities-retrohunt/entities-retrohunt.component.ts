@@ -181,7 +181,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   deleteHunt(hunt: RetrohuntEntity) {
     this.retro
       .cancelHunt(hunt.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.retro.removeHuntLocally(hunt.id);
