@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, inject, DestroyRef } from "@angular/core";
 import {
   BehaviorSubject,
   switchMap,
@@ -9,7 +9,7 @@ import {
 } from "rxjs";
 import { ApiService } from "src/app/core/api/api.service";
 import { components } from "src/app/core/api/openapi";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 type RetrohuntsResponse = components["schemas"]["RetrohuntsResponse"];
 
@@ -20,6 +20,7 @@ export interface RetrohuntQueryParams {
 @Injectable({ providedIn: "root" })
 export class RetrohuntService {
   private api = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   private params$ = new BehaviorSubject<RetrohuntQueryParams>({ limit: 50 });
 
@@ -37,12 +38,14 @@ export class RetrohuntService {
   });
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+
     combineLatest([this.params$, this.refreshTrigger$])
       .pipe(
+        takeUntilDestroyed(destroyRef),
         switchMap(([params]) =>
           this.api.listRetrohunts(params).pipe(
             map((raw) => {
-              // Normalize BEFORE typing
               const wrapped: RetrohuntsResponse = Array.isArray(raw)
                 ? { data: raw }
                 : raw;
@@ -50,9 +53,7 @@ export class RetrohuntService {
             }),
             catchError((err) => {
               console.error("RetrohuntService error:", err);
-
-              const fallback: RetrohuntsResponse = { data: [] };
-              return of(fallback);
+              return of({ data: [] } satisfies RetrohuntsResponse);
             }),
           ),
         ),

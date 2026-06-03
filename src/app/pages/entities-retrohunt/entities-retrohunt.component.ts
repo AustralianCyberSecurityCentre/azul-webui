@@ -10,8 +10,9 @@ import {
   runInInjectionContext,
   Injector,
   Signal,
+  DestroyRef,
 } from "@angular/core";
-import { Subscription, BehaviorSubject, take } from "rxjs";
+import { BehaviorSubject, take } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
 import { RetrohuntService } from "src/app/core/retrohunt.service";
 import { ButtonType } from "src/lib/flow/button/button.component";
@@ -22,6 +23,8 @@ import type { components } from "src/app/core/api/openapi";
 import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
 import { Store } from "@ngrx/store";
 import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs/operators";
 
 type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
 type RetrohuntCreateResponse = {
@@ -40,9 +43,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
 
   private refreshTimer: number | null = null;
-  private paramsSub: Subscription;
   private hasSelectedInitialHunt = false;
 
   protected user = inject(UserService);
@@ -52,8 +55,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   protected sizes = [25, 40, 35];
   protected ButtonType = ButtonType;
-  protected username = signal<string | null>(null);
-
+  protected username = toSignal(this.user.username$, { initialValue: null });
   protected refreshInterval = signal(0);
 
   protected faTrash = faTrash;
@@ -153,23 +155,22 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.user.username$.subscribe((name) => {
-      this.username.set(name ?? null);
-    });
+    this.route.queryParamMap
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.retro.refresh());
 
-    this.paramsSub = this.route.queryParamMap.pipe(take(1)).subscribe(() => {
-      this.retro.refresh();
-    });
-    this.store.select(colorThemeConfig).subscribe((theme) => {
-      if (theme) {
-        this.currentTheme = theme;
-      }
-      this.cdr.detectChanges();
-    });
+    this.store
+      .select(colorThemeConfig)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((theme) => {
+        if (theme) {
+          this.currentTheme = theme;
+        }
+        this.cdr.detectChanges();
+      });
   }
 
   ngOnDestroy(): void {
-    this.paramsSub?.unsubscribe();
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
@@ -178,17 +179,20 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   }
 
   deleteHunt(hunt: RetrohuntEntity) {
-    this.retro.cancelHunt(hunt.id).subscribe({
-      next: () => {
-        this.retro.removeHuntLocally(hunt.id);
+    this.retro
+      .cancelHunt(hunt.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.retro.removeHuntLocally(hunt.id);
 
-        if (this.selectedHunt()?.id === hunt.id) {
-          this.selectedHunt.set(null);
-          this.huntFind$.next({ items: [], items_count: 0 });
-        }
-      },
-      error: (err) => console.error("Failed to cancel hunt:", err),
-    });
+          if (this.selectedHunt()?.id === hunt.id) {
+            this.selectedHunt.set(null);
+            this.huntFind$.next({ items: [], items_count: 0 });
+          }
+        },
+        error: (err) => console.error("Failed to cancel hunt:", err),
+      });
   }
 
   resetRules() {
@@ -197,79 +201,54 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitNewHunt() {
-    const rules = this.ruleText() ?? "";
-    const body = {
-      search_type: this.SEARCH_TYPE_MAP[this.selectedLanguage],
-      search: rules,
-      submitter: this.username(),
-      security: "",
-    };
-
-    this.retro.submitHunt(body).subscribe({
-      next: (created: RetrohuntCreateResponse) => {
-        const newId = created.retrohunt_id;
-
-        // Refresh the hunt list
-        this.retro.refresh();
-
-        // Wait for the hunts signal to update, then select the new hunt
-        runInInjectionContext(this.injector, () => {
-          const stop = effect(() => {
-            const hunts = this.hunts();
-            const found = hunts.find((h) => h.id === newId);
-            if (found) {
-              this.selectHunt(found);
-              stop.destroy();
-            }
-          });
-        });
-      },
-
-      error: (err) => console.error("Failed to submit hunt:", err),
-    });
-  }
-
   closeCreateHunt() {
     this.showCreateHunt.set(false);
     this.newHuntCode.set("");
   }
 
   submitNewHuntFromModal() {
-    const body = {
-      search_type: this.SEARCH_TYPE_MAP[this.newHuntLanguage()],
-      search: this.newHuntCode(),
-      submitter: this.username(),
-      security: "",
-    };
+    this.user.username$
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        switchMap((username) => {
+          const body = {
+            search_type: this.SEARCH_TYPE_MAP[this.newHuntLanguage()],
+            search: this.newHuntCode(),
+            submitter: username ?? "",
+            security: "",
+          };
 
-    this.retro.submitHunt(body).subscribe({
-      next: (created: RetrohuntCreateResponse) => {
-        const newId = created?.retrohunt_id;
-        if (!newId) {
+          return this.retro.submitHunt(body);
+        }),
+      )
+      .subscribe({
+        next: (created: RetrohuntCreateResponse) => {
+          const newId = created?.retrohunt_id;
+          if (!newId) {
+            this.retro.refresh();
+            this.closeCreateHunt();
+            return;
+          }
+
           this.retro.refresh();
-          this.closeCreateHunt();
-          return;
-        }
 
-        this.retro.refresh();
-
-        // Wait for hunts to refresh, then select the new one
-        runInInjectionContext(this.injector, () => {
-          const stop = effect(() => {
-            const hunts = this.hunts();
-            const found = hunts.find((h) => h.id === newId);
-            if (found) {
-              this.selectHunt(found);
-              stop.destroy();
-            }
+          // Wait for hunts to refresh, then select the new one
+          runInInjectionContext(this.injector, () => {
+            const stop = effect(() => {
+              const hunts = this.hunts();
+              const found = hunts.find((h) => h.id === newId);
+              if (found) {
+                this.selectHunt(found);
+                stop.destroy();
+              }
+            });
           });
-        });
 
-        this.closeCreateHunt();
-      },
-      error: (err) => console.error("Failed to submit hunt:", err),
-    });
+          this.closeCreateHunt();
+        },
+        error: (err) => console.error("Failed to submit hunt:", err),
+      });
   }
 
   openCreateModal() {
