@@ -35,7 +35,6 @@ export type BinaryExternalLink =
     };
 
 export type GlobalExternalLinks = {
-  retrohunt_url: string;
   nsrl_url: string;
 };
 
@@ -62,6 +61,8 @@ export type DynamicConfig = {
 
   global_external_links?: GlobalExternalLinks;
   binary_external_links?: BinaryExternalLink[];
+
+  retrohunt_enabled: boolean;
 };
 
 export let config: DynamicConfig | null = null;

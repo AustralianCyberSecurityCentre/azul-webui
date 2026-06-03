@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
@@ -9,6 +8,7 @@ import { BinariesHashDownloadComponent } from "./entities-hash-download/entities
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
+import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
@@ -40,7 +40,6 @@ const routes: Routes = [
           },
           { path: "explore", component: BinariesExploreComponent },
           {
-            // Redirect old current/binary/:sha256 to new current/:sha256 for peoples old links.
             path: "current/:entityType/:sha256",
             redirectTo: "current/:sha256",
           },
@@ -54,11 +53,12 @@ const routes: Routes = [
           { path: "hash_lookup", component: BinariesHashLookupComponent },
           { path: "hash_download", component: BinariesHashDownloadComponent },
           { path: "purge", component: BinariesPurgeComponent },
+          { path: "retrohunt", component: BinariesRetrohuntComponent },
         ],
       },
-      // 'entities' used to be what we would path to for all binaries
-      // to prevent dead links, this is redirected since 2022-02
+
       { path: "entities", redirectTo: "binaries", pathMatch: "prefix" },
+
       {
         path: "sources",
         children: [
@@ -67,6 +67,7 @@ const routes: Routes = [
           { path: "current/:sourceId", component: SourcesCurrentComponent },
         ],
       },
+
       {
         path: "features",
         children: [
@@ -82,6 +83,7 @@ const routes: Routes = [
           { path: "current/:feature", component: FeaturesCurrentComponent },
         ],
       },
+
       {
         path: "plugins",
         children: [
@@ -93,6 +95,7 @@ const routes: Routes = [
           },
         ],
       },
+
       { path: "test", component: TestbedComponent },
       { path: "", redirectTo: "home", pathMatch: "full" },
       { path: "**", redirectTo: "home", pathMatch: "full" },
@@ -102,7 +105,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, RouterModule.forChild(routes)],
-  declarations: [],
   exports: [RouterModule],
 })
 export class PagesRoutingModule {}

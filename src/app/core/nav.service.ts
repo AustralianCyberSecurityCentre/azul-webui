@@ -5,11 +5,7 @@ import * as ops from "rxjs/operators";
 
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faUncharted } from "@fortawesome/free-brands-svg-icons";
-import {
-  faBook,
-  faCameraRetro,
-  faCode,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBook, faCode } from "@fortawesome/free-solid-svg-icons";
 import { select, Store } from "@ngrx/store";
 import { EntityService } from "src/app/core/entity.service";
 import { config } from "../settings";
@@ -44,6 +40,7 @@ export type MenuItem = InternalMenuItem | ExternalMenuItem;
 export class NavService {
   private readonly store = inject(Store);
   private title = inject(Title);
+
   entityService = inject(EntityService);
 
   dbg = (...d) => console.debug("NavService:", ...d);
@@ -89,18 +86,6 @@ export class NavService {
       // Select header elements and replace their href with their alt.
       document.querySelectorAll("link[data-alt]").forEach((value) => {
         value.setAttribute("href", value.getAttribute("data-alt"));
-      });
-    }
-
-    if (config.global_external_links?.retrohunt_url) {
-      this.topbarExternal.push({
-        title: "Retrohunt",
-        icon: faCameraRetro,
-        external: true,
-        // Security: these are specifically indicated to be external URLs
-        link: sanitizer.bypassSecurityTrustUrl(
-          config.global_external_links.retrohunt_url,
-        ),
       });
     }
 
@@ -179,6 +164,11 @@ export class NavService {
           { title: "Hash Download", link: "/pages/binaries/hash_download" },
           { title: "Upload", link: "/pages/binaries/upload" },
           { title: "Tags", link: "/pages/binaries/tags" },
+          {
+            title: "Retrohunt",
+            link: "/pages/binaries/retrohunt",
+            disabled: !config?.retrohunt_enabled,
+          },
           // { title: 'Compare', link: '/pages/binaries/compare' },
         ];
         if (d.length > 0) {
@@ -303,6 +293,10 @@ export class NavService {
       {
         re: new RegExp("^/pages/features/current/([^/]+)"),
         t: (d) => `${d[0]} - Feature`,
+      },
+      {
+        re: new RegExp("^/pages/binaries/retrohunt"),
+        t: () => `Retrohunt`,
       },
     ];
 

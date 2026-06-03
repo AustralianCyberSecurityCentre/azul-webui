@@ -47,30 +47,30 @@ export class EntityTableComponent implements OnChanges {
   @Input() originalSha256?: string | undefined;
   @Input() eType: "parents" | "children" | undefined;
   @Input() entity?: EntityWrap | undefined;
-
+  @Input() noResults: string = "No binaries match the search criteria";
   @Input() purgeQueryParams: Record<string, string> | undefined;
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(
-      ops.map((d) => d.items_count),
+      ops.map((d) => d?.items_count ?? 0),
       ops.shareReplay(1),
     );
     // grab row data while unchecking checked rows
     if (changes.find$ && this.find$ !== undefined) {
-      //check any rows that should be checked
+      // check any rows that should be checked
       this.filteredFind$ = this.find$.pipe(
-        ops.map((d) =>
-          d.items
-            // Not filtering to render partial entries, so they can be deleted.
-            // .filter((val) => val.exists)
-            .map((val) => {
-              const selected = this.selectedRowMap.get(val.sha256);
-              return {
-                ...val,
-                checked: selected ? true : false,
-              };
-            }),
-        ),
+        ops.map((d) => {
+          //d may be null — make it safe
+          const items = d?.items ?? [];
+
+          return items.map((val) => {
+            const selected = this.selectedRowMap.get(val.sha256);
+            return {
+              ...val,
+              checked: selected ? true : false,
+            };
+          });
+        }),
         ops.shareReplay(1),
       );
     }

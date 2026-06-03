@@ -52,4 +52,6 @@ export class ButtonComponent {
 
   @Input()
   blockCentered: boolean = false;
+
+  @Input() disabled = false;
 }

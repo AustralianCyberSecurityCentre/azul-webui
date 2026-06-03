@@ -1,6 +1,8 @@
 <div
   class="min-h-full w-full"
-  [ngClass]="{ 'flex h-screen flex-col': !hasScroll() }"
+  [ngClass]="{
+    'flex h-screen flex-col': isRetrohuntRoute() || !hasScroll(),
+  }"
 >
   <nav
     role="banner"
@@ -268,7 +270,8 @@
   <main
     [ngClass]="{
       'px-4 pt-8': hasMargin(),
-      'flex min-h-0 flex-col *:flex *:min-h-0 *:grow *:flex-col': !hasScroll(),
+      'flex min-h-0 flex-col *:flex *:min-h-0 *:grow *:flex-col':
+        isRetrohuntRoute() || !hasScroll(),
     }"
     class="w-full min-w-0 shrink grow"
   >

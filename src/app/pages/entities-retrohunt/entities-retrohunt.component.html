@@ -1,0 +1,301 @@
+<div class="relative flex h-full w-full grow">
+  <div class="flex min-w-0 grow flex-col overflow-hidden">
+    <as-split
+      unit="percent"
+      direction="horizontal"
+      restrictMove="true"
+      class="w-full dark:[&_.as-split-gutter]:bg-slate-900! [&_.as-split-gutter-icon]:bg-none!"
+    >
+      <!-- LEFT PANE: Hunts -->
+      <as-split-area
+        [size]="sizes[0]"
+        [minSize]="25"
+        class="flex flex-col text-sm select-none dark:bg-slate-800"
+      >
+        <div class="p-2 font-medium text-black dark:text-white">
+          Retrohunt Jobs
+        </div>
+        <div
+          class="relative min-h-0 grow overflow-y-auto bg-white p-3 dark:bg-slate-800"
+        >
+          <div class="mb-2 flex items-center justify-between">
+            <!-- LEFT SIDE -->
+            <div class="flex items-center gap-2">
+              <flow-button
+                [type]="ButtonType.Primary"
+                (click)="openCreateModal()"
+              >
+                Create Hunt
+              </flow-button>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="flex items-center gap-2">
+              <flow-button [type]="ButtonType.Primary" (click)="reload()">
+                Refresh
+              </flow-button>
+
+              <select
+                flowSelect
+                [ngModel]="refreshInterval()"
+                (ngModelChange)="refreshInterval.set($event)"
+              >
+                <option [ngValue]="0">Off</option>
+                <option [ngValue]="5000">5s</option>
+                <option [ngValue]="10000">10s</option>
+                <option [ngValue]="30000">30s</option>
+                <option [ngValue]="60000">1m</option>
+              </select>
+
+              <az-page-help
+                [title]="'Retrohunt'"
+                [help]="helpHuntsList"
+                bgClass="bg-white dark:bg-azul-500"
+              ></az-page-help>
+            </div>
+          </div>
+          <div class="mt-4">
+            @if (hunts(); as hunts) {
+              @if (hunts.length === 0) {
+                <p>No retrohunt jobs found.</p>
+              } @else {
+                @for (hunt of hunts; track hunt.id) {
+                  <div
+                    role="button"
+                    tabindex="0"
+                    class="hover:bg-azul-100 dark:hover:bg-azul-500 relative mb-2 cursor-pointer rounded-md border border-slate-300 p-3 transition-colors dark:border-slate-600"
+                    (click)="selectHunt(hunt)"
+                    (keyup.enter)="selectHunt(hunt)"
+                    (keyup.space)="selectHunt(hunt)"
+                    [ngClass]="{
+                      '!border-blue-500 !bg-blue-100 dark:!bg-blue-900':
+                        selectedHunt()?.id === hunt.id,
+                    }"
+                  >
+                    <div class="font-semibold text-gray-900 dark:text-gray-100">
+                      {{ hunt.id }}
+                    </div>
+
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                      {{ hunt.submitter }} -
+                      <button
+                        type="button"
+                        class="table-link cursor-pointer border-0 bg-transparent p-0 underline"
+                        (click)="openLogsModal(hunt); $event.stopPropagation()"
+                      >
+                        {{ hunt.status }}
+                      </button>
+                      <br />
+                      Submitted:
+                      {{ hunt.submitted_time | date: "dd/MM/yyyy h:mm a" }}
+                    </div>
+
+                    <flow-tooltip
+                      [message]="
+                        hunt.status === 'completed' || hunt.status === 'failed'
+                          ? 'Delete this hunt'
+                          : 'Cancel this hunt'
+                      "
+                      [subText]="
+                        hunt.status === 'completed' || hunt.status === 'failed'
+                          ? 'This action cannot be undone.'
+                          : 'Stop this hunt before it finishes.'
+                      "
+                      direction="top"
+                    >
+                      <button
+                        type="button"
+                        class="absolute right-1 bottom-1 cursor-pointer rounded p-1 text-gray-500 hover:text-red-600"
+                        (click)="deleteHunt(hunt); $event.stopPropagation()"
+                        (keyup.enter)="deleteHunt(hunt)"
+                        (keyup.space)="deleteHunt(hunt)"
+                      >
+                        <fa-icon [icon]="faTrash" />
+                      </button>
+                    </flow-tooltip>
+                  </div>
+                }
+              }
+            } @else {
+              <p>Loading…</p>
+            }
+          </div>
+        </div>
+        @if (showCreateHunt()) {
+          <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          >
+            <div
+              class="both flex resize flex-col overflow-auto rounded-lg bg-white p-4 shadow-xl dark:bg-slate-800"
+              [style.width]="modalWidth"
+              [style.height]="modalHeight"
+            >
+              <h2
+                class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
+                Create New Retrohunt
+              </h2>
+
+              <div class="mb-3 flex items-center gap-2">
+                <select flowSelect [(ngModel)]="newHuntLanguage">
+                  <option value="yara">{{ SEARCH_TYPE_MAP["yara"] }}</option>
+                </select>
+              </div>
+
+              <!-- Editor container MUST flex-grow -->
+              <div class="min-h-0 flex-1">
+                <az-monaco-editor
+                  class="h-full w-full rounded border border-slate-300 dark:border-slate-600"
+                  [language]="newHuntLanguage()"
+                  [code]="newHuntCode()"
+                  (codeChange)="newHuntCode.set($event)"
+                  [readonly]="false"
+                  [theme]="currentTheme"
+                ></az-monaco-editor>
+              </div>
+
+              <div class="mt-4 flex justify-end gap-2">
+                <flow-button
+                  [type]="ButtonType.Light"
+                  (click)="closeCreateHunt()"
+                >
+                  Cancel
+                </flow-button>
+
+                <flow-button
+                  [type]="ButtonType.Primary"
+                  [disabled]="!username()"
+                  (click)="submitNewHuntFromModal()"
+                >
+                  Submit Hunt
+                </flow-button>
+              </div>
+            </div>
+          </div>
+        }
+        @if (showLogsModal) {
+          <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          >
+            <div
+              class="flex resize flex-col overflow-auto rounded-lg bg-white p-4 shadow-xl dark:bg-slate-800"
+              style="width: 700px; height: 60vh"
+            >
+              <h2
+                class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
+                Hunt Logs
+              </h2>
+
+              <div
+                class="min-h-0 flex-1 overflow-auto rounded border border-slate-300 bg-slate-50 p-2 dark:border-slate-600 dark:bg-slate-900"
+              >
+                <pre
+                  class="text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200"
+                  >{{ logsText() }}
+        </pre
+                >
+              </div>
+
+              <div class="mt-4 flex justify-end">
+                <flow-button
+                  [type]="ButtonType.Light"
+                  (click)="closeLogsModal()"
+                >
+                  Close
+                </flow-button>
+              </div>
+            </div>
+          </div>
+        }
+      </as-split-area>
+
+      <!-- CENTER PANE: Binaries -->
+      <as-split-area [size]="sizes[1]" class="flex flex-col dark:bg-slate-800">
+        <div class="p-2 font-medium text-black dark:text-white">
+          Binary Results
+        </div>
+        <az-page-help
+          [title]="'Retrohunt'"
+          [help]="helpResults"
+          bgClass="bg-white dark:bg-azul-500"
+        ></az-page-help>
+        <div
+          class="relative flex min-h-0 grow gap-4 overflow-y-auto rounded-md p-2 dark:text-white"
+        >
+          @if (huntFind$ | async; as huntFind) {
+            @if (selectedHunt(); as hunt) {
+              <!-- FAILED -->
+              @if (hunt.status === "failed") {
+                <p class="text-red-500">
+                  This hunt failed.<br />
+                  <span class="text-sm text-gray-500">{{ hunt.error }}</span>
+                </p>
+
+                <!-- COMPLETED WITH NO RESULTS -->
+              } @else if (hunt.status === "completed" && isEmptyResults(hunt)) {
+                <p class="text-gray-500">No results found for this hunt.</p>
+              } @else {
+                <az-entity-table
+                  [tablename]="'Retrohunt Results'"
+                  [find$]="huntFind$"
+                  [externalPagination]="false"
+                  [scroll]="true"
+                  [noResults]="'No search results... yet'"
+                />
+              }
+            } @else {
+              <p class="text-gray-500">Select a hunt to view binaries…</p>
+            }
+          }
+        </div>
+      </as-split-area>
+
+      <!-- RIGHT PANE: Rules -->
+      <as-split-area [size]="sizes[2]" class="flex flex-col dark:bg-slate-800">
+        <div class="p-2 font-medium text-black dark:text-white">Rules</div>
+
+        <div
+          class="relative min-h-0 grow overflow-y-auto bg-white p-4 dark:bg-slate-800"
+        >
+          <div class="flex h-full flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div class="flex gap-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex gap-2">
+                    <flow-button
+                      [type]="ButtonType.Primary"
+                      (click)="openEditModal()"
+                    >
+                      Edit Hunt
+                    </flow-button>
+                    <az-page-help
+                      [title]="'Retrohunt'"
+                      [help]="helpYara"
+                      bgClass="bg-white dark:bg-azul-500"
+                    ></az-page-help>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <az-monaco-editor
+              class="h-full min-h-0 grow"
+              [language]="selectedLanguage"
+              [code]="ruleText()"
+              (codeChange)="ruleText.set($event)"
+              [readonly]="true"
+              [theme]="currentTheme"
+            ></az-monaco-editor>
+
+            @if (!selectedHunt()) {
+              <p class="mt-2 text-sm text-gray-500">
+                No hunt selected — editing a new rule.
+              </p>
+            }
+          </div>
+        </div>
+      </as-split-area>
+    </as-split>
+  </div>
+</div>

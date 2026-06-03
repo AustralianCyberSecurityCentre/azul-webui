@@ -1572,4 +1572,59 @@ export class ApiService {
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
   }
+
+  listRetrohunts(params: {
+    limit?: number;
+    x?: string[];
+    i?: string[];
+    include_queries?: boolean;
+  }) {
+    return this.getOperation(
+      "/api/v0/retrohunt/retrohunts",
+      params,
+      {} as never,
+      { cache: false },
+    ).pipe(
+      ops.map((d) => d.data),
+      // FUTURE: add addReceivedSecurity once security is implemented in retrohunt
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
+  /** cancel a retrohunt */
+  cancelRetrohunt(
+    huntId: string,
+    params?: { x?: string[]; i?: string[]; include_queries?: boolean },
+  ) {
+    return this.postOperation(
+      "/api/v0/retrohunt/retrohunts/{hunt_id}/cancel",
+      undefined as never,
+      params as never,
+      { hunt_id: huntId },
+    ).pipe(
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
+
+  /** Submit a new retrohunt */
+  submitRetrohunt(
+    body: {
+      search_type: string;
+      search: string;
+      submitter: string;
+      security: string;
+    },
+    params?: { x?: string[]; i?: string[]; include_queries?: boolean },
+  ) {
+    return this.postOperation(
+      "/api/v0/retrohunt/retrohunts",
+      body,
+      params,
+      undefined as never,
+    ).pipe(
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
 }

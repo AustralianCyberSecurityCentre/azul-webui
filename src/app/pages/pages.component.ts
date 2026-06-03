@@ -182,4 +182,8 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
     this.dialog.close();
     this.dialog = null;
   }
+
+  isRetrohuntRoute() {
+    return this.router.url.startsWith("/pages/binaries/retrohunt");
+  }
 }

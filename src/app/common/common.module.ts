@@ -16,6 +16,7 @@ import { FeatureValueTagsComponent } from "./feature-value-tags/feature-value-ta
 import { LoadingCardComponent } from "./loading-card/loading-card.component";
 import { SecurityLimitComponent } from "./security-limit/security-limit.component";
 import { SecurityPickerComponent } from "./security-picker/security-picker.component";
+import { MonacoEditorComponent } from "./monaco-editor/monaco-editor.component";
 
 import {
   AuthorPipe,
@@ -43,6 +44,8 @@ import { OffsetPickerComponent } from "./offset-picker/offset-picker.component";
 import { SettingsOverlayComponent } from "./settings-overlay/settings-overlay.component";
 import { SourcePickerComponent } from "./source-picker/source-picker.component";
 import { TagPickerComponent } from "./tag-picker/tag-picker.component";
+import { MonacoEditorModule } from "ngx-monaco-editor-v2";
+
 @NgModule({
   declarations: [
     SincePipe,
@@ -86,6 +89,10 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     FormsModule,
     TagPickerComponent,
     NgxSliderModule,
+    MonacoEditorComponent,
+    MonacoEditorModule.forRoot({
+      baseUrl: "./assets/monaco/min/vs",
+    }),
   ],
   exports: [
     SincePipe,
@@ -115,6 +122,7 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     OffsetPickerComponent,
     SettingsOverlayComponent,
     HoverTextableComponent,
+    MonacoEditorComponent,
   ],
 })
 export class AzCommonModule {}

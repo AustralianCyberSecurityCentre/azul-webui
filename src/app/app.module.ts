@@ -21,6 +21,7 @@ import { ToastComponent } from "../lib/flow/toast/toast.component";
 import { AuthConfigModule } from "./auth/auth-config.module";
 import { reducers } from "./core/store/main-store";
 import { PagesModule } from "./pages/pages.module";
+
 const extraModules: NgModule["imports"] = [];
 
 if (config.oauth_enabled) {
