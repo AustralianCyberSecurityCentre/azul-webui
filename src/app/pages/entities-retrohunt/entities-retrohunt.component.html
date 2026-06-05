@@ -179,7 +179,7 @@
           >
             <div
               class="flex resize flex-col overflow-auto rounded-lg bg-white p-4 shadow-xl dark:bg-slate-800"
-              style="width: 700px; height: 60vh"
+              style="width: 90vw; height: 80vh; max-width: 1400px"
             >
               <h2
                 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100"
@@ -187,13 +187,14 @@
                 Hunt Logs
               </h2>
 
+              <!-- LOG AREA -->
               <div
-                class="min-h-0 flex-1 overflow-auto rounded border border-slate-300 bg-slate-50 p-2 dark:border-slate-600 dark:bg-slate-900"
+                class="min-h-0 flex-1 rounded border border-slate-300 bg-slate-50 dark:border-slate-600 dark:bg-slate-900"
               >
-                <pre
-                  class="text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200"
-                  >{{ logsText() }}
-        </pre
+                <textarea
+                  readonly
+                  class="h-full w-full resize-none overflow-auto bg-transparent p-2 font-mono text-sm text-gray-800 outline-none dark:text-gray-200"
+                  >{{ logsText() }}</textarea
                 >
               </div>
 
