@@ -115,9 +115,4 @@ export class SourcesCurrentComponent implements OnInit {
     }
     return ret;
   }
-
-  get timestampNow() {
-    //return new Date().toISOString();
-    return "2020-01-01T00:00:00Z";
-  }
 }
