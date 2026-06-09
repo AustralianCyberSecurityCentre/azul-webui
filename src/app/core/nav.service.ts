@@ -5,7 +5,11 @@ import * as ops from "rxjs/operators";
 
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faUncharted } from "@fortawesome/free-brands-svg-icons";
-import { faBook, faCode } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBook,
+  faCode,
+  faCameraRetro,
+} from "@fortawesome/free-solid-svg-icons";
 import { select, Store } from "@ngrx/store";
 import { EntityService } from "src/app/core/entity.service";
 import { config } from "../settings";
@@ -86,6 +90,15 @@ export class NavService {
       // Select header elements and replace their href with their alt.
       document.querySelectorAll("link[data-alt]").forEach((value) => {
         value.setAttribute("href", value.getAttribute("data-alt"));
+      });
+    }
+
+    if (config?.retrohunt_enabled) {
+      this.topbarExternal.push({
+        title: "Retrohunt",
+        icon: faCameraRetro,
+        external: false,
+        link: "/pages/binaries/retrohunt",
       });
     }
 
