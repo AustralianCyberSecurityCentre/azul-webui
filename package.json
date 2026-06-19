@@ -17,14 +17,26 @@
   "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
   "overrides": {
     "ngx-monaco-editor-v2": {
-      "@angular/common": "^21.0.0",
-      "@angular/core": "^21.0.0",
+      "@angular/common": "^22.0.0",
+      "@angular/core": "^22.0.0",
       "monaco-editor": "^0.55.1"
     },
     "@ngrx/router-store": {
       "@angular/common": "^22.0.0",
       "@angular/core": "^22.0.0",
       "@angular/router": "^22.0.0"
+    },
+    "@angular-slider/ngx-slider": {
+      "@angular/common": "^22.0.0",
+      "@angular/core": "^22.0.0",
+      "@angular/forms":"^22.0.0"
+    },
+    "ngx-toastr": {
+            "@angular/common": "^22.0.0",
+      "@angular/core": "^22.0.0"
+    },
+    "openapi-typescript":  {
+      "typescript": "^6.0.0"
     }
   },
   "dependencies": {
