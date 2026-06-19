@@ -220,27 +220,41 @@
                   <flow-label [noPadding]="true">Upload files</flow-label>
                 </td>
                 <td flowTableBodyCell class="text-center">
-                  <flow-button
-                    id=""
-                    [type]="
-                      form.get('security').value &&
-                      form.get('files').value.length === 0
-                        ? ButtonType.Danger
-                        : ButtonType.Primary
-                    "
-                    onclick="document.getElementById('addfile').click()"
-                  >
-                    <fa-icon [icon]="faCloudArrowUp" />
-                    Upload
-                  </flow-button>
-                  <input
-                    type="file"
-                    id="addfile"
-                    name="addfile"
-                    multiple
-                    (change)="onAddFiles($event)"
-                    style="display: none"
-                  />
+                  @if (bannerService.isReadonly()) {
+                    <flow-tooltip
+                      message="Upload is disabled because Azul is in a readonly state."
+                    >
+                      <flow-button
+                        id="upload-button"
+                        [type]="ButtonType.Disabled"
+                        [disabled]="true"
+                        >Upload</flow-button
+                      >
+                    </flow-tooltip>
+                  } @else {
+                    <flow-button
+                      id="upload-button"
+                      [type]="
+                        form.get('security').value &&
+                        form.get('files').value.length === 0
+                          ? ButtonType.Danger
+                          : ButtonType.Primary
+                      "
+                      onclick="document.getElementById('addfile').click()"
+                      [disabled]="true"
+                    >
+                      <fa-icon [icon]="faCloudArrowUp" />
+                      Upload
+                    </flow-button>
+                    <input
+                      type="file"
+                      id="addfile"
+                      name="addfile"
+                      multiple
+                      (change)="onAddFiles($event)"
+                      style="display: none"
+                    />
+                  }
                 </td>
               </tr>
               <tr>

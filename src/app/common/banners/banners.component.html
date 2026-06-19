@@ -1,4 +1,4 @@
-@for (banner of banners$ | async; track banner) {
+@for (banner of bannerService.banners(); track banner.id) {
   <aside
     class="bg-azul-400 dark:bg-azul-600 flex px-4 py-2 text-center text-sm text-white"
   >

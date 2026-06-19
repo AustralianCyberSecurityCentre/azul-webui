@@ -37,6 +37,7 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
+import { BannerService } from "src/app/common/banner.service";
 import { ApiService } from "src/app/core/api/api.service";
 import { ValidPOSTUploadPaths } from "src/app/core/api/methods";
 import { components } from "src/app/core/api/openapi";
@@ -74,6 +75,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(UntypedFormBuilder);
+  protected bannerService = inject(BannerService);
   user = inject(UserService);
   securityService = inject(SecurityService);
   api = inject(ApiService);

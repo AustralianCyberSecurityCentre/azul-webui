@@ -631,6 +631,12 @@ export class ApiService {
     );
   }
 
+  isServerReadOnly() {
+    return this.getOperation("/api/v0/readonly").pipe(
+      ops.catchError((e) => this.handle(e, false, [])),
+    );
+  }
+
   /**get a boolean determining if the current user is an admin or not.*/
   isUserAdmin() {
     return this.getOperation("/api/v0/security/is_admin").pipe(
