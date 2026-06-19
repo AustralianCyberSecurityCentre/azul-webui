@@ -5,9 +5,9 @@ import {
   faCircleXmark,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { ApiService } from "src/app/core/api/api.service";
 import { config } from "src/app/settings";
 import { BannerService } from "../banner.service";
-
 /** Displays banners for system warnings */
 @Component({
   selector: "az-banners",
@@ -16,6 +16,7 @@ import { BannerService } from "../banner.service";
   standalone: false,
 })
 export class BannersComponent {
+  apiService = inject(ApiService);
   bannerService = inject(BannerService);
 
   protected faIcons = {
