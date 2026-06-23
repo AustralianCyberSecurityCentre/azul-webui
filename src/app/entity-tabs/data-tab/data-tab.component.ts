@@ -214,7 +214,28 @@ export class DataTabComponent
           // environment
           const tabs: TabSpec[] = [];
 
-          let foundViableTab = false;
+          // Show the Hex and strings tabs first by default
+          if (hasContent) {
+            tabs.push(
+              {
+                tabId: "hex",
+                name: "Hex",
+                openInPane: 0,
+                interesting: false,
+                template: this.resolveTemplate("hex")!,
+              },
+              {
+                tabId: "strings",
+                name: "Strings",
+                openInPane: 1,
+                interesting: false,
+                template: this.resolveTemplate("strings")!,
+              },
+            );
+          } else {
+            console.warn("File has no content");
+          }
+
           let yara_stream_added = false;
           for (const authorStreams of textStreams.values()) {
             for (const stream of authorStreams) {
@@ -228,25 +249,20 @@ export class DataTabComponent
 
               if (template) {
                 const version = stream.version ? ` v${stream.version}` : "";
-                let openInPane = undefined;
                 let label = stream.label;
 
                 // Handle special cases where we want special names for these streams
                 const isTextFile =
-                  stream.file_format.startsWith("text/") ||
-                  stream.file_format.startsWith("code/") ||
-                  stream.file_format.startsWith("log/");
+                  stream.file_format?.startsWith("text/") ||
+                  stream.file_format?.startsWith("code/") ||
+                  stream.file_format?.startsWith("log/");
                 if (
                   stream.datastream_sha256 === this.entity.sha256 &&
                   isTextFile
                 ) {
                   // File preview of the actual file
-                  openInPane = 0;
-                  foundViableTab = true;
                   label = "File Preview";
                 } else if (stream.label === "safe_png") {
-                  openInPane = 0;
-                  foundViableTab = true;
                   label = "Image Preview";
                 }
                 let name = `${label} (${stream.author}${version})`;
@@ -260,34 +276,13 @@ export class DataTabComponent
                   tabId: this.getKeyForStream(stream),
                   name: name,
                   interesting: true,
-                  openInPane: openInPane,
+                  openInPane: hasContent ? undefined : 0,
                   template: template,
                   downloadParent: this.entity.sha256,
                   downloadHash: stream.datastream_sha256,
                 });
               }
             }
-          }
-
-          if (hasContent) {
-            tabs.push(
-              {
-                tabId: "hex",
-                name: "Hex",
-                openInPane: foundViableTab ? undefined : 0,
-                interesting: false,
-                template: this.resolveTemplate("hex")!,
-              },
-              {
-                tabId: "strings",
-                name: "Strings",
-                openInPane: foundViableTab ? undefined : 1,
-                interesting: false,
-                template: this.resolveTemplate("strings")!,
-              },
-            );
-          } else {
-            console.warn("File has no content");
           }
 
           return tabs;
