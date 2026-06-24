@@ -135,9 +135,25 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   selectHunt(hunt: RetrohuntEntity) {
     this.selectedHunt.set(hunt);
 
-    const rows: EntityFindWithPurgeExtras["items"] = (
-      hunt.results?.retrohunt_test ?? []
-    ).map((r) => ({
+    // Get the dynamic key inside hunt.results (the search name)
+    const results = hunt.results ?? {};
+    const keys = Object.keys(results);
+
+    // No results at all
+    if (keys.length === 0) {
+      this.huntFind$.next({ items: [], items_count: 0 });
+      this.ruleText.set(hunt.search ?? "");
+      return;
+    }
+
+    // Use the first (and only) key — the search name
+    const resultKey = keys[0];
+
+    // Extract the array of result objects
+    const raw = results[resultKey] ?? [];
+
+    // Map into the structure the table expects
+    const rows: EntityFindWithPurgeExtras["items"] = raw.map((r) => ({
       key: r.sample as string,
       sha256: r.sample as string,
       exists: true,
