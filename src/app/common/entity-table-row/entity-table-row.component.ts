@@ -80,7 +80,6 @@ export class EntityTableRowComponent {
     return this._row;
   }
   set row(data: EntityFindRow) {
-    console.log("Retrohunt row:", data);
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
     };
