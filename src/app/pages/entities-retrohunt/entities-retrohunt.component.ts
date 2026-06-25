@@ -216,7 +216,6 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
         .entityReadMain(row.sha256, { detail: ["info", "datastreams"] })
         .pipe(
           map((res) => {
-            //const info = res?.data?.info?.[0]?.info ?? {};
             const streams = (res?.data?.streams ??
               []) as unknown as StreamMetadata[];
             const primary = streams[0] ?? {};
