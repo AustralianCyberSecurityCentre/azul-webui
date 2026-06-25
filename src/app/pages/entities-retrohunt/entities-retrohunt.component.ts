@@ -233,8 +233,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
         ),
     );
 
-    forkJoin(metadataRequests).subscribe(
-      (enrichedRows: EntityFindWithPurgeExtras["items"]) => {
+    forkJoin(metadataRequests)
+      //.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enrichedRows: EntityFindWithPurgeExtras["items"]) => {
         this.huntFind$.next({
           items: enrichedRows,
           items_count: enrichedRows.length,
@@ -243,8 +244,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
         this.searchNamesMap = searchNamesMap;
         this.ruleText.set(hunt.search ?? "");
         this.logsText.set(hunt.logs ?? "");
-      },
-    );
+      });
   }
 
   ngOnInit(): void {
