@@ -82,6 +82,9 @@
             [eType]="eType"
             [originalSha256]="originalSha256"
             (checkChanged)="onRowCheckedChange(overrow, $event)"
+            [retroHuntSearchNames]="
+              retroHuntSearchNames[overrow.sha256 || overrow.key]
+            "
           >
             @if (overrow.similarity) {
               <td>Similarity: {{ overrow.similarity | number: "1.2-2" }}%</td>

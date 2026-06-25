@@ -80,6 +80,7 @@ export class EntityTableRowComponent {
     return this._row;
   }
   set row(data: EntityFindRow) {
+    console.log("Retrohunt row:", data);
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
     };
@@ -105,6 +106,7 @@ export class EntityTableRowComponent {
   @Input() showSources: boolean = true;
   @Input() originalSha256?: string | undefined;
   @Input() eType?: "parents" | "children" | undefined;
+  @Input() retroHuntSearchNames: string[] | undefined;
 
   @Output() checkChanged = new EventEmitter<boolean>();
 

@@ -80,7 +80,7 @@
                       {{ hunt.submitter }} -
                       <button
                         type="button"
-                        class="table-link cursor-pointer border-0 bg-transparent p-0 underline"
+                        class="table-link cursor-pointer border-0 bg-transparent p-0 underline hover:text-blue-600"
                         (click)="openLogsModal(hunt); $event.stopPropagation()"
                       >
                         {{ hunt.status }}
@@ -213,21 +213,36 @@
 
       <!-- CENTER PANE: Binaries -->
       <as-split-area [size]="sizes[1]" class="flex flex-col dark:bg-slate-800">
-        <div class="p-2 font-medium text-black dark:text-white">
-          Binary Results
+        <!-- HEADER ROW: Binary Results + Help -->
+        <div class="flex items-center gap-3 px-2 py-2">
+          <div class="font-medium text-black dark:text-white">
+            Binary Results
+          </div>
+
+          <az-page-help
+            [title]="'Retrohunt'"
+            [help]="helpResults"
+            bgClass="bg-white dark:bg-azul-500"
+          ></az-page-help>
         </div>
-        <az-page-help
-          [title]="'Retrohunt'"
-          [help]="helpResults"
-          bgClass="bg-white dark:bg-azul-500"
-        ></az-page-help>
-        <div
-          class="relative flex min-h-0 grow gap-4 overflow-y-auto rounded-md p-2 dark:text-white"
-        >
-          @if (huntFind$ | async; as huntFind) {
-            @if (selectedHunt(); as hunt) {
+
+        @if (huntFind$ | async; as huntFind) {
+          @if (selectedHunt(); as hunt) {
+            <div class="flex justify-center px-2 pb-2">
+              <flow-button
+                [type]="ButtonType.Primary"
+                (click)="openLogsModal(hunt)"
+              >
+                Logs
+              </flow-button>
+            </div>
+
+            <!-- SCROLLABLE CONTENT BELOW -->
+            <div
+              class="relative flex min-h-0 grow gap-4 overflow-y-auto rounded-md p-2 dark:text-white"
+            >
               <!-- FAILED -->
-              @if (hunt.status === "failed") {
+              @if (hunt.status === "failed" || hunt.status === "cancelled") {
                 <p class="text-red-500">
                   This hunt failed.<br />
                   <span class="text-sm text-gray-500">{{ hunt.error }}</span>
@@ -236,6 +251,24 @@
                 <!-- COMPLETED WITH NO RESULTS -->
               } @else if (hunt.status === "completed" && isEmptyResults(hunt)) {
                 <p class="text-gray-500">No results found for this hunt.</p>
+
+                <!-- RUNNING WITH NO RESULTS YET -->
+              } @else if (!hasBinaryResults(huntFind)) {
+                <div class="flex w-full flex-col">
+                  <p class="mb-2 text-gray-400">Hunt is running…</p>
+
+                  <div
+                    class="min-h-0 flex-1 rounded border border-slate-300 bg-slate-50 dark:border-slate-600 dark:bg-slate-900"
+                  >
+                    <textarea
+                      readonly
+                      class="h-full w-full resize-none overflow-auto bg-transparent p-2 font-mono text-sm text-gray-800 outline-none dark:text-gray-200"
+                      >{{ logsText() }}</textarea
+                    >
+                  </div>
+                </div>
+
+                <!-- SHOW TABLE -->
               } @else {
                 <az-entity-table
                   [tablename]="'Retrohunt Results'"
@@ -243,13 +276,14 @@
                   [externalPagination]="false"
                   [scroll]="true"
                   [noResults]="'No search results... yet'"
+                  [retroHuntSearchNames]="searchNamesMap"
                 />
               }
-            } @else {
-              <p class="text-gray-500">Select a hunt to view binaries…</p>
-            }
+            </div>
+          } @else {
+            <p class="p-2 text-gray-500">Select a hunt to view binaries…</p>
           }
-        </div>
+        }
       </as-split-area>
 
       <!-- RIGHT PANE: Rules -->

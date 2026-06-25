@@ -12,7 +12,8 @@ import {
   Signal,
   DestroyRef,
 } from "@angular/core";
-import { BehaviorSubject, take } from "rxjs";
+import { BehaviorSubject, forkJoin, take } from "rxjs";
+import { map } from "rxjs/operators";
 import { ActivatedRoute } from "@angular/router";
 import { RetrohuntService } from "src/app/core/retrohunt.service";
 import { ButtonType } from "src/lib/flow/button/button.component";
@@ -25,6 +26,17 @@ import { Store } from "@ngrx/store";
 import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs/operators";
+import { ApiService } from "src/app/core/api/api.service";
+
+interface StreamMetadata {
+  file_format?: string;
+  mime?: string;
+  magic?: string;
+  file_extension?: string;
+  size?: number;
+  ssdeep?: string;
+  tlsh?: string;
+}
 
 type RetrohuntEntity = components["schemas"]["RetrohuntEntity"];
 type RetrohuntCreateResponse = {
@@ -44,6 +56,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
+  private api = inject(ApiService);
 
   private refreshTimer: number | null = null;
   private hasSelectedInitialHunt = false;
@@ -94,6 +107,8 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     The pane below shows the search rules for the selected hunt.
     Click the Edit Hunt button if you need to resubmit the hunt with changes to the search rules.`;
 
+  public searchNamesMap: Record<string, string[]> = {};
+
   private refreshIntervalEffect = effect(() => {
     const interval = this.refreshInterval();
 
@@ -132,42 +147,105 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     this.selectHunt(updated);
   });
 
+  private syncLogsEffect = effect(() => {
+    const hunts = this.hunts();
+    const selected = this.selectedHunt();
+
+    if (!hunts || !selected) return;
+
+    const updated = hunts.find((h) => h.id === selected.id);
+    if (!updated) return;
+
+    // Only update logsText if logs actually changed
+    if (updated.logs !== this.logsText()) {
+      this.logsText.set(updated.logs ?? "");
+    }
+  });
+
   selectHunt(hunt: RetrohuntEntity) {
     this.selectedHunt.set(hunt);
 
-    // Get the dynamic key inside hunt.results (the search name)
     const results = hunt.results ?? {};
     const keys = Object.keys(results);
 
-    // No results at all
     if (keys.length === 0) {
       this.huntFind$.next({ items: [], items_count: 0 });
       this.ruleText.set(hunt.search ?? "");
+      this.searchNamesMap = {};
       return;
     }
 
-    // Use the first (and only) key — the search name
-    const resultKey = keys[0];
+    const rowMap = new Map<
+      string,
+      EntityFindWithPurgeExtras["items"][number]
+    >();
+    const searchNamesMap: Record<string, string[]> = {};
 
-    // Extract the array of result objects
-    const raw = results[resultKey] ?? [];
+    for (const searchName of keys) {
+      const raw = results[searchName] ?? [];
 
-    // Map into the structure the table expects
-    const rows: EntityFindWithPurgeExtras["items"] = raw.map((r) => ({
-      key: r.sample as string,
-      sha256: r.sample as string,
-      exists: true,
-      has_content: true,
-      is_duplicate_find: false,
-      sources: [],
-    }));
+      for (const r of raw) {
+        const sample = r.sample as string;
 
-    this.huntFind$.next({
-      items: rows,
-      items_count: rows.length,
-    });
+        // Build searchNamesMap
+        if (!searchNamesMap[sample]) {
+          searchNamesMap[sample] = [searchName];
+        } else {
+          searchNamesMap[sample].push(searchName);
+        }
 
-    this.ruleText.set(hunt.search ?? "");
+        // Build rowMap (dedupe rows)
+        if (!rowMap.has(sample)) {
+          rowMap.set(sample, {
+            key: sample,
+            sha256: sample,
+            exists: true,
+            has_content: true,
+            is_duplicate_find: false,
+            sources: [],
+          });
+        }
+      }
+    }
+
+    // Convert map → array
+    const rows = Array.from(rowMap.values());
+
+    const metadataRequests = rows.map((row) =>
+      this.api
+        .entityReadMain(row.sha256, { detail: ["info", "datastreams"] })
+        .pipe(
+          map((res) => {
+            //const info = res?.data?.info?.[0]?.info ?? {};
+            const streams = (res?.data?.streams ??
+              []) as unknown as StreamMetadata[];
+            const primary = streams[0] ?? {};
+
+            const enriched: EntityFindWithPurgeExtras["items"][number] = {
+              ...row,
+              file_format: primary.file_format,
+              mime: primary.mime,
+              magic: primary.magic,
+              has_content: true,
+            };
+
+            return enriched;
+          }),
+        ),
+    );
+
+    forkJoin(metadataRequests).subscribe(
+      (enrichedRows: EntityFindWithPurgeExtras["items"]) => {
+        this.huntFind$.next({
+          items: enrichedRows,
+          items_count: enrichedRows.length,
+        });
+
+        this.searchNamesMap = searchNamesMap;
+        this.ruleText.set(hunt.search ?? "");
+        this.logsText.set(hunt.logs ?? "");
+      },
+    );
   }
 
   ngOnInit(): void {
@@ -293,5 +371,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
 
   isEmptyResults(hunt: RetrohuntEntity): boolean {
     return !hunt.results || Object.keys(hunt.results).length === 0;
+  }
+
+  public hasBinaryResults(find: EntityFindWithPurgeExtras | null): boolean {
+    return !!find && find.items && find.items.length > 0;
   }
 }

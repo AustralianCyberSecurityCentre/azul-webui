@@ -49,6 +49,7 @@ export class EntityTableComponent implements OnChanges {
   @Input() entity?: EntityWrap | undefined;
   @Input() noResults: string = "No binaries match the search criteria";
   @Input() purgeQueryParams: Record<string, string> | undefined;
+  @Input() retroHuntSearchNames: Record<string, string[]> = {};
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(

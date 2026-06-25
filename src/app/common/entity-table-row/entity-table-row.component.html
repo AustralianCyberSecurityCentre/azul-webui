@@ -161,6 +161,15 @@
           }}</span>
         }
       </div>
+      <!-- Retrohunt search names -->
+      @if (retroHuntSearchNames?.length) {
+        <div class="text-xs text-gray-500 dark:text-gray-300">
+          Appears in:
+          <span class="font-semibold">
+            {{ retroHuntSearchNames.join(", ") }}
+          </span>
+        </div>
+      }
       <div class="grid grid-cols-[minmax(16rem,max-content)_auto] gap-y-1">
         <!-- sources -->
         @if (showSources) {
