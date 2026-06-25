@@ -224,19 +224,23 @@
             [help]="helpResults"
             bgClass="bg-white dark:bg-azul-500"
           ></az-page-help>
+
+          @if (huntFind$ | async; as huntFind) {
+            @if (selectedHunt(); as hunt) {
+              <div class="ml-auto">
+                <flow-button
+                  [type]="ButtonType.Primary"
+                  (click)="openLogsModal(hunt)"
+                >
+                  Logs
+                </flow-button>
+              </div>
+            }
+          }
         </div>
 
         @if (huntFind$ | async; as huntFind) {
           @if (selectedHunt(); as hunt) {
-            <div class="flex justify-center px-2 pb-2">
-              <flow-button
-                [type]="ButtonType.Primary"
-                (click)="openLogsModal(hunt)"
-              >
-                Logs
-              </flow-button>
-            </div>
-
             <!-- SCROLLABLE CONTENT BELOW -->
             <div
               class="relative flex min-h-0 grow gap-4 overflow-y-auto rounded-md p-2 dark:text-white"
