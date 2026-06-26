@@ -232,8 +232,6 @@ export class DataTabComponent
                 template: this.resolveTemplate("strings")!,
               },
             );
-          } else {
-            console.warn("File has no content");
           }
 
           let yara_stream_added = false;
