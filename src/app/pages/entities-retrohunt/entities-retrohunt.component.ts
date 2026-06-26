@@ -179,7 +179,9 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       string,
       EntityFindWithPurgeExtras["items"][number]
     >();
-    const searchNamesMap: Record<string, string[]> = {};
+
+    // Use Sets to dedupe search names
+    const searchNamesMap: Record<string, Set<string>> = {};
 
     for (const searchName of keys) {
       const raw = results[searchName] ?? [];
@@ -187,12 +189,11 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       for (const r of raw) {
         const sample = r.sample as string;
 
-        // Build searchNamesMap
+        // Build searchNamesMap (deduped)
         if (!searchNamesMap[sample]) {
-          searchNamesMap[sample] = [searchName];
-        } else {
-          searchNamesMap[sample].push(searchName);
+          searchNamesMap[sample] = new Set<string>();
         }
+        searchNamesMap[sample].add(searchName);
 
         // Build rowMap (dedupe rows)
         if (!rowMap.has(sample)) {
@@ -241,7 +242,11 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
           items_count: enrichedRows.length,
         });
 
-        this.searchNamesMap = searchNamesMap;
+        // Convert Sets → arrays for UI
+        this.searchNamesMap = Object.fromEntries(
+          Object.entries(searchNamesMap).map(([k, v]) => [k, Array.from(v)]),
+        );
+
         this.ruleText.set(hunt.search ?? "");
         this.logsText.set(hunt.logs ?? "");
       });
