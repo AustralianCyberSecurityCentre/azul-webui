@@ -234,7 +234,7 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
     );
 
     forkJoin(metadataRequests)
-      //.pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enrichedRows: EntityFindWithPurgeExtras["items"]) => {
         this.huntFind$.next({
           items: enrichedRows,
