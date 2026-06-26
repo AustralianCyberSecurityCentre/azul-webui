@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 @Component({
   selector: "az-loading-indicator-failed",
@@ -7,6 +7,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   standalone: false,
 })
 export class LoadingIndicatorFailedComponent {
-  @Input()
-  height: string = "125px";
+  height = input<string>("125px");
 }
