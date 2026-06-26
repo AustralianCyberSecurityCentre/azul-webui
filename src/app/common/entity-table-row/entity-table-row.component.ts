@@ -105,6 +105,7 @@ export class EntityTableRowComponent {
   @Input() showSources: boolean = true;
   @Input() originalSha256?: string | undefined;
   @Input() eType?: "parents" | "children" | undefined;
+  @Input() retroHuntSearchNames: string[] | undefined;
 
   @Output() checkChanged = new EventEmitter<boolean>();
 
