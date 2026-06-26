@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 @Component({
   selector: "az-loading-indicator",
@@ -7,8 +7,6 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   standalone: false,
 })
 export class LoadingIndicatorComponent {
-  @Input()
-  animated = true;
-  @Input()
-  height: string = "125px";
+  animated = input<boolean>(true);
+  height = input<string>("125px");
 }
