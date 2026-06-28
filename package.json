@@ -1,6 +1,6 @@
 {
   "name": "azul-webui",
-  "version": "1.1.0",
+  "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "local": "ng serve --proxy-config proxy.conf.json",
@@ -9,11 +9,10 @@
     "remote-dev": "ng serve --c=remote --proxy-config src/assets/alt-remote/proxy.dev.json",
     "remote": "ng serve --c=remote --proxy-config src/assets/alt-remote/proxy.qa.json",
     "build": "ng build --configuration production",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "npx playwright test"
+    "lint": "ng lint"
   },
   "private": true,
+  "packageManager": "npm@11.16.0",
   "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
   "overrides": {
     "ngx-monaco-editor-v2": {
@@ -78,7 +77,6 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^22.0.3",
     "@angular/build": "^22.0.3",
     "@angular-eslint/builder": "22.0.0",
     "@angular-eslint/eslint-plugin": "22.0.0",
@@ -117,7 +115,7 @@
     "prettier-plugin-tailwindcss": "0.8.0",
     "tailwindcss": "4.3.1",
     "ts-node": "10.9.2",
-    "typescript": "6.0.3",
+    "vitest": "^4.0.8",
     "upng-js": "2.1.0"
   }
 }
