@@ -123,7 +123,11 @@
                 >
                   {{ row.offset | hex }}
                 </td>
-                <td flowTableBodyCell class="truncate" [title]="row.string">
+                <td
+                  flowTableBodyCell
+                  class="truncate font-mono"
+                  [title]="row.string"
+                >
                   {{ row.string }}
                 </td>
               </tr>

@@ -4,7 +4,7 @@ import {
   Input,
   inject,
 } from "@angular/core";
-import { Observable, combineLatest } from "rxjs";
+import { Observable, combineLatest, of } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 import { components } from "src/app/core/api/openapi";
 import { FuzzyMatchWithSummary } from "src/app/core/api/state";
@@ -61,7 +61,13 @@ Note that files can only be compared this way if they are somewhat similar in si
             })),
           ),
         );
-
+        // If there are no similar ssdeeps return an empty result
+        if (enrichedRows$.length === 0) {
+          return of({
+            items_count: 0,
+            items: [],
+          });
+        }
         return combineLatest(enrichedRows$).pipe(
           map((items) => ({
             items_count: items.length,

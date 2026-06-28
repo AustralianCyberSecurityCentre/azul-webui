@@ -1585,14 +1585,19 @@ export class ApiService {
     i?: string[];
     include_queries?: boolean;
   }) {
+    // Force limit to 1000 regardless of what the caller passes
+    const finalParams = {
+      ...params,
+      limit: 1000,
+    };
+
     return this.getOperation(
       "/api/v0/retrohunt/retrohunts",
-      params,
+      finalParams,
       {} as never,
       { cache: false },
     ).pipe(
       ops.map((d) => d.data),
-      // FUTURE: add addReceivedSecurity once security is implemented in retrohunt
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
   }
