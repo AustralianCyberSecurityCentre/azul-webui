@@ -6,10 +6,10 @@ import {
   signal,
   Signal,
 } from "@angular/core";
+import { Entropy } from "@app/core/api/info";
+import { EntityWrap } from "@app/core/entity.service";
 import { Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
-import { Entropy } from "src/app/core/api/info";
-import { EntityWrap } from "src/app/core/entity.service";
 
 type Dataset = {
   entropy: number;

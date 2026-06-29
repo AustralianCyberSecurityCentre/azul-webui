@@ -6,10 +6,10 @@ import {
   Input,
   TemplateRef,
 } from "@angular/core";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
-import { faCopy } from "@fortawesome/free-solid-svg-icons";
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
 // https://flowbite.com/docs/components/tooltips/
 // Hover implemented using Tailwind groups instead of Flowbite vanilla JS
@@ -31,7 +31,7 @@ export class TooltipComponent {
   copyText: boolean = false;
 
   @Input()
-  tplRef: TemplateRef<unknown> = null;
+  tplRef: TemplateRef<unknown> | null = null;
 
   @Input()
   tplContext: unknown = null;

@@ -1,11 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { AzCommonModule } from "@app/common/common.module";
+import { components } from "@app/core/api/openapi";
+import { BaseCard } from "@app/entity-cards/base-card.component";
+import { FlowModule } from "@lib/flow/flow.module";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { AzCommonModule } from "src/app/common/common.module";
-import { components } from "src/app/core/api/openapi";
-import { BaseCard } from "src/app/entity-cards/base-card.component";
-import { FlowModule } from "src/lib/flow/flow.module";
 import { JsonDebugViewerComponent } from "../json-debug-viewer/json-debug-viewer.component";
 
 @Component({

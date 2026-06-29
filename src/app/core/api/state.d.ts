@@ -5,11 +5,7 @@
  */
 
 import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
-import {
-  components,
-  SimilarEntropyMatch,
-  SimilarEntropyMatchRow,
-} from "./openapi";
+import { components, SimilarEntropyMatchRow } from "./openapi";
 
 /**
  * The kinds of data that can be returned when downloading a file.
@@ -110,8 +106,8 @@ export type SimilarEntropyRowWithSummary = SimilarEntropyMatchRow & {
 /**
  * Adds entity metadata to an entropy series of rows.
  */
-export type SimilarEntropyMatchWithSummary = SimilarEntropyMatch & {
-  matches: SimilarEntropyRowWithSummary[];
+export type SimilarEntropyMatchWithSummary = {
+  readonly matches: SimilarEntropyRowWithSummary[];
 };
 
 /**

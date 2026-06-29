@@ -7,17 +7,17 @@ import {
   inject,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { Store } from "@ngrx/store";
-import { editor } from "monaco-types";
-import { MonacoEditorModule } from "ngx-monaco-editor-v2";
-import { Subscription } from "rxjs";
-import { textEditorConfig } from "src/app/core/store/global-settings/global-selector";
-import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
+import { textEditorConfig } from "@app/core/store/global-settings/global-selector";
+import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
 import {
   addCommonMonacoActions,
   getDefaultMonacoSettings,
   recalculateFonts,
-} from "src/app/core/util";
+} from "@app/core/util";
+import { Store } from "@ngrx/store";
+import { editor } from "monaco-types";
+import { MonacoEditorModule } from "ngx-monaco-editor-v2";
+import { Subscription } from "rxjs";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
 // just need to sub in a couple of our types:

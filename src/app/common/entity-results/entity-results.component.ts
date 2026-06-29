@@ -13,6 +13,7 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { Router } from "@angular/router";
+import { EntitySearchComponent } from "@app/common/entity-search/entity-search.component";
 import {
   faBackwardStep,
   faForwardStep,
@@ -20,20 +21,20 @@ import {
 import { AxiosError } from "axios";
 import { Observable, of, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import { EntitySearchComponent } from "src/app/common/entity-search/entity-search.component";
 
-import { components } from "src/app/core/api/openapi";
-import { EntityFindWithPurgeExtras } from "src/app/core/api/state";
-import { Entity } from "src/app/core/services";
-import { ButtonType } from "src/lib/flow/button/button.component";
+import { components } from "@app/core/api/openapi";
+import { EntityFindWithPurgeExtras } from "@app/core/api/state";
+import { MergedPageableParams } from "@app/core/entity.service";
+import { Entity } from "@app/core/services";
+import { ButtonType } from "@lib/flow/button/button.component";
 
 export type SortOption = { title: string; sort: string; sort_asc: string };
 interface HashEntry {
   sha256: string;
-  track_link: string;
-  author_name: string;
-  author_category: string;
-  timestamp: string;
+  track_link?: string;
+  author_name?: string;
+  author_category?: string;
+  timestamp?: string;
 }
 
 /**page for allowing search over all entities*/
@@ -285,13 +286,11 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
       this.pageNextKeySignal() !== undefined &&
       supported_pages < page_number + 1
     ) {
-      const c: { [key: string]: unknown } = { term: this.termOption };
-
-      c.num_binaries = this.pageDisplayBinariesSignal();
-      c.family_find = this.familyFind;
-      c.family_sha256 = this.originalSha256;
-      c.parent = this.isParent;
-
+      const c: MergedPageableParams = {
+        term: this.termOption,
+        num_binaries: this.pageDisplayBinariesSignal(),
+        family_sha256: this.originalSha256 ? this.originalSha256 : "",
+      };
       const b: { [key: string]: unknown } = { after: this.pageNextKeySignal() };
 
       this.dbg(
@@ -316,7 +315,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
             items: [],
             after: "",
             total: 0,
-          } as components["schemas"]["EntityFindSimple"]);
+          } as components["schemas"]["EntityFindSimpleFamily"]);
 
       this.find$ = endpoint.call(this.entityService, c, b).pipe(
         ops.catchError((err: AxiosError) => {
@@ -327,13 +326,15 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
         }),
         ops.withLatestFrom(of(page_number)),
         ops.mergeMap(([d, page]) => {
-          this.pageNextKeySignal.set(d.after);
+          if (d.after) {
+            this.pageNextKeySignal.set(d.after);
+          }
           this.dbg(
             "retrieved next page from server",
             this.pageNextKeySignal(),
             page,
           );
-          if (d.total > 0) {
+          if (d.total && d.total > 0) {
             this.pageEstimateBinariesSignal.set(d.total);
           }
 
@@ -348,12 +349,14 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
           let start_index = this.pageDisplayBinariesSignal() * page;
 
           for (const item of d.items) {
+            const castItem =
+              item as components["schemas"]["EntityFindSimpleFamily"]["items"][0];
             this.pageAllHashes[start_index] = {
-              sha256: item.sha256,
-              track_link: item.track_link ?? "",
-              author_name: item.author_name ?? "",
-              author_category: item.author_category ?? "",
-              timestamp: item.timestamp ?? "",
+              sha256: castItem.sha256 ?? "",
+              track_link: castItem?.track_link ?? "",
+              author_name: castItem?.author_name ?? "",
+              author_category: castItem?.author_category ?? "",
+              timestamp: castItem?.timestamp ?? "",
             };
             start_index += 1;
           }

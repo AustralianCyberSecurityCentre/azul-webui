@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { AutoLoginPartialRoutesGuard } from "angular-auth-oidc-client";
 
-import { config } from "src/app/settings";
+import { config } from "@app/settings";
 import { CallbackComponent } from "./pages/callback/callback.component";
 import { UnauthorizedComponent } from "./pages/unauthorized/unauthorized.component";
 
@@ -13,14 +13,14 @@ if (config.oauth_enabled) {
   pagesRoute.push({
     path: "pages",
     loadChildren: () =>
-      import("src/app/pages/pages.module").then((m) => m.PagesModule),
+      import("@app/pages/pages.module").then((m) => m.PagesModule),
     canLoad: [AutoLoginPartialRoutesGuard],
   });
 } else {
   pagesRoute.push({
     path: "pages",
     loadChildren: () =>
-      import("src/app/pages/pages.module").then((m) => m.PagesModule),
+      import("@app/pages/pages.module").then((m) => m.PagesModule),
   });
 }
 // Additional routes should also be added to nginx.conf to avoid 404s

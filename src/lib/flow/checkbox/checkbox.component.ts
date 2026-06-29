@@ -5,7 +5,7 @@ import {
   inject,
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { HostControlDirective } from "src/lib/host-control/host-control.directive";
+import { HostControlDirective } from "@lib/host-control/host-control.directive";
 
 // https://flowbite.com/docs/forms/input-field/
 // Includes styling that Flowbite's WIP Angular implementation ships

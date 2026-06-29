@@ -16,6 +16,11 @@ import {
 } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { ApiService } from "@app/core/api/api.service";
+import { IconService } from "@app/core/icon.service";
+import { Entity, EntityWrap, Nav } from "@app/core/services";
+import { getStatusColour, sourceRefsAsParams } from "@app/core/util";
+import { IconDefinition } from "@fortawesome/free-brands-svg-icons";
 import {
   faBolt,
   faDownload,
@@ -25,14 +30,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import { ActiveToast, ToastrService } from "ngx-toastr";
-import { ApiService } from "src/app/core/api/api.service";
-import { IconDefinition, IconService } from "src/app/core/icon.service";
-import { Entity, EntityWrap, Nav } from "src/app/core/services";
-import { getStatusColour, sourceRefsAsParams } from "src/app/core/util";
 
-import { components } from "src/app/core/api/openapi";
-import { selectShowDebugInfo } from "src/app/core/store/global-settings/global-selector";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { components } from "@app/core/api/openapi";
+import { selectShowDebugInfo } from "@app/core/store/global-settings/global-selector";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 type Highlight = {
   label: string;

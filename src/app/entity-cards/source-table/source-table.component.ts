@@ -11,19 +11,19 @@ import {
 import { ReplaySubject, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { components } from "@app/core/api/openapi";
+import { UserService } from "@app/core/user.service";
+import {
+  allowedToPurge,
+  getPurgeQueryParams,
+  sourceRefsAsParams,
+} from "@app/core/util";
 import {
   faBucket,
   faMagnifyingGlass,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { components } from "src/app/core/api/openapi";
-import { UserService } from "src/app/core/user.service";
-import {
-  allowedToPurge,
-  getPurgeQueryParams,
-  sourceRefsAsParams,
-} from "src/app/core/util";
-import { Tab } from "src/lib/flow/tablist/tablist.component";
+import { Tab } from "@lib/flow/tablist/tablist.component";
 import { BaseCard } from "../base-card.component";
 
 type SourceInfo = components["schemas"]["BinarySource"] & {

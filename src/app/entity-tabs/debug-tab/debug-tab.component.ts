@@ -11,21 +11,21 @@ import {
   ViewChildren,
   inject,
 } from "@angular/core";
-import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
-import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { ApiService } from "@app/core/api/api.service";
+import { components } from "@app/core/api/openapi";
+import { AzEntityCardsModule } from "@app/entity-cards/entity-cards.module";
 import {
   DataTabPanesComponent,
   TabSpec,
-} from "src/app/entity-tabs/data-tab-panes/data-tab-panes.component";
+} from "@app/entity-tabs/data-tab-panes/data-tab-panes.component";
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FlowModule } from "@lib/flow/flow.module";
+import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
+import * as ops from "rxjs/operators";
 import { BaseCard } from "../../entity-cards/base-card.component";
 import { DebugTabPaneComponent } from "../debug-tab-pane/debug-tab-pane.component";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { DebugTabQueryPaneComponent } from "../debug-tab-query-pane/debug-tab-query-pane.component";
-import { FlowModule } from "src/lib/flow/flow.module";
-import { components } from "src/app/core/api/openapi";
 
 export enum EventTypeEnum {
   SOURCED = "sourced",
@@ -97,7 +97,7 @@ export default class DebugTabComponent
     this.tabCreationSubscription?.unsubscribe();
   }
 
-  protected onEntityChange(): void {
+  protected override onEntityChange(): void {
     this.updateTabs();
   }
 

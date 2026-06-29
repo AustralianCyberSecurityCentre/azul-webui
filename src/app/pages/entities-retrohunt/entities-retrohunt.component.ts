@@ -2,31 +2,30 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  OnInit,
-  OnDestroy,
-  inject,
-  signal,
-  effect,
-  runInInjectionContext,
-  Injector,
-  Signal,
   DestroyRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  Signal,
+  effect,
+  inject,
+  runInInjectionContext,
+  signal,
 } from "@angular/core";
-import { BehaviorSubject, forkJoin, take } from "rxjs";
-import { map } from "rxjs/operators";
-import { ActivatedRoute } from "@angular/router";
-import { RetrohuntService } from "src/app/core/retrohunt.service";
-import { ButtonType } from "src/lib/flow/button/button.component";
-import { EntityFindWithPurgeExtras } from "src/app/core/api/state";
-import { faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { UserService } from "src/app/core/user.service";
-import type { components } from "src/app/core/api/openapi";
-import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
-import { Store } from "@ngrx/store";
-import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
+import { ActivatedRoute } from "@angular/router";
+import { ApiService } from "@app/core/api/api.service";
+import type { components } from "@app/core/api/openapi";
+import { EntityFindWithPurgeExtras } from "@app/core/api/state";
+import { RetrohuntService } from "@app/core/retrohunt.service";
+import { colorThemeConfig } from "@app/core/store/global-settings/global-selector";
+import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
+import { UserService } from "@app/core/user.service";
+import { faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { ButtonType } from "@lib/flow/button/button.component";
+import { Store } from "@ngrx/store";
+import { BehaviorSubject, forkJoin, take } from "rxjs";
+import { map, switchMap } from "rxjs/operators";
 
 interface StreamMetadata {
   file_format?: string;

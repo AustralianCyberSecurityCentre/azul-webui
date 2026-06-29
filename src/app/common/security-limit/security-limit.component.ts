@@ -14,11 +14,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import * as ops from "rxjs/operators";
 
-import { ApiService } from "src/app/core/api/api.service";
-import { components } from "src/app/core/api/openapi";
-import { SecurityService } from "src/app/core/security.service";
+import { ApiService } from "@app/core/api/api.service";
+import { components } from "@app/core/api/openapi";
+import { SecurityService } from "@app/core/security.service";
 
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 export type FormControls = {
   classification: FormControl<string>;

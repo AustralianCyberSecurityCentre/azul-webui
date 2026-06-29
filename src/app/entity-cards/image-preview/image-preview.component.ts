@@ -10,6 +10,8 @@ import {
   ViewChild,
   WritableSignal,
 } from "@angular/core";
+import { StreamMetadataWithAuthor } from "@app/common/misc-interfaces/stream-metadata";
+import { Entity } from "@app/core/services";
 import {
   faBackwardStep,
   faForwardStep,
@@ -25,8 +27,6 @@ import {
   Subscription,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { StreamMetadataWithAuthor } from "src/app/common/misc-interfaces/stream-metadata";
-import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 
 @Component({

@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { TextIconComponent } from "@app/common/text-icon/text-icon.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { TextIconComponent } from "src/app/common/text-icon/text-icon.component";
 //import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 // Custom component, for providing a visually separated card header

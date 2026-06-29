@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable, of, ReplaySubject, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { ApiService } from "src/app/core/api/api.service";
+import { ApiService } from "@app/core/api/api.service";
 import { components } from "./api/openapi";
 import { FeatureValuesWithReference } from "./api/state";
 

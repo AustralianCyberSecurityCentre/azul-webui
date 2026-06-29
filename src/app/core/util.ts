@@ -1,5 +1,5 @@
+import { ButtonType } from "@lib/flow/button/button.component";
 import { editor } from "monaco-editor";
-import { ButtonType } from "src/lib/flow/button/button.component";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
 // just need to sub in a couple of our types:

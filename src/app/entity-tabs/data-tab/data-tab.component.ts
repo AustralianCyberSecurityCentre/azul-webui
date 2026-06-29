@@ -13,9 +13,9 @@ import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { CommonModule } from "@angular/common";
-import { StreamMetadataWithAuthor } from "src/app/common/misc-interfaces/stream-metadata";
-import { BaseCard } from "src/app/entity-cards/base-card.component";
-import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
+import { StreamMetadataWithAuthor } from "@app/common/misc-interfaces/stream-metadata";
+import { BaseCard } from "@app/entity-cards/base-card.component";
+import { AzEntityCardsModule } from "@app/entity-cards/entity-cards.module";
 import {
   DataTabPanesComponent,
   TabSpec,
@@ -92,7 +92,7 @@ export class DataTabComponent
     this.tabBadgeSubscription?.unsubscribe();
   }
 
-  protected onEntityChange(): void {
+  protected override onEntityChange(): void {
     this.updateTabs();
   }
 

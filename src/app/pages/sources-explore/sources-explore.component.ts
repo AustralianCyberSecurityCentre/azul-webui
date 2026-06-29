@@ -4,6 +4,7 @@ import {
   OnInit,
   inject,
 } from "@angular/core";
+import { components } from "@app/core/api/openapi";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faAmbulance,
@@ -25,9 +26,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
 
-import { Api } from "src/app/core/services";
+import { Api } from "@app/core/services";
 
 interface source_kv_with_observables {
   key: string;

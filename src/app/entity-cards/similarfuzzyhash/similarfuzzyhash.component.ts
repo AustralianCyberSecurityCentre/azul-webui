@@ -4,11 +4,11 @@ import {
   Input,
   inject,
 } from "@angular/core";
+import { components } from "@app/core/api/openapi";
+import { FuzzyMatchWithSummary } from "@app/core/api/state";
+import { Entity } from "@app/core/services";
 import { Observable, combineLatest, of } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { FuzzyMatchWithSummary } from "src/app/core/api/state";
-import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 
 type HashType = "ssdeep" | "tlsh";
@@ -41,7 +41,7 @@ Note that files can only be compared this way if they are somewhat similar in si
     })[];
   }>;
 
-  protected onEntityChange(): void {
+  protected override onEntityChange(): void {
     switch (this.hashType) {
       case "ssdeep":
         this.provider$ = this.entity.similar_ssdeep$;

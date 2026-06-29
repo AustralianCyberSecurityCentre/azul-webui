@@ -4,15 +4,15 @@ import {
   Input,
   OnChanges,
 } from "@angular/core";
+import { components } from "@app/core/api/openapi";
 import { combineLatest, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
 
-import { EntityWrap } from "src/app/core/services";
-import { formatLink, FormattedLink } from "src/app/core/user-url";
-import { getStatusColour } from "src/app/core/util";
-import { config } from "src/app/settings";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { EntityWrap } from "@app/core/services";
+import { formatLink, FormattedLink } from "@app/core/user-url";
+import { getStatusColour } from "@app/core/util";
+import { config } from "@app/settings";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 /** Displays a summary of an entity's information in a table format. */
 @Component({

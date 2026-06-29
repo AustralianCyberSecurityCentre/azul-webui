@@ -21,12 +21,12 @@ import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { Router } from "@angular/router";
+import { Boundary } from "@app/common/offset-picker/offset-picker.component";
+import { components } from "@app/core/api/openapi";
+import { FeatureWithDecodedValue } from "@app/core/api/state";
+import { PivotService } from "@app/core/pivot.service";
+import { escapeValue } from "@app/core/util";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { Boundary } from "src/app/common/offset-picker/offset-picker.component";
-import { components } from "src/app/core/api/openapi";
-import { FeatureWithDecodedValue } from "src/app/core/api/state";
-import { PivotService } from "src/app/core/pivot.service";
-import { escapeValue } from "src/app/core/util";
 import { BaseCard } from "../base-card.component";
 
 const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);

@@ -148,8 +148,7 @@
             "remote": {
               "buildTarget": "azul-webui:build:remote"
             }
-          },
-          "defaultConfiguration": "development"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"

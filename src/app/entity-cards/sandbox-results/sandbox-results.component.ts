@@ -6,7 +6,7 @@ import {
 } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 
-import { Entity } from "src/app/core/services";
+import { Entity } from "@app/core/services";
 
 import { faCameraRetro, faSlash } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";

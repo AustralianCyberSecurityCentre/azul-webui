@@ -7,12 +7,12 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { components } from "@app/core/api/openapi";
 import { BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
 
-import { Entity } from "src/app/core/services";
-import { ButtonType } from "src/lib/flow/button/button.component";
+import { Entity } from "@app/core/services";
+import { ButtonType } from "@lib/flow/button/button.component";
 
 @Component({
   selector: "app-entities-hash-lookup",

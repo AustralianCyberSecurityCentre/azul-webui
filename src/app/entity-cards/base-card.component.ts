@@ -1,8 +1,8 @@
 import { Directive, Input } from "@angular/core";
 import { ReplaySubject } from "rxjs";
 
-import { EntityWrap } from "src/app/core/services";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { EntityWrap } from "@app/core/services";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 @Directive()
 export abstract class BaseCard {

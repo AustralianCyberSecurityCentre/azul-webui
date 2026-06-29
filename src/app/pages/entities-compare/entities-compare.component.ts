@@ -9,6 +9,9 @@ import {
 import { toObservable } from "@angular/core/rxjs-interop";
 import { form } from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
+import { ApiService } from "@app/core/api/api.service";
+import { components, paths } from "@app/core/api/openapi";
+import { Entity, EntityWrap, Nav, Security } from "@app/core/services";
 import {
   faCheck,
   faCircleCheck,
@@ -16,12 +19,9 @@ import {
   faSpinner,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { components, paths } from "src/app/core/api/openapi";
-import { Entity, EntityWrap, Nav, Security } from "src/app/core/services";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 type FeatureData = {
   features: string[];
   values: Map<string, string[]>;

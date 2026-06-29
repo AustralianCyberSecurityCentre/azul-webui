@@ -8,7 +8,17 @@ import {
   inject,
 } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
+import { components } from "@app/core/api/openapi";
+import {
+  BulkEntitySummarySubmit,
+  PluginItemWithSummary,
+  PluginItemsWithSummary,
+} from "@app/core/api/state";
+import { STATUS_DESCRIPTIONS } from "@app/core/plugin-status-descriptions";
+import { Api, Entity } from "@app/core/services";
+import { escapeValue } from "@app/core/util";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Tab } from "@lib/flow/tablist/tablist.component";
 import {
   BehaviorSubject,
   Observable,
@@ -17,16 +27,6 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import {
-  BulkEntitySummarySubmit,
-  PluginItemWithSummary,
-  PluginItemsWithSummary,
-} from "src/app/core/api/state";
-import { STATUS_DESCRIPTIONS } from "src/app/core/plugin-status-descriptions";
-import { Api, Entity } from "src/app/core/services";
-import { escapeValue } from "src/app/core/util";
-import { Tab } from "src/lib/flow/tablist/tablist.component";
 
 function toCapitalCase(input: string): string {
   // https://stackoverflow.com/questions/196972/convert-string-to-title-case-with-javascript

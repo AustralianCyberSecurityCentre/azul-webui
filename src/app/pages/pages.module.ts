@@ -4,11 +4,12 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FormField } from "@angular/forms/signals";
+import { AzCommonModule } from "@app/common/common.module";
+import { AzCoreModule } from "@app/core/core.module";
+import { AzEntityCardsModule } from "@app/entity-cards/entity-cards.module";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { AzCommonModule } from "src/app/common/common.module";
-import { AzCoreModule } from "src/app/core/core.module";
-import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
-import { FlowModule } from "src/lib/flow/flow.module";
+import { FlowModule } from "@lib/flow/flow.module";
+import { AngularSplitModule } from "angular-split";
 import { TextIconComponent } from "../common/text-icon/text-icon.component";
 import { EntityTabsModule } from "../entity-tabs/entity-tabs";
 import { CallbackComponent } from "./callback/callback.component";
@@ -18,15 +19,16 @@ import { BinariesExploreComponent } from "./entities-explore/entities-explore.co
 import { BinariesHashDownloadComponent } from "./entities-hash-download/entities-hash-download.component";
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
+import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
-import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
 import { FeaturesExploreComponent } from "./features-explore/features-explore.component";
 import { FeaturesPivotComponent } from "./features-pivot/features-pivot.component";
 import { FeaturesTagsCurrentComponent } from "./features-tags-current/features-tags-current.component";
 import { FeaturesTagsExploreComponent } from "./features-tags-explore/features-tags-explore.component";
 import { FrontComponent } from "./front/front.component";
+import { PageHelpComponent } from "./page-help/page-help.component";
 import { PagesRoutingModule } from "./pages-routing.module";
 import { PagesComponent } from "./pages.component";
 import { PluginsCurrentComponent } from "./plugins-current/plugins-current.component";
@@ -35,8 +37,6 @@ import { SourcesCurrentComponent } from "./sources-current/sources-current.compo
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
-import { AngularSplitModule } from "angular-split";
-import { PageHelpComponent } from "./page-help/page-help.component";
 
 @NgModule({
   declarations: [

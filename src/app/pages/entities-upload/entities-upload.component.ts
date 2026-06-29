@@ -18,6 +18,15 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { BannerService } from "@app/common/banner.service";
+import { ApiService } from "@app/core/api/api.service";
+import { ValidPOSTUploadPaths } from "@app/core/api/methods";
+import { components } from "@app/core/api/openapi";
+import { FileUpload } from "@app/core/api/state";
+import { SecurityService } from "@app/core/security.service";
+import { Entity } from "@app/core/services";
+import { UserService } from "@app/core/user.service";
+import { sourceRefsAsParams } from "@app/core/util";
 import {
   faCheck,
   faCloudArrowUp,
@@ -28,6 +37,7 @@ import {
   faTrashCan,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import {
   BehaviorSubject,
   Observable,
@@ -37,16 +47,6 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { BannerService } from "src/app/common/banner.service";
-import { ApiService } from "src/app/core/api/api.service";
-import { ValidPOSTUploadPaths } from "src/app/core/api/methods";
-import { components } from "src/app/core/api/openapi";
-import { FileUpload } from "src/app/core/api/state";
-import { SecurityService } from "src/app/core/security.service";
-import { Entity } from "src/app/core/services";
-import { UserService } from "src/app/core/user.service";
-import { sourceRefsAsParams } from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 interface FileWithNewName {
   file: File;
@@ -107,7 +107,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   extractConfirmSub: Subscription;
 
   @ViewChild("tplExtractWarning") tplExtractWarning: TemplateRef<Element>;
-  protected dialog?: DialogRef;
+  protected dialog: DialogRef | DialogRef<unknown, Element> | null = null;
 
   // upload status map
   uploads = new Map<number, BehaviorSubject<[number, string, boolean]>>();

@@ -12,9 +12,9 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { Observable, ReplaySubject, Subscription, interval, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { components } from "src/app/core/api/openapi";
-import { FeatureWithParsedProperties } from "src/app/core/api/state";
-import { Api, Feature } from "src/app/core/services";
+import { components } from "@app/core/api/openapi";
+import { FeatureWithParsedProperties } from "@app/core/api/state";
+import { Api, Feature } from "@app/core/services";
 import { escapeValue } from "../../core/util";
 
 type SearchFilter = {
@@ -166,30 +166,32 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
         this.term.valueChanges.pipe(ops.startWith(initialTerm)),
       ),
       ops.map(([feats, author, authorVersion, term]) => {
-        const searchQuery: SearchFilter = {};
+        const searchQuery: SearchFilter = {
+          author: undefined,
+          term: undefined,
+          author_version: undefined,
+        };
         if (author) {
-          searchQuery["author"] = author;
+          searchQuery.author = author;
           if (authorVersion) {
-            searchQuery["author_version"] = authorVersion;
+            searchQuery.author_version = authorVersion;
           }
         }
         if (term) {
-          searchQuery["term"] = term;
+          searchQuery.term = term;
         }
 
-        return [feats, searchQuery];
+        return { feats: feats, filter: searchQuery };
       }),
       ops.debounceTime(500),
-      ops.tap(
-        ([_feats, filter]: [FeatureWithParsedProperties[], SearchFilter]) => {
-          // Save URL history
-          const newUrl = this.router
-            .createUrlTree([], { relativeTo: this.route, queryParams: filter })
-            .toString();
-          this.location.go(newUrl);
-        },
-      ),
-      ops.map(([feats, filter]) => {
+      ops.tap(({ feats, filter }) => {
+        // Save URL history
+        const newUrl = this.router
+          .createUrlTree([], { relativeTo: this.route, queryParams: filter })
+          .toString();
+        this.location.go(newUrl);
+      }),
+      ops.map(({ feats, filter }) => {
         if (feats === null) {
           return null;
         }

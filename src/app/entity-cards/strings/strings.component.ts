@@ -12,6 +12,9 @@ import {
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
+import { components } from "@app/core/api/openapi";
+import { Entity } from "@app/core/services";
+import { selectEnableHexStringSync } from "@app/core/store/global-settings/global-selector";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
@@ -24,9 +27,6 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Entity } from "src/app/core/services";
-import { selectEnableHexStringSync } from "src/app/core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
 

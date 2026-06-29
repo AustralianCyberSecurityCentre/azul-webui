@@ -12,19 +12,19 @@ import {
 import { toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
+  FeatureValuesWithNumBinaries,
+  FeatureValueWithNumBinaries,
+} from "@app/core/api/state";
+import { Feature, Security } from "@app/core/services";
+import { escapeValue } from "@app/core/util";
+import {
   faBackwardStep,
   faForwardStep,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
+import { ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import {
-  FeatureValuesWithNumBinaries,
-  FeatureValueWithNumBinaries,
-} from "src/app/core/api/state";
-import { Feature, Security } from "src/app/core/services";
-import { escapeValue } from "src/app/core/util";
-import { ButtonType } from "src/lib/flow/button/button.component";
 export type SortOption = {
   title: string;
   sort_asc: boolean;

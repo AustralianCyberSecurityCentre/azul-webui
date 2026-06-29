@@ -14,12 +14,12 @@ import {
   UntypedFormGroup,
   Validators,
 } from "@angular/forms";
+import { components } from "@app/core/api/openapi";
+import { Entity, Security } from "@app/core/services";
+import { escapeValue, getStatusColour } from "@app/core/util";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Entity, Security } from "src/app/core/services";
-import { escapeValue, getStatusColour } from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 /**Displays a group of tags for the current entity.
 

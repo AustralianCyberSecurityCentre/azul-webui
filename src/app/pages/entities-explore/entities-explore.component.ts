@@ -1,19 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
-  inject,
-  OnDestroy,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { EntitySearchComponent } from "@app/common/entity-search/entity-search.component";
+import { components } from "@app/core/api/openapi";
+import { EntityService } from "@app/core/entity.service";
+import { ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
-import { EntitySearchComponent } from "src/app/common/entity-search/entity-search.component";
-import { EntityService } from "src/app/core/entity.service";
-import { components } from "src/app/core/api/openapi";
-import { ButtonType } from "src/lib/flow/button/button.component";
 
 export type SortOption = {
   title: string;

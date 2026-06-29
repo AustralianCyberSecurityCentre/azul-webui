@@ -8,9 +8,9 @@ import { combineLatest, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
+import { components } from "@app/core/api/openapi";
+import { STATUS_DESCRIPTIONS } from "@app/core/plugin-status-descriptions";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { components } from "src/app/core/api/openapi";
-import { STATUS_DESCRIPTIONS } from "src/app/core/plugin-status-descriptions";
 import { BaseCard } from "../base-card.component";
 
 type LatestStatus = {

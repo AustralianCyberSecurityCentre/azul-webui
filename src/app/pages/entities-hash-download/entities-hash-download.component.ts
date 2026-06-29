@@ -15,18 +15,18 @@ import {
   required,
   SchemaPathTree,
 } from "@angular/forms/signals";
+import { SourcePickerService } from "@app/common/source-picker.service";
+import { components } from "@app/core/api/openapi";
+import { Api } from "@app/core/services";
 import {
   faCheck,
   faCircleXmark,
   faSpinner,
   faSquareUpRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { interval, Observable, timer } from "rxjs";
 import * as ops from "rxjs/operators";
-import { SourcePickerService } from "src/app/common/source-picker.service";
-import { components } from "src/app/core/api/openapi";
-import { Api } from "src/app/core/services";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 interface DownloadHashForm {
   hashes: string[];
@@ -98,7 +98,9 @@ export class BinariesHashDownloadComponent {
   protected allHashDownloadStatusReports: WritableSignal<
     | Map<
         string,
-        Observable<components["schemas"]["StatusEvent"][] | undefined>
+        Observable<
+          components["schemas"]["Response_StatusEvent_"]["data"] | undefined
+        >
       >
     | undefined
   > = signal(undefined);
@@ -236,7 +238,9 @@ export class BinariesHashDownloadComponent {
 
     const allHashDownloadStatusRequestsMap = new Map<
       string,
-      Observable<components["schemas"]["StatusEvent"][] | undefined>
+      Observable<
+        components["schemas"]["Response_StatusEvent_"]["data"] | undefined
+      >
     >();
 
     const allHashesWithContent = new Map<string, Observable<boolean>>();

@@ -6,11 +6,11 @@ import {
   TemplateRef,
   ViewChild,
   WritableSignal,
-  signal,
   inject,
+  signal,
 } from "@angular/core";
-import { Api, Nav, Security, User } from "src/app/core/services";
-import { DynamicConfig, config } from "src/app/settings";
+import { Api, Nav, Security, User } from "@app/core/services";
+import { DynamicConfig, config } from "@app/settings";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";

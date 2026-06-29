@@ -9,7 +9,10 @@ import {
   inject,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { components } from "@app/core/api/openapi";
+import { Entity } from "@app/core/services";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { InputComponent } from "@lib/flow/input/input.component";
 import createFuzzySearch, { FuzzySearcher } from "@nozbe/microfuzz";
 import {
   BehaviorSubject,
@@ -23,9 +26,6 @@ import {
   of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Entity } from "src/app/core/services";
-import { InputComponent } from "src/lib/flow/input/input.component";
 
 type NameSection = {
   value: string;

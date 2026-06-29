@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { combineLatest, Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { ApiService } from "src/app/core/api/api.service";
+import { ApiService } from "@app/core/api/api.service";
 
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { config } from "../settings";

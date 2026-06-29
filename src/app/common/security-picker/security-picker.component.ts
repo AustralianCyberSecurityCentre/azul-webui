@@ -12,12 +12,12 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { ApiService } from "@app/core/api/api.service";
+import { components } from "@app/core/api/openapi";
+import { SecurityService } from "@app/core/security.service";
+import { Entity } from "@app/core/services";
 import { Observable, of, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { components } from "src/app/core/api/openapi";
-import { SecurityService } from "src/app/core/security.service";
-import { Entity } from "src/app/core/services";
 export type FormControls = {
   classification: FormControl<string>;
   caveat: FormControl<string>;

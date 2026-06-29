@@ -8,15 +8,12 @@ import {
   inject,
 } from "@angular/core";
 import { Router } from "@angular/router";
+import { components } from "@app/core/api/openapi";
+import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
+import { EntityWrap } from "@app/core/entity.service";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import {
-  EntityFindRow,
-  EntityFindWithPurgeExtras,
-} from "src/app/core/api/state";
-import { EntityWrap } from "src/app/core/entity.service";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 /**Displays a set of binaries in a table, as the result of a entityFind call
 

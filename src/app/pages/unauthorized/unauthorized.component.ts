@@ -4,8 +4,8 @@ import { Observable } from "rxjs";
 
 import * as ops from "rxjs/operators";
 
-import { Security } from "src/app/core/services";
-import { ButtonType } from "src/lib/flow/button/button.component";
+import { Security } from "@app/core/services";
+import { ButtonType } from "@lib/flow/button/button.component";
 import { config } from "../../settings";
 
 @Component({
@@ -18,7 +18,7 @@ export class UnauthorizedComponent {
   protected security = inject(Security);
 
   protected error$: Observable<string | undefined>;
-  protected help: string;
+  protected help: string = "";
   readonly ButtonType = ButtonType;
 
   constructor() {
@@ -27,7 +27,8 @@ export class UnauthorizedComponent {
     this.error$ = route.paramMap.pipe(
       ops.map((_x) => window.history.state.exception),
     );
-
-    this.help = config.unauthorized_help;
+    if (config?.unauthorized_help) {
+      this.help = config.unauthorized_help;
+    }
   }
 }

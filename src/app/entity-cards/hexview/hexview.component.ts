@@ -11,6 +11,7 @@ import {
   inject,
 } from "@angular/core";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
+import { Entity } from "@app/core/services";
 import { ToastrService } from "ngx-toastr";
 import {
   BehaviorSubject,
@@ -21,11 +22,10 @@ import {
   combineLatest,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 
+import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { hexValidator } from "src/app/core/validation";
 import { HexStringSyncService } from "../hex-string-sync.service";
 
 /** Data for a row of a 16-byte wide hexdump */

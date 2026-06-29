@@ -1,17 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   Input,
   signal,
-  inject,
 } from "@angular/core";
 
+import { components } from "@app/core/api/openapi";
+import { UserService } from "@app/core/user.service";
+import { allowedToPurge } from "@app/core/util";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Observable, of } from "rxjs";
-import { UserService } from "src/app/core/user.service";
-import { allowedToPurge } from "src/app/core/util";
 import { BaseCard } from "../base-card.component";
-import { components } from "src/app/core/api/openapi";
 
 /**card displaying parents or children of current entity*/
 @Component({

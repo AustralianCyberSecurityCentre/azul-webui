@@ -3,15 +3,15 @@ import { DomSanitizer, SafeUrl, Title } from "@angular/platform-browser";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { EntityService } from "@app/core/entity.service";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faUncharted } from "@fortawesome/free-brands-svg-icons";
 import {
   faBook,
-  faCode,
   faCameraRetro,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { select, Store } from "@ngrx/store";
-import { EntityService } from "src/app/core/entity.service";
 import { config } from "../settings";
 import { components } from "./api/openapi";
 import * as fromRoute from "./store/route-selector";

@@ -11,10 +11,6 @@ import {
 } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { OidcSecurityService } from "angular-auth-oidc-client";
-import Axios, { AxiosError } from "axios";
-import { CacheRequestConfig, setupCache } from "axios-cache-interceptor";
-import { ToastrService } from "ngx-toastr";
 import {
   ValidDELETEPaths,
   ValidGETDownloadPaths,
@@ -22,10 +18,14 @@ import {
   ValidHEADPaths,
   ValidPOSTPaths,
   ValidPOSTUploadPaths,
-} from "src/app/core/api/methods";
-import { components, paths } from "src/app/core/api/openapi";
-import { DownloadType, FileUpload } from "src/app/core/api/state";
-import { config } from "src/app/settings";
+} from "@app/core/api/methods";
+import { components, paths } from "@app/core/api/openapi";
+import { DownloadType, FileUpload } from "@app/core/api/state";
+import { config } from "@app/settings";
+import { OidcSecurityService } from "angular-auth-oidc-client";
+import Axios, { AxiosError } from "axios";
+import { CacheRequestConfig, setupCache } from "axios-cache-interceptor";
+import { ToastrService } from "ngx-toastr";
 
 /**
  * RxJS wrapper for Axios.
@@ -686,7 +686,9 @@ export class ApiService {
     >,
     extract?: boolean,
     password?: string,
-  ): Observable<readonly components["schemas"]["BinaryData"][] | undefined> {
+  ): Observable<
+    readonly components["schemas"]["BinaryData"][] | number | undefined
+  > {
     const params: ValidPOSTUploadPaths["/api/v0/binaries/source"]["post"]["parameters"]["query"] =
       {
         refresh: true,
@@ -707,7 +709,9 @@ export class ApiService {
     >,
     extract?: boolean,
     password?: string,
-  ): Observable<readonly components["schemas"]["BinaryData"][] | undefined> {
+  ): Observable<
+    readonly components["schemas"]["BinaryData"][] | number | undefined
+  > {
     const params: ValidPOSTUploadPaths["/api/v0/binaries/child"]["post"]["parameters"]["query"] =
       {
         refresh: true,
@@ -799,7 +803,9 @@ export class ApiService {
   hashDownloadStatusRequest(
     sha256: string,
     includeDownloadRequestStatus: boolean = false,
-  ): Observable<components["schemas"]["StatusEvent"][] | undefined> {
+  ): Observable<
+    components["schemas"]["Response_StatusEvent_"]["data"] | undefined
+  > {
     const params: paths["/api/v0/binaries/source/download/{sha256}"]["get"]["parameters"]["query"] =
       {
         include_download_requests: includeDownloadRequestStatus,
@@ -825,7 +831,7 @@ export class ApiService {
         if (d !== undefined) {
           return d?.data;
         }
-        return d;
+        return undefined;
       }),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
@@ -838,7 +844,7 @@ export class ApiService {
       ops.tap((d) => {
         this.addReceivedSecurity(d.meta);
       }),
-      ops.map((d) => d.data),
+      ops.map((d) => d?.data),
       ops.catchError((e) => this.handle(e, [], [])),
     );
   }
@@ -1037,7 +1043,7 @@ export class ApiService {
     sha256: string,
     params: ValidPOSTPaths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["parameters"]["query"],
     body: paths["/api/v0/binaries/{sha256}/similar/entropy"]["post"]["requestBody"]["content"]["application/json"],
-  ): Observable<components["schemas"]["SimilarEntropyMatch"]> {
+  ): Observable<components["schemas"]["SimilarEntropyMatch"] | null> {
     return this.postOperation(
       "/api/v0/binaries/{sha256}/similar/entropy",
       body,
@@ -1045,9 +1051,11 @@ export class ApiService {
       { sha256 },
     ).pipe(
       ops.tap((d) => {
-        this.addReceivedSecurity(d.meta);
+        if (d?.meta) {
+          this.addReceivedSecurity(d?.meta);
+        }
       }),
-      ops.map((d) => d.data),
+      ops.map((d) => d?.data),
       ops.catchError((e) => this.handle(e, undefined, [])),
     );
   }
