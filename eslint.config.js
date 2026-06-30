@@ -60,7 +60,6 @@ module.exports = tseslint.config(
       "@typescript-eslint/no-empty-function": "off",
       "@angular-eslint/component-selector": "off",
       "@angular-eslint/prefer-standalone": "off",
-      "no-unused-vars": "off",
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/consistent-generic-constructors": "off",
       "@typescript-eslint/consistent-indexed-object-style": "off",
