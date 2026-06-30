@@ -3,7 +3,6 @@ import {
   Component,
   inject,
   linkedSignal,
-  PipeTransform,
   signal,
   WritableSignal,
 } from "@angular/core";
@@ -44,16 +43,6 @@ function HashesSchema(hash: SchemaPathTree<string>) {
         return `invalid sha256 provided in hashes: ${ctx.valueOf(hash)}`;
       },
     });
-  }
-}
-
-export class ValidDownloadHashFilter implements PipeTransform {
-  transform(value: string): string {
-    let reverse = "";
-    for (let i = value.length - 1; i >= 0; i--) {
-      reverse += value[i];
-    }
-    return reverse;
   }
 }
 

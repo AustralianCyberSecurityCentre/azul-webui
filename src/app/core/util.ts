@@ -345,13 +345,3 @@ export function addCommonMonacoActions(editor: editor.IStandaloneCodeEditor) {
     });
   }
 }
-
-/**
- * Formats a floating point to n digits.
- */
-export function formatFloat(input: number, digits: number = 2): string {
-  return input.toLocaleString("en-AU", {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
-}

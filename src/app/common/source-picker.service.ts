@@ -32,7 +32,7 @@ export interface SourceData {
   refs: SourceRef[];
 }
 
-export function SourceRefSchema(item: SchemaPathTree<SourceRef>) {
+function SourceRefSchema(item: SchemaPathTree<SourceRef>) {
   if (item.required) {
     required(item.value, {
       message: (ctx) => {
