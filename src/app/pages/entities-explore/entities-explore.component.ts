@@ -13,7 +13,7 @@ import { EntitySearchComponent } from "@app/common/entity-search/entity-search.c
 import { components } from "@app/core/api/openapi";
 import { EntityService } from "@app/core/entity.service";
 import { ButtonType } from "@lib/flow/button/button.component";
-import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 export type SortOption = {
   title: string;
@@ -61,8 +61,6 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   private paramsSub: Subscription;
   /**all found entities*/
   protected find$: Observable<components["schemas"]["EntityFind"]>;
-
-  protected termValid$ = new BehaviorSubject<boolean>(true);
 
   sortOptions: { [short: string]: SortOption } = {
     newest_sourced: {

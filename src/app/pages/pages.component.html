@@ -28,7 +28,7 @@
               {{ api.currentExclusions.length === 0 ? "" : "*" }}Max{{
                 api.currentExclusions.length === 0 ? "" : "*"
               }}: {{ securityService.displayMaxSecurity$ | async }}
-              @if ((api.securityFilter$ | async) === "AND") {
+              @if (api.securityFilterSignal() === "AND") {
                 (Filter = AND)
               }
             </b>

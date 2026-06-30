@@ -2,9 +2,13 @@ import { Location } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
+  signal,
+  Signal,
+  WritableSignal,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Navigation, Router } from "@angular/router";
@@ -14,13 +18,7 @@ import { EntityService } from "@app/core/entity.service";
 import { UserService } from "@app/core/user.service";
 import { allowedToPurge } from "@app/core/util";
 import { ButtonType } from "@lib/flow/button/button.component";
-import {
-  BehaviorSubject,
-  combineLatest,
-  Observable,
-  of,
-  Subscription,
-} from "rxjs";
+import { Observable, of, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
 /**
@@ -78,12 +76,55 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private api = inject(ApiService);
 
-  protected state$ = new BehaviorSubject<PurgeActionState>(
+  protected setStateSignal: WritableSignal<PurgeActionState> = signal(
     PurgeActionState.Loading,
   );
-  protected purgeTarget$ = new BehaviorSubject<PurgeRequest | undefined>(
-    undefined,
-  );
+  protected computedStateSignal: Signal<PurgeActionState> = computed(() => {
+    const state = this.setStateSignal();
+    const isAdmin = this.user.isUserAdminSignal();
+    switch (state) {
+      case PurgeActionState.AdminValidation: {
+        const purgeTarget = this.purgeTargetSignal();
+        let canPurge = false;
+        switch (purgeTarget.type) {
+          case PurgeRequestType.ReferenceSet:
+            canPurge = allowedToPurge(
+              isAdmin,
+              purgeTarget.track_source_references,
+              undefined,
+            );
+            break;
+          case PurgeRequestType.Relation:
+            canPurge = allowedToPurge(
+              isAdmin,
+              undefined,
+              purgeTarget.track_link,
+            );
+            break;
+        }
+
+        if (canPurge) {
+          return PurgeActionState.InputOptions;
+        } else {
+          return PurgeActionState.Unauthorized;
+        }
+      }
+      default:
+        return state;
+    }
+  });
+
+  protected purgeTargetSignal: WritableSignal<PurgeRequest | undefined> =
+    signal(undefined);
+  protected purgeTargetLabelSignal: Signal<string> = computed(() => {
+    const target = this.purgeTargetSignal();
+    switch (target.type) {
+      case PurgeRequestType.ReferenceSet:
+        return `reference set ${target.track_source_references}`;
+      case PurgeRequestType.Relation:
+        return "relation between binaries";
+    }
+  });
 
   protected acknowledgedPreview = new FormControl<boolean>(false);
 
@@ -97,10 +138,10 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
 
   readonly ButtonType = ButtonType;
 
-  protected purgeError$ = new BehaviorSubject<string | undefined>(undefined);
+  protected purgeErrorSignal: WritableSignal<string | undefined> =
+    signal(undefined);
 
   /** A user readable name for the current purge target. */
-  protected purgeTargetLabel$: Observable<string>;
 
   private routeSub?: Subscription;
   private stateSub?: Subscription;
@@ -112,17 +153,6 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.purgeTargetLabel$ = this.purgeTarget$.pipe(
-      ops.map((target) => {
-        switch (target.type) {
-          case PurgeRequestType.ReferenceSet:
-            return `reference set ${target.track_source_references}`;
-          case PurgeRequestType.Relation:
-            return "relation between binaries";
-        }
-      }),
-    );
-
     this.routeSub = this.route.queryParams.subscribe((params) => {
       // Reassemble key:value pairs
       const referenceValues = {};
@@ -146,7 +176,7 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
       const timestamp = params["timestamp"];
 
       if (track_source_references !== undefined && timestamp !== undefined) {
-        this.purgeTarget$.next({
+        this.purgeTargetSignal.set({
           type: PurgeRequestType.ReferenceSet,
           track_source_references,
           timestamp: params["timestamp"],
@@ -154,9 +184,9 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
           source: params["source"],
         });
 
-        this.state$.next(PurgeActionState.AdminValidation);
+        this.setStateSignal.set(PurgeActionState.AdminValidation);
       } else if (track_link !== undefined) {
-        this.purgeTarget$.next({
+        this.purgeTargetSignal.set({
           type: PurgeRequestType.Relation,
           track_link,
           child: params["child"],
@@ -164,46 +194,9 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
           author: params["author"],
         });
 
-        this.state$.next(PurgeActionState.AdminValidation);
+        this.setStateSignal.set(PurgeActionState.AdminValidation);
       } else {
-        this.state$.next(PurgeActionState.InvalidParams);
-      }
-    });
-
-    this.stateSub = combineLatest([
-      this.state$,
-      this.user.isUserAdmin$,
-    ]).subscribe(([state, isAdmin]) => {
-      switch (state) {
-        case PurgeActionState.AdminValidation: {
-          const purgeTarget = this.purgeTarget$.value;
-          let canPurge = false;
-          switch (purgeTarget.type) {
-            case PurgeRequestType.ReferenceSet:
-              canPurge = allowedToPurge(
-                isAdmin,
-                purgeTarget.track_source_references,
-                undefined,
-              );
-              break;
-            case PurgeRequestType.Relation:
-              canPurge = allowedToPurge(
-                isAdmin,
-                undefined,
-                purgeTarget.track_link,
-              );
-              break;
-          }
-
-          if (canPurge) {
-            this.state$.next(PurgeActionState.InputOptions);
-          } else {
-            this.state$.next(PurgeActionState.Unauthorized);
-          }
-          break;
-        }
-        default:
-          break;
+        this.setStateSignal.set(PurgeActionState.InvalidParams);
       }
     });
   }
@@ -225,11 +218,11 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
   /** Back out from a preview, but return to the options screen. */
   protected backPurgeFromSimulation() {
     this.acknowledgedPreview.setValue(false);
-    this.state$.next(PurgeActionState.InputOptions);
+    this.setStateSignal.set(PurgeActionState.InputOptions);
   }
 
   protected purge(doDelete = false) {
-    const target = this.purgeTarget$.value;
+    const target = this.purgeTargetSignal();
 
     if (doDelete) {
       this.cacheClear$ = this.api.clearCache().pipe(
@@ -248,8 +241,8 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
           )
           .pipe(
             ops.catchError((err) => {
-              this.purgeError$.next(err);
-              this.state$.next(PurgeActionState.BadResponse);
+              this.purgeErrorSignal.set(err);
+              this.setStateSignal.set(PurgeActionState.BadResponse);
               return of(err);
             }),
           );
@@ -264,8 +257,8 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
       case PurgeRequestType.Relation: {
         const req = this.entity.purgeLink(target.track_link, doDelete).pipe(
           ops.catchError((err) => {
-            this.purgeError$.next(err);
-            this.state$.next(PurgeActionState.BadResponse);
+            this.purgeErrorSignal.set(err);
+            this.setStateSignal.set(PurgeActionState.BadResponse);
             return of(err);
           }),
           ops.tap((_) => this.api.clearCache()),
@@ -281,9 +274,9 @@ export class BinariesPurgeComponent implements OnInit, OnDestroy {
     }
 
     if (doDelete) {
-      this.state$.next(PurgeActionState.Purge);
+      this.setStateSignal.set(PurgeActionState.Purge);
     } else {
-      this.state$.next(PurgeActionState.Simulate);
+      this.setStateSignal.set(PurgeActionState.Simulate);
     }
   }
 }

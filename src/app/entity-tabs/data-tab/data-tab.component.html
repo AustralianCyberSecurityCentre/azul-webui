@@ -1,4 +1,4 @@
-<azco-data-tab-panes class="grow" [tabs$]="tabs$" />
+<azco-data-tab-panes class="grow" [tabs]="tabsSignal()" />
 <!-- We want these elements in the DOM so that they are persistent -->
 <div class="hidden">
   <div #tabTemplate key="hex" class="flex h-full w-full grow">

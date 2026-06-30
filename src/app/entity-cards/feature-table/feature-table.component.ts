@@ -359,7 +359,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       ops.shareReplay(1),
     );
 
-    this.displayFeatures$ = combineLatest([temp]).pipe(
+    this.displayFeatures$ = temp.pipe(
       ops.map(([feats]) => {
         // sort features by entity count and name
         let sortedFeats = [...feats];

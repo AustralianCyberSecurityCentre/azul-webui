@@ -1,13 +1,13 @@
 <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
   <flow-button
     [type]="
-      (isOpen$ | async)
+      isOpenSignal()
         ? ButtonType.Dark
-        : (boundaryBytes$ | async).x1 >= 0
+        : boundaryBytesSignal().x1 >= 0
           ? ButtonType.Primary
           : ButtonType.Light
     "
-    (click)="isOpen$.next(!isOpen$.value)"
+    (click)="isOpenSignal.set(!isOpenSignal())"
   >
     Offset...
   </flow-button>
@@ -16,7 +16,7 @@
 <ng-template
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
-  [cdkConnectedOverlayOpen]="isOpen$ | async"
+  [cdkConnectedOverlayOpen]="isOpenSignal()"
 >
   <div
     class="bg-azul-50 dark:bg-azul-600 mt-1 border border-slate-700 p-1 text-black shadow-md shadow-black/50 dark:text-white"
@@ -32,16 +32,15 @@
         >{{ (features$ | async)?.length }} features over
         {{ fileSize$ | async }} bytes</span
       >
-      @if (boundaryBytes$ | async; as boundary) {
-        @if (boundary.x1 >= 0 && boundary.x2 >= 0) {
-          <span>
-            <br />
-            Selected: {{ boundary.x1 | hex }} to {{ boundary.x2 | hex }}
-            <flow-button [size]="ButtonSize.Icon" (click)="resetBoundary()"
-              >Clear</flow-button
-            >
-          </span>
-        }
+      @if (boundaryBytesSignal().x1 >= 0 && boundaryBytesSignal().x2 >= 0) {
+        <span>
+          <br />
+          Selected: {{ boundaryBytesSignal().x1 | hex }} to
+          {{ boundaryBytesSignal().x2 | hex }}
+          <flow-button [size]="ButtonSize.Icon" (click)="resetBoundary()"
+            >Clear</flow-button
+          >
+        </span>
       }
     </div>
   </div>

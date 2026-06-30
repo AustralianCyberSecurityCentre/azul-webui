@@ -5,7 +5,9 @@ import {
   Input,
   OnDestroy,
   TemplateRef,
+  effect,
   inject,
+  input,
 } from "@angular/core";
 import { faDownload, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
@@ -96,9 +98,7 @@ export class DataTabPanesComponent implements OnDestroy {
 
   @Input() preTabTemplateRef: TemplateRef<unknown>;
 
-  @Input() set tabs$(value: Observable<TabSpec[]>) {
-    this.updateChildren(value);
-  }
+  tabs = input<TabSpec[]>([]);
   private tabsSubscription: Subscription;
 
   /** Mappings for child elements */
@@ -272,6 +272,10 @@ export class DataTabPanesComponent implements OnDestroy {
         return paneSizes;
       }),
     );
+
+    effect(() => {
+      this.updateChildren(this.tabs());
+    });
   }
 
   ngOnDestroy(): void {
@@ -279,57 +283,53 @@ export class DataTabPanesComponent implements OnDestroy {
   }
 
   /** Updates which tabs are available. */
-  private updateChildren(newTabs: Observable<TabSpec[]> | undefined) {
+  private updateChildren(newTabs: TabSpec[] | undefined) {
     if (!newTabs) {
       return;
     }
+    const oldTabList = this.tabList$.value;
 
-    this.tabsSubscription?.unsubscribe();
-    this.tabsSubscription = newTabs.subscribe((newTabs) => {
-      const oldTabList = this.tabList$.value;
+    // First, filter out any tabs which have been removed
+    // This list is small, so optimisations here aren't necessary
+    const existingTabs = oldTabList.filter(
+      (oldTab) =>
+        newTabs.find((newTab) => newTab.tabId === oldTab.tabId) !== undefined,
+    );
 
-      // First, filter out any tabs which have been removed
-      // This list is small, so optimisations here aren't necessary
-      const existingTabs = oldTabList.filter(
-        (oldTab) =>
-          newTabs.find((newTab) => newTab.tabId === oldTab.tabId) !== undefined,
+    // Next, add tabs which are not in the current list
+    // Do not update existing tabs, however, as the user might have mutated the tab state for that element
+    for (const tabElement of newTabs) {
+      const existingTab = existingTabs.find(
+        (existingTab) => existingTab.tabId === tabElement.tabId,
       );
 
-      // Next, add tabs which are not in the current list
-      // Do not update existing tabs, however, as the user might have mutated the tab state for that element
-      for (const tabElement of newTabs) {
-        const existingTab = existingTabs.find(
-          (existingTab) => existingTab.tabId === tabElement.tabId,
-        );
-
-        if (existingTab === undefined) {
-          existingTabs.push({
-            tabId: tabElement.tabId,
-            name: tabElement.name,
-            betterName$: tabElement?.betterName$,
-            open: tabElement.openInPane !== undefined,
-            paneAffinity: tabElement.openInPane ?? 0,
-            manuallyOpened: false,
-            portal: new DomPortal(tabElement.template),
-            downloadParent: tabElement.downloadParent,
-            downloadHash: tabElement.downloadHash,
-          });
-        } else {
-          // Make updates where it doesn't override user options
-          existingTab.name = tabElement.name;
-          if (
-            !existingTab.manuallyOpened &&
-            tabElement.openInPane === undefined
-          ) {
-            // If this tab was opened by default, but is no longer marked as open, close it
-            existingTab.open = false;
-            existingTab.paneAffinity = 0;
-          }
+      if (existingTab === undefined) {
+        existingTabs.push({
+          tabId: tabElement.tabId,
+          name: tabElement.name,
+          betterName$: tabElement?.betterName$,
+          open: tabElement.openInPane !== undefined,
+          paneAffinity: tabElement.openInPane ?? 0,
+          manuallyOpened: false,
+          portal: new DomPortal(tabElement.template),
+          downloadParent: tabElement.downloadParent,
+          downloadHash: tabElement.downloadHash,
+        });
+      } else {
+        // Make updates where it doesn't override user options
+        existingTab.name = tabElement.name;
+        if (
+          !existingTab.manuallyOpened &&
+          tabElement.openInPane === undefined
+        ) {
+          // If this tab was opened by default, but is no longer marked as open, close it
+          existingTab.open = false;
+          existingTab.paneAffinity = 0;
         }
       }
+    }
 
-      this.tabList$.next(existingTabs);
-    });
+    this.tabList$.next(existingTabs);
   }
 
   /** Handles the resize event ending. */

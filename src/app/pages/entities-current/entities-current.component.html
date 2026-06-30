@@ -130,14 +130,14 @@
                 <flow-tooltip message="Run Latest Plugins (takes 60 seconds)">
                   <flow-button
                     [type]="
-                      (isExpedited$ | async)
+                      isExpeditedSignal()
                         ? ButtonType.Disabled
                         : ButtonType.Light
                     "
                     [size]="ButtonSize.Icon"
                     (click)="doExpedite(d.sha256)"
                   >
-                    @if ((isExpedited$ | async) !== true) {
+                    @if (isExpeditedSignal() !== true) {
                       <fa-icon [icon]="faRotate" />
                     } @else {
                       <fa-icon [icon]="faSpinner" animation="spin" />
@@ -167,45 +167,43 @@
     >
       @if ((entity.summary$ | async)?.exists) {
         <div class="flex min-h-0 w-full grow justify-stretch overflow-y-auto">
-          @if (activeTab$ | async; as tab) {
-            @if (tab === "Overview") {
-              <ng-container
-                *ngTemplateOutlet="tabOverview; context: { entity: entity }"
-              />
-            }
-            @if (tab === "Features") {
-              <ng-container
-                *ngTemplateOutlet="tabFeatures; context: { entity: entity }"
-              />
-            }
-            <ng-container>
-              <!-- We want the data tab to be able to load its resources to populate badges -->
-              <ng-container
-                *ngTemplateOutlet="
-                  tabData;
-                  context: { entity: entity, tab: tab }
-                "
-              />
-            </ng-container>
-            @if (tab === "Relations") {
-              <ng-container
-                *ngTemplateOutlet="tabRelations; context: { entity: entity }"
-              />
-            }
-            @if (tab === "Status") {
-              <ng-container
-                *ngTemplateOutlet="tabStatus; context: { entity: entity }"
-              />
-            }
-            @if (showDebugInfo$ | async) {
-              <!-- Allow debug to render and stay in the DOM to make it easier to keep your position. -->
-              <ng-container
-                *ngTemplateOutlet="
-                  tabDebug;
-                  context: { entity: entity, tab: tab }
-                "
-              />
-            }
+          @if (activeTabSignal() === "Overview") {
+            <ng-container
+              *ngTemplateOutlet="tabOverview; context: { entity: entity }"
+            />
+          }
+          @if (activeTabSignal() === "Features") {
+            <ng-container
+              *ngTemplateOutlet="tabFeatures; context: { entity: entity }"
+            />
+          }
+          <ng-container>
+            <!-- We want the data tab to be able to load its resources to populate badges -->
+            <ng-container
+              *ngTemplateOutlet="
+                tabData;
+                context: { entity: entity, tab: activeTabSignal() }
+              "
+            />
+          </ng-container>
+          @if (activeTabSignal() === "Relations") {
+            <ng-container
+              *ngTemplateOutlet="tabRelations; context: { entity: entity }"
+            />
+          }
+          @if (activeTabSignal() === "Status") {
+            <ng-container
+              *ngTemplateOutlet="tabStatus; context: { entity: entity }"
+            />
+          }
+          @if (showDebugInfo$ | async) {
+            <!-- Allow debug to render and stay in the DOM to make it easier to keep your position. -->
+            <ng-container
+              *ngTemplateOutlet="
+                tabDebug;
+                context: { entity: entity, tab: activeTabSignal() }
+              "
+            />
           }
         </div>
         <div
@@ -215,12 +213,11 @@
             <a
               [ngClass]="{
                 'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
-                  (activeTab$ | async) !== tab.name,
-                'bg-azul-200 dark:bg-azul-400':
-                  (activeTab$ | async) === tab.name,
+                  activeTabSignal() !== tab.name,
+                'bg-azul-200 dark:bg-azul-400': activeTabSignal() === tab.name,
               }"
               class="flex h-10 px-4 py-2"
-              (click)="activeTab$.next(tab.name)"
+              (click)="activeTabSignal.set(tab.name)"
               routerLink="."
               [fragment]="tab.name"
             >

@@ -6,8 +6,11 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
@@ -15,7 +18,6 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { InputComponent } from "@lib/flow/input/input.component";
 import createFuzzySearch, { FuzzySearcher } from "@nozbe/microfuzz";
 import {
-  BehaviorSubject,
   Observable,
   ReplaySubject,
   Subject,
@@ -75,13 +77,13 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   protected termIsHash$: Observable<boolean>;
 
   protected caretChange$ = new EventEmitter<null>();
-  protected showAutocomplete$ = new BehaviorSubject(false);
+  protected showAutocompleteSignal: WritableSignal<boolean> = signal(false);
 
   // Match md5, sha1, sha256, sha512
   readonly pattern =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
 
-  ngOnInit(): void {
+  constructor() {
     // Load the model greedily and only once
     this.entityService
       .getModel()
@@ -124,7 +126,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     this.autocompleteContext$ = combineLatest([
       cleanedTerm$,
       caretChangeWithInitial,
-      this.showAutocomplete$,
+      toObservable(this.showAutocompleteSignal),
     ]).pipe(
       ops.debounceTime(50),
       ops.shareReplay(1),
@@ -152,7 +154,9 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     this.termValid$ = this.autocompleteContext$.pipe(
       ops.map((context) => context.type != "Error"),
     );
+  }
 
+  ngOnInit(): void {
     // Suggestions might not always be visible, but cache these
     // in a variable due to the time it can take to calculate these
     this.suggestionsSub = combineLatest([
@@ -262,9 +266,9 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     /*Close suggestions if focus is lost on the suggest input and it's child elements.*/
     const targetId = (evnt.relatedTarget as HTMLElement)?.id;
     if (!targetId) {
-      this.showAutocomplete$.next(false);
+      this.showAutocompleteSignal.set(false);
     } else if (targetId !== "termInput" && !targetId.startsWith("suggestion")) {
-      this.showAutocomplete$.next(false);
+      this.showAutocompleteSignal.set(false);
     }
   }
 
@@ -276,6 +280,6 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
    * Hides any suggestion box currently visible.
    */
   hideSuggestions() {
-    this.showAutocomplete$.next(false);
+    this.showAutocompleteSignal.set(false);
   }
 }

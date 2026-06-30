@@ -1,7 +1,15 @@
-import { Injectable, OnDestroy, inject } from "@angular/core";
-import { Observable, BehaviorSubject, of, Subscription } from "rxjs";
+import {
+  effect,
+  inject,
+  Injectable,
+  Signal,
+  signal,
+  WritableSignal,
+} from "@angular/core";
+import { Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ApiService } from "./api/api.service";
 import { components } from "./api/openapi";
 
@@ -9,20 +17,19 @@ import { components } from "./api/openapi";
 @Injectable({
   providedIn: "root",
 })
-export class UserService implements OnDestroy {
+export class UserService {
   dbg = (...d) => console.debug("UserService: ", ...d);
   err = (...d) => console.error("UserService", d);
 
   /**true if debug mode is enabled**/
-  dbg$ = new BehaviorSubject<boolean>(false);
-  // Tracked subscriptions
-  dbgSubscription: Subscription;
+  dbgSignal: WritableSignal<boolean> = signal(false);
 
   /**info about current user from restapi*/
   userDetails$: Observable<components["schemas"]["UserInfo"]>;
   /**info about current user from opensearch*/
   userDetailsOpensearch$: Observable<components["schemas"]["UserAccess"]>;
   isUserAdmin$: Observable<boolean>;
+  isUserAdminSignal: Signal<boolean>;
   /** current users username */
   username$: Observable<string>;
   /** username with the first letter capital, used to for NbUserComponent */
@@ -40,6 +47,11 @@ export class UserService implements OnDestroy {
     this.isUserAdmin$ = api
       .isUserAdmin()
       .pipe(ops.retry({ count: 5, delay: 2000 }), ops.shareReplay(1));
+    this.isUserAdminSignal = toSignal(
+      api
+        .isUserAdmin()
+        .pipe(ops.retry({ count: 5, delay: 2000 }), ops.shareReplay(1)),
+    );
     this.username$ = this.userDetails$.pipe(
       ops.map((d) => d.username),
       ops.catchError((_e) => of("error")),
@@ -59,13 +71,12 @@ export class UserService implements OnDestroy {
     const dbgConfig = JSON.parse(
       localStorage.getItem("debugConfig") || '{"enabled": false}',
     );
-    this.dbg$.next(dbgConfig.enabled);
-    this.dbgSubscription = this.dbg$.subscribe((d) =>
-      localStorage.setItem("debugConfig", JSON.stringify({ enabled: d })),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.dbgSubscription?.unsubscribe();
+    this.dbgSignal.set(dbgConfig.enabled);
+    effect(() => {
+      localStorage.setItem(
+        "debugConfig",
+        JSON.stringify({ enabled: this.dbgSignal() }),
+      );
+    });
   }
 }

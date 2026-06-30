@@ -2,7 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -88,7 +90,7 @@ export class BinariesCurrentComponent implements OnDestroy {
 
   protected downloading$: ReplaySubject<number>;
   protected expedite$: Observable<number>;
-  protected isExpedited$ = new BehaviorSubject(false);
+  protected isExpeditedSignal: WritableSignal<boolean> = signal(false);
 
   protected showDebugInfo$: Observable<boolean> = of(false);
 
@@ -100,7 +102,7 @@ export class BinariesCurrentComponent implements OnDestroy {
     "Status",
     "Debug",
   ];
-  protected activeTab$ = new ReplaySubject(1);
+  protected activeTabSignal: WritableSignal<string> = signal("");
   protected tabBadges$ = new BehaviorSubject(
     new Array<number>(this.tabNames.length).fill(0),
   );
@@ -204,9 +206,9 @@ export class BinariesCurrentComponent implements OnDestroy {
       )
       .subscribe(([f, entity]) => {
         if (entity?.exists && this.tabNames.includes(f)) {
-          this.activeTab$.next(f);
+          this.activeTabSignal.set(f);
         } else {
-          this.activeTab$.next(this.tabNames[0]);
+          this.activeTabSignal.set(this.tabNames[0]);
         }
       });
 
@@ -282,7 +284,7 @@ export class BinariesCurrentComponent implements OnDestroy {
     if (!sha256) {
       return;
     }
-    this.isExpedited$.next(true);
+    this.isExpeditedSignal.set(true);
     // Wait for one minute before allowing users to refresh the entity to give the plugins a chance to run.
     this.expedite$ = this.entity$.pipe(
       ops.first(),
@@ -291,7 +293,7 @@ export class BinariesCurrentComponent implements OnDestroy {
           ops.delay(1000 * 60),
           ops.catchError((_e) => {
             // If expedite fails reset the expedite button to how it was.
-            this.isExpedited$.next(false);
+            this.isExpeditedSignal.set(false);
             return of(0);
           }),
         ),

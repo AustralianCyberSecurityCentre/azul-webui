@@ -12,9 +12,9 @@
 <ng-template
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
-  [cdkConnectedOverlayOpen]="(hovering$ | async) ?? false"
+  [cdkConnectedOverlayOpen]="hoveringSignal.value() ?? false"
   [cdkConnectedOverlayPositions]="
-    direction === 'top'
+    direction() === 'top'
       ? [
           {
             originX: 'center',
@@ -63,10 +63,10 @@
 >
   <div
     [ngClass]="{
-      'opacity-100': fade$ | async,
-      'opacity-0': (fade$ | async) === false,
-      'flex-col': direction === 'top',
-      'flex-col-reverse': direction === 'bottom',
+      'opacity-100': fadeSignal.value(),
+      'opacity-0': fadeSignal.value() === false,
+      'flex-col': direction() === 'top',
+      'flex-col-reverse': direction() === 'bottom',
     }"
     class="flex transition-opacity duration-300"
   >
@@ -74,14 +74,14 @@
       role="tooltip"
       class="bg-azul-50 border-azul-500 text-azul-700 max-w-2xl rounded-lg border px-3 py-2 text-center text-sm font-medium break-words shadow-xs dark:border-gray-600 dark:bg-gray-800 dark:text-white"
     >
-      @if (message) {
-        {{ message }}
+      @if (message()) {
+        {{ message() }}
       }
-      @if (subText) {
+      @if (subText()) {
         <br />
-        <p class="text-xs text-gray-500">{{ subText }}</p>
+        <p class="text-xs text-gray-500">{{ subText() }}</p>
       }
-      @if (copyText) {
+      @if (copyText()) {
         <br />
         <p class="pt-1.5 text-xs text-gray-500">
           <fa-icon [icon]="faCopy" class="pr-0.5" />
@@ -91,13 +91,13 @@
           to copy
         </p>
       }
-      @if (tplRef) {
-        <ng-container *ngTemplateOutlet="tplRef; context: tplContext" />
+      @if (tplRef()) {
+        <ng-container *ngTemplateOutlet="tplRef(); context: tplContext()" />
       }
     </div>
     <svg
       [ngClass]="{
-        'rotate-180 transform': direction === 'bottom',
+        'rotate-180 transform': direction() === 'bottom',
       }"
       class="h-2 text-gray-900 dark:text-gray-700"
       x="0px"

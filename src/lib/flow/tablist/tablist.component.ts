@@ -2,12 +2,14 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
+  computed,
+  input,
   OnChanges,
+  Signal,
+  signal,
   TemplateRef,
+  WritableSignal,
 } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import * as ops from "rxjs/operators";
 import { ButtonLabelComponent } from "../button-label/button-label.component";
 
 // https://flowbite.com/docs/components/tabs/
@@ -27,25 +29,30 @@ export type Tab = {
   imports: [CommonModule, ButtonLabelComponent],
 })
 export class TablistComponent implements OnChanges {
-  @Input() tabs: Tab[] = [];
+  tabs = input<Tab[]>([]);
 
-  protected currentTab$ = new BehaviorSubject<number>(0);
-  protected currentTabTemplate$ = this.currentTab$.pipe(
-    ops.map((tabIndex) => this.tabs[tabIndex]?.template),
+  protected currentTabSignal: WritableSignal<number> = signal(0);
+  protected currentTabTemplateSignal: Signal<TemplateRef<unknown>> = computed(
+    () => {
+      return this.tabs()[this.currentTabSignal()]?.template;
+    },
   );
-  protected currentTabContext$ = this.currentTab$.pipe(
-    ops.map((tabIndex) => this.tabs[tabIndex]?.context),
-  );
+  protected currentTabContextSignal: Signal<unknown> = computed(() => {
+    return this.tabs()[this.currentTabSignal()]?.context;
+  });
 
   ngOnChanges() {
-    if (this.tabs.length === 0) {
+    if (this.tabs().length === 0) {
       return;
     }
 
-    const currentValue = this.currentTab$.value;
+    const currentValue = this.currentTabSignal();
 
-    if (currentValue >= this.tabs.length || this.tabs[currentValue].disabled) {
-      const validTab = this.tabs.findIndex((tab) => !(tab.disabled ?? false));
+    if (
+      currentValue >= this.tabs().length ||
+      this.tabs()[currentValue].disabled
+    ) {
+      const validTab = this.tabs().findIndex((tab) => !(tab.disabled ?? false));
       if (validTab != -1) {
         this.onTabClick(validTab);
       }
@@ -53,6 +60,6 @@ export class TablistComponent implements OnChanges {
   }
 
   onTabClick(tab: number) {
-    this.currentTab$.next(tab);
+    this.currentTabSignal.set(tab);
   }
 }

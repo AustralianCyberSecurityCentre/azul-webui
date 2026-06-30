@@ -57,8 +57,8 @@
             @if ((pluginVersions$ | async)?.length > 0) {
               <p
                 [ngClass]="{
-                  'line-clamp-none': showAllVersions$ | async,
-                  'line-clamp-2': (showAllVersions$ | async) === false,
+                  'line-clamp-none': showAllVersionsSignal(),
+                  'line-clamp-2': showAllVersionsSignal() === false,
                 }"
                 (mouseenter)="enterVersions()"
                 (mouseleave)="exitVersions()"

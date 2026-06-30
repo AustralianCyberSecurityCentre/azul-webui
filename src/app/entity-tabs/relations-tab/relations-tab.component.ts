@@ -1,5 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 
 import { CommonModule } from "@angular/common";
 import { EntityWrap } from "@app/core/entity.service";
@@ -52,8 +57,7 @@ export class RelationsTabComponent {
       name: "Similar Entropy",
     },
   ];
-  protected activeTab$ = new BehaviorSubject<TabKey>(TabKey.Sources);
+  protected activeTabSignal: WritableSignal<TabKey> = signal(TabKey.Sources);
 
-  @Input()
-  entity: EntityWrap;
+  entity = input<EntityWrap>();
 }
