@@ -3,7 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
-  Input,
+  input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -93,17 +93,17 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
 
   // used to indicate a search for parents/children of an entity is required
-  @Input() familyFind?: boolean = false;
+  familyFind = input<boolean>(false);
   // indicates whether we are searching for parents or children of a given entity
-  @Input() isParent?: boolean = false;
+  isParent = input<boolean>(false);
   // sha256 of a calling entity used for comparing binaries
   // with the caller or using the caller in a search for parents/children
-  @Input() originalSha256?: string | undefined;
-  @Input() eType?: "parents" | "children" | undefined;
-  @Input() sortOption: string | "newest_sourced";
-  @Input() countOption: string | "50";
-  @Input() termOption: string | "";
-  @Input() forceEmptySearchOption: boolean | true;
+  originalSha256 = input<string | undefined>(undefined);
+  eType = input<"parents" | "children" | undefined>(undefined);
+  sortOption = input<string | "newest_sourced">("newest_sourced");
+  countOption = input<string | "50">("50");
+  termOption = input<string | "">("");
+  forceEmptySearchOption = input<boolean>(true);
 
   ngOnInit(): void {
     this.entitySearchSub = this.entityService
@@ -119,8 +119,8 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     if (
-      (changes["sortOption"] && this.sortOption) ||
-      (changes["countOption"] && this.countOption)
+      (changes["sortOption"] && this.sortOption()) ||
+      (changes["countOption"] && this.countOption())
     ) {
       this.doSearch();
     }
@@ -173,9 +173,9 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     this.entitySearch.hideSuggestions();
     this.forceEmptySearch = true;
     const tmp = this.getNonDefault({
-      sort: this.sortOption,
-      term: this.termOption,
-      count: this.countOption,
+      sort: this.sortOption(),
+      term: this.termOption(),
+      count: this.countOption(),
     });
     this.dbg("navigating with", tmp);
     this.router.navigate([], { queryParams: tmp });
@@ -188,12 +188,12 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     const c: { [key: string]: unknown } = {};
     c.max_entities = 50;
     const sortOption =
-      this.sortOptions[this.sortOption] || this.sortOptions["newest_sourced"];
+      this.sortOptions[this.sortOption()] || this.sortOptions["newest_sourced"];
     c.sort = sortOption.sort;
     c.sort_asc = sortOption.sort_asc;
     c.max_entities = this.countOption;
-    this.forceEmptySearch = this.forceEmptySearchOption;
-    const trimmedQuery = this.termOption;
+    this.forceEmptySearch = this.forceEmptySearchOption();
+    const trimmedQuery = this.termOption();
     const paramsAdded = trimmedQuery !== "";
     this.dbg("incoming query params", c);
 
@@ -288,9 +288,9 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
       supported_pages < page_number + 1
     ) {
       const c: MergedPageableParams = {
-        term: this.termOption,
+        term: this.termOption(),
         num_binaries: this.pageDisplayBinariesSignal(),
-        family_sha256: this.originalSha256 ? this.originalSha256 : "",
+        family_sha256: this.originalSha256() ? this.originalSha256() : "",
       };
       const b: { [key: string]: unknown } = { after: this.pageNextKeySignal() };
 
@@ -300,13 +300,13 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
       );
       this.pageLoadingSignal.set(true);
 
-      const endpoint = this.familyFind
-        ? this.isParent
+      const endpoint = this.familyFind()
+        ? this.isParent()
           ? this.entityService.findPageableParents
           : this.entityService.findPageableChildren
         : this.entityService.findPageable;
 
-      const fallback = this.familyFind
+      const fallback = this.familyFind()
         ? ({
             items: [],
             after: "",
@@ -413,7 +413,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
     return this.getFind$(
       { max_entities: this.pageDisplayBinariesSignal() },
-      this.termOption,
+      this.termOption(),
       hashes,
     );
   }

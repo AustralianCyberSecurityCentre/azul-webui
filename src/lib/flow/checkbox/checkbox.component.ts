@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   inject,
+  input,
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { HostControlDirective } from "@lib/host-control/host-control.directive";
@@ -18,7 +18,7 @@ import { HostControlDirective } from "@lib/host-control/host-control.directive";
   hostDirectives: [HostControlDirective],
 })
 export class CheckboxComponent {
-  @Input() required: boolean = false;
+  required = input<boolean>(false);
 
   hcd = inject(HostControlDirective);
 }

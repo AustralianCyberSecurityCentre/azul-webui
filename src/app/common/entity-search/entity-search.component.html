@@ -3,7 +3,7 @@
     #termInput
     [id]="'termInput'"
     placeholder="Search binary metadata"
-    [formControl]="term"
+    [formControl]="term()"
     [icon]="faMagnifyingGlass"
     (inputFocus)="showAutocompleteSignal.set(true)"
     (inputFocusOut)="handleFocusOut($event)"

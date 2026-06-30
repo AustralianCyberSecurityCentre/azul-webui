@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
+  input,
   OnChanges,
 } from "@angular/core";
 import { components } from "@app/core/api/openapi";
@@ -24,8 +24,7 @@ import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 export class EntitySummaryComponent implements OnChanges {
   protected getStatusColour = getStatusColour;
 
-  @Input()
-  entity: EntityWrap;
+  entity = input<EntityWrap>();
 
   protected entityLinks$: Observable<FormattedLink[]>;
   protected featureTags$: Observable<
@@ -36,8 +35,8 @@ export class EntitySummaryComponent implements OnChanges {
 
   ngOnChanges() {
     this.entityLinks$ = combineLatest([
-      this.entity.summary$,
-      this.entity.rawFeatures$,
+      this.entity().summary$,
+      this.entity().rawFeatures$,
     ]).pipe(
       ops.map(([summary, features]) => {
         const context = {
@@ -53,7 +52,7 @@ export class EntitySummaryComponent implements OnChanges {
       }),
     );
 
-    this.featureTags$ = this.entity.features$.pipe(
+    this.featureTags$ = this.entity().features$.pipe(
       ops.map((sources) =>
         sources
           .filter((feature) => feature.tags)

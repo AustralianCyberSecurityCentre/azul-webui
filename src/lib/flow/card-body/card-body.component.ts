@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/card/
 
@@ -10,5 +10,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   imports: [CommonModule],
 })
 export class CardBodyComponent {
-  @Input() isFlex: boolean = false;
+  isFlex = input<boolean>(false);
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { TextIconComponent } from "@app/common/text-icon/text-icon.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 //import { IconProp } from "@fortawesome/fontawesome-svg-core";
@@ -13,15 +13,8 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
   imports: [CommonModule, FontAwesomeModule, TextIconComponent],
 })
 export class CardHeaderComponent {
-  @Input()
-  title: string | undefined;
-
-  @Input()
-  icon: string | undefined;
-
-  @Input()
-  id: string | undefined;
-
-  @Input()
-  scroll: boolean | undefined;
+  title = input<string | undefined>(undefined);
+  icon = input<string | undefined>(undefined);
+  id = input<string | undefined>(undefined);
+  scroll = input<boolean | undefined>(undefined);
 }

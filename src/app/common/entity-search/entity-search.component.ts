@@ -2,12 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
   WritableSignal,
   inject,
+  input,
   signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
@@ -59,8 +59,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   /**
    * Form control to store textual user information into.
    */
-  @Input()
-  term: FormControl;
+  term = input<FormControl>();
 
   /** Suggestion model for autocomplete */
   private model$ = new Subject<FuzzySearcher<Suggestion>>();
@@ -105,8 +104,8 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
       .subscribe((result) => this.model$.next(result));
 
     const cleanedTerm$ = concat(
-      defer(() => of(this.term.value)),
-      this.term.valueChanges,
+      defer(() => of(this.term().value)),
+      this.term().valueChanges,
     ).pipe(ops.map((value) => value || ""));
 
     const caretChangeWithInitial = concat(
@@ -227,7 +226,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     */
     // Determine the leading text to keep.
     const replacementText = sug.originalFieldName + ':""';
-    const currentTextAsList = String(this.term.value).split(" ");
+    const currentTextAsList = String(this.term().value).split(" ");
     // Remove the text being replaced by the suggestion and make a string again.
     currentTextAsList.pop();
     const currentTextWithoutSuggestion = currentTextAsList?.join(" ") + " ";
@@ -238,7 +237,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
 
     if (event?.type === "keydown") {
       if (event?.key === "Enter") {
-        this.term.setValue(newText);
+        this.term().setValue(newText);
         // Delay to prevent the form from submitting.
         setTimeout(() => {
           this.textInputElement.inputElement.nativeElement.setRangeText(
@@ -251,7 +250,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
         }, 200);
       }
     } else {
-      this.term.setValue(newText);
+      this.term().setValue(newText);
       this.textInputElement.inputElement.nativeElement.setRangeText(
         "placeholder",
         newText.length - 1,

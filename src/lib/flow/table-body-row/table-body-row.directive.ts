@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
+import { Directive, ElementRef, OnChanges, inject, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/tables/
 
@@ -9,8 +9,7 @@ import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
 export class TableBodyRowDirective implements OnChanges {
   private el = inject(ElementRef);
 
-  @Input()
-  noBorder: boolean = false;
+  noBorder = input<boolean>(false);
 
   constructor() {
     const el = this.el;
@@ -30,7 +29,7 @@ export class TableBodyRowDirective implements OnChanges {
   private calculateBorder() {
     const classes = "border-b dark:border-azul-700".split(" ");
 
-    if (this.noBorder) {
+    if (this.noBorder()) {
       this.el.nativeElement.classList.remove(...classes);
     } else {
       this.el.nativeElement.classList.add(...classes);

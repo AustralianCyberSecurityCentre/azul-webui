@@ -1,11 +1,11 @@
-import {
-  Component,
-  Input,
-  TemplateRef,
-  ChangeDetectionStrategy,
-  inject,
-} from "@angular/core";
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  TemplateRef,
+} from "@angular/core";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 
 @Component({
@@ -19,9 +19,9 @@ export class PageHelpComponent {
 
   questionIcon = faQuestionCircle;
 
-  @Input() title = "";
-  @Input() help = "";
-  @Input() bgClass = "bg-azul-100/80 dark:bg-azul-500";
+  title = input<string>("");
+  help = input<string>("");
+  bgClass = input<string>("bg-azul-100/80 dark:bg-azul-500");
 
   private helpDialog?: DialogRef<unknown>;
 
@@ -34,6 +34,6 @@ export class PageHelpComponent {
   }
 
   get showHelp(): boolean {
-    return !!this.help?.trim();
+    return !!this.help()?.trim();
   }
 }
