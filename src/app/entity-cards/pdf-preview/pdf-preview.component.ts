@@ -6,12 +6,12 @@ import {
   OnInit,
   inject,
 } from "@angular/core";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
+import { StreamMetadataWithAuthor } from "@app/common/misc-interfaces/stream-metadata";
+import { EntityService } from "@app/core/entity.service";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { StreamMetadataWithAuthor } from "src/app/common/misc-interfaces/stream-metadata";
-import { EntityService } from "src/app/core/entity.service";
 import { BaseCard } from "../base-card.component";
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 @Component({
   selector: "azec-pdf-preview",
@@ -27,8 +27,7 @@ export class PdfPreviewComponent extends BaseCard implements OnInit, OnDestroy {
 
 This is rendered using your browser's PDF viewer.
 `;
-  @Input()
-  protected streamData?: StreamMetadataWithAuthor;
+  @Input() streamData?: StreamMetadataWithAuthor;
 
   protected pdfUrl$: Observable<SafeResourceUrl>;
 

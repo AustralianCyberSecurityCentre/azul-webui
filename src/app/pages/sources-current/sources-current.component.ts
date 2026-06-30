@@ -5,22 +5,22 @@ import {
   inject,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { components } from "@app/core/api/openapi";
 import {
   faMagnifyingGlass,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
 
-import { Api } from "src/app/core/services";
-import { UserService } from "src/app/core/user.service";
+import { Api } from "@app/core/services";
+import { UserService } from "@app/core/user.service";
 import {
   allowedToPurge,
   getPurgeQueryParams,
   sourceRefsAsParams,
-} from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+} from "@app/core/util";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 /**page for displaying info on current source*/
 @Component({

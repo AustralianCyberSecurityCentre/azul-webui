@@ -6,17 +6,17 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
+import { components } from "@app/core/api/openapi";
 import {
   faBook,
   faMagnifyingGlass,
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
-import { components } from "src/app/core/api/openapi";
 
-import { Api, User } from "src/app/core/services";
-import { escapeValue } from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { Api, User } from "@app/core/services";
+import { escapeValue } from "@app/core/util";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 @Component({
   selector: "app-front",

@@ -11,13 +11,13 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
 } from "@angular/forms";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
-import * as ops from "rxjs/operators";
 import {
   ColorTheme,
   RelationalGraphLevel,
-} from "src/app/core/store/global-settings/global-state.types";
+} from "@app/core/store/global-settings/global-state.types";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Store } from "@ngrx/store";
+import * as ops from "rxjs/operators";
 import * as globalAction from "../../core/store/global-settings/global-actions";
 import {
   saveBucketSize,

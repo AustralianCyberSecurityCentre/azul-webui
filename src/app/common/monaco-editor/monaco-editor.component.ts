@@ -1,20 +1,20 @@
 import {
-  Component,
-  Input,
-  effect,
-  input,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  ElementRef,
-  ViewChild,
   AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  ElementRef,
+  EventEmitter,
+  Input,
+  input,
   OnChanges,
+  Output,
   SimpleChanges,
+  ViewChild,
 } from "@angular/core";
 
-import { getDefaultMonacoSettings, recalculateFonts } from "src/app/core/util";
-import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
+import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
+import { getDefaultMonacoSettings, recalculateFonts } from "@app/core/util";
 import * as monaco from "monaco-editor";
 
 interface MonacoAmdRequire {

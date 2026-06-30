@@ -4,10 +4,10 @@ import {
   OnInit,
   inject,
 } from "@angular/core";
+import { components } from "@app/core/api/openapi";
+import { Api } from "@app/core/services";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Api } from "src/app/core/services";
 
 @Component({
   selector: "app-plugins-explore",

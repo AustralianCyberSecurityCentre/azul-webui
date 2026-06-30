@@ -10,9 +10,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   imports: [CommonModule],
 })
 export class IndicatorComponent {
-  @Input()
-  protected count = 5;
+  @Input() count = 5;
 
-  @Input()
-  protected current = 2;
+  @Input() current = 2;
 }

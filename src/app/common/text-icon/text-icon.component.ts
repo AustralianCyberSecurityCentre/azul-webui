@@ -8,6 +8,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   standalone: true,
 })
 export class TextIconComponent {
-  @Input()
-  protected label: string;
+  @Input() label: string;
 }

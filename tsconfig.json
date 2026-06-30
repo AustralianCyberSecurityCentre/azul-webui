@@ -1,24 +1,47 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "esModuleInterop": true,
-    "declaration": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
     "experimentalDecorators": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "esnext",
-    "typeRoots": ["node_modules/@types"],
-    "lib": ["ESNext", "dom"],
-    "useDefineForClassFields": false,
-    "noUncheckedIndexedAccess": true
+    "target": "ES2023",
+    "module": "preserve",
+    "types": ["node"],
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@lib/*": ["./src/lib/*"]
+    },
+    // FUTURE currently disabled options
+    "noPropertyAccessFromIndexSignature": false,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false
   },
   "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
     "fullTemplateTypeCheck": true,
     "strictTemplates": true,
-    "strictInjectionParameters": true
-  }
+    "noImplicitThis": true,
+    "noImplicitReturns": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

@@ -12,13 +12,13 @@ import {
   ViewEncapsulation,
   inject,
 } from "@angular/core";
+import { FeatureWithDecodedValue } from "@app/core/api/state";
 import * as d3 from "d3";
 import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
-import { FeatureWithDecodedValue } from "src/app/core/api/state";
 
-import { EntityWrap, Nav } from "src/app/core/services";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { EntityWrap, Nav } from "@app/core/services";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 type Renderable = {
   start: number;

@@ -19,13 +19,13 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
+import { paths } from "@app/core/api/openapi";
+import { MultiPageResults } from "@app/core/api/state";
+import { Entity } from "@app/core/services";
+import { hexValidator } from "@app/core/validation";
+import { BaseCard } from "@app/entity-cards/base-card.component";
 import { BehaviorSubject, Subscription, of } from "rxjs";
 import * as ops from "rxjs/operators";
-import { paths } from "src/app/core/api/openapi";
-import { MultiPageResults } from "src/app/core/api/state";
-import { Entity } from "src/app/core/services";
-import { hexValidator } from "src/app/core/validation";
-import { BaseCard } from "src/app/entity-cards/base-card.component";
 import { ContinuousScroll } from "../continuous-scroll/continuous-scroll.class";
 
 @Component({

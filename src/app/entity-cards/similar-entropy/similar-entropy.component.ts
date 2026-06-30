@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Observable, combineLatest } from "rxjs";
+import { components } from "@app/core/api/openapi";
+import { Entity } from "@app/core/services";
+import { Observable, combineLatest, of } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 
 @Component({
@@ -28,9 +28,15 @@ And they must have a sufficiently large entropy. (at least 10% (40 out of the ma
     })[];
   }>;
 
-  protected onEntityChange(): void {
+  protected override onEntityChange(): void {
     this.transformedFind$ = this.entity.similar_entropy$.pipe(
       switchMap((data) => {
+        if (data === null) {
+          return of({
+            items_count: 0,
+            items: [],
+          });
+        }
         const enrichedRows$ = data.matches.map((match) =>
           match._localEntitySummary$.pipe(
             map((summary) => ({

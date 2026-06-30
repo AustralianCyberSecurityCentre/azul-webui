@@ -9,10 +9,10 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { ApiService } from "@app/core/api/api.service";
+import { FlowModule } from "@lib/flow/flow.module";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { FlowModule } from "src/lib/flow/flow.module";
 
 @Component({
   selector: "az-tag-picker",

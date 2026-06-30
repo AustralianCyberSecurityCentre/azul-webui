@@ -10,6 +10,8 @@ import {
   ViewChild,
   WritableSignal,
 } from "@angular/core";
+import { StreamMetadataWithAuthor } from "@app/common/misc-interfaces/stream-metadata";
+import { Entity } from "@app/core/services";
 import {
   faBackwardStep,
   faForwardStep,
@@ -25,8 +27,6 @@ import {
   Subscription,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { StreamMetadataWithAuthor } from "src/app/common/misc-interfaces/stream-metadata";
-import { Entity } from "src/app/core/services";
 import { BaseCard } from "../base-card.component";
 
 @Component({
@@ -50,11 +50,9 @@ export class ImagePreviewComponent
 
   displayImage$: ReplaySubject<boolean> = new ReplaySubject();
 
-  @Input()
-  protected streamData: StreamMetadataWithAuthor;
+  @Input() streamData: StreamMetadataWithAuthor;
 
-  @Input({ required: true })
-  protected fileFormat: string;
+  @Input({ required: true }) fileFormat: string;
 
   @ViewChild("imageCanvas")
   private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -69,9 +67,8 @@ export class ImagePreviewComponent
   get isImageHidden() {
     return this._isImageHidden;
   }
-  get hideImageLocalStorageKey() {
-    return `"hide_preview_image"`;
-  }
+  public readonly hideImageLocalStorageKey: string = `"hide_preview_image"`;
+
   private objectUrl?: string;
 
   protected imageBlob$: Observable<Blob>;
@@ -196,8 +193,8 @@ export class ImagePreviewComponent
           this.imgDecoder.tracks[0]?.frameCount !== undefined
         ) {
           let totalFrameCount = 0;
-          for (let i = 0; i < this.imgDecoder.tracks.length; i++) {
-            totalFrameCount += this.imgDecoder.tracks[i]?.frameCount;
+          for (const track of this.imgDecoder.tracks) {
+            totalFrameCount += track?.frameCount;
           }
           this.maxIndexSignal.set(totalFrameCount);
         }

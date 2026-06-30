@@ -6,12 +6,12 @@ import {
   inject,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { FeatureTagsWithNumBinaries } from "@app/core/api/state";
+import { escapeValue } from "@app/core/util";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { Observable, ReplaySubject, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import { FeatureTagsWithNumBinaries } from "src/app/core/api/state";
-import { escapeValue } from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 import { FeatureService } from "../../core/feature.service";
 
 @Component({

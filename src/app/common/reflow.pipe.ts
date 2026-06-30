@@ -85,28 +85,6 @@ export class HexPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: "instance",
-  standalone: false,
-})
-export class AuthorInstancePipe implements PipeTransform {
-  transform(
-    value: components["schemas"]["EntityInstance"],
-    long: boolean = false,
-  ): string {
-    if (value == undefined) {
-      return "";
-    }
-    if (!long) {
-      return `${
-        value.author.category != "plugin" ? value.author.category : ""
-      } ${value.author.name}`;
-    } else {
-      return `${value.author.category} ${value.author.name} ${value.author.version} ${value.stream}`;
-    }
-  }
-}
-
-@Pipe({
   name: "author",
   standalone: false,
 })

@@ -13,7 +13,7 @@
         toastPackage.toastType === 'toast-error',
     }"
   >
-    <fa-icon [icon]="faIcons[toastPackage.toastType]" size="xl" />
+    <fa-icon [icon]="faIcons.get(toastPackage.toastType)" size="xl" />
   </div>
   <div class="grow">
     <div class="ml-3 text-sm font-normal">

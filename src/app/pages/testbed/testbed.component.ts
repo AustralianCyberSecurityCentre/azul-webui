@@ -8,17 +8,17 @@ import { BehaviorSubject, Observable, ReplaySubject, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { LabelType, Options } from "@angular-slider/ngx-slider";
+import { User } from "@app/core/services";
 import { faInternetExplorer } from "@fortawesome/free-brands-svg-icons";
 import {
   faHammer,
   faSpinner,
   faSquareUpRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
+import { FieldType } from "@lib/flow/input/input.component";
+import { LinkColour } from "@lib/flow/link/link.directive";
 import { ToastrService } from "ngx-toastr";
-import { User } from "src/app/core/services";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
-import { FieldType } from "src/lib/flow/input/input.component";
-import { LinkColour } from "src/lib/flow/link/link.directive";
 
 @Component({
   selector: "app-testbed",

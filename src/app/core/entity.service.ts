@@ -1,5 +1,11 @@
 import { Injectable, inject } from "@angular/core";
 
+import { ApiService } from "@app/core/api/api.service";
+import { FeatureService, b64ToReadable } from "@app/core/feature.service";
+import {
+  selectBucketSize,
+  selectShowDebugInfo,
+} from "@app/core/store/global-settings/global-selector";
 import { Store } from "@ngrx/store";
 import {
   BehaviorSubject,
@@ -14,8 +20,6 @@ import {
   timer,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { FeatureService, b64ToReadable } from "src/app/core/feature.service";
 import * as tInfo from "./api/info";
 import { components, paths } from "./api/openapi";
 import {
@@ -25,9 +29,8 @@ import {
   PathWithSummary,
   SimilarEntropyMatchWithSummary,
   SimilarFeatureMatchWithSummary,
-  SimilarRowWithSummary,
 } from "./api/state";
-import * as fromGlobalSettings from "./store/global-settings/global-selector";
+import { AppState } from "./store/main-store";
 import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
 
 /** turns a list of items into a list of list of items, constrained by max items per chunk */
@@ -45,6 +48,10 @@ function chunkify<T>(items: T[], max: number): T[][] {
   return ret;
 }
 
+export type MergedPageableParams =
+  paths["/api/v0/binaries/all/children"]["post"]["parameters"]["query"] &
+    paths["/api/v0/binaries/all"]["post"]["parameters"]["query"] &
+    paths["/api/v0/binaries/all/parents"]["post"]["parameters"]["query"];
 /**wraps an entity type and id into a collection of observables and helper functions
 to access entity data from backend*/
 export class EntityWrap {
@@ -78,7 +85,7 @@ export class EntityWrap {
   nearbyNoCousins$: Observable<components["schemas"]["ReadNearby"]>;
   similar_ssdeep$: Observable<FuzzyMatchWithSummary>;
   similar_tlsh$: Observable<FuzzyMatchWithSummary>;
-  similar_entropy$: Observable<SimilarEntropyMatchWithSummary>;
+  similar_entropy$: Observable<SimilarEntropyMatchWithSummary | null>;
   similarFeatures$: Observable<SimilarFeatureMatchWithSummary>;
   /**tags can be created by user, need to be refetched when this occurs*/
   tags$: BehaviorSubject<readonly components["schemas"]["EntityTag"][] | null> =
@@ -169,18 +176,33 @@ export class EntityWrap {
       )
       .pipe(
         // Optimize loading of related entities
-        ops.map((similarFeatures: SimilarFeatureMatchWithSummary) => {
-          const allEntities: BulkEntitySummarySubmit[] = [];
-          similarFeatures?.matches.forEach((d: SimilarRowWithSummary) => {
-            const sub$ = new ReplaySubject<
-              components["schemas"]["EntityFindItem"]
-            >(1);
-            allEntities.push({ eid: d.sha256, sub$: sub$ });
-            d._localEntitySummary$ = sub$;
-          });
-          this.entityService.requestBulkEntitySummary(allEntities);
-          return similarFeatures;
-        }),
+        ops.map(
+          (
+            similarFeatures:
+              | components["schemas"]["SimilarFeatureMatch"]
+              | undefined,
+          ): SimilarFeatureMatchWithSummary | null => {
+            const allEntities: BulkEntitySummarySubmit[] = [];
+            const output: SimilarFeatureMatchWithSummary = {
+              num_feature_values: similarFeatures?.num_feature_values ?? 0,
+              timestamp: similarFeatures?.timestamp ?? "",
+              status: similarFeatures?.status ?? "",
+              matches: [],
+            };
+            similarFeatures?.matches.forEach((d) => {
+              const sub$ = new ReplaySubject<
+                components["schemas"]["EntityFindItem"]
+              >(1);
+              allEntities.push({ eid: d.sha256, sub$: sub$ });
+              output.matches.push({
+                ...d,
+                _localEntitySummary$: sub$,
+              });
+            });
+            this.entityService.requestBulkEntitySummary(allEntities);
+            return output;
+          },
+        ),
         ops.shareReplay(1),
       );
   }
@@ -228,7 +250,7 @@ export class EntityWrap {
 
   constructor(
     private api: ApiService,
-    private store: Store,
+    private store: Store<AppState>,
     private featureService: FeatureService,
     eid: string,
     detail: components["schemas"]["BinaryMetadataDetail"][],
@@ -244,8 +266,8 @@ export class EntityWrap {
     // this prevents errors from causing the data to be re-requested constantly
     // under certain circumstances when shareReplay is used, while still caching data.
     const main$ = combineLatest([
-      this.store.select(fromGlobalSettings.selectBucketSize),
-      this.store.select(fromGlobalSettings.selectShowDebugInfo),
+      this.store.select(selectBucketSize),
+      this.store.select(selectShowDebugInfo),
     ]).pipe(
       ops.switchMap(([bucketSize, getDebugInfo]) =>
         this.api.entityReadMain(this.sha256, {
@@ -471,20 +493,31 @@ export class EntityWrap {
     );
     this.hasNewer$ = null;
 
-    const parseFuzzyHashResult = (similar_fuzzy: FuzzyMatchWithSummary) => {
+    const parseFuzzyHashResult = (
+      similar_fuzzy:
+        | components["schemas"]["SimilarFuzzyMatch"]
+        | undefined
+        | null,
+    ): FuzzyMatchWithSummary | null => {
       if (!similar_fuzzy?.matches) {
         return null;
       }
       const allEntities: BulkEntitySummarySubmit[] = [];
+      const output: FuzzyMatchWithSummary = {
+        matches: [],
+      };
       similar_fuzzy.matches.forEach((d) => {
         const sub$ = new ReplaySubject<components["schemas"]["EntityFindItem"]>(
           1,
         );
         allEntities.push({ eid: d.sha256, sub$: sub$ });
-        d._localEntitySummary$ = sub$;
+        output.matches.push({
+          ...d,
+          _localEntitySummary$: sub$,
+        });
       });
       this.entityService.requestBulkEntitySummary(allEntities);
-      return similar_fuzzy;
+      return output;
     };
 
     this.similar_ssdeep$ = this.summary$.pipe(
@@ -583,21 +616,27 @@ export class EntityWrap {
     );
 
     const parseSimilarEntropyResult = (
-      similar_entropy: SimilarEntropyMatchWithSummary,
-    ) => {
+      similar_entropy: components["schemas"]["SimilarEntropyMatch"] | null,
+    ): SimilarEntropyMatchWithSummary | null => {
       if (!similar_entropy?.matches) {
         return null;
       }
       const allEntities: BulkEntitySummarySubmit[] = [];
+      const output_similar_entropy: SimilarEntropyMatchWithSummary = {
+        matches: [],
+      };
       similar_entropy.matches.forEach((d) => {
         const sub$ = new ReplaySubject<components["schemas"]["EntityFindItem"]>(
           1,
         );
         allEntities.push({ eid: d.sha256, sub$: sub$ });
-        d._localEntitySummary$ = sub$;
+        output_similar_entropy.matches.push({
+          ...d,
+          _localEntitySummary$: sub$,
+        });
       });
       this.entityService.requestBulkEntitySummary(allEntities);
-      return similar_entropy;
+      return output_similar_entropy;
     };
 
     this.similar_entropy$ = this.entropy$.pipe(
@@ -663,9 +702,11 @@ export class EntityService {
   private trigger$ = new Subject<void>();
   dbg = (...d) => console.debug("EntityService:", ...d);
   err = (...d) => console.error("EntityService:", ...d);
-  requestBulkEntitySummary(ents: BulkEntitySummarySubmit[]): Subscription {
+  requestBulkEntitySummary(
+    ents: BulkEntitySummarySubmit[],
+  ): Subscription | null {
     if (!(ents?.length > 0)) {
-      return;
+      return null;
     }
     const _entity_simple_key = (eid: string = "") => `${eid}`;
     const eSimple = "entity_simple";

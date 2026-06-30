@@ -1,5 +1,5 @@
+import { ButtonType } from "@lib/flow/button/button.component";
 import { editor } from "monaco-editor";
-import { ButtonType } from "src/lib/flow/button/button.component";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
 // just need to sub in a couple of our types:
@@ -99,7 +99,7 @@ export function showCache() {
   return cacheDataMap;
 }
 
-export function getCacheKeys(id: string): Array<string | number> {
+export function getCacheKeys(id: string): (string | number)[] {
   if (!cacheDataMap.has(id)) {
     return [];
   }
@@ -344,14 +344,4 @@ export function addCommonMonacoActions(editor: editor.IStandaloneCodeEditor) {
       },
     });
   }
-}
-
-/**
- * Formats a floating point to n digits.
- */
-export function formatFloat(input: number, digits: number = 2): string {
-  return input.toLocaleString("en-AU", {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
 }

@@ -8,6 +8,12 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Navigation, Router } from "@angular/router";
+import { ApiService } from "@app/core/api/api.service";
+import { components } from "@app/core/api/openapi";
+import { EntityService } from "@app/core/entity.service";
+import { UserService } from "@app/core/user.service";
+import { allowedToPurge } from "@app/core/util";
+import { ButtonType } from "@lib/flow/button/button.component";
 import {
   BehaviorSubject,
   combineLatest,
@@ -16,12 +22,6 @@ import {
   Subscription,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-import { ApiService } from "src/app/core/api/api.service";
-import { components } from "src/app/core/api/openapi";
-import { EntityService } from "src/app/core/entity.service";
-import { UserService } from "src/app/core/user.service";
-import { allowedToPurge } from "src/app/core/util";
-import { ButtonType } from "src/lib/flow/button/button.component";
 
 /**
  * Various states for the purge state machine.

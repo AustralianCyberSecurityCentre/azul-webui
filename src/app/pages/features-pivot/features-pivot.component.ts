@@ -7,18 +7,18 @@ import {
 import { Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { components } from "src/app/core/api/openapi";
-import { Api } from "src/app/core/services";
+import { components } from "@app/core/api/openapi";
+import { Api } from "@app/core/services";
 
 import { toObservable } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
+import { PivotService } from "@app/core/pivot.service";
 import {
   faCheck,
   faCircleInfo,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { PivotService } from "src/app/core/pivot.service";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { escapeValue } from "../../core/util";
 
 type flattenedPivotFeatureResponse = {

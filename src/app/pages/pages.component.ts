@@ -6,11 +6,11 @@ import {
   TemplateRef,
   ViewChild,
   WritableSignal,
-  signal,
   inject,
+  signal,
 } from "@angular/core";
-import { Api, Nav, Security, User } from "src/app/core/services";
-import { DynamicConfig, config } from "src/app/settings";
+import { Api, Nav, Security, User } from "@app/core/services";
+import { DynamicConfig, config } from "@app/settings";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -137,10 +137,9 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
         ops.map((_) => {}),
         ops.catchError((err, _caught) => {
           if (this.securityService.isReauthenticating()) {
-            // Auth errors during reauthentication make sense!
-            return;
+            // Auth errors during re-authentication make sense!
+            return null;
           }
-
           console.error("Authentication failure:", err);
 
           // Try to clean up this HTTP error for presentation

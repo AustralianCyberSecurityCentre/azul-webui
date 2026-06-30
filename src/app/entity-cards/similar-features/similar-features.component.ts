@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
+import { Entity } from "@app/core/services";
 import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { Entity } from "src/app/core/services";
 
-import { components, SimilarFeatureMatchRow } from "src/app/core/api/openapi";
-import { SimilarFeatureMatchWithSummary } from "src/app/core/api/state";
+import { components, SimilarFeatureMatchRow } from "@app/core/api/openapi";
+import { SimilarFeatureMatchWithSummary } from "@app/core/api/state";
 import { BaseCard } from "../base-card.component";
 
 @Component({

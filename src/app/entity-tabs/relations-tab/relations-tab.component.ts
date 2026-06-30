@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
 import { CommonModule } from "@angular/common";
-import { EntityWrap } from "src/app/core/entity.service";
-import { AzEntityCardsModule } from "src/app/entity-cards/entity-cards.module";
+import { EntityWrap } from "@app/core/entity.service";
+import { AzEntityCardsModule } from "@app/entity-cards/entity-cards.module";
 
 const enum TabKey {
   SimilarFeatures = 0,

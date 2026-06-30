@@ -13,7 +13,7 @@ import {
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { HostControlDirective } from "src/lib/host-control/host-control.directive";
+import { HostControlDirective } from "@lib/host-control/host-control.directive";
 
 // https://flowbite.com/docs/forms/input-field/
 
@@ -32,9 +32,10 @@ export type FieldType =
   hostDirectives: [HostControlDirective],
 })
 export class InputComponent {
-  @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement>;
+  @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement> | null =
+    null;
 
-  @Input() id: string = null;
+  @Input() id: string | null = null;
   @Input() required: boolean = false;
   @Input() placeholder: string = "";
   @Input() invalid: boolean = false;

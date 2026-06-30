@@ -7,10 +7,10 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { NgxSliderModule } from "@angular-slider/ngx-slider";
 import { FormsModule } from "@angular/forms";
+import { AzCommonModule } from "@app/common/common.module";
+import { AzCoreModule } from "@app/core/core.module";
+import { FlowModule } from "@lib/flow/flow.module";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
-import { AzCommonModule } from "src/app/common/common.module";
-import { AzCoreModule } from "src/app/core/core.module";
-import { FlowModule } from "src/lib/flow/flow.module";
 import { EntropyGraphComponent } from "./entropy-graph/entropy-graph.component";
 import { FamilyComponent } from "./family/family.component";
 import { FeatureTableComponent } from "./feature-table/feature-table.component";

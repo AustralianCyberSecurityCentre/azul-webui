@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ApiService } from "@app/core/api/api.service";
+import { config } from "@app/settings";
 import {
   faCircleExclamation,
   faCircleInfo,
   faCircleXmark,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { ApiService } from "src/app/core/api/api.service";
-import { config } from "src/app/settings";
 import { BannerService } from "../banner.service";
 /** Displays banners for system warnings */
 @Component({

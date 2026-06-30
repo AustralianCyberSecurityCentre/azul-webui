@@ -5,19 +5,19 @@ import {
   OnDestroy,
   inject,
 } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { editor, languages, IDisposable } from "monaco-types";
-import { BehaviorSubject, ReplaySubject, Observable, Subscription } from "rxjs";
-import * as ops from "rxjs/operators";
-import { StreamMetadata } from "src/app/common/misc-interfaces/stream-metadata";
-import { ApiService } from "src/app/core/api/api.service";
-import { colorThemeConfig } from "src/app/core/store/global-settings/global-selector";
-import { ColorTheme } from "src/app/core/store/global-settings/global-state.types";
+import { StreamMetadata } from "@app/common/misc-interfaces/stream-metadata";
+import { ApiService } from "@app/core/api/api.service";
+import { colorThemeConfig } from "@app/core/store/global-settings/global-selector";
+import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
 import {
   addCommonMonacoActions,
   getDefaultMonacoSettings,
   recalculateFonts,
-} from "src/app/core/util";
+} from "@app/core/util";
+import { Store } from "@ngrx/store";
+import { IDisposable, editor, languages } from "monaco-types";
+import { BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
+import * as ops from "rxjs/operators";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
 // just need to sub in a couple of our types:

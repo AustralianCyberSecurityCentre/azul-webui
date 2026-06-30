@@ -16,13 +16,13 @@ import {
 import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
+import { components } from "@app/core/api/openapi";
+import { FeatureService } from "@app/core/feature.service";
+import { SecurityService } from "@app/core/security.service";
+import { getStatusColour } from "@app/core/util";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
-import { components } from "src/app/core/api/openapi";
-import { FeatureService } from "src/app/core/feature.service";
-import { SecurityService } from "src/app/core/security.service";
-import { getStatusColour } from "src/app/core/util";
-import { ButtonSize, ButtonType } from "src/lib/flow/button/button.component";
 
 /**Displays a group of tags for the current feature value.
 

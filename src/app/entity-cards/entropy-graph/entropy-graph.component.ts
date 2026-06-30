@@ -25,8 +25,7 @@ Entropy is only calculated if we have the binary in Azul.
 
   protected faEye = faEye;
 
-  @Input()
-  protected height = "200px";
+  @Input() height = "200px";
 
   protected showGraphLevelsSignal: WritableSignal<boolean> = signal(true);
 

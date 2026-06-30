@@ -1,5 +1,3 @@
-import { ReplaySubject } from "rxjs";
-
 export const enum BinaryExternalLinkType {
   Eq = "eq",
   Exists = "exists",
@@ -66,8 +64,6 @@ export type DynamicConfig = {
 };
 
 export let config: DynamicConfig | null = null;
-
-export const authCode$ = new ReplaySubject<string>(1);
 
 export function setConfig(x: DynamicConfig) {
   config = x;

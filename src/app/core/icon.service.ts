@@ -44,8 +44,6 @@ import {
   faTerminal,
 } from "@fortawesome/free-solid-svg-icons";
 
-export { IconDefinition } from "@fortawesome/free-regular-svg-icons";
-
 @Injectable()
 export class IconService {
   get(etype: string, ftype: string) {

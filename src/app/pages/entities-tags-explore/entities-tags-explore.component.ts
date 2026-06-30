@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
+import { components } from "@app/core/api/openapi";
+import { Entity } from "@app/core/services";
+import { escapeValue, getStatusColour } from "@app/core/util";
+import { ButtonSize } from "@lib/flow/button/button.component";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
-import { components } from "src/app/core/api/openapi";
-import { Entity } from "src/app/core/services";
-import { escapeValue, getStatusColour } from "src/app/core/util";
-import { ButtonSize } from "src/lib/flow/button/button.component";
 import { ApiService } from "../../core/api/api.service";
 
 /**page for exploring entity tags*/

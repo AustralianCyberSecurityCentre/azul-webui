@@ -35,7 +35,7 @@ export type FieldType =
 export class SignalInputComponent implements FormValueControl<string | number> {
   @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement>;
 
-  @Input() id: string = null;
+  @Input() id: string | null = null;
   required = input<boolean>(false);
   invalid = input<boolean>(false);
   dirty = input<boolean>(false);
@@ -49,8 +49,8 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   @Input() fieldSize: "large" | "medium" | "small" = "medium";
   @Input() icon?: IconProp;
   @Input() ariaAutocomplete?: string | null = "none";
-  min? = input<number | undefined>(undefined);
-  max = input<number | undefined>(undefined);
+  min = input<NonNullable<string | number> | undefined>(undefined);
+  max = input<NonNullable<string | number> | undefined>(undefined);
   @Input() step?: number | null = null;
   @Input() size?: number | null = null;
   @Input() suffixTpl?: TemplateRef<unknown>;

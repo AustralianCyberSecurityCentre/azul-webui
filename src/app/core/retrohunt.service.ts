@@ -1,15 +1,15 @@
-import { Injectable, inject, DestroyRef } from "@angular/core";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ApiService } from "@app/core/api/api.service";
+import { components } from "@app/core/api/openapi";
 import {
   BehaviorSubject,
-  switchMap,
   catchError,
-  of,
-  map,
   combineLatest,
+  map,
+  of,
+  switchMap,
 } from "rxjs";
-import { ApiService } from "src/app/core/api/api.service";
-import { components } from "src/app/core/api/openapi";
-import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 type RetrohuntsResponse = components["schemas"]["RetrohuntsResponse"];
 

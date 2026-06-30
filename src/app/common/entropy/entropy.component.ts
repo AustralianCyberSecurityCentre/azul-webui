@@ -6,10 +6,10 @@ import {
   signal,
   Signal,
 } from "@angular/core";
+import { Entropy } from "@app/core/api/info";
+import { EntityWrap } from "@app/core/entity.service";
 import { Observable, Subject } from "rxjs";
 import * as ops from "rxjs/operators";
-import { Entropy } from "src/app/core/api/info";
-import { EntityWrap } from "src/app/core/entity.service";
 
 type Dataset = {
   entropy: number;
@@ -172,7 +172,7 @@ export class EntropyComponent {
    * @returns Processed/trimmed entropy data.
    */
   private genData(entropys: Entropy): ExEntropy {
-    const ret = <ExEntropy>entropys;
+    const ret = entropys as ExEntropy;
     ret.dataset = [];
     const elCount = entropys.blocks.length;
     const barIncrement = this.svgWidth / elCount;
