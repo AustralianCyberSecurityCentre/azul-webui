@@ -94,8 +94,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
 
   protected faPlus = faPlus;
 
-  currentSelectedFeatures: WritableSignal<Array<FeatureValue>> =
-    signal(Array<FeatureValue>());
+  currentSelectedFeatures: WritableSignal<FeatureValue[]> = signal([]);
 
   protected escapeValue = escapeValue;
 
@@ -380,7 +379,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       }),
       ops.map((d) => {
         // only show the feature name if this is the first in a block of same values for a feature
-        const tmp = <ShowFeature[]>d;
+        const tmp = d as ShowFeature[];
         let last = "";
         let distance = 0;
         let shared = undefined;

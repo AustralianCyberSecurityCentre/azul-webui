@@ -69,9 +69,8 @@ export class ImagePreviewComponent
   get isImageHidden() {
     return this._isImageHidden;
   }
-  get hideImageLocalStorageKey() {
-    return `"hide_preview_image"`;
-  }
+  public readonly hideImageLocalStorageKey: string = `"hide_preview_image"`;
+
   private objectUrl?: string;
 
   protected imageBlob$: Observable<Blob>;
@@ -196,8 +195,8 @@ export class ImagePreviewComponent
           this.imgDecoder.tracks[0]?.frameCount !== undefined
         ) {
           let totalFrameCount = 0;
-          for (let i = 0; i < this.imgDecoder.tracks.length; i++) {
-            totalFrameCount += this.imgDecoder.tracks[i]?.frameCount;
+          for (const track of this.imgDecoder.tracks) {
+            totalFrameCount += track?.frameCount;
           }
           this.maxIndexSignal.set(totalFrameCount);
         }

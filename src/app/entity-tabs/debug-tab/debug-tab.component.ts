@@ -67,13 +67,13 @@ export default class DebugTabComponent
   @ViewChildren("tabTemplate")
   private templates: QueryList<ElementRef<HTMLDivElement>>;
   protected faPlus = faPlus;
-  protected eventTypeList: Array<EventTypeEnum> = new Array<EventTypeEnum>(
+  protected eventTypeList: EventTypeEnum[] = [
     EventTypeEnum.AUGMENTED,
     EventTypeEnum.ENRICHED,
     EventTypeEnum.EXTRACTED,
     EventTypeEnum.MAPPED,
     EventTypeEnum.SOURCED,
-  );
+  ];
   protected areExtraQueriesDone: boolean = false;
 
   protected tabs$: BehaviorSubject<TabSpec[]> = new BehaviorSubject<TabSpec[]>(

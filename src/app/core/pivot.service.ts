@@ -6,11 +6,10 @@ import { components } from "./api/openapi";
 })
 export class PivotService {
   public SelectedFeatureSignal: WritableSignal<
-    Array<components["schemas"]["FeaturePivotRequest"]>
+    components["schemas"]["FeaturePivotRequest"][]
   > = signal([]);
 
-  private backupFeatures: Array<components["schemas"]["FeaturePivotRequest"]> =
-    [];
+  private backupFeatures: components["schemas"]["FeaturePivotRequest"][] = [];
 
   isSelected(row: components["schemas"]["FeaturePivotRequest"]): boolean {
     const idx = this.SelectedFeatureSignal().findIndex((val, _idx, _obj) => {

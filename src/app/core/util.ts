@@ -99,7 +99,7 @@ export function showCache() {
   return cacheDataMap;
 }
 
-export function getCacheKeys(id: string): Array<string | number> {
+export function getCacheKeys(id: string): (string | number)[] {
   if (!cacheDataMap.has(id)) {
     return [];
   }

@@ -59,7 +59,7 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
   private statusContent: TemplateRef<PluginItemsWithSummary>;
 
   plugin$: Observable<components["schemas"]["PluginInfo"]>;
-  pluginVersions$: Observable<Array<string>>;
+  pluginVersions$: Observable<string[]>;
   target$: Observable<Params>;
   pluginStatus$: Observable<PluginItemsWithSummary[]>;
   entityDataSub$: Subscription;

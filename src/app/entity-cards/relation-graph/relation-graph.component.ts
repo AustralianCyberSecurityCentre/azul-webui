@@ -233,14 +233,13 @@ not be shown on the graph.
               return this.entity.nearby$;
           }
         }),
-        ops.map(
-          (e) =>
-            <Package>{
-              raw: e,
-              refine: {},
-              render: { edges: [], nodes: [], graph: null },
-            },
-        ),
+        ops.map((e) => {
+          return {
+            raw: e,
+            refine: {},
+            render: { edges: [], nodes: [], graph: null },
+          } as unknown as Package;
+        }),
         ops.tap((d) => (d.refine = this.refineData(d.raw))),
         ops.tap(
           (d) =>

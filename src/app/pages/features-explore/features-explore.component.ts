@@ -184,6 +184,7 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
         return { feats: feats, filter: searchQuery };
       }),
       ops.debounceTime(500),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ops.tap(({ feats, filter }) => {
         // Save URL history
         const newUrl = this.router

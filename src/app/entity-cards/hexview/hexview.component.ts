@@ -43,7 +43,7 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
   private pageSize = this.requestSize / this.rowWidth;
 
   /** Page cache for fetched hex values */
-  private cachedData: Array<HexRow>;
+  private cachedData: HexRow[];
 
   private attemptedFetchPages = new Set<number>();
   private loadedByteCount = 0;

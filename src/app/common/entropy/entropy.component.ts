@@ -172,7 +172,7 @@ export class EntropyComponent {
    * @returns Processed/trimmed entropy data.
    */
   private genData(entropys: Entropy): ExEntropy {
-    const ret = <ExEntropy>entropys;
+    const ret = entropys as ExEntropy;
     ret.dataset = [];
     const elCount = entropys.blocks.length;
     const barIncrement = this.svgWidth / elCount;
