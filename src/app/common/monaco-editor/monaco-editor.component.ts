@@ -4,11 +4,10 @@ import {
   Component,
   effect,
   ElementRef,
-  EventEmitter,
   Input,
   input,
   OnChanges,
-  Output,
+  output,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
@@ -45,7 +44,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnChanges {
   language = input<string>("yara");
   key = input<string | number | null>(null);
   @Input() theme: ColorTheme = ColorTheme.Dark;
-  @Output() codeChange = new EventEmitter<string>();
+  codeChange = output<string>();
 
   private editor!: monaco.editor.IStandaloneCodeEditor;
   private editorOptions: monaco.editor.IStandaloneEditorConstructionOptions =

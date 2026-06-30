@@ -3,16 +3,18 @@
     #termInput
     [id]="'termInput'"
     placeholder="Search binary metadata"
-    [formControl]="term()"
+    [formControl]="term"
     [icon]="faMagnifyingGlass"
-    (inputFocus)="showAutocompleteSignal.set(true)"
+    (inputFocus)="showAutocomplete$.next(true)"
     (inputFocusOut)="handleFocusOut($event)"
     (inputSelectionChange)="caretChange$.emit()"
     tabindex="0"
   />
   @if (autocompleteContext$ | async; as token) {
     @if (
-      showAutocompleteSignal() && (termValid$ | async) && token.type !== "None"
+      (showAutocomplete$ | async) &&
+      (termValid$ | async) &&
+      token.type !== "None"
     ) {
       <div
         class="border-azul-500 bg-azul-50 dark:border-azul-600 dark:bg-azul-700 absolute top-[calc(100%-1rem)] -z-10 w-full rounded-lg border p-2 shadow-xl"

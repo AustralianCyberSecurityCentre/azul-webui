@@ -191,7 +191,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
       this.sortOptions[this.sortOption()] || this.sortOptions["newest_sourced"];
     c.sort = sortOption.sort;
     c.sort_asc = sortOption.sort_asc;
-    c.max_entities = this.countOption;
+    c.max_entities = this.countOption();
     this.forceEmptySearch = this.forceEmptySearchOption();
     const trimmedQuery = this.termOption();
     const paramsAdded = trimmedQuery !== "";

@@ -4,9 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   OnDestroy,
-  Output,
   QueryList,
   ViewChildren,
   WritableSignal,
@@ -83,8 +81,6 @@ export default class DebugTabComponent
     QueryResult[]
   >([]);
 
-  @Output()
-  badgeCount = new EventEmitter<number>();
   private tabBadgeSubscription?: Subscription;
   private tabCreationSubscription?: Subscription;
 

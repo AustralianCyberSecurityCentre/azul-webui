@@ -3,14 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   Input,
   ModelSignal,
-  Output,
   TemplateRef,
   ViewChild,
   input,
   model,
+  output,
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FormValueControl } from "@angular/forms/signals";
@@ -55,10 +54,10 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   @Input() size?: number | null = null;
   @Input() suffixTpl?: TemplateRef<unknown>;
 
-  @Output() inputFocus: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputFocusOut: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputBlur: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputSelectionChange: EventEmitter<Event> = new EventEmitter();
+  inputFocus = output<FocusEvent>();
+  inputFocusOut = output<FocusEvent>();
+  inputBlur = output<FocusEvent>();
+  inputSelectionChange = output<Event>();
 
   value: ModelSignal<string | number> = model<string | number>("");
 }

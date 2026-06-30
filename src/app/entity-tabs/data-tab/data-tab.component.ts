@@ -4,9 +4,8 @@ import {
   Component,
   effect,
   ElementRef,
-  EventEmitter,
   OnDestroy,
-  Output,
+  output,
   QueryList,
   signal,
   ViewChildren,
@@ -80,8 +79,7 @@ export class DataTabComponent
 
   protected StreamType = StreamType;
 
-  @Output()
-  badgeCount = new EventEmitter<number>();
+  badgeCount = output<number>();
   private tabBadgeSubscription?: Subscription;
   private tabCreationSubscription?: Subscription;
 

@@ -2,11 +2,10 @@ import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
   OnInit,
-  Output,
   inject,
+  output,
 } from "@angular/core";
 import {
   FormControl,
@@ -46,7 +45,7 @@ export class EntityTagsComponent implements OnInit {
   @Input() tags: readonly components["schemas"]["EntityTag"][];
   @Input() addTag: boolean = true;
 
-  @Output() changed = new EventEmitter<null>();
+  changed = output<null>();
 
   protected dialog?: DialogRef;
   protected ButtonSize = ButtonSize;
@@ -79,7 +78,7 @@ export class EntityTagsComponent implements OnInit {
       .pipe(ops.first())
       .subscribe((_d) => {
         this.dialog.close();
-        this.changed.emit();
+        this.changed.emit(null);
         // Clear old tag value
         this.formCreateTag.get("tag").setValue("");
         // Trigger tag refresh to occur, to load the new tag.
@@ -97,7 +96,7 @@ export class EntityTagsComponent implements OnInit {
         .pipe(ops.first())
         .subscribe((_d) => {
           this.dialog.close();
-          this.changed.emit();
+          this.changed.emit(null);
         });
     }
   }

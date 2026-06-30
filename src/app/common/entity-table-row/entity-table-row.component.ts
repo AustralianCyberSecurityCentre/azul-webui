@@ -2,12 +2,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   HostBinding,
   Input,
-  Output,
   Signal,
   inject,
+  output,
   signal,
 } from "@angular/core";
 import { ApiService } from "@app/core/api/api.service";
@@ -108,7 +107,7 @@ export class EntityTableRowComponent {
   @Input() eType?: "parents" | "children" | undefined;
   @Input() retroHuntSearchNames: string[] | undefined;
 
-  @Output() checkChanged = new EventEmitter<boolean>();
+  checkChanged = output<boolean>();
 
   protected onCheckboxChange(checked: boolean) {
     this.checkChanged.emit(checked ?? false);

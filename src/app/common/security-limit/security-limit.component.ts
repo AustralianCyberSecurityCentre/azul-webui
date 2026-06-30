@@ -2,10 +2,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   Input,
-  Output,
   inject,
+  output,
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
@@ -81,7 +80,7 @@ export class SecurityLimitComponent {
     this.setSecurityForm(true);
   }
 
-  @Output() submitLimits = new EventEmitter<boolean>();
+  submitLimits = output<boolean>();
 
   private updateForm(val: boolean, initial: boolean = false) {
     // loop through all securitylabel groups to set or load values

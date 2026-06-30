@@ -360,7 +360,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     );
 
     this.displayFeatures$ = temp.pipe(
-      ops.map(([feats]) => {
+      ops.map((feats) => {
         // sort features by entity count and name
         let sortedFeats = [...feats];
         // sort by value when we don't have a binary count yet

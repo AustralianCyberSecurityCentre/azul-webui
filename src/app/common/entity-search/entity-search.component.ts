@@ -2,15 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild,
-  WritableSignal,
   inject,
-  input,
-  signal,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
@@ -18,6 +15,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { InputComponent } from "@lib/flow/input/input.component";
 import createFuzzySearch, { FuzzySearcher } from "@nozbe/microfuzz";
 import {
+  BehaviorSubject,
   Observable,
   ReplaySubject,
   Subject,
@@ -59,7 +57,8 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   /**
    * Form control to store textual user information into.
    */
-  term = input<FormControl>();
+  @Input()
+  term: FormControl;
 
   /** Suggestion model for autocomplete */
   private model$ = new Subject<FuzzySearcher<Suggestion>>();
@@ -76,13 +75,13 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   protected termIsHash$: Observable<boolean>;
 
   protected caretChange$ = new EventEmitter<null>();
-  protected showAutocompleteSignal: WritableSignal<boolean> = signal(false);
+  protected showAutocomplete$ = new BehaviorSubject(false);
 
   // Match md5, sha1, sha256, sha512
   readonly pattern =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
 
-  constructor() {
+  ngOnInit(): void {
     // Load the model greedily and only once
     this.entityService
       .getModel()
@@ -104,8 +103,8 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
       .subscribe((result) => this.model$.next(result));
 
     const cleanedTerm$ = concat(
-      defer(() => of(this.term().value)),
-      this.term().valueChanges,
+      defer(() => of(this.term.value)),
+      this.term.valueChanges,
     ).pipe(ops.map((value) => value || ""));
 
     const caretChangeWithInitial = concat(
@@ -125,7 +124,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     this.autocompleteContext$ = combineLatest([
       cleanedTerm$,
       caretChangeWithInitial,
-      toObservable(this.showAutocompleteSignal),
+      this.showAutocomplete$,
     ]).pipe(
       ops.debounceTime(50),
       ops.shareReplay(1),
@@ -153,9 +152,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     this.termValid$ = this.autocompleteContext$.pipe(
       ops.map((context) => context.type != "Error"),
     );
-  }
 
-  ngOnInit(): void {
     // Suggestions might not always be visible, but cache these
     // in a variable due to the time it can take to calculate these
     this.suggestionsSub = combineLatest([
@@ -226,7 +223,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     */
     // Determine the leading text to keep.
     const replacementText = sug.originalFieldName + ':""';
-    const currentTextAsList = String(this.term().value).split(" ");
+    const currentTextAsList = String(this.term.value).split(" ");
     // Remove the text being replaced by the suggestion and make a string again.
     currentTextAsList.pop();
     const currentTextWithoutSuggestion = currentTextAsList?.join(" ") + " ";
@@ -237,7 +234,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
 
     if (event?.type === "keydown") {
       if (event?.key === "Enter") {
-        this.term().setValue(newText);
+        this.term.setValue(newText);
         // Delay to prevent the form from submitting.
         setTimeout(() => {
           this.textInputElement.inputElement.nativeElement.setRangeText(
@@ -250,7 +247,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
         }, 200);
       }
     } else {
-      this.term().setValue(newText);
+      this.term.setValue(newText);
       this.textInputElement.inputElement.nativeElement.setRangeText(
         "placeholder",
         newText.length - 1,
@@ -265,9 +262,9 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     /*Close suggestions if focus is lost on the suggest input and it's child elements.*/
     const targetId = (evnt.relatedTarget as HTMLElement)?.id;
     if (!targetId) {
-      this.showAutocompleteSignal.set(false);
+      this.showAutocomplete$.next(false);
     } else if (targetId !== "termInput" && !targetId.startsWith("suggestion")) {
-      this.showAutocompleteSignal.set(false);
+      this.showAutocomplete$.next(false);
     }
   }
 
@@ -279,6 +276,6 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
    * Hides any suggestion box currently visible.
    */
   hideSuggestions() {
-    this.showAutocompleteSignal.set(false);
+    this.showAutocomplete$.next(false);
   }
 }

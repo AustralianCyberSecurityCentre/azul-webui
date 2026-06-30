@@ -2,16 +2,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   NgZone,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   ViewEncapsulation,
   WritableSignal,
   inject,
   input,
+  output,
   signal,
 } from "@angular/core";
 import { FeatureWithDecodedValue } from "@app/core/api/state";
@@ -74,8 +73,7 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
     x2: -1,
   });
   // External, only emitted once drag complete
-  @Output()
-  extent = new EventEmitter<Boundary>();
+  extent = output<Boundary>();
 
   private redrawer$: Subscription;
 

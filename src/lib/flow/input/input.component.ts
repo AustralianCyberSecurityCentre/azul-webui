@@ -3,12 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   Input,
-  Output,
   TemplateRef,
   ViewChild,
   inject,
+  output,
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -50,10 +49,10 @@ export class InputComponent {
   @Input() size?: number | null = null;
   @Input() suffixTpl?: TemplateRef<unknown>;
 
-  @Output() inputFocus: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputFocusOut: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputBlur: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputSelectionChange: EventEmitter<Event> = new EventEmitter();
+  inputFocus = output<FocusEvent>();
+  inputFocusOut = output<FocusEvent>();
+  inputBlur = output<FocusEvent>();
+  inputSelectionChange = output<Event>();
 
   @Input() value?: string | number;
   hcd = inject(HostControlDirective);

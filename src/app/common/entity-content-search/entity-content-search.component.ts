@@ -5,13 +5,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   WritableSignal,
   inject,
+  output,
   signal,
 } from "@angular/core";
 import {
@@ -50,8 +49,7 @@ export class EntityContentSearchComponent
   private TAKE_N_HITS = 1000;
 
   /** Handler for if a row entry has been clicked. */
-  @Output()
-  rowSelected = new EventEmitter<[number, number]>();
+  rowSelected = output<[number, number]>();
 
   searchForm: UntypedFormGroup;
 
@@ -164,7 +162,7 @@ export class EntityContentSearchComponent
   /** Event handler for when an address is clicked. */
   protected clickAddress(address: number, length: number) {
     this.hideResultsSignal.set(true);
-    this.rowSelected.next([address, length]);
+    this.rowSelected.emit([address, length]);
   }
 
   /** get next values */
