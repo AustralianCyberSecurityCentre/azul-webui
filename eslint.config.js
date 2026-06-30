@@ -49,16 +49,15 @@ module.exports = tseslint.config(
           style: "camelCase",
         },
       ],
-      // "@angular-eslint/component-selector": [
-      //   "error",
-      //   {
-      //     type: "element",
-      //     prefix: "app",
-      //     style: "kebab-case",
-      //   },
-      // ],
+      "@angular-eslint/component-selector": [
+        "error",
+        {
+          type: "element",
+          prefix: ["app", "flow", "az", "azco", "azec"],
+          style: "kebab-case",
+        },
+      ],
       "@typescript-eslint/no-empty-function": "off",
-      "@angular-eslint/component-selector": "off",
       "@angular-eslint/prefer-standalone": "off",
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/consistent-generic-constructors": "off",
