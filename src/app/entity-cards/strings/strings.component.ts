@@ -502,6 +502,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         this.reachedEndOfFile = !s.has_more;
         this.scrollDownInProgressSignal.set(false);
       });
+    return true;
   }
 
   // Pass the scroll event on to the index subject so it can be slightly throttled.
@@ -569,7 +570,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       console.error(
         "Trying to jump to an offset within the loaded file this shouldn't happen.",
       );
-      return;
+      return false;
     } else {
       // Jumping to an offset outside of the current loaded range so clear the current range and then load the strings above and below the target point.
       this.reset();
@@ -578,6 +579,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       this._scrollDownFile();
       this._scrollUpFile();
     }
+    return true;
   }
 
   // Clear the existing strings and set scroll relevant properties back to defaults
@@ -597,5 +599,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.scrollUpInProgressSignal.set(false);
     this.scrollDownInProgressSignal.set(false);
     this.reachedEndOfFile = false;
+    return true;
   }
 }

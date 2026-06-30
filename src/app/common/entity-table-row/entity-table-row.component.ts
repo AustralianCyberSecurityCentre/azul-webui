@@ -97,6 +97,7 @@ export class EntityTableRowComponent {
           ) {
             return x.data.info[0].info["entropy"] as Entropy;
           }
+          return null;
         }),
       );
   }

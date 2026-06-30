@@ -137,8 +137,8 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
   enterVersions() {
     // Delay for 1 second then show all of the versions
     this.expandVersionsFuncRef = setTimeout(
-      function () {
-        this.showAllVersions$.next(true);
+      function (curComponent: PluginsCurrentComponent) {
+        curComponent.showAllVersions$.next(true);
       }.bind(this),
       1000,
     );

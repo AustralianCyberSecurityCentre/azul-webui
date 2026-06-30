@@ -31,8 +31,7 @@ Note that files can only be compared this way if they are somewhat similar in si
 `;
   protected provider$: Observable<FuzzyMatchWithSummary>;
 
-  @Input()
-  protected hashType: HashType;
+  @Input() hashType: HashType;
 
   protected transformedFind$: Observable<{
     items_count: number;

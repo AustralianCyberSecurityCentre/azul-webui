@@ -22,11 +22,8 @@ export class AlertComponent {
     error: faCircleXmark,
   };
 
-  @Input()
-  protected alertType: "info" | "warning" | "error";
-  @Input()
-  protected title: string;
+  @Input() alertType: "info" | "warning" | "error";
+  @Input() title: string;
   /** Distinguish the alerts background if this alert is placed within another card */
-  @Input()
-  protected withinCard: boolean = false;
+  @Input() withinCard: boolean = false;
 }

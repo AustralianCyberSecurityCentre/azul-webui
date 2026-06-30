@@ -12,6 +12,9 @@ const angular = require("angular-eslint");
 // Export our config array, which is composed together thanks to the typed utility function from typescript-eslint
 module.exports = tseslint.config(
   {
+    ignores: [".angular/**", "node_modules/**", "dist/**"],
+  },
+  {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
     files: ["src/**/*.ts"],
     ignores: [
@@ -19,7 +22,6 @@ module.exports = tseslint.config(
       "**/*.generated.ts",
       "frontend/generated/*",
       "eslint.config.js",
-      ".angular/**",
       "src/**/*.spec.ts",
       "tests/**/*",
     ],

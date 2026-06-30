@@ -209,9 +209,10 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     if (c.max_entities == "all") {
       this.paginationActiveSignal.set(true);
       this.switchPage(0);
-      return;
+      return null;
     }
     this.find$ = this.getFind$(c, trimmedQuery, []);
+    return null;
   }
 
   private getFind$(

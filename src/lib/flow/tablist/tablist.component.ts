@@ -27,8 +27,7 @@ export type Tab = {
   imports: [CommonModule, ButtonLabelComponent],
 })
 export class TablistComponent implements OnChanges {
-  @Input()
-  protected tabs: Tab[] = [];
+  @Input() tabs: Tab[] = [];
 
   protected currentTab$ = new BehaviorSubject<number>(0);
   protected currentTabTemplate$ = this.currentTab$.pipe(

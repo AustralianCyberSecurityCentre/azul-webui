@@ -17,10 +17,8 @@ import showdown from "showdown";
   imports: [CommonModule, FontAwesomeModule],
 })
 export class MarkdownComponent implements OnChanges {
-  @Input()
-  private markdown: string;
-  @Input()
-  protected asQuote: boolean = true;
+  @Input() markdown: string;
+  @Input() asQuote: boolean = true;
 
   protected renderedMarkdown: string;
 

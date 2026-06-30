@@ -160,7 +160,7 @@ export class BinariesCompareComponent implements OnInit {
             console.error(
               "Entity is not set during comparison skipping binary",
             );
-            return;
+            return null;
           }
           ret.push(this.entityService.entity(entityId));
         }

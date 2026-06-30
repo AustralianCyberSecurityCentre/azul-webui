@@ -702,9 +702,11 @@ export class EntityService {
   private trigger$ = new Subject<void>();
   dbg = (...d) => console.debug("EntityService:", ...d);
   err = (...d) => console.error("EntityService:", ...d);
-  requestBulkEntitySummary(ents: BulkEntitySummarySubmit[]): Subscription {
+  requestBulkEntitySummary(
+    ents: BulkEntitySummarySubmit[],
+  ): Subscription | null {
     if (!(ents?.length > 0)) {
-      return;
+      return null;
     }
     const _entity_simple_key = (eid: string = "") => `${eid}`;
     const eSimple = "entity_simple";

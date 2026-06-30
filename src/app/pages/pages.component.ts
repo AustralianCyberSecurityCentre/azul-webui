@@ -137,10 +137,9 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
         ops.map((_) => {}),
         ops.catchError((err, _caught) => {
           if (this.securityService.isReauthenticating()) {
-            // Auth errors during reauthentication make sense!
-            return;
+            // Auth errors during re-authentication make sense!
+            return null;
           }
-
           console.error("Authentication failure:", err);
 
           // Try to clean up this HTTP error for presentation

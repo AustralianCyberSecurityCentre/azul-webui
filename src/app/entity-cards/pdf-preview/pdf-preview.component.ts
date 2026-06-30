@@ -27,8 +27,7 @@ export class PdfPreviewComponent extends BaseCard implements OnInit, OnDestroy {
 
 This is rendered using your browser's PDF viewer.
 `;
-  @Input()
-  protected streamData?: StreamMetadataWithAuthor;
+  @Input() streamData?: StreamMetadataWithAuthor;
 
   protected pdfUrl$: Observable<SafeResourceUrl>;
 

@@ -7,33 +7,33 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "ES2022",
+    "target": "ES2023",
     "module": "preserve",
     "types": ["node"],
     "paths": {
       "@app/*": ["./src/app/*"],
       "@lib/*": ["./src/lib/*"]
-    }
+    },
+    // FUTURE currently disabled options
+    "noPropertyAccessFromIndexSignature": false,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false
   },
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": true,
-    "strictInjectionParameters": false,
-    "strictInputAccessModifiers": false,
-    "fullTemplateTypeCheck": false,
-    "strictTemplates": false,
-    "strictPropertyInitialization": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "noImplicitThis": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "noImplicitReturns": false
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "fullTemplateTypeCheck": true,
+    "strictTemplates": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true
   },
   "files": [],
   "references": [

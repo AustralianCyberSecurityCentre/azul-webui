@@ -14,10 +14,8 @@ export enum LinkColour {
 export class LinkDirective implements OnChanges {
   private el = inject(ElementRef);
 
-  @Input()
-  protected no_underline: boolean = false;
-  @Input()
-  protected link_colour = LinkColour.Blue;
+  @Input() no_underline: boolean = false;
+  @Input() link_colour = LinkColour.Blue;
 
   constructor() {
     this.el.nativeElement.classList.add(

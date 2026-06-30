@@ -50,11 +50,9 @@ export class ImagePreviewComponent
 
   displayImage$: ReplaySubject<boolean> = new ReplaySubject();
 
-  @Input()
-  protected streamData: StreamMetadataWithAuthor;
+  @Input() streamData: StreamMetadataWithAuthor;
 
-  @Input({ required: true })
-  protected fileFormat: string;
+  @Input({ required: true }) fileFormat: string;
 
   @ViewChild("imageCanvas")
   private canvasRef: ElementRef<HTMLCanvasElement>;

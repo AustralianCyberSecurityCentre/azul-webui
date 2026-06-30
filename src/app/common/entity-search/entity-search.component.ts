@@ -142,6 +142,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
             )
             .pipe(ops.shareReplay(1));
         }
+        return null;
       }),
       ops.filter((value) => !!value),
       ops.mergeAll(),
