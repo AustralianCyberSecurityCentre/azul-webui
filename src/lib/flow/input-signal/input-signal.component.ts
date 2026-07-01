@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   ModelSignal,
   TemplateRef,
   ViewChild,
@@ -34,7 +33,7 @@ export type FieldType =
 export class SignalInputComponent implements FormValueControl<string | number> {
   @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement>;
 
-  @Input() id: string | null = null;
+  id = input<string | null>(null);
   required = input<boolean>(false);
   invalid = input<boolean>(false);
   dirty = input<boolean>(false);
@@ -43,16 +42,16 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   isForceShowInvalid = input<boolean>(false);
   placeholder = input<string>("");
 
-  @Input() helpText?: string;
-  @Input() fieldType: FieldType = "text";
-  @Input() fieldSize: "large" | "medium" | "small" = "medium";
-  @Input() icon?: IconProp;
-  @Input() ariaAutocomplete?: string | null = "none";
+  helpText = input<string | undefined>(undefined);
+  fieldType = input<FieldType>("text");
+  fieldSize = input<"large" | "medium" | "small">("medium");
+  icon = input<IconProp | undefined>(undefined);
+  ariaAutocomplete = input<string | undefined>("none");
   min = input<NonNullable<string | number> | undefined>(undefined);
   max = input<NonNullable<string | number> | undefined>(undefined);
-  @Input() step?: number | null = null;
-  @Input() size?: number | null = null;
-  @Input() suffixTpl?: TemplateRef<unknown>;
+  step = input<number | null>(null);
+  size = input<number | null>(null);
+  suffixTpl = input<TemplateRef<unknown> | undefined>(undefined);
 
   inputFocus = output<FocusEvent>();
   inputFocusOut = output<FocusEvent>();

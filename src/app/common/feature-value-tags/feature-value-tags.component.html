@@ -1,15 +1,15 @@
-@if (row) {
+@if (row()) {
   <div class="flex justify-center gap-1">
     <span class="hidden group-hover:block">
       <flow-button
         [size]="ButtonSize.Tiny"
         [type]="ButtonType.Transparent"
-        (click)="openDialog(tplTagsCreate, { data: row })"
+        (click)="openDialog(tplTagsCreate, { data: row() })"
       >
         <fa-icon [icon]="faPlus" />
       </flow-button>
     </span>
-    @for (tag of row.tags; track tag) {
+    @for (tag of row().tags; track tag) {
       <flow-button
         [size]="ButtonSize.Tiny"
         [routerLink]="['/pages/features/tags', tag.tag]"

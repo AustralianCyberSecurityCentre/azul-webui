@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   inject,
+  input,
 } from "@angular/core";
 import { components } from "@app/core/api/openapi";
 import { FuzzyMatchWithSummary } from "@app/core/api/state";
@@ -31,7 +31,7 @@ Note that files can only be compared this way if they are somewhat similar in si
 `;
   protected provider$: Observable<FuzzyMatchWithSummary>;
 
-  @Input() hashType: HashType;
+  hashType = input.required<HashType>();
 
   protected transformedFind$: Observable<{
     items_count: number;
@@ -41,7 +41,7 @@ Note that files can only be compared this way if they are somewhat similar in si
   }>;
 
   protected override onEntityChange(): void {
-    switch (this.hashType) {
+    switch (this.hashType()) {
       case "ssdeep":
         this.provider$ = this.entity.similar_ssdeep$;
         break;

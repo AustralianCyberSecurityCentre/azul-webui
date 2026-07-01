@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   OnDestroy,
   TemplateRef,
   effect,
@@ -96,7 +95,7 @@ export class DataTabPanesComponent implements OnDestroy {
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
 
-  @Input() preTabTemplateRef: TemplateRef<unknown>;
+  preTabTemplateRef = input<TemplateRef<unknown> | undefined>(undefined);
 
   tabs = input<TabSpec[]>([]);
   private tabsSubscription: Subscription;

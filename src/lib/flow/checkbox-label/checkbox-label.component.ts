@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // hhttps://flowbite.com/docs/forms/checkbox/
 
@@ -9,5 +9,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   standalone: true,
 })
 export class CheckboxLabelComponent {
-  @Input() for: string;
+  for = input<string>();
 }

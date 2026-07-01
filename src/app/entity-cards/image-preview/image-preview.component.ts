@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   inject,
+  input,
   Input,
   OnDestroy,
   OnInit,
@@ -50,9 +51,8 @@ export class ImagePreviewComponent
 
   displayImage$: ReplaySubject<boolean> = new ReplaySubject();
 
-  @Input() streamData: StreamMetadataWithAuthor;
-
-  @Input({ required: true }) fileFormat: string;
+  streamData = input<StreamMetadataWithAuthor>();
+  fileFormat = input.required<string>();
 
   @ViewChild("imageCanvas")
   private canvasRef: ElementRef<HTMLCanvasElement>;
@@ -161,7 +161,7 @@ export class ImagePreviewComponent
           // Note ImageDecoder only works with newer browsers, if this fails the error handler switches to just rendering an image.
           this.imgDecoder = new ImageDecoder({
             data: imgArrayBuffer,
-            type: this.fileFormat,
+            type: this.fileFormat(),
           });
           this.displayImage$?.next(true);
           return this.imgDecoder;
@@ -226,10 +226,10 @@ export class ImagePreviewComponent
   ngOnInit(): void {
     this.imageBlob$ = this.entityService.streamBlob(
       this._entity.sha256,
-      this.streamData.datastream_sha256,
+      this.streamData().datastream_sha256,
     );
 
-    if (this.ANIMATED_IMAGE_TYPES.includes(this.fileFormat)) {
+    if (this.ANIMATED_IMAGE_TYPES.includes(this.fileFormat())) {
       this.setupCanvasBasedRendering();
     } else {
       this.setupImageBasedRendering();

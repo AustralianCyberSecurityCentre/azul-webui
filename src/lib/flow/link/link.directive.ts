@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
+import { Directive, ElementRef, OnChanges, inject, input } from "@angular/core";
 
 // https://flowbite.com/docs/typography/links/
 
@@ -14,8 +14,8 @@ export enum LinkColour {
 export class LinkDirective implements OnChanges {
   private el = inject(ElementRef);
 
-  @Input() no_underline: boolean = false;
-  @Input() link_colour = LinkColour.Blue;
+  noUnderline = input<boolean>(false);
+  linkColour = input<LinkColour>(LinkColour.Blue);
 
   constructor() {
     this.el.nativeElement.classList.add(
@@ -29,7 +29,7 @@ export class LinkDirective implements OnChanges {
     const default_colour = "text-blue-500 dark:text-blue-300".split(" ");
     const white_classes = "text-white-500 dark:text-white-300".split(" ");
 
-    if (!this.no_underline) {
+    if (!this.noUnderline()) {
       // Remove underline default and show underline on hover
       this.el.nativeElement.classList.remove(
         ...["underline", "hover:no-underline"],
@@ -39,7 +39,7 @@ export class LinkDirective implements OnChanges {
       );
     }
 
-    if (this.link_colour.includes("white")) {
+    if (this.linkColour().includes("white")) {
       // Remove default blue and add white
       this.el.nativeElement.classList.remove(...default_colour);
       this.el.nativeElement.classList.add(...white_classes);

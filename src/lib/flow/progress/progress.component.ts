@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/progress/
 
@@ -13,5 +13,5 @@ export class ProgressComponent {
   /**
    * Progress percentage as a floating point between 0-100.
    */
-  @Input() value: number = 0;
+  value = input<number>(0);
 }

@@ -2,9 +2,8 @@ import { ConnectionPositionPair } from "@angular/cdk/overlay";
 import {
   ChangeDetectionStrategy,
   Component,
+  input,
   Input,
-  signal,
-  Signal,
 } from "@angular/core";
 import { Entropy } from "@app/core/api/info";
 import { EntityWrap } from "@app/core/entity.service";
@@ -123,11 +122,11 @@ export class EntropyComponent {
     },
   ];
 
-  @Input() minBytes: number = 0;
-  @Input() horizontal: boolean = true;
-  @Input() fullHeightBars: boolean = false;
-  @Input() showLevelsSignal: Signal<boolean> = signal(true);
-  @Input() height: string = "200px";
+  minBytes = input<number>(0);
+  horizontal = input<boolean>(true);
+  fullHeightBars = input<boolean>(false);
+  showLevels = input<boolean>(true);
+  height = input<string>("200px");
   @Input() set rawEntropy$(ent$: EntityWrap["entropy$"]) {
     this.entropy$ = ent$.pipe(ops.shareReplay(1));
     this.entropyData$ = this.entropy$.pipe(
@@ -192,8 +191,8 @@ export class EntropyComponent {
       const barDepth = bentropy * this.scaleFactor + 1;
 
       let barPosition;
-      if (this.horizontal) {
-        if (!this.fullHeightBars) {
+      if (this.horizontal()) {
+        if (!this.fullHeightBars()) {
           barPosition = {
             width: barIncrement,
             height: barDepth,

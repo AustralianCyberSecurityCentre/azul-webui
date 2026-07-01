@@ -7,6 +7,7 @@ import {
   ViewChild,
   WritableSignal,
   inject,
+  input,
   signal,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
@@ -98,7 +99,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
 
   protected escapeValue = escapeValue;
 
-  @Input() tablename: string = "default";
+  tablename = input<string>("default");
 
   _features$: Observable<ShowFeature[]>;
   get unboundedFeatures$() {
@@ -153,8 +154,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
 
   /** number of rows currently displayed */
   currently_displayed = 0;
-
-  @Input() forceShowLocation: boolean = false;
 
   pluginFVCounts: WritableSignal<Map<string, number>> = signal(
     new Map<string, number>(),

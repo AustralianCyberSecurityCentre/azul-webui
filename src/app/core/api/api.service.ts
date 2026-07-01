@@ -36,7 +36,15 @@ import { ToastrService } from "ngx-toastr";
  */
 class AxiosClient {
   private axios = Axios.create();
-  private cache = setupCache(this.axios);
+  private cache = setupCache(this.axios, {
+    // 5 minutes
+    ttl: 1000 * 60 * 5,
+    // Ignore server cache-control to avoid double-caching
+    interpretHeader: false,
+    cachePredicate: {
+      statusCheck: (status) => status >= 200 && status < 300,
+    },
+  });
 
   constructor(private oidcSecurityService: OidcSecurityService) {
     if (config?.oauth_enabled) {
@@ -69,12 +77,6 @@ class AxiosClient {
     return defer(() =>
       from(
         this.cache.request({
-          cache: {
-            // 5 minutes
-            ttl: 1000 * 60 * 5,
-            // Ignore server cache-control to avoid double-caching
-            interpretHeader: false,
-          },
           paramsSerializer: { indexes: null },
           ...config,
         }),

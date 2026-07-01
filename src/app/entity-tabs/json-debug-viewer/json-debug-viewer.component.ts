@@ -2,9 +2,9 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnDestroy,
   inject,
+  input,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { textEditorConfig } from "@app/core/store/global-settings/global-selector";
@@ -34,9 +34,9 @@ declare let monaco: any;
 export class JsonDebugViewerComponent implements OnDestroy {
   private store = inject(Store);
 
-  @Input() text: string = "";
-  @Input() language: string = "json";
-  @Input() fullHeight: boolean = false;
+  text = input<string>("");
+  language = input<string>("json");
+  fullHeight = input<boolean>(false);
 
   protected editorOptions = getDefaultMonacoSettings();
   protected debugEditorHeight: number;
@@ -84,6 +84,6 @@ export class JsonDebugViewerComponent implements OnDestroy {
     this.editor.updateOptions(this.editorOptions);
 
     const model = this.editor.getModel();
-    monaco.editor.setModelLanguage(model, this.language);
+    monaco.editor.setModelLanguage(model, this.language());
   }
 }

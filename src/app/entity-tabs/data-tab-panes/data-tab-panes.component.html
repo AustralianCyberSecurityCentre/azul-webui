@@ -14,9 +14,9 @@
       class="text-sm select-none dark:bg-slate-800"
     >
       <div class="dark:bg-azul-900 bg-gray-100 p-2">Views</div>
-      @if (preTabTemplateRef) {
+      @if (preTabTemplateRef()) {
         <div class="dark:bg-azul-900 bg-gray-100 p-2">
-          <ng-container *ngTemplateOutlet="preTabTemplateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="preTabTemplateRef()"></ng-container>
         </div>
       }
       <div

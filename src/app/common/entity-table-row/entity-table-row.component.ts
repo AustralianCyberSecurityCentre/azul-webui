@@ -6,6 +6,7 @@ import {
   Input,
   Signal,
   inject,
+  input,
   output,
   signal,
 } from "@angular/core";
@@ -101,11 +102,11 @@ export class EntityTableRowComponent {
       );
   }
 
-  @Input() externalPagination: boolean = false;
-  @Input() showSources: boolean = true;
-  @Input() originalSha256?: string | undefined;
-  @Input() eType?: "parents" | "children" | undefined;
-  @Input() retroHuntSearchNames: string[] | undefined;
+  externalPagination = input<boolean>(false);
+  showSources = input<boolean>(true);
+  originalSha256 = input<string | undefined>(undefined);
+  eType = input<"parents" | "children" | undefined>(undefined);
+  retroHuntSearchNames = input<string[] | undefined>(undefined);
 
   checkChanged = output<boolean>();
 

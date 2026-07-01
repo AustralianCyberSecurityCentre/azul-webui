@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import {
   faCircleExclamation,
@@ -22,8 +22,8 @@ export class AlertComponent {
     error: faCircleXmark,
   };
 
-  @Input() alertType: "info" | "warning" | "error";
-  @Input() title: string;
+  alertType = input<"info" | "warning" | "error">();
+  title = input<string>();
   /** Distinguish the alerts background if this alert is placed within another card */
-  @Input() withinCard: boolean = false;
+  withinCard = input<boolean>(false);
 }

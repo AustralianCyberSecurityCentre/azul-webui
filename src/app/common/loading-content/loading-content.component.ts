@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  Input,
+} from "@angular/core";
 
 import { Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -23,13 +28,7 @@ export class LoadingContentComponent<T> {
     this._obs$ = d;
     this.reset();
   }
-  protected _isCheckObsIsTrue: boolean = false;
-  get isCheckObsIsTrue() {
-    return this._isCheckObsIsTrue;
-  }
-  @Input() set isCheckObsIsTrue(checkObsTrue: boolean) {
-    this._isCheckObsIsTrue = checkObsTrue;
-  }
+  isCheckObsIsTrue = input<boolean>(false);
 
   protected doneLoading$: Observable<boolean>;
   protected error$: Observable<Error>;
@@ -41,7 +40,7 @@ export class LoadingContentComponent<T> {
 
     this.doneLoading$ = this.obs$.pipe(
       ops.map((d) => {
-        if (this.isCheckObsIsTrue) {
+        if (this.isCheckObsIsTrue()) {
           return d === true;
         }
         return true;

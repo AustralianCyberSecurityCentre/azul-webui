@@ -8,8 +8,8 @@
     <azco-entropy
       #entropy
       [rawEntropy$]="entity?.entropy$"
-      [height]="height"
-      [showLevelsSignal]="showGraphLevelsSignal"
+      [height]="height()"
+      [showLevels]="showGraphLevelsSignal()"
     ></azco-entropy>
   </div>
   <!-- Average Entropy: {{(entity?.entropy$ | async)?.overall.toPrecision(3)}} -->

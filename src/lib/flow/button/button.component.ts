@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/buttons/
 
@@ -30,28 +30,15 @@ export enum ButtonSize {
   imports: [CommonModule],
 })
 export class ButtonComponent {
-  @Input()
-  type = ButtonType.Primary;
-
-  @Input()
-  size = ButtonSize.Medium;
-
-  @Input()
-  submit: boolean = false;
+  type = input<ButtonType>(ButtonType.Primary);
+  size = input<ButtonSize>(ButtonSize.Medium);
+  submit = input<boolean>(false);
 
   // If the button should be outlined when selected. Useful for
   // tab navigation/accessibility, but doesn't work well in tables.
-  @Input()
-  outline: boolean = true;
-
-  @Input()
-  fullWidth?: boolean;
-
-  @Input()
-  rounded: boolean = true;
-
-  @Input()
-  blockCentered: boolean = false;
-
-  @Input() disabled = false;
+  outline = input<boolean>(true);
+  fullWidth = input<boolean>(false);
+  rounded = input<boolean>(true);
+  blockCentered = input<boolean>(false);
+  disabled = input<boolean>(false);
 }

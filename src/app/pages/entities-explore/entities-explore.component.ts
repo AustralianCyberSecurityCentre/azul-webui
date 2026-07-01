@@ -80,10 +80,6 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   private match_hashes =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
 
-  @Input() familyFind?: boolean;
-  @Input() isParent?: boolean;
-  @Input() entitySha256?: string;
-
   ngOnInit(): void {
     this.clearForm();
     this.paramsSub = this.route.queryParamMap.subscribe((map) => {

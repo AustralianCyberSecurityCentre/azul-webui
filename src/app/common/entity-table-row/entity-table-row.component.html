@@ -51,13 +51,13 @@
           #entropy
           [rawEntropy$]="entropy$"
           [height]="'10px'"
-          [showLevelsSignal]="showGraphLevelsSignal"
+          [showLevels]="showGraphLevelsSignal()"
           [fullHeightBars]="true"
         ></azco-entropy>
       }
 
       <!-- Family info including purge capability -->
-      @if (eType !== undefined) {
+      @if (eType() !== undefined) {
         <ng-container>
           @if (
             allowedToPurge(user.isUserAdmin$ | async, undefined, undefined) &&
@@ -70,9 +70,9 @@
                 [routerLink]="['/pages/binaries/purge']"
                 [queryParams]="
                   getLinkPurgeParams(
-                    eType,
+                    eType(),
                     innerRow.track_link,
-                    originalSha256,
+                    originalSha256(),
                     innerRow.sha256 ? innerRow.sha256 : innerRow.key,
                     innerRow.author_name
                   )
@@ -91,7 +91,6 @@
           <div>
             <azco-entity-tags
               [addTag]="false"
-              entityType="binary"
               [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
               [tags]="innerRow.tags$.value"
               (changed)="refreshRowTags(innerRow)"
@@ -104,7 +103,6 @@
           <div>
             <azco-entity-tags
               [addTag]="false"
-              entityType="binary"
               [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
               [tags]="innerRow.tags"
               (changed)="refreshRowTags(innerRow)"
@@ -162,17 +160,17 @@
         }
       </div>
       <!-- Retrohunt search names -->
-      @if (retroHuntSearchNames?.length) {
+      @if (retroHuntSearchNames()?.length) {
         <div class="text-xs text-gray-500 dark:text-gray-300">
           Appears in:
           <span class="font-semibold">
-            {{ retroHuntSearchNames.join(", ") }}
+            {{ retroHuntSearchNames().join(", ") }}
           </span>
         </div>
       }
       <div class="grid grid-cols-[minmax(16rem,max-content)_auto] gap-y-1">
         <!-- sources -->
-        @if (showSources) {
+        @if (showSources()) {
           @for (source of innerRow.sources; track $index) {
             @if (source) {
               <div class="mr-2">
@@ -217,7 +215,7 @@
         @for (kv of innerRow.highlight | keyvalue; track kv.key) {
           <!-- Hide sha256 highlight if we are doing external pagination
             as that will use sha256 to pick binaries to display here. -->
-          @if (kv.key !== "entity.sha256" || !externalPagination) {
+          @if (kv.key !== "entity.sha256" || !externalPagination()) {
             <div class="mr-2 flex-none">
               <p>{{ kv.key }}: {{ kv.value }}</p>
             </div>

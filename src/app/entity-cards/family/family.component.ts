@@ -2,8 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Input,
-  signal,
+  input,
 } from "@angular/core";
 
 import { components } from "@app/core/api/openapi";
@@ -37,10 +36,7 @@ export class FamilyComponent extends BaseCard {
     This is useful if you have performed manual analysis on the file such as decrypting a payload.
 `;
 
-  isParentSignal = signal(false);
-  @Input() set isParent(d: boolean) {
-    this.isParentSignal.set(d);
-  }
+  isParent = input<boolean>(false);
 
   protected faTrash = faTrash;
   protected allowedToPurge = allowedToPurge;

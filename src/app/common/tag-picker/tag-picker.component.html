@@ -11,7 +11,7 @@
     (inputFocusOut)="handleFocusOut($event)"
     (keydown)="closeOnEnter($event)"
   />
-  @if (isEntityTag) {
+  @if (isEntityTag()) {
     @if (allEntityTagsFiltered$ | async; as allEntityTagsFilteredList) {
       <ng-container
         *ngTemplateOutlet="

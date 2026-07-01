@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/card/
 
@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   imports: [],
 })
 export class CardComponent {
-  @Input() backgroundColour: string = "bg-white";
-  @Input() darkBackgroundColour: string = "dark:bg-azul-600";
-  @Input() isFlex: boolean = false;
+  backgroundColour = input<string>("bg-white");
+  darkBackgroundColour = input<string>("dark:bg-azul-600");
+  isFlex = input<boolean>(false);
 }

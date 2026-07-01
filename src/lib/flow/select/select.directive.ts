@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
+import { Directive, ElementRef, OnChanges, inject, input } from "@angular/core";
 
 // https://flowbite.com/docs/forms/select/
 
@@ -9,9 +9,9 @@ import { Directive, ElementRef, Input, OnChanges, inject } from "@angular/core";
 export class SelectDirective implements OnChanges {
   private el = inject(ElementRef);
 
-  @Input() invalid: boolean = false;
-  @Input() noRightPadding: boolean = false; // Remove right padding when using flowSelect outside of a dropdown select.
-  @Input() fieldSize: "large" | "medium" | "small" = "medium";
+  invalid = input<boolean>(false);
+  noRightPadding = input<boolean>(false); // Remove right padding when using flowSelect outside of a dropdown select.
+  fieldSize = input<"large" | "medium" | "small">("medium");
 
   constructor() {
     this.el.nativeElement.classList.add(
@@ -31,7 +31,7 @@ export class SelectDirective implements OnChanges {
     const invalidClasses = "border-red-500 dark:border-red-500".split(" ");
     const notInvalidClasses = "border-gray-300 dark:border-gray-600".split(" ");
 
-    if (this.invalid) {
+    if (this.invalid()) {
       this.el.nativeElement.classList.remove(...notInvalidClasses);
       this.el.nativeElement.classList.add(...invalidClasses);
     } else {
@@ -44,13 +44,13 @@ export class SelectDirective implements OnChanges {
     const mediumClasses = ["p-2.5", "text-sm"];
     const largeClasses = ["px-4", "py-3", "text-base"];
 
-    if (this.noRightPadding) {
+    if (this.noRightPadding()) {
       this.el.nativeElement.classList.remove(["pr-8"]);
     } else {
       this.el.nativeElement.classList.add(["pr-8"]);
     }
 
-    switch (this.fieldSize) {
+    switch (this.fieldSize()) {
       case "large":
         this.el.nativeElement.classList.remove(
           ...smallClasses,

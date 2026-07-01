@@ -1,8 +1,4 @@
-<az-loading-card
-  [cardTitle]="tablename()"
-  [obs$]="filteredFind$"
-  [contentClass]="'overflow-x-auto'"
->
+<az-loading-card [cardTitle]="tablename()" [obs$]="filteredFind$">
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
       @if (selectedRowMap?.size === 1 && originalSha256() === undefined) {

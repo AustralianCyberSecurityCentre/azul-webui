@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 
@@ -10,9 +10,7 @@ import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
   standalone: false,
 })
 export class HoverTextableComponent {
-  @Input()
-  message: string | undefined;
-
+  message = input<string | undefined>(undefined);
   protected questionIcon = faQuestionCircle;
   protected faCircleQuestion = faCircleQuestion;
 
