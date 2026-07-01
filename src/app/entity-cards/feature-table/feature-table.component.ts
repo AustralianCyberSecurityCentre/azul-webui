@@ -211,11 +211,19 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
               ) ?? [];
             if (matchingLocations.length > 0) {
               // Deep copy to avoid mutating the original features
-              // Observable callback has to be dropped for a deep clone to work.
+              // Clear off ReplaySubject callbacks as they can't be cloned.
+              const savedCallbacks = [];
               for (let r of row.XPartsBinaries) {
+                savedCallbacks.push(r.cb);
                 r.cb = null;
               }
               const newRow = structuredClone(row);
+              // restore callbacks to both objects after clone complete.
+              for (let i = 0; i < row.XPartsBinaries.length; i++) {
+                row.XPartsBinaries[i].cb = savedCallbacks[i];
+                newRow.XPartsBinaries[i].cb = savedCallbacks[i];
+              }
+
               newRow.parts.location = matchingLocations;
               found.push(newRow);
             }
