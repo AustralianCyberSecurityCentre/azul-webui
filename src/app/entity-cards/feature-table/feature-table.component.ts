@@ -202,7 +202,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       ops.map(([features, boundary]) => {
         // filter events by range
         if (boundary.x1 >= 0 && boundary.x2 >= 0) {
-          console.log("Filtering by boundary!");
           const found = [];
           for (const row of features) {
             const matchingLocations =
@@ -210,15 +209,17 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
                 (location) =>
                   boundary.x1 <= location[1] && boundary.x2 >= location[0],
               ) ?? [];
-
             if (matchingLocations.length > 0) {
               // Deep copy to avoid mutating the original features
+              // Observable callback has to be dropped for a deep clone to work.
+              for (let r of row.XPartsBinaries) {
+                r.cb = null;
+              }
               const newRow = structuredClone(row);
               newRow.parts.location = matchingLocations;
               found.push(newRow);
             }
           }
-
           return found;
         } else {
           return features;
