@@ -213,10 +213,11 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
               // Deep copy to avoid mutating the original features
               // Clear off ReplaySubject callbacks as they can't be cloned.
               const savedCallbacks = [];
-              for (let r of row.XPartsBinaries) {
+              for (const r of row.XPartsBinaries) {
                 savedCallbacks.push(r.cb);
                 r.cb = null;
               }
+              // Cannot clone Replay or Behavior Subjects.
               const newRow = structuredClone(row);
               // restore callbacks to both objects after clone complete.
               for (let i = 0; i < row.XPartsBinaries.length; i++) {
