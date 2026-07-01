@@ -1,7 +1,7 @@
 <textarea
   id="message"
-  [attr.rows]="rows"
-  [attr.spellcheck]="spellcheck"
+  [attr.rows]="rows()"
+  [attr.spellcheck]="spellcheck()"
   [formControl]="hcd.control"
   [value]="value()"
   (input)="valueChanged.emit($event)"

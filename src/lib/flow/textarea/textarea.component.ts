@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   inject,
   input,
   output,
@@ -20,8 +19,8 @@ import { HostControlDirective } from "@lib/host-control/host-control.directive";
   hostDirectives: [HostControlDirective],
 })
 export class TextareaComponent {
-  @Input() rows = 4;
-  @Input() spellcheck: boolean | null = null;
+  rows = input<number>(4);
+  spellcheck = input<boolean | null>(null);
   value = input<string>();
   invalid = input<boolean>(false);
   valueChanged = output<Event>();

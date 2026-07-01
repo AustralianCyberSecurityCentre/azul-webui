@@ -1,7 +1,7 @@
 <div
   [class]="[
-    backgroundColour,
-    darkBackgroundColour,
+    backgroundColour(),
+    darkBackgroundColour(),
     'border-azul-200',
     'dark:border-azul-800',
     'my-2',
@@ -12,8 +12,8 @@
     'shadow-sm',
     'dark:text-white',
   ]"
-  [class.flex]="isFlex"
-  [class.w-full]="isFlex"
+  [class.flex]="isFlex()"
+  [class.w-full]="isFlex()"
 >
   <ng-content></ng-content>
 </div>

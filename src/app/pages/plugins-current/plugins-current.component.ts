@@ -5,7 +5,9 @@ import {
   OnInit,
   TemplateRef,
   ViewChild,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
 import { components } from "@app/core/api/openapi";
@@ -19,13 +21,7 @@ import { Api, Entity } from "@app/core/services";
 import { escapeValue } from "@app/core/util";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Tab } from "@lib/flow/tablist/tablist.component";
-import {
-  BehaviorSubject,
-  Observable,
-  ReplaySubject,
-  Subscription,
-  of,
-} from "rxjs";
+import { Observable, ReplaySubject, Subscription, of } from "rxjs";
 import * as ops from "rxjs/operators";
 
 function toCapitalCase(input: string): string {
@@ -64,9 +60,7 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
   pluginStatus$: Observable<PluginItemsWithSummary[]>;
   entityDataSub$: Subscription;
 
-  showAllVersions$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false,
-  );
+  showAllVersionsSignal: WritableSignal<boolean> = signal(false);
   expandVersionsFuncRef: ReturnType<typeof setTimeout>;
 
   ngOnInit(): void {
@@ -138,7 +132,7 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
     // Delay for 1 second then show all of the versions
     this.expandVersionsFuncRef = setTimeout(
       function (curComponent: PluginsCurrentComponent) {
-        curComponent.showAllVersions$.next(true);
+        curComponent.showAllVersionsSignal.set(true);
       }.bind(this),
       1000,
     );
@@ -147,7 +141,7 @@ export class PluginsCurrentComponent implements OnInit, OnDestroy {
   exitVersions() {
     // Prevent all versions from being shown and hide them if they are being shown.
     clearTimeout(this.expandVersionsFuncRef);
-    this.showAllVersions$.next(false);
+    this.showAllVersionsSignal.set(false);
   }
 
   processConfig(dataType: unknown): string {

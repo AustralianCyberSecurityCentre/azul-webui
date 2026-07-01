@@ -4,8 +4,8 @@
       <div class="hex-view flex h-full max-h-full flex-col">
         <div class="status-bar mb-2 flex flex-row gap-1">
           <fa-icon
-            [icon]="(ds.loadingPages$ | async) ? spinnerIcon : checkIcon"
-            [animation]="(ds.loadingPages$ | async) ? 'spin' : undefined"
+            [icon]="ds.loadingPagesSignal() ? spinnerIcon : checkIcon"
+            [animation]="ds.loadingPagesSignal() ? 'spin' : undefined"
             [title]="
               'Loaded: ' +
               (loadedBytes$ | async) +

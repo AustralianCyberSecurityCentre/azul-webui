@@ -4,7 +4,7 @@
   [help]="help"
   class="w-full min-w-0"
 >
-  @if ((ready$ | async) !== true) {
+  @if (readySignal() !== true) {
     <div class="flex h-full grow place-content-center place-items-center">
       <az-loading-indicator />
     </div>
@@ -12,7 +12,7 @@
   @if (textData !== null && textData !== undefined && textData.length > 0) {
     <div
       class="flex h-full min-w-0 grow flex-col"
-      [ngClass]="{ hidden: (ready$ | async) !== true }"
+      [ngClass]="{ hidden: readySignal() !== true }"
     >
       <ngx-monaco-editor
         #editor
@@ -30,14 +30,12 @@
           </p>
         </div>
         <div class="flex shrink-0 place-content-end gap-4">
+          <div>Ln {{ cursorLineSignal() }}, Col {{ cursorColumnSignal() }}</div>
           <div>
-            Ln {{ cursorLine$ | async }}, Col {{ cursorColumn$ | async }}
+            {{ eolTypeSignal() }}
           </div>
           <div>
-            {{ eolType$ | async }}
-          </div>
-          <div>
-            {{ selectedLanguage$ | async }}
+            {{ selectedLanguageSignal() }}
           </div>
         </div>
       </div>

@@ -6,11 +6,11 @@ import {
   OnChanges,
   SimpleChanges,
   inject,
+  input,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
-import { EntityWrap } from "@app/core/entity.service";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -37,16 +37,14 @@ export class EntityTableComponent implements OnChanges {
   protected itemsCount$: Observable<number>;
   protected selectedRowMap = new Map<string, EntityFindRow>();
 
-  @Input() externalPagination: boolean = false;
-  @Input() tablename: string = null;
-  @Input() scroll: boolean = true;
+  externalPagination = input<boolean>(false);
+  tablename = input<string | null>(null);
+  scroll = input<boolean>(true);
   @Input() find$: Observable<EntityFindWithPurgeExtras> | undefined;
-  @Input() originalSha256?: string | undefined;
-  @Input() eType: "parents" | "children" | undefined;
-  @Input() entity?: EntityWrap | undefined;
-  @Input() noResults: string = "No binaries match the search criteria";
-  @Input() purgeQueryParams: Record<string, string> | undefined;
-  @Input() retroHuntSearchNames: Record<string, string[]> = {};
+  originalSha256 = input<string | undefined>(undefined);
+  eType = input<"parents" | "children" | undefined>(undefined);
+  noResults = input<string>("No binaries match the search criteria");
+  retroHuntSearchNames = input<Record<string, string[]>>({});
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(
@@ -80,8 +78,8 @@ export class EntityTableComponent implements OnChanges {
       .map((row) => row.sha256)
       .filter((hash): hash is string => !!hash); // filter out null/undefined
 
-    const allHashes = this.originalSha256
-      ? [...selectedHashes, this.originalSha256]
+    const allHashes = this.originalSha256()
+      ? [...selectedHashes, this.originalSha256()]
       : selectedHashes;
 
     this.router.navigate(["/pages/binaries/compare"], {

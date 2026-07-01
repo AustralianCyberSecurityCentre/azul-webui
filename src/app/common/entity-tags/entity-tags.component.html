@@ -1,5 +1,5 @@
 <div class="flex flex-wrap gap-2">
-  @if (addTag) {
+  @if (addTag()) {
     <flow-button
       [type]="ButtonType.Light"
       [size]="ButtonSize.Icon"
@@ -8,7 +8,7 @@
       Add tag
     </flow-button>
   }
-  @if (tags; as d) {
+  @if (tags(); as d) {
     @for (row of d; track row) {
       <flow-button
         [size]="ButtonSize.Icon"

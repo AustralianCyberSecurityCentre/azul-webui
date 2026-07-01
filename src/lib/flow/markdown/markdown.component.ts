@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
+  input,
   OnChanges,
 } from "@angular/core";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -17,8 +17,8 @@ import showdown from "showdown";
   imports: [CommonModule, FontAwesomeModule],
 })
 export class MarkdownComponent implements OnChanges {
-  @Input() markdown: string;
-  @Input() asQuote: boolean = true;
+  markdown = input<string>();
+  asQuote = input<boolean>(true);
 
   protected renderedMarkdown: string;
 
@@ -33,6 +33,6 @@ export class MarkdownComponent implements OnChanges {
   });
 
   ngOnChanges() {
-    this.renderedMarkdown = this.converter.makeHtml(this.markdown);
+    this.renderedMarkdown = this.converter.makeHtml(this.markdown());
   }
 }

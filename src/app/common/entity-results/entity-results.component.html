@@ -13,8 +13,8 @@
       <az-entity-table
         [find$]="find$"
         [externalPagination]="true"
-        [originalSha256]="originalSha256"
-        [eType]="eType"
+        [originalSha256]="originalSha256()"
+        [eType]="eType()"
         class="w-full"
       ></az-entity-table>
     </flow-card-body>
@@ -37,11 +37,11 @@
                     pageCurrentBinariesSignal()
                 }}
                 of {{ pageEstimateBinariesSignal() }}
-                @if (eType !== undefined) {
-                  @if (eType === "parents") {
+                @if (eType() !== undefined) {
+                  @if (eType() === "parents") {
                     parent
                   }
-                  @if (eType === "children") {
+                  @if (eType() === "children") {
                     child
                   }
                 }
@@ -73,11 +73,11 @@
             </div>
           } @else {
             Showing {{ pageCurrentBinariesSignal() }}
-            @if (eType !== undefined) {
-              @if (eType === "parents") {
+            @if (eType() !== undefined) {
+              @if (eType() === "parents") {
                 parent
               }
-              @if (eType === "children") {
+              @if (eType() === "children") {
                 child
               }
             }

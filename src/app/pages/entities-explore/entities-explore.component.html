@@ -39,11 +39,7 @@
               }
             </select>
           }
-          <flow-button
-            [type]="
-              (termValid$ | async) ? ButtonType.Primary : ButtonType.Disabled
-            "
-            (click)="onSubmit()"
+          <flow-button [type]="ButtonType.Primary" (click)="onSubmit()"
             >Search</flow-button
           >
         </div>

@@ -5,12 +5,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
+  WritableSignal,
   inject,
+  output,
+  signal,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -24,7 +25,7 @@ import { MultiPageResults } from "@app/core/api/state";
 import { Entity } from "@app/core/services";
 import { hexValidator } from "@app/core/validation";
 import { BaseCard } from "@app/entity-cards/base-card.component";
-import { BehaviorSubject, Subscription, of } from "rxjs";
+import { Subscription, of } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ContinuousScroll } from "../continuous-scroll/continuous-scroll.class";
 
@@ -48,12 +49,12 @@ export class EntityContentSearchComponent
   private TAKE_N_HITS = 1000;
 
   /** Handler for if a row entry has been clicked. */
-  @Output()
-  rowSelected = new EventEmitter<[number, number]>();
+  rowSelected = output<[number, number]>();
 
   searchForm: UntypedFormGroup;
 
-  results$ = new BehaviorSubject<MultiPageResults>(undefined);
+  resultSignal: WritableSignal<MultiPageResults | undefined> =
+    signal(undefined);
   sha256: string;
 
   @ViewChild(CdkVirtualScrollViewport)
@@ -62,8 +63,8 @@ export class EntityContentSearchComponent
   private resultsDiv: ElementRef<HTMLDivElement>;
 
   /** If an update to the search table has been requested */
-  protected isLoading$ = new BehaviorSubject(false);
-  protected hideResults$ = new BehaviorSubject(false);
+  protected isLoadingSignal: WritableSignal<boolean> = signal(false);
+  protected hideResultsSignal: WritableSignal<boolean> = signal(false);
 
   cs: ContinuousScroll;
 
@@ -124,7 +125,7 @@ export class EntityContentSearchComponent
       return;
     }
 
-    this.hideResults$.next(false);
+    this.hideResultsSignal.set(false);
 
     if (this.searchForm.value.searchType == "hex") {
       this.cs.offset = 0;
@@ -160,8 +161,8 @@ export class EntityContentSearchComponent
 
   /** Event handler for when an address is clicked. */
   protected clickAddress(address: number, length: number) {
-    this.hideResults$.next(true);
-    this.rowSelected.next([address, length]);
+    this.hideResultsSignal.set(true);
+    this.rowSelected.emit([address, length]);
   }
 
   /** get next values */
@@ -178,7 +179,7 @@ export class EntityContentSearchComponent
         return;
       }
       // If we are loading the first set of entries, display a loading indicator
-      this.isLoading$.next(true);
+      this.isLoadingSignal.set(true);
     }
 
     // If there is a pending request, make sure we don't get results
@@ -213,12 +214,12 @@ export class EntityContentSearchComponent
         // If the search query parameters have changed, clear it out as previous hits
         // may not match
         if (
-          this.results$?.value != undefined &&
+          this.resultSignal() != undefined &&
           JSON.stringify(searchQuery) === JSON.stringify(this.lastQueryParams)
         ) {
-          s.strings = [...this.results$.value.strings, ...s.strings];
+          s.strings = [...this.resultSignal().strings, ...s.strings];
         }
-        this.results$.next(s);
+        this.resultSignal.set(s);
         // can now ask for more again
         if (s) {
           this.cs.reset(false, s.next_offset, s.has_more);
@@ -226,7 +227,7 @@ export class EntityContentSearchComponent
 
         this.lastQueryParams = searchQuery;
 
-        this.isLoading$.next(false);
+        this.isLoadingSignal.set(false);
 
         setTimeout(() => {
           // Focus the results div to allow blur functionality

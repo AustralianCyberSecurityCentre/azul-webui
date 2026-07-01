@@ -7,6 +7,7 @@ import {
   ViewChild,
   WritableSignal,
   inject,
+  input,
   signal,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
@@ -98,7 +99,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
 
   protected escapeValue = escapeValue;
 
-  @Input() tablename: string = "default";
+  tablename = input<string>("default");
 
   _features$: Observable<ShowFeature[]>;
   get unboundedFeatures$() {
@@ -154,8 +155,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   /** number of rows currently displayed */
   currently_displayed = 0;
 
-  @Input() forceShowLocation: boolean = false;
-
   pluginFVCounts: WritableSignal<Map<string, number>> = signal(
     new Map<string, number>(),
   );
@@ -203,7 +202,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       ops.map(([features, boundary]) => {
         // filter events by range
         if (boundary.x1 >= 0 && boundary.x2 >= 0) {
-          console.log("Filtering by boundary!");
           const found = [];
           for (const row of features) {
             const matchingLocations =
@@ -211,15 +209,26 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
                 (location) =>
                   boundary.x1 <= location[1] && boundary.x2 >= location[0],
               ) ?? [];
-
             if (matchingLocations.length > 0) {
               // Deep copy to avoid mutating the original features
+              // Clear off ReplaySubject callbacks as they can't be cloned.
+              const savedCallbacks = [];
+              for (const r of row.XPartsBinaries) {
+                savedCallbacks.push(r.cb);
+                r.cb = null;
+              }
+              // Cannot clone Replay or Behavior Subjects.
               const newRow = structuredClone(row);
+              // restore callbacks to both objects after clone complete.
+              for (let i = 0; i < row.XPartsBinaries.length; i++) {
+                row.XPartsBinaries[i].cb = savedCallbacks[i];
+                newRow.XPartsBinaries[i].cb = savedCallbacks[i];
+              }
+
               newRow.parts.location = matchingLocations;
               found.push(newRow);
             }
           }
-
           return found;
         } else {
           return features;
@@ -359,8 +368,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
       ops.shareReplay(1),
     );
 
-    this.displayFeatures$ = combineLatest([temp]).pipe(
-      ops.map(([feats]) => {
+    this.displayFeatures$ = temp.pipe(
+      ops.map((feats) => {
         // sort features by entity count and name
         let sortedFeats = [...feats];
         // sort by value when we don't have a binary count yet

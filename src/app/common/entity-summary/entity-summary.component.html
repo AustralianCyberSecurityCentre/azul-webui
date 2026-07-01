@@ -1,9 +1,9 @@
-@if (entity.summary$ | async; as d) {
+@if (entity().summary$ | async; as d) {
   <table flowTable class="max-h-card-height w-full table-fixed">
     <tbody flowTableBody>
       <tr>
         <th flowTableBodyCell [rowHeader]="true" class="w-28">Security</th>
-        @if (entity.security$ | async; as sec) {
+        @if (entity().security$ | async; as sec) {
           <td>
             @for (row of sec; track row) {
               <div class="limit truncate" [title]="row">
@@ -127,7 +127,7 @@
           </tr>
         }
       }
-      @if (entity.diagnostics$ | async; as diagnostics) {
+      @if (entity().diagnostics$ | async; as diagnostics) {
         @if (featureTags$ | async; as featureTags) {
           @if (featureTags.length > 0) {
             <tr>

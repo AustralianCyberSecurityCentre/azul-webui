@@ -2,21 +2,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   NgZone,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   ViewEncapsulation,
+  WritableSignal,
   inject,
+  input,
+  output,
+  signal,
 } from "@angular/core";
 import { FeatureWithDecodedValue } from "@app/core/api/state";
 import * as d3 from "d3";
-import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
+import { Observable, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { toObservable } from "@angular/core/rxjs-interop";
 import { EntityWrap, Nav } from "@app/core/services";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
@@ -51,10 +53,7 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
   protected ngZone = inject(NgZone);
   private nav = inject(Nav);
 
-  protected entity$ = new BehaviorSubject<EntityWrap | undefined>(undefined);
-  @Input() set entity(entity: EntityWrap) {
-    this.entity$.next(entity);
-  }
+  entity = input<EntityWrap | undefined>(undefined);
 
   protected fileSize$: Observable<number>;
   protected features$: Observable<FeatureWithDecodedValue[]>;
@@ -64,16 +63,22 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
 
   // Internal state for boundaries
   // In pixels:
-  protected boundary$ = new BehaviorSubject<Boundary>({ x1: -1, x2: -1 });
+  protected boundarySignal: WritableSignal<Boundary> = signal({
+    x1: -1,
+    x2: -1,
+  });
   // In bytes (relative to the source file):
-  protected boundaryBytes$ = new BehaviorSubject<Boundary>({ x1: -1, x2: -1 });
+  protected boundaryBytesSignal: WritableSignal<Boundary> = signal({
+    x1: -1,
+    x2: -1,
+  });
   // External, only emitted once drag complete
-  @Output()
-  extent = new EventEmitter<Boundary>();
+  extent = output<Boundary>();
 
   private redrawer$: Subscription;
 
-  protected isOpen$ = new BehaviorSubject(false);
+  protected isOpenSignal: WritableSignal<boolean> = signal(false);
+  protected isOpen$: Observable<boolean>;
 
   @ViewChild("offsetDIV", { static: false }) div: ElementRef;
   @ViewChild("offsetSVG", { static: false }) svg: ElementRef;
@@ -81,8 +86,8 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
   dbg = (...d) => console.debug("OffsetGraphComponent:", ...d);
   err = (...d) => console.error("OffsetGraphComponent:", ...d);
 
-  ngOnInit() {
-    this.fileSize$ = this.entity$.pipe(
+  constructor() {
+    this.fileSize$ = toObservable(this.entity).pipe(
       ops.filter((d) => d !== undefined),
       ops.map((d) => d.summary$),
       ops.mergeAll(),
@@ -90,13 +95,17 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
       // ops.tap((d) => this.dbg("entity file size", d)),
       ops.shareReplay(1),
     );
-    this.features$ = this.entity$.pipe(
+    this.features$ = toObservable(this.entity).pipe(
       ops.filter((d) => d !== undefined),
       ops.map((d) => d.featuresOffset$),
       ops.mergeAll(),
       // ops.tap((d) => this.dbg("features with offset", d.length)),
       ops.shareReplay(1),
     );
+    this.isOpen$ = toObservable(this.isOpenSignal);
+  }
+
+  ngOnInit(): void {
     this.redrawer$?.unsubscribe();
     this.redrawer$ = combineLatest([
       this.features$,
@@ -125,8 +134,8 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
       x2: -1,
     };
 
-    this.boundary$.next(bounds);
-    this.boundaryBytes$.next(bounds);
+    this.boundarySignal.set(bounds);
+    this.boundaryBytesSignal.set(bounds);
     this.extent.emit(bounds);
     this.updateDraggedArea(bounds);
   }
@@ -190,14 +199,14 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
         bound.x1 = Math.max(0, Math.min(max_pixels - 1, start));
         bound.x2 = Math.max(start + 1, Math.min(max_pixels, end));
         this.updateDraggedArea(bound);
-        this.boundary$.next(bound);
+        this.boundarySignal.set(bound);
 
         this.ngZone.run(() => {
           const boundaryInBytes = {
             x1: Math.floor(bound.x1 / widthMult),
             x2: Math.ceil(bound.x2 / widthMult),
           };
-          this.boundaryBytes$.next(boundaryInBytes);
+          this.boundaryBytesSignal.set(boundaryInBytes);
           this.extent.emit(boundaryInBytes);
         });
       });
@@ -240,7 +249,7 @@ export class OffsetPickerComponent implements OnInit, OnDestroy {
 
     const widthMult = width / file_size;
 
-    const bound = this.boundary$.value;
+    const bound = this.boundarySignal();
 
     svg.call(this.drag(file_size, widthMult, bound));
 

@@ -2,7 +2,7 @@
   class="h-full w-full"
   [ngClass]="{
     'dark:bg-azul-800 fixed top-0 right-0 bottom-0 left-0 z-30 block bg-white':
-      (isFullScreen$ | async),
+      isFullScreenSignal(),
   }"
 >
   <az-loading-card
@@ -31,13 +31,13 @@
 </div>
 
 <ng-template #tplControls>
-  @if (isFullScreen$ | async) {
+  @if (isFullScreenSignal()) {
     <flow-tooltip message="Minimize">
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
         noPadding="true"
-        (click)="isFullScreen$.next(false)"
+        (click)="isFullScreenSignal.set(false)"
       >
         <fa-icon [icon]="faCompress" />
       </flow-button>
@@ -48,7 +48,7 @@
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
         noPadding="true"
-        (click)="isFullScreen$.next(true)"
+        (click)="isFullScreenSignal.set(true)"
       >
         <fa-icon [icon]="faExpand" />
       </flow-button>

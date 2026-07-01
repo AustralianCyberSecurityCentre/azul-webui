@@ -5,7 +5,9 @@ import {
   HostBinding,
   Input,
   TemplateRef,
+  computed,
   inject,
+  input,
 } from "@angular/core";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 
@@ -27,45 +29,31 @@ export class LoadingCardComponent<T> {
   questionIcon = faQuestionCircle;
 
   /**card-header text as a title*/
-  @Input() cardTitle: string = null;
+  cardTitle = input<string | null>(null);
   /**show the card unless this is false*/
   @Input() set show(data: boolean) {
     this.isHidden = !data;
   }
 
-  @Input() contentClass: string = "";
-
   /**the data to tell whether things are loading still or complete or errored*/
   @Input()
   obs$: Observable<T>;
 
-  @Input()
-  isCheckObsIsTrue: boolean;
+  isCheckObsIsTrue = input<boolean>(false);
 
   /**template output in right side of card header*/
-  @Input() tplTopRight: TemplateRef<unknown>;
+  tplTopRight = input<TemplateRef<unknown> | undefined>(undefined);
   /**help text to display in second header*/
-  _help: string;
-  get help() {
-    return this._help;
-  }
-  @Input() set help(d: string) {
-    this._help = d.trim();
-  }
+  help = input<string>();
+  trimmedHelp = computed(() => this.help()?.trim());
+
+  isScrollable = input<boolean>(false);
 
   /**hide card when necessary*/
   @HostBinding("hidden") isHidden = false;
 
   get showHelp(): boolean {
-    return !!this._help && this._help.trim().length > 0;
-  }
-
-  _isScrollable: boolean;
-  get isScrollable() {
-    return this._isScrollable;
-  }
-  @Input() set isScrollable(d: boolean) {
-    this._isScrollable = d;
+    return !!this.trimmedHelp() && this.trimmedHelp().length > 0;
   }
 
   private helpDialog?: DialogRef<unknown>;

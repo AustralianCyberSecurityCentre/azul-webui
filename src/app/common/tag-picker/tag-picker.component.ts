@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   Input,
   OnInit,
   signal,
@@ -32,15 +33,7 @@ export class TagPickerComponent implements OnInit {
   @Input() tagName: FormControl<string>;
   @Input() refreshTags$: BehaviorSubject<boolean>;
 
-  private _isEntityTag: boolean = true;
-
-  @Input()
-  get isEntityTag(): boolean {
-    return this._isEntityTag;
-  }
-  set isEntityTag(value: boolean) {
-    this._isEntityTag = value;
-  }
+  isEntityTag = input<boolean>(true);
 
   protected allEntityTagsSub: Subscription;
 

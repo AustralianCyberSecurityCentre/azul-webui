@@ -1,10 +1,13 @@
-<div [style.height]="horizontal ? height : '70vh'" style="font-size: smaller">
+<div
+  [style.height]="horizontal() ? height() : '70vh'"
+  style="font-size: smaller"
+>
   @if (!!(entropy$ | async)) {
     @if (entropyData$ | async; as entropyData) {
       @if (entropyData.dataset.length > 0) {
         <svg
           width="100%"
-          [attr.height]="horizontal ? height : '70vh'"
+          [attr.height]="horizontal() ? height() : '70vh'"
           attr.viewBox="0 0 {{ svgWidth }} {{ svgHeight }}"
           preserveAspectRatio="none"
         >
@@ -27,7 +30,7 @@
             }
           </g>
           <!-- Bounding boxes for important entropy levels -->
-          @if (horizontal && showLevelsSignal()) {
+          @if (horizontal() && showLevels()) {
             <g>
               @for (d of bounds; track d) {
                 <rect

@@ -1,8 +1,8 @@
 <div class="flex flex-col items-center">
   <div class="w-full max-w-4xl">
     <flow-card>
-      <flow-card-header [title]="'Purge ' + (purgeTargetLabel$ | async)" />
-      @switch (state$ | async) {
+      <flow-card-header [title]="'Purge ' + purgeTargetLabelSignal()" />
+      @switch (computedStateSignal()) {
         @case ("loading") {
           <flow-card-body>
             <div class="flex flex-col items-center">
@@ -193,7 +193,7 @@
           }
         }
         @case ("bad_response") {
-          @if (purgeError$ | async; as error) {
+          @if (purgeErrorSignal(); as error) {
             <flow-card-body>
               <div class="flex flex-col items-center">
                 <az-loading-indicator-failed class="pb-3" />
@@ -206,7 +206,7 @@
           <flow-card-body>
             <div class="flex flex-col items-center">
               <az-loading-indicator-failed class="pb-3" />
-              Invalid state: {{ state$ | async }}
+              Invalid state: {{ computedStateSignal() }}
             </div>
           </flow-card-body>
         }
@@ -216,14 +216,14 @@
 </div>
 
 <ng-template #purgeDescription>
-  @if (purgeTarget$ | async; as purgeTarget) {
+  @if (purgeTargetSignal(); as purgeTarget) {
     @switch (purgeTarget.type) {
       @case ("reference_set") {
         <p>
           You are intending to purge files sourced at
-          {{ purgeTarget.timestamp }} from {{ purgeTargetLabel$ | async }} in
-          the <b>{{ purgeTarget.source }}</b> source, which has following
-          reference key/values:
+          {{ purgeTarget.timestamp }} from {{ purgeTargetLabelSignal() }} in the
+          <b>{{ purgeTarget.source }}</b> source, which has following reference
+          key/values:
         </p>
         <br />
         <table flowTable class="w-full table-fixed">

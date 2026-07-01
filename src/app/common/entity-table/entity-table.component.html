@@ -1,11 +1,7 @@
-<az-loading-card
-  [cardTitle]="tablename"
-  [obs$]="filteredFind$"
-  [contentClass]="'overflow-x-auto'"
->
+<az-loading-card [cardTitle]="tablename()" [obs$]="filteredFind$">
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
-      @if (selectedRowMap?.size === 1 && originalSha256 === undefined) {
+      @if (selectedRowMap?.size === 1 && originalSha256() === undefined) {
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
             <div class="flex flex-col gap-2">
@@ -16,20 +12,20 @@
       }
       @if (
         selectedRowMap.size > 1 ||
-        (selectedRowMap.size >= 1 && originalSha256 !== undefined)
+        (selectedRowMap.size >= 1 && originalSha256() !== undefined)
       ) {
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
             <div class="items-centre flex gap-2">
-              @if (originalSha256) {
+              @if (originalSha256()) {
                 <div class="self-center">
                   Do you want to compare
                   {{
-                    originalSha256?.length > 10
-                      ? (originalSha256 | slice: 0 : 10) + "..."
-                      : originalSha256
+                    originalSha256()?.length > 10
+                      ? (originalSha256() | slice: 0 : 10) + "..."
+                      : originalSha256()
                   }}
-                  @if (originalSha256) {
+                  @if (originalSha256()) {
                     with
                   }
                   {{ selectedRowMap.size }}
@@ -67,7 +63,7 @@
     </div>
     <div>
       <!-- External pagination will render this itself -->
-      @if (!externalPagination) {
+      @if (!externalPagination()) {
         <div class="text-md py-2">
           Displaying {{ (filteredFind$ | async)?.length | number }} of
           {{ (itemsCount$ | async) || "?" }} binaries matching the search
@@ -78,12 +74,12 @@
         @for (overrow of filteredFind$ | async; track overrow) {
           <az-entity-table-row
             [row]="overrow"
-            [externalPagination]="externalPagination"
-            [eType]="eType"
-            [originalSha256]="originalSha256"
+            [externalPagination]="externalPagination()"
+            [eType]="eType()"
+            [originalSha256]="originalSha256()"
             (checkChanged)="onRowCheckedChange(overrow, $event)"
             [retroHuntSearchNames]="
-              retroHuntSearchNames[overrow.sha256 || overrow.key]
+              retroHuntSearchNames()[overrow.sha256 || overrow.key]
             "
           >
             @if (overrow.similarity) {
@@ -95,7 +91,7 @@
     </div>
   } @else {
     <div class="flex justify-center gap-2">
-      <p class="py-2">{{ noResults }}</p>
+      <p class="py-2">{{ noResults() }}</p>
     </div>
   }
 </az-loading-card>

@@ -3,7 +3,11 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  Signal,
+  WritableSignal,
+  computed,
   inject,
+  signal,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -49,8 +53,10 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
   /** Controls for selecting binaries for comparison */
   // A FormGroup didn't work well here with dynamically updating lists, so this is just a workaround
   protected selectedFilesCheckboxes: { [key: string]: boolean } = {};
-  protected selectedFiles$ = new BehaviorSubject<string[]>([]);
-  protected selectedFileCount$: Observable<number>;
+  protected selectedFilesSignal: WritableSignal<string[]> = signal([]);
+  protected selectedFileCountSignal: Signal<number> = computed(() => {
+    return this.selectedFilesSignal().length;
+  });
 
   protected hashes$ = new BehaviorSubject<string[]>([]);
 
@@ -86,7 +92,7 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
 
             // Clear current controls
             this.selectedFilesCheckboxes = selectedControls;
-            this.selectedFiles$.next([]);
+            this.selectedFilesSignal.set([]);
           }),
         ),
       ),
@@ -96,10 +102,6 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
       }),
       ops.shareReplay(1),
     );
-
-    this.selectedFileCount$ = this.selectedFiles$.pipe(
-      ops.map((value) => value.length),
-    );
   }
 
   ngOnDestroy(): void {
@@ -108,7 +110,7 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
 
   /** Updates the tracking list of which binaries have been selected */
   protected updateSelectedBinaries() {
-    this.selectedFiles$.next(
+    this.selectedFilesSignal.set(
       Object.entries(this.selectedFilesCheckboxes)
         .filter(([_key, value]) => value)
         .map(([key, _value]) => key),
@@ -116,9 +118,9 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
   }
 
   compareBinaries() {
-    if (this.selectedFiles$.value.length >= 2) {
+    if (this.selectedFileCountSignal() >= 2) {
       this.router.navigate(["/pages/binaries/compare"], {
-        queryParams: { entity: Array.from(this.selectedFiles$.value).sort() },
+        queryParams: { entity: Array.from(this.selectedFilesSignal()).sort() },
       });
     }
   }

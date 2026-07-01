@@ -1,7 +1,7 @@
 <az-loading-card
-  [cardTitle]="isParentSignal() ? 'Parents' : 'Children'"
+  [cardTitle]="isParent() ? 'Parents' : 'Children'"
   [obs$]="autoLoad$"
-  [help]="isParentSignal() ? parentsHelp : childrenHelp"
+  [help]="isParent() ? parentsHelp : childrenHelp"
   [show]="(entity.children$ | async) !== null"
 >
   <div class="max-h-card-height overflow-y-auto">
@@ -9,8 +9,8 @@
       *ngTemplateOutlet="
         familyTemplate;
         context: {
-          data$: isParentSignal() ? entity.parents$ : entity.children$,
-          etype: isParentSignal() ? 'parents' : 'children',
+          data$: isParent() ? entity.parents$ : entity.children$,
+          etype: isParent() ? 'parents' : 'children',
         }
       "
     ></div>
@@ -27,7 +27,7 @@
     @if (data$ | async; as data) {
       <azco-entity-results
         [familyFind]="true"
-        [isParent]="isParentSignal()"
+        [isParent]="isParent()"
         [originalSha256]="entity.sha256"
         [eType]="etype"
         [countOption]="'all'"

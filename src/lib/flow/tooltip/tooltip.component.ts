@@ -3,13 +3,14 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
+  debounced,
+  input,
+  signal,
   TemplateRef,
+  WritableSignal,
 } from "@angular/core";
 import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
-import { BehaviorSubject } from "rxjs";
-import * as ops from "rxjs/operators";
 
 // https://flowbite.com/docs/components/tooltips/
 // Hover implemented using Tailwind groups instead of Flowbite vanilla JS
@@ -21,36 +22,25 @@ import * as ops from "rxjs/operators";
   imports: [CommonModule, OverlayModule, FaIconComponent],
 })
 export class TooltipComponent {
-  @Input()
-  message: string | undefined;
-
-  @Input()
-  subText: string | undefined;
-
-  @Input()
-  copyText: boolean = false;
-
-  @Input()
-  tplRef: TemplateRef<unknown> | null = null;
-
-  @Input()
-  tplContext: unknown = null;
-
-  @Input()
-  direction: "top" | "bottom" = "top";
+  message = input<string | undefined>(undefined);
+  subText = input<string | undefined>(undefined);
+  copyText = input<boolean>(false);
+  tplRef = input<TemplateRef<unknown> | null>(null);
+  tplContext = input<unknown>(null);
+  direction = input<"top" | "bottom">("top");
 
   constructor() {}
 
-  protected hoveringRaw$ = new BehaviorSubject(false);
-  protected hovering$ = this.hoveringRaw$.pipe(ops.debounceTime(10));
-  protected fade$ = this.hovering$.pipe(ops.delay(50));
+  protected hoveringRawSignal: WritableSignal<boolean> = signal(false);
+  protected hoveringSignal = debounced(this.hoveringRawSignal, 10);
+  protected fadeSignal = debounced(this.hoveringRawSignal, 60);
 
   protected fadeIn() {
-    this.hoveringRaw$.next(true);
+    this.hoveringRawSignal.set(true);
   }
 
   protected fadeOut() {
-    this.hoveringRaw$.next(false);
+    this.hoveringRawSignal.set(false);
   }
 
   protected readonly faCopy = faCopy;

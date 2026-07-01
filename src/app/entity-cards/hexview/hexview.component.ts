@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  WritableSignal,
   inject,
 } from "@angular/core";
 import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
@@ -24,6 +25,7 @@ import {
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 
+import { signal } from "@angular/core";
 import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { HexStringSyncService } from "../hex-string-sync.service";
@@ -50,7 +52,7 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
   private subscription = new Subscription();
 
   private pendingRequests = 0;
-  loadingPages$ = new BehaviorSubject<boolean>(false);
+  loadingPagesSignal: WritableSignal<boolean> = signal(false);
 
   dataStream$: BehaviorSubject<(HexRow | undefined)[]>;
 
@@ -120,7 +122,7 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
 
   private incrementPendingRequests() {
     this.pendingRequests++;
-    this.loadingPages$.next(true);
+    this.loadingPagesSignal.set(true);
   }
 
   private decrementPendingRequests() {
@@ -128,7 +130,7 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     if (this.pendingRequests < 0) {
       this.pendingRequests = 0;
     }
-    this.loadingPages$.next(this.pendingRequests != 0);
+    this.loadingPagesSignal.set(this.pendingRequests != 0);
   }
 
   fetchPage(page: number) {

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/components/indicators/#default-indicator
 
@@ -10,7 +10,6 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   imports: [CommonModule],
 })
 export class IndicatorComponent {
-  @Input() count = 5;
-
-  @Input() current = 2;
+  count = input<number>(5);
+  current = input<number>(2);
 }

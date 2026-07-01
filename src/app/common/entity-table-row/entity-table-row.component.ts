@@ -2,12 +2,12 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   HostBinding,
   Input,
-  Output,
   Signal,
   inject,
+  input,
+  output,
   signal,
 } from "@angular/core";
 import { ApiService } from "@app/core/api/api.service";
@@ -102,13 +102,13 @@ export class EntityTableRowComponent {
       );
   }
 
-  @Input() externalPagination: boolean = false;
-  @Input() showSources: boolean = true;
-  @Input() originalSha256?: string | undefined;
-  @Input() eType?: "parents" | "children" | undefined;
-  @Input() retroHuntSearchNames: string[] | undefined;
+  externalPagination = input<boolean>(false);
+  showSources = input<boolean>(true);
+  originalSha256 = input<string | undefined>(undefined);
+  eType = input<"parents" | "children" | undefined>(undefined);
+  retroHuntSearchNames = input<string[] | undefined>(undefined);
 
-  @Output() checkChanged = new EventEmitter<boolean>();
+  checkChanged = output<boolean>();
 
   protected onCheckboxChange(checked: boolean) {
     this.checkChanged.emit(checked ?? false);

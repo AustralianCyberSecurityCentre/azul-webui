@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 // https://flowbite.com/docs/forms/input-field/
 
@@ -10,8 +10,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   imports: [CommonModule],
 })
 export class LabelComponent {
-  @Input() for?: string;
-  @Input() noPadding: boolean = false;
-  @Input() fieldSize: "large" | "medium" | "small-nopadding" | "small" =
-    "medium";
+  for = input<string>("");
+  noPadding = input<boolean>(false);
+  fieldSize = input<"large" | "medium" | "small-nopadding" | "small">("medium");
 }

@@ -3,7 +3,9 @@ import {
   Component,
   Input,
   OnDestroy,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
 import { StreamMetadata } from "@app/common/misc-interfaces/stream-metadata";
 import { ApiService } from "@app/core/api/api.service";
@@ -16,7 +18,7 @@ import {
 } from "@app/core/util";
 import { Store } from "@ngrx/store";
 import { IDisposable, editor, languages } from "monaco-types";
-import { BehaviorSubject, Observable, ReplaySubject, Subscription } from "rxjs";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
@@ -53,16 +55,18 @@ Quick Shortcuts can be found in the F1 menu.
   }
 
   text$: Observable<string>;
-  ready$ = new BehaviorSubject(false);
+  readySignal: WritableSignal<boolean> = signal(false);
 
   protected editorOptions = getDefaultMonacoSettings();
 
-  protected availableLangs$ =
-    new ReplaySubject<languages.ILanguageExtensionPoint>(1);
-  protected selectedLanguage$ = new BehaviorSubject("plaintext");
-  protected cursorLine$ = new BehaviorSubject(1);
-  protected cursorColumn$ = new BehaviorSubject(1);
-  protected eolType$ = new ReplaySubject(1);
+  protected availableLangsSignal: WritableSignal<
+    languages.ILanguageExtensionPoint | undefined
+  > = signal(undefined);
+  protected selectedLanguageSignal: WritableSignal<string> =
+    signal("plaintext");
+  protected cursorLineSignal: WritableSignal<number> = signal(1);
+  protected cursorColumnSignal: WritableSignal<number> = signal(1);
+  protected eolTypeSignal: WritableSignal<string> = signal("");
 
   protected loadingCard$ = new BehaviorSubject(true);
 
@@ -104,7 +108,7 @@ Quick Shortcuts can be found in the F1 menu.
       ? alLanguage.split("/")[1]
       : alLanguage;
 
-    this.selectedLanguage$.next(monacoLanguage);
+    this.selectedLanguageSignal.set(monacoLanguage);
     this.updateMonacoSettings();
     console.log("Updated editor language:", monacoLanguage);
 
@@ -120,17 +124,17 @@ Quick Shortcuts can be found in the F1 menu.
     //    https://microsoft.github.io/monaco-editor/typedoc/functions/editor.create.html
     this.editor = editor as editor.IStandaloneCodeEditor;
 
-    this.availableLangs$.next(monaco.languages.getLanguages());
+    this.availableLangsSignal.set(monaco.languages.getLanguages());
 
-    this.ready$.next(true);
+    this.readySignal.set(true);
 
     // Hook model updates so we know when selected content has changed
     this.cursorPosSubscription = this.editor.onDidChangeCursorPosition((e) => {
-      this.cursorLine$.next(e.position.lineNumber);
-      this.cursorColumn$.next(e.position.column);
+      this.cursorLineSignal.set(e.position.lineNumber);
+      this.cursorColumnSignal.set(e.position.column);
     });
 
-    this.eolType$.next(
+    this.eolTypeSignal.set(
       this.editor.getModel().getEOL() === "\r\n" ? "CRLF" : "LF",
     );
 
@@ -151,6 +155,6 @@ Quick Shortcuts can be found in the F1 menu.
     this.editor.updateOptions(this.editorOptions);
 
     const model = this.editor.getModel();
-    monaco.editor.setModelLanguage(model, this.selectedLanguage$.value);
+    monaco.editor.setModelLanguage(model, this.selectedLanguageSignal());
   }
 }

@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
+  input,
   signal,
   WritableSignal,
 } from "@angular/core";
@@ -25,7 +25,7 @@ Entropy is only calculated if we have the binary in Azul.
 
   protected faEye = faEye;
 
-  @Input() height = "200px";
+  height = input<string>("200px");
 
   protected showGraphLevelsSignal: WritableSignal<boolean> = signal(true);
 

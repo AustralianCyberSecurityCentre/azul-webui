@@ -2,11 +2,11 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnDestroy,
   TemplateRef,
   ViewChild,
   inject,
+  input,
 } from "@angular/core";
 import { ReplaySubject, Subscription, combineLatest } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -56,8 +56,7 @@ Each source will have a table showing the references supplied during an upload, 
   `;
   @ViewChild("tplSource") public tplSource: TemplateRef<unknown>;
 
-  @Input()
-  restrictedHeight: boolean;
+  restrictedHeight = input<boolean>(false);
 
   protected faMagnifyingGlass = faMagnifyingGlass;
   protected faTrash = faTrash;

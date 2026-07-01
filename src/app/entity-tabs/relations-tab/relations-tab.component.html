@@ -1,26 +1,26 @@
 <div class="flex h-full w-full grow flex-col">
   <div class="min-h-0 w-full grow overflow-auto p-8 text-sm">
-    @switch (activeTab$ | async) {
+    @switch (activeTabSignal()) {
       @case (0) {
-        <azec-similar-features [entity]="entity" />
+        <azec-similar-features [entity]="entity()" />
       }
       @case (1) {
-        <azec-similarfuzzyhash [entity]="entity" hashType="ssdeep" />
+        <azec-similarfuzzyhash [entity]="entity()" hashType="ssdeep" />
       }
       @case (2) {
-        <azec-similarfuzzyhash [entity]="entity" hashType="tlsh" />
+        <azec-similarfuzzyhash [entity]="entity()" hashType="tlsh" />
       }
       @case (3) {
-        <azec-similar-entropy [entity]="entity" />
+        <azec-similar-entropy [entity]="entity()" />
       }
       @case (4) {
-        <azec-family [entity]="entity" [isParent]="true" />
+        <azec-family [entity]="entity()" [isParent]="true" />
       }
       @case (5) {
-        <azec-family [entity]="entity" [isParent]="false" />
+        <azec-family [entity]="entity()" [isParent]="false" />
       }
       @case (6) {
-        <azec-source-table [entity]="entity" />
+        <azec-source-table [entity]="entity()" />
       }
     }
   </div>
@@ -32,12 +32,12 @@
       <a
         [ngClass]="{
           'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
-            (activeTab$ | async) !== tab.key,
-          'bg-azul-200 dark:bg-azul-400': (activeTab$ | async) === tab.key,
+            activeTabSignal() !== tab.key,
+          'bg-azul-200 dark:bg-azul-400': activeTabSignal() === tab.key,
         }"
         class="flex h-10 px-4 py-2"
-        (click)="activeTab$.next(tab.key)"
-        (keypress)="activeTab$.next(tab.key)"
+        (click)="activeTabSignal.set(tab.key)"
+        (keypress)="activeTabSignal.set(tab.key)"
         tabindex="0"
       >
         {{ tab.name }}

@@ -13,7 +13,7 @@ import { EntitySearchComponent } from "@app/common/entity-search/entity-search.c
 import { components } from "@app/core/api/openapi";
 import { EntityService } from "@app/core/entity.service";
 import { ButtonType } from "@lib/flow/button/button.component";
-import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 export type SortOption = {
   title: string;
@@ -62,8 +62,6 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   /**all found entities*/
   protected find$: Observable<components["schemas"]["EntityFind"]>;
 
-  protected termValid$ = new BehaviorSubject<boolean>(true);
-
   sortOptions: { [short: string]: SortOption } = {
     newest_sourced: {
       title: "Newest",
@@ -81,10 +79,6 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   // Match md5, sha1, sha256, sha512
   private match_hashes =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
-
-  @Input() familyFind?: boolean;
-  @Input() isParent?: boolean;
-  @Input() entitySha256?: string;
 
   ngOnInit(): void {
     this.clearForm();

@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, WritableSignal, inject, signal } from "@angular/core";
 import {
   BehaviorSubject,
   Observable,
@@ -36,7 +36,15 @@ import { ToastrService } from "ngx-toastr";
  */
 class AxiosClient {
   private axios = Axios.create();
-  private cache = setupCache(this.axios);
+  private cache = setupCache(this.axios, {
+    // 5 minutes
+    ttl: 1000 * 60 * 5,
+    // Ignore server cache-control to avoid double-caching
+    interpretHeader: false,
+    cachePredicate: {
+      statusCheck: (status) => status >= 200 && status < 300,
+    },
+  });
 
   constructor(private oidcSecurityService: OidcSecurityService) {
     if (config?.oauth_enabled) {
@@ -69,12 +77,6 @@ class AxiosClient {
     return defer(() =>
       from(
         this.cache.request({
-          cache: {
-            // 5 minutes
-            ttl: 1000 * 60 * 5,
-            // Ignore server cache-control to avoid double-caching
-            interpretHeader: false,
-          },
           paramsSerializer: { indexes: null },
           ...config,
         }),
@@ -198,7 +200,7 @@ export class ApiService {
   currentInclusions: string[];
   // collection of security dicts received from responses
   public receivedSecurities$ = new BehaviorSubject(new Set<string>());
-  public securityFilter$ = new BehaviorSubject<string | null>(null);
+  public securityFilterSignal: WritableSignal<string | null> = signal(null);
   combinedSecurity$: Observable<string>;
 
   private http: AxiosClient;
@@ -393,7 +395,7 @@ export class ApiService {
       this.receivedSecurities$.next(tmp);
     }
     if (meta.sec_filter) {
-      this.securityFilter$.next(meta.sec_filter);
+      this.securityFilterSignal.set(meta.sec_filter);
     }
   }
 

@@ -1,11 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
   OnInit,
-  Output,
   inject,
+  input,
+  output,
 } from "@angular/core";
 import {
   FormControl,
@@ -40,14 +39,15 @@ export class FeatureValueTagsComponent implements OnInit {
   securityService = inject(SecurityService);
   featureService = inject(FeatureService);
 
-  @Input() row: {
-    name: string;
-    value: string;
-    tags: readonly components["schemas"]["FeatureValueTag"][];
-  };
-  @Output() changed = new EventEmitter<
-    components["schemas"]["FeatureValueTag"]
-  >();
+  row = input<
+    | {
+        name: string;
+        value: string;
+        tags: readonly components["schemas"]["FeatureValueTag"][];
+      }
+    | undefined
+  >(undefined);
+  changed = output<components["schemas"]["FeatureValueTag"]>();
 
   public getStatusColour = getStatusColour;
   formCreateTag: UntypedFormGroup;

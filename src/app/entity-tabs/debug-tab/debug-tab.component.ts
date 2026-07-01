@@ -4,12 +4,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
   OnDestroy,
-  Output,
   QueryList,
   ViewChildren,
+  WritableSignal,
   inject,
+  signal,
 } from "@angular/core";
 import { ApiService } from "@app/core/api/api.service";
 import { components } from "@app/core/api/openapi";
@@ -76,15 +76,11 @@ export default class DebugTabComponent
   ];
   protected areExtraQueriesDone: boolean = false;
 
-  protected tabs$: BehaviorSubject<TabSpec[]> = new BehaviorSubject<TabSpec[]>(
-    [],
-  );
+  protected tabsSignal: WritableSignal<TabSpec[]> = signal([]);
   protected queries$: BehaviorSubject<QueryResult[]> = new BehaviorSubject<
     QueryResult[]
   >([]);
 
-  @Output()
-  badgeCount = new EventEmitter<number>();
   private tabBadgeSubscription?: Subscription;
   private tabCreationSubscription?: Subscription;
 
@@ -166,7 +162,7 @@ export default class DebugTabComponent
       )
       .subscribe((tabs) => {
         this.dbg("Tabs have been created", tabs);
-        this.tabs$.next(tabs);
+        this.tabsSignal.set(tabs);
       });
   }
 

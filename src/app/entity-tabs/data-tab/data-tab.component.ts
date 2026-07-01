@@ -2,14 +2,16 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  effect,
   ElementRef,
-  EventEmitter,
   OnDestroy,
-  Output,
+  output,
   QueryList,
+  signal,
   ViewChildren,
+  WritableSignal,
 } from "@angular/core";
-import { BehaviorSubject, Observable, Subscription, combineLatest } from "rxjs";
+import { combineLatest, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { CommonModule } from "@angular/common";
@@ -73,14 +75,11 @@ export class DataTabComponent
 
   protected yaraStreamKey = "Yara Hits";
 
-  protected tabs$: BehaviorSubject<TabSpec[]> = new BehaviorSubject<TabSpec[]>(
-    [],
-  );
+  protected tabsSignal: WritableSignal<TabSpec[]> = signal([]);
 
   protected StreamType = StreamType;
 
-  @Output()
-  badgeCount = new EventEmitter<number>();
+  badgeCount = output<number>();
   private tabBadgeSubscription?: Subscription;
   private tabCreationSubscription?: Subscription;
 
@@ -112,6 +111,16 @@ export class DataTabComponent
     }
 
     return undefined;
+  }
+
+  constructor() {
+    super();
+    effect(() => {
+      const interestingCount = this.tabsSignal().filter(
+        (tab) => tab.interesting,
+      ).length;
+      this.badgeCount.emit(interestingCount);
+    });
   }
 
   /** Updates listeners for the entities properties. */
@@ -287,14 +296,7 @@ export class DataTabComponent
         }),
       )
       .subscribe((tabs) => {
-        this.tabs$.next(tabs);
-      });
-
-    // Count the number of interesting tabs and emit that
-    this.tabBadgeSubscription = this.tabs$
-      .pipe(ops.map((tabs) => tabs.filter((tab) => tab.interesting).length))
-      .subscribe((interestingCount) => {
-        this.badgeCount.emit(interestingCount);
+        this.tabsSignal.set(tabs);
       });
   }
 

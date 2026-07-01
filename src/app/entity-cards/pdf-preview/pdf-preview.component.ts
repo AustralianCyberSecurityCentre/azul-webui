@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnDestroy,
   OnInit,
   inject,
+  input,
 } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { StreamMetadataWithAuthor } from "@app/common/misc-interfaces/stream-metadata";
@@ -27,7 +27,7 @@ export class PdfPreviewComponent extends BaseCard implements OnInit, OnDestroy {
 
 This is rendered using your browser's PDF viewer.
 `;
-  @Input() streamData?: StreamMetadataWithAuthor;
+  streamData = input<StreamMetadataWithAuthor | undefined>(undefined);
 
   protected pdfUrl$: Observable<SafeResourceUrl>;
 
@@ -35,7 +35,7 @@ This is rendered using your browser's PDF viewer.
 
   ngOnInit() {
     this.pdfUrl$ = this.entityService
-      .streamBlob(this._entity.sha256, this.streamData.datastream_sha256)
+      .streamBlob(this._entity.sha256, this.streamData().datastream_sha256)
       .pipe(
         ops.map((docStream: Blob) => {
           if (docStream === null || docStream === undefined) {

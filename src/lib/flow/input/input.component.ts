@@ -3,12 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  Output,
   TemplateRef,
   ViewChild,
   inject,
+  input,
+  output,
 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -35,26 +34,26 @@ export class InputComponent {
   @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement> | null =
     null;
 
-  @Input() id: string | null = null;
-  @Input() required: boolean = false;
-  @Input() placeholder: string = "";
-  @Input() invalid: boolean = false;
-  @Input() helpText?: string;
-  @Input() fieldType: FieldType = "text";
-  @Input() fieldSize: "large" | "medium" | "small" = "medium";
-  @Input() icon?: IconProp;
-  @Input() ariaAutocomplete?: string | null = "none";
-  @Input() min?: number | null = null;
-  @Input() max?: number | null = null;
-  @Input() step?: number | null = null;
-  @Input() size?: number | null = null;
-  @Input() suffixTpl?: TemplateRef<unknown>;
+  id = input<string | null>(null);
+  required = input<boolean>(false);
+  placeholder = input<string>("");
+  invalid = input<boolean>(false);
+  helpText = input<string | undefined>(undefined);
+  fieldType = input<FieldType>("text");
+  fieldSize = input<"large" | "medium" | "small">("medium");
+  icon = input<IconProp | undefined>(undefined);
+  ariaAutocomplete = input<string | null>("none");
+  min = input<number | null>(null);
+  max = input<number | null>(null);
+  step = input<number | null>(null);
+  size = input<number | null>(null);
+  suffixTpl = input<TemplateRef<unknown> | undefined>(undefined);
 
-  @Output() inputFocus: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputFocusOut: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputBlur: EventEmitter<FocusEvent> = new EventEmitter();
-  @Output() inputSelectionChange: EventEmitter<Event> = new EventEmitter();
+  inputFocus = output<FocusEvent>();
+  inputFocusOut = output<FocusEvent>();
+  inputBlur = output<FocusEvent>();
+  inputSelectionChange = output<Event>();
 
-  @Input() value?: string | number;
+  value = input<string | number>();
   hcd = inject(HostControlDirective);
 }

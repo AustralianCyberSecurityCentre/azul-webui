@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 /** A simple rounded text icon with support for two letters */
 @Component({
@@ -8,5 +8,5 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
   standalone: true,
 })
 export class TextIconComponent {
-  @Input() label: string;
+  label = input<string>();
 }

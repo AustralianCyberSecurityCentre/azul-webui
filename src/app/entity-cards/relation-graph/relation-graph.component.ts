@@ -307,7 +307,7 @@ not be shown on the graph.
   /**combines data and rerender to alter svg*/
   private render$: Observable<Nearby>;
 
-  protected isFullScreen$ = new BehaviorSubject(false);
+  protected isFullScreenSignal: WritableSignal<boolean> = signal(false);
 
   private renderSub: Subscription;
 
@@ -360,7 +360,7 @@ not be shown on the graph.
   protected handleKey(evt: Event) {
     const evtKeyboard = evt as KeyboardEvent;
     evtKeyboard.preventDefault();
-    this.isFullScreen$.next(false);
+    this.isFullScreenSignal.set(false);
   }
 
   private refineData(d: components["schemas"]["ReadNearby"]): Refine {
