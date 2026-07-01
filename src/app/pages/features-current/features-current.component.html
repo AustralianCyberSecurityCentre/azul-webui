@@ -72,10 +72,7 @@
               No
             } @else {
               Showing {{ (currentPageSignal() - 1) * valueCount() + 1 }} to
-              {{
-                (currentPageSignal() - 1) * valueCount() +
-                  allPageFeatureInfo[currentPageSignal() - 1]?.values?.length
-              }}
+              {{ toNumberEndRange() }}
               of {{ totalNumberOfFeatureValuesActual() }}
               @if (isTotalCountAnApproximation() && !isSearchComplete()) {
                 (approximation)

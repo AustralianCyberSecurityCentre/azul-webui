@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  linkedSignal,
   OnDestroy,
   OnInit,
   Signal,
@@ -79,6 +80,24 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
 
   currentPageSignal: WritableSignal<number> = signal(1);
   highestPageNumber: WritableSignal<number> = signal(-1);
+  toNumberEndRange: Signal<number> = linkedSignal({
+    source: () => {
+      return {
+        valueCount: this.valueCount(),
+        currentPage: this.currentPageSignal(),
+        pagesInfo: this.allPageFeatureInfo(),
+      };
+    },
+    computation: ({ valueCount, currentPage, pagesInfo }, previous) => {
+      if (!pagesInfo[currentPage - 1]?.values?.length) {
+        return previous.value;
+      }
+      return (
+        (currentPage - 1) * valueCount +
+        pagesInfo[currentPage - 1]?.values?.length
+      );
+    },
+  });
 
   totalNumberOfFeatureValuesApprox: WritableSignal<number> = signal(0);
   totalNumberOfFeatureValuesActual: Signal<number> = computed(() => {
@@ -111,8 +130,8 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
     );
   });
 
-  allPageFeatureInfo: FeatureValuesWithNumBinaries[] =
-    new Array<FeatureValuesWithNumBinaries>();
+  protected allPageFeatureInfo: WritableSignal<FeatureValuesWithNumBinaries[]> =
+    signal([]);
 
   author: string;
   authorVersion: string;
@@ -222,7 +241,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
             this.highestPageNumber.set(this.currentPageSignal());
           } else {
             this.isDoneLoadingSignal.set(true);
-            return this.allPageFeatureInfo[this.currentPageSignal() - 1];
+            return this.allPageFeatureInfo()[this.currentPageSignal() - 1];
           }
           // Set the total if it's available in the response
           if (d.total !== null && d.total !== undefined) {
@@ -239,12 +258,12 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
           this.featureValuesCountBinariesSub?.unsubscribe();
           this.featureValuesCountBinariesSub =
             this.featureService.featureValuesCountBinaries$(data, "", "");
-          this.allPageFeatureInfo.push(d);
+          this.allPageFeatureInfo.update((currentList) => [...currentList, d]);
           this.numberOfFeatureValuesSoFar.update(
             (value) => value + d.values.length,
           );
           this.isDoneLoadingSignal.set(true);
-          return this.allPageFeatureInfo[this.currentPageSignal() - 1];
+          return this.allPageFeatureInfo()[this.currentPageSignal() - 1];
         }),
         ops.shareReplay(1),
       );
@@ -327,6 +346,6 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
     this.numberOfFeatureValuesSoFar.set(0);
     this.isSearchComplete.set(false);
     this.isTotalCountAnApproximation.set(false);
-    this.allPageFeatureInfo = [];
+    this.allPageFeatureInfo.set([]);
   }
 }
