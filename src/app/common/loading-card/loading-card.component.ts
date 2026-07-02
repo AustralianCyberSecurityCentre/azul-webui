@@ -48,6 +48,7 @@ export class LoadingCardComponent<T> {
   trimmedHelp = computed(() => this.help()?.trim());
 
   isScrollable = input<boolean>(false);
+  xAxisScrollable = input<boolean>(false);
 
   /**hide card when necessary*/
   @HostBinding("hidden") isHidden = false;

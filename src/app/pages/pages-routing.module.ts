@@ -38,7 +38,10 @@ const routes: Routes = [
             path: "upload/child/:sha256",
             component: BinariesUploadComponent,
           },
-          { path: "explore", component: BinariesExploreComponent },
+          {
+            path: "explore",
+            component: BinariesExploreComponent,
+          },
           {
             path: "current/:entityType/:sha256",
             redirectTo: "current/:sha256",

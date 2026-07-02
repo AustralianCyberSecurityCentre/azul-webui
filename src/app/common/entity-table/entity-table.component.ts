@@ -4,14 +4,20 @@ import {
   HostBinding,
   Input,
   OnChanges,
+  Signal,
   SimpleChanges,
+  WritableSignal,
+  computed,
   inject,
   input,
+  signal,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
+import * as fromGlobalSettings from "@app/core/store/global-settings/global-selector";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
+import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -25,9 +31,17 @@ Includes highlighting data from elasticsearch.
   templateUrl: "./entity-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
+  styles: [
+    `
+      table {
+        word-break: break-word;
+      }
+    `,
+  ],
 })
 export class EntityTableComponent implements OnChanges {
   private router = inject(Router);
+  private store = inject(Store);
 
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
@@ -37,14 +51,52 @@ export class EntityTableComponent implements OnChanges {
   protected itemsCount$: Observable<number>;
   protected selectedRowMap = new Map<string, EntityFindRow>();
 
+  protected showEntropySignal: Signal<boolean> = signal(true);
+  protected showMimetypeSignal: Signal<boolean> = signal(true);
+  protected showMagicSignal: Signal<boolean> = signal(true);
+  protected showSourcesSignal: Signal<boolean> = signal(true);
+  protected showSourceReferencesSignal: Signal<boolean> = signal(true);
+  protected useTableView: Signal<boolean> = signal(true);
+  protected showSimilarityHeader: WritableSignal<boolean> = signal(false);
+
+  useTableViewOverride = input<boolean | undefined>(undefined);
+
   externalPagination = input<boolean>(false);
   tablename = input<string | null>(null);
-  scroll = input<boolean>(true);
+  tableScroll = input<boolean>(false);
+  tableXScroll = input<boolean>(false);
   @Input() find$: Observable<EntityFindWithPurgeExtras> | undefined;
   originalSha256 = input<string | undefined>(undefined);
   eType = input<"parents" | "children" | undefined>(undefined);
   noResults = input<string>("No binaries match the search criteria");
   retroHuntSearchNames = input<Record<string, string[]>>({});
+  retrohuntNumberOfSearchKeys: Signal<number> = computed(() => {
+    if (this.retroHuntSearchNames()) {
+      return Object.keys(this.retroHuntSearchNames())?.length;
+    }
+    return 0;
+  });
+
+  constructor() {
+    this.useTableView = this.store.selectSignal(
+      fromGlobalSettings.selectIsTableView,
+    );
+    this.showEntropySignal = this.store.selectSignal(
+      fromGlobalSettings.selectBinaryExploreShowEntropy,
+    );
+    this.showMimetypeSignal = this.store.selectSignal(
+      fromGlobalSettings.selectBinaryExploreShowMimetype,
+    );
+    this.showMagicSignal = this.store.selectSignal(
+      fromGlobalSettings.selectBinaryExploreShowMagic,
+    );
+    this.showSourcesSignal = this.store.selectSignal(
+      fromGlobalSettings.selectBinaryExploreShowSources,
+    );
+    this.showSourceReferencesSignal = this.store.selectSignal(
+      fromGlobalSettings.selectBinaryExploreShowSourceReferences,
+    );
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(
@@ -58,9 +110,13 @@ export class EntityTableComponent implements OnChanges {
         ops.map((d) => {
           //d may be null — make it safe
           const items = d?.items ?? [];
-
+          this.showSimilarityHeader.set(false);
           return items.map((val) => {
             const selected = this.selectedRowMap.get(val.sha256);
+            // check if similarity exists to know if the similarity table header should be displayed.
+            if (val["similarity"]) {
+              this.showSimilarityHeader.set(true);
+            }
             return {
               ...val,
               checked: selected ? true : false,

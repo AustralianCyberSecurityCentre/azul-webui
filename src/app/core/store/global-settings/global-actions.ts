@@ -1,6 +1,21 @@
 import { createAction, props } from "@ngrx/store";
 import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
 
+export const saveIsTableView = createAction(
+  "[GlobalSetting] Save IsTableView",
+  props<{ IsTableView: boolean }>(),
+);
+
+export const saveBinaryExploreShowSources = createAction(
+  "[GlobalSetting] Save BinaryExploreShowSources",
+  props<{ BinaryExploreShowSources: boolean }>(),
+);
+
+export const saveBinaryExploreShowSourceReferences = createAction(
+  "[GlobalSetting] Save BinaryExploreShowSourceReferences",
+  props<{ BinaryExploreShowSourceReferences: boolean }>(),
+);
+
 export const saveBinaryExploreShowEntropy = createAction(
   "[GlobalSetting] Save BinaryExploreShowEntropy",
   props<{ BinaryExploreShowEntropy: boolean }>(),

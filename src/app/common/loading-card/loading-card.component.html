@@ -28,7 +28,11 @@
 
 <ng-template #outlet>
   <az-loading-content
-    [ngClass]="isScrollable() ? 'overflow-auto' : ''"
+    [ngClass]="{
+      'overflow-x-auto': xAxisScrollable(),
+      'overflow-y-hidden': xAxisScrollable(),
+      'overflow-auto': isScrollable(),
+    }"
     class="flex min-w-0 grow flex-col"
     [obs$]="obs$"
     [isCheckObsIsTrue]="isCheckObsIsTrue()"

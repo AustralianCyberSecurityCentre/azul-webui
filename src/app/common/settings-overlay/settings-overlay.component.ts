@@ -42,9 +42,12 @@ export class SettingsOverlayComponent implements OnInit {
   protected enableHexStringSyncForm: FormControl;
   protected debugEditorHeightPxForm: FormControl;
 
+  protected formBinaryViewTableFormat: FormControl;
   protected formBinaryExploreShowEntropy: FormControl;
   protected formBinaryExploreShowMimetype: FormControl;
   protected formBinaryExploreShowMagic: FormControl;
+  protected formBinaryExploreShowBinarySources: FormControl;
+  protected formBinaryExploreShowBinarySourceReferences: FormControl;
 
   protected globalForm: UntypedFormGroup;
 
@@ -187,6 +190,22 @@ export class SettingsOverlayComponent implements OnInit {
       });
 
     this.store
+      .select(fromGlobalSettings.selectIsTableView)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.formBinaryViewTableFormat = this.fb.control(value);
+        this.formBinaryViewTableFormat.valueChanges.subscribe(
+          (state: boolean) => {
+            this.store.dispatch(
+              globalAction.saveIsTableView({
+                IsTableView: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
       .select(fromGlobalSettings.selectBinaryExploreShowEntropy)
       .pipe(ops.first())
       .subscribe((value) => {
@@ -228,6 +247,39 @@ export class SettingsOverlayComponent implements OnInit {
             this.store.dispatch(
               globalAction.saveBinaryExploreShowMagic({
                 BinaryExploreShowMagic: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
+      .select(fromGlobalSettings.selectBinaryExploreShowSources)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.formBinaryExploreShowBinarySources = this.fb.control(value);
+        this.formBinaryExploreShowBinarySources.valueChanges.subscribe(
+          (state: boolean) => {
+            this.store.dispatch(
+              globalAction.saveBinaryExploreShowSources({
+                BinaryExploreShowSources: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
+      .select(fromGlobalSettings.selectBinaryExploreShowSourceReferences)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.formBinaryExploreShowBinarySourceReferences =
+          this.fb.control(value);
+        this.formBinaryExploreShowBinarySourceReferences.valueChanges.subscribe(
+          (state: boolean) => {
+            this.store.dispatch(
+              globalAction.saveBinaryExploreShowSourceReferences({
+                BinaryExploreShowSourceReferences: state,
               }),
             );
           },

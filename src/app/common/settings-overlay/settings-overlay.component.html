@@ -75,6 +75,9 @@
 <h2 class="mb-2 text-lg font-bold dark:text-white">Binary Explorer Options</h2>
 <ng-container>
   <div class="grid grid-cols-2 gap-2">
+    <flow-toggle [formControl]="formBinaryViewTableFormat"
+      >Table Format</flow-toggle
+    >
     <flow-toggle [formControl]="formBinaryExploreShowEntropy"
       >Show Entropy</flow-toggle
     >
@@ -83,6 +86,12 @@
     >
     <flow-toggle [formControl]="formBinaryExploreShowMagic"
       >Show Magic</flow-toggle
+    >
+    <flow-toggle [formControl]="formBinaryExploreShowBinarySources"
+      >Show Source</flow-toggle
+    >
+    <flow-toggle [formControl]="formBinaryExploreShowBinarySourceReferences"
+      >Show Source References</flow-toggle
     >
   </div>
 </ng-container>

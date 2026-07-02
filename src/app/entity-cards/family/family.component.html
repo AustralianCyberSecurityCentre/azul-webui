@@ -4,7 +4,7 @@
   [help]="isParent() ? parentsHelp : childrenHelp"
   [show]="(entity.children$ | async) !== null"
 >
-  <div class="max-h-card-height overflow-y-auto">
+  <div class="max-h-card-height">
     <div
       *ngTemplateOutlet="
         familyTemplate;

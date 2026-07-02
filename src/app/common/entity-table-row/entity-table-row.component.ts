@@ -20,7 +20,6 @@ import {
 import { FeatureService } from "@app/core/feature.service";
 import { IconService } from "@app/core/icon.service";
 import { Entity } from "@app/core/services";
-import * as fromGlobalSettings from "@app/core/store/global-settings/global-selector";
 import { UserService } from "@app/core/user.service";
 import { allowedToPurge } from "@app/core/util";
 import {
@@ -43,6 +42,28 @@ Includes highlighting data from elasticsearch.
   templateUrl: "./entity-table-row.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
+  // Style added to ensure that the angular component doesn't block the <tr> in table view
+  styles: [
+    `
+      :host {
+        display: contents;
+      }
+
+      .sha256-style {
+        min-width: 17rem;
+        max-width: 17rem;
+        width: 17rem;
+      }
+
+      .file-info-style {
+        min-width: 6rem;
+      }
+
+      .source-style {
+        min-width: 17rem;
+      }
+    `,
+  ],
 })
 export class EntityTableRowComponent {
   entityService = inject(Entity);
@@ -55,10 +76,6 @@ export class EntityTableRowComponent {
   private cdr = inject(ChangeDetectorRef);
 
   @HostBinding("hidden") isHidden = false;
-
-  protected showEntropySignal: Signal<boolean>;
-  protected showMimetypeSignal: Signal<boolean>;
-  protected showMagicSignal: Signal<boolean>;
 
   protected showGraphLevelsSignal: Signal<boolean> = signal(false);
 
@@ -74,6 +91,11 @@ export class EntityTableRowComponent {
   protected faTrash = faTrash;
   protected faClock = faClock;
   protected faCircleXmark = faCircleXmark;
+
+  showEntropy = input<boolean>(true);
+  showMimetype = input<boolean>(true);
+  showMagic = input<boolean>(true);
+  asTableRows = input<boolean>(true);
 
   @Input()
   get row(): EntityFindRowWithUpdatedTags {
@@ -104,6 +126,7 @@ export class EntityTableRowComponent {
 
   externalPagination = input<boolean>(false);
   showSources = input<boolean>(true);
+  showSourceReferences = input<boolean>(true);
   originalSha256 = input<string | undefined>(undefined);
   eType = input<"parents" | "children" | undefined>(undefined);
   retroHuntSearchNames = input<string[] | undefined>(undefined);
@@ -114,18 +137,6 @@ export class EntityTableRowComponent {
     this.checkChanged.emit(checked ?? false);
     this._row.checked = checked;
     this.cdr.markForCheck();
-  }
-
-  constructor() {
-    this.showEntropySignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowEntropy,
-    );
-    this.showMimetypeSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowMimetype,
-    );
-    this.showMagicSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowMagic,
-    );
   }
 
   genSourceText(sources: string[]): string {

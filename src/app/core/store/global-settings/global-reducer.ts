@@ -5,9 +5,12 @@ import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
 const GLOBAL_SETTING_STATE = "GLOBAL_SETTING_STATE";
 
 export interface GlobalSettingState {
+  IsTableView: boolean;
   BinaryExploreShowEntropy: boolean;
   BinaryExploreShowMimetype: boolean;
   BinaryExploreShowMagic: boolean;
+  BinaryExploreShowSources: boolean;
+  BinaryExploreShowSourceReferences: boolean;
   bucketSize: number;
   relationalGraphShowCousinsByDefault: RelationalGraphLevel;
   showDebugInfo: boolean;
@@ -17,9 +20,12 @@ export interface GlobalSettingState {
 }
 
 export const initialState: GlobalSettingState = {
+  IsTableView: true,
   BinaryExploreShowEntropy: true,
   BinaryExploreShowMimetype: false,
   BinaryExploreShowMagic: true,
+  BinaryExploreShowSources: true,
+  BinaryExploreShowSourceReferences: true,
   bucketSize: 100,
   relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES,
   showDebugInfo: false,
@@ -85,6 +91,14 @@ export const globalSettingReducer = createReducer(
     saveGlobalSettingState(currentState);
     return currentState;
   }),
+  on(GlobalSettingActions.saveIsTableView, (state, { IsTableView }) => {
+    const currentState = {
+      ...state,
+      IsTableView: IsTableView,
+    };
+    saveGlobalSettingState(currentState);
+    return currentState;
+  }),
   on(
     GlobalSettingActions.saveBinaryExploreShowEntropy,
     (state, { BinaryExploreShowEntropy }) => {
@@ -118,6 +132,29 @@ export const globalSettingReducer = createReducer(
       return currentState;
     },
   ),
+  on(
+    GlobalSettingActions.saveBinaryExploreShowSources,
+    (state, { BinaryExploreShowSources }) => {
+      const currentState = {
+        ...state,
+        BinaryExploreShowSources: BinaryExploreShowSources,
+      };
+      saveGlobalSettingState(currentState);
+      return currentState;
+    },
+  ),
+  on(
+    GlobalSettingActions.saveBinaryExploreShowSourceReferences,
+    (state, { BinaryExploreShowSourceReferences }) => {
+      const currentState = {
+        ...state,
+        BinaryExploreShowSourceReferences: BinaryExploreShowSourceReferences,
+      };
+      saveGlobalSettingState(currentState);
+      return currentState;
+    },
+  ),
+
   on(
     GlobalSettingActions.saveEnableHexStringSync,
     (state, { enableHexStringSync }) => {

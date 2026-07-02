@@ -3,6 +3,10 @@ import { AppState } from "../main-store";
 
 const selectGlobalConfigState = (state: AppState) => state.globalSetting;
 
+export const selectIsTableView = createSelector(
+  selectGlobalConfigState,
+  (state) => state.IsTableView,
+);
 export const selectBinaryExploreShowEntropy = createSelector(
   selectGlobalConfigState,
   (state) => state.BinaryExploreShowEntropy,
@@ -14,6 +18,16 @@ export const selectBinaryExploreShowMimetype = createSelector(
 export const selectBinaryExploreShowMagic = createSelector(
   selectGlobalConfigState,
   (state) => state.BinaryExploreShowMagic,
+);
+
+export const selectBinaryExploreShowSources = createSelector(
+  selectGlobalConfigState,
+  (state) => state.BinaryExploreShowSources,
+);
+
+export const selectBinaryExploreShowSourceReferences = createSelector(
+  selectGlobalConfigState,
+  (state) => state.BinaryExploreShowSourceReferences,
 );
 
 export const selectBucketSize = createSelector(
