@@ -62,6 +62,11 @@ Includes highlighting data from elasticsearch.
       .source-style {
         min-width: 17rem;
       }
+
+      td,
+      th {
+        vertical-align: centre;
+      }
     `,
   ],
 })
