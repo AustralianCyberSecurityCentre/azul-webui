@@ -84,7 +84,7 @@
     "@types/upng-js": "2.1.5",
     "@zip.js/zip.js": "2.8.26",
     "angular-eslint": "22.0.0",
-    "eslint": "10.5.0",
+    "eslint": "10.6.0",
     "openapi-typescript": "7.13.0",
     "postcss": "8.5.15",
     "prettier": "3.8.5",
