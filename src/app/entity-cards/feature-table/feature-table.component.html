@@ -68,7 +68,11 @@
             message="Show features from all plugins"
             direction="bottom"
           >
-            <flow-button [type]="ButtonType.Light" (click)="selectAllPlugins()">
+            <flow-button
+              [type]="ButtonType.Light"
+              [size]="ButtonSize.Small"
+              (click)="selectAllPlugins()"
+            >
               All
             </flow-button>
           </flow-tooltip>
@@ -84,6 +88,7 @@
             >
               <flow-button
                 (click)="clickButton(pluginFVCount.key, $event)"
+                [size]="ButtonSize.Small"
                 [type]="
                   (currentPluginFilter$ | async).includes(pluginFVCount.key)
                     ? ButtonType.Primary
