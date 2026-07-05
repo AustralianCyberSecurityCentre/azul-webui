@@ -28,7 +28,7 @@ export class TableBodyRowDirective implements OnChanges {
   }
 
   private calculateBorder() {
-    const classes = "border-b border-azul-300 dark:border-azul-500".split(" ");
+    const classes = "border-b border-azul-300 dark:border-azul-700".split(" ");
     const strongClasses = "border-b-2 dark:border-b dark:border-azul-50".split(
       " ",
     );
