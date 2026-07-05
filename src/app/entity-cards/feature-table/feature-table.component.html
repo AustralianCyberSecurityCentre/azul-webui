@@ -132,9 +132,9 @@
             </tr>
           </thead>
           <tbody flowTableBody>
-            <ng-container>
+            @if (reduceFeatures$ | async; as reducedFeatures) {
               @for (
-                row of reduceFeatures$ | async;
+                row of reducedFeatures;
                 track trackBy(i, row);
                 let i = $index
               ) {
@@ -142,7 +142,11 @@
                 @if (
                   row.distance < 5 || row.shared.max <= 10 || row.shared.showAll
                 ) {
-                  <tr flowTableBodyRow class="group">
+                  <tr
+                    flowTableBodyRow
+                    [strongBorder]="reducedFeatures[i + 1]?.showFeatureName"
+                    class="group"
+                  >
                     <td class="align-top">
                       <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
                       <input
@@ -266,8 +270,13 @@
                     </td>
                   </tr>
                 }
+                <!--Compress lots of rows into an expandable-->
                 @if (row.distance === 4 && row.shared.max > 10) {
-                  <tr flowTableBodyRow>
+                  <!--+2 is because there is a fifth row that doesn't get rendered and it makes formatting easier-->
+                  <tr
+                    flowTableBodyRow
+                    [strongBorder]="reducedFeatures[i + 2]?.showFeatureName"
+                  >
                     <td class="align-top"></td>
                     <td class="s-expand"></td>
                     <td
@@ -295,7 +304,7 @@
                   </tr>
                 }
               }
-            </ng-container>
+            }
           </tbody>
         </table>
       </div>
