@@ -1,3 +1,4 @@
+import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +12,13 @@ import {
   signal,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { Router } from "@angular/router";
+import { Boundary } from "@app/common/offset-picker/offset-picker.component";
+import { components } from "@app/core/api/openapi";
+import { FeatureWithDecodedValue } from "@app/core/api/state";
+import { PivotService } from "@app/core/pivot.service";
+import { escapeValue } from "@app/core/util";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
   BehaviorSubject,
   Observable,
@@ -19,15 +27,6 @@ import {
   interval,
 } from "rxjs";
 import * as ops from "rxjs/operators";
-
-import { Dialog, DialogRef } from "@angular/cdk/dialog";
-import { Router } from "@angular/router";
-import { Boundary } from "@app/common/offset-picker/offset-picker.component";
-import { components } from "@app/core/api/openapi";
-import { FeatureWithDecodedValue } from "@app/core/api/state";
-import { PivotService } from "@app/core/pivot.service";
-import { escapeValue } from "@app/core/util";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { BaseCard } from "../base-card.component";
 
 const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);

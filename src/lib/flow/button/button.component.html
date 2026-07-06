@@ -1,12 +1,12 @@
 <button
   [type]="submit() ? 'submit' : 'button'"
   [ngClass]="{
-    'px-2': size() === 'tiny',
-    'px-3': size() === 'icon' || size() === 'small',
-    'px-5': size() === 'medium' || size() === 'large',
-    'py-2': size() === 'icon' || size() === 'small',
-    'py-2.5': size() === 'medium',
-    'py-3': size() === 'large',
+    'px-2': !noPadding() && size() === 'tiny',
+    'px-3': !noPadding() && (size() === 'icon' || size() === 'small'),
+    'px-5': !noPadding() && (size() === 'medium' || size() === 'large'),
+    'py-2': !noPadding() && (size() === 'icon' || size() === 'small'),
+    'py-2.5': !noPadding() && size() === 'medium',
+    'py-3': !noPadding() && size() === 'large',
     'text-xs': size() === 'tiny' || size() === 'icon',
     'text-sm': size() === 'small' || size() === 'medium',
     'text-base': size() === 'large',

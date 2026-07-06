@@ -73,6 +73,7 @@
             >
               <flow-button
                 [type]="ButtonType.Light"
+                [size]="ButtonSize.Small"
                 (click)="selectAllPlugins()"
                 [outline]="false"
               >
@@ -92,6 +93,7 @@
             >
               <flow-button
                 (click)="clickButton(pluginFVCount.key, $event)"
+                [size]="ButtonSize.Small"
                 [type]="
                   (currentPluginFilter$ | async).includes(pluginFVCount.key)
                     ? ButtonType.Primary
@@ -141,9 +143,9 @@
             </tr>
           </thead>
           <tbody flowTableBody>
-            <ng-container>
+            @if (reduceFeatures$ | async; as reducedFeatures) {
               @for (
-                row of reduceFeatures$ | async;
+                row of reducedFeatures;
                 track trackBy(i, row);
                 let i = $index
               ) {
@@ -151,8 +153,12 @@
                 @if (
                   row.distance < 5 || row.shared.max <= 10 || row.shared.showAll
                 ) {
-                  <tr flowTableBodyRow class="group">
-                    <td class="align-top">
+                  <tr
+                    flowTableBodyRow
+                    [strongBorder]="reducedFeatures[i + 1]?.showFeatureName"
+                    class="group"
+                  >
+                    <td flowTableBodyCell class="px-1! align-top">
                       <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
                       <input
                         type="checkbox"
@@ -164,16 +170,17 @@
                       />
                     </td>
                     <!-- button to toggle visibility of detailed info for current row -->
-                    <td flowTableBodyCell class="s-expand align-top">
-                      <span class="line-clamp-8 text-wrap break-words">
-                        <flow-button
-                          [type]="ButtonType.Transparent"
-                          [size]="ButtonSize.Tiny"
-                          (click)="featureDetailShow(tplFeatureDetail, row)"
-                        >
-                          <fa-icon flowLink [icon]="faPlus" />
-                        </flow-button>
-                      </span>
+                    <td flowTableBodyCell class="s-expand px-1! align-top">
+                      <flow-button
+                        [type]="ButtonType.Transparent"
+                        [size]="ButtonSize.Small"
+                        (click)="featureDetailShow(tplFeatureDetail, row)"
+                        [rounded]="false"
+                        [blockCentered]="true"
+                        [noPadding]="true"
+                      >
+                        <fa-icon flowLink [icon]="faPlus" />
+                      </flow-button>
                     </td>
                     <!-- feature name column -->
                     <td flowTableBodyCell class="s-feature align-top">
@@ -275,8 +282,13 @@
                     </td>
                   </tr>
                 }
+                <!--Compress lots of rows into an expandable-->
                 @if (row.distance === 4 && row.shared.max > 10) {
-                  <tr flowTableBodyRow>
+                  <!--+2 is because there is a fifth row that doesn't get rendered and it makes formatting easier-->
+                  <tr
+                    flowTableBodyRow
+                    [strongBorder]="reducedFeatures[i + 2]?.showFeatureName"
+                  >
                     <td class="align-top"></td>
                     <td class="s-expand"></td>
                     <td
@@ -304,7 +316,7 @@
                   </tr>
                 }
               }
-            </ng-container>
+            }
           </tbody>
         </table>
       </div>

@@ -36,7 +36,6 @@
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
-        noPadding="true"
         (click)="isFullScreenSignal.set(false)"
       >
         <fa-icon [icon]="faCompress" />
@@ -47,7 +46,6 @@
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
-        noPadding="true"
         (click)="isFullScreenSignal.set(true)"
       >
         <fa-icon [icon]="faExpand" />
@@ -59,7 +57,6 @@
     <flow-button
       [size]="ButtonSize.Icon"
       [type]="ButtonType.Light"
-      noPadding="true"
       (click)="rerender$.next(null)"
     >
       <fa-icon [icon]="faEye" />
@@ -69,7 +66,6 @@
     <flow-button
       [size]="ButtonSize.Icon"
       [type]="ButtonType.Light"
-      noPadding="true"
       (click)="zoom_in()"
     >
       <fa-icon [icon]="faMagnifyingGlassPlus" />
@@ -79,7 +75,6 @@
     <flow-button
       [size]="ButtonSize.Icon"
       [type]="ButtonType.Light"
-      noPadding="true"
       (click)="zoom_out()"
     >
       <fa-icon [icon]="faMagnifyingGlassMinus" />
