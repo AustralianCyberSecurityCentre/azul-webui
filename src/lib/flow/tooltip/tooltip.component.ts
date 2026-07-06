@@ -1,17 +1,24 @@
-import { OverlayModule } from "@angular/cdk/overlay";
+import { ClipboardModule } from "@angular/cdk/clipboard";
+import { ConnectedPosition, OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   debounced,
   input,
+  Signal,
   signal,
   TemplateRef,
   WritableSignal,
 } from "@angular/core";
 import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
-
+import {
+  ButtonComponent,
+  ButtonSize,
+  ButtonType,
+} from "../button/button.component";
 // https://flowbite.com/docs/components/tooltips/
 // Hover implemented using Tailwind groups instead of Flowbite vanilla JS
 
@@ -19,21 +26,73 @@ import { faCopy } from "@fortawesome/free-solid-svg-icons";
   selector: "flow-tooltip",
   templateUrl: "./tooltip.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, OverlayModule, FaIconComponent],
+  imports: [
+    CommonModule,
+    OverlayModule,
+    FaIconComponent,
+    ButtonComponent,
+    ClipboardModule,
+  ],
 })
 export class TooltipComponent {
   message = input<string | undefined>(undefined);
+  // Additional message that doesn't get copied
+  additionalMessage = input<string | undefined>(undefined);
   subText = input<string | undefined>(undefined);
   copyText = input<boolean>(false);
   tplRef = input<TemplateRef<unknown> | null>(null);
   tplContext = input<unknown>(null);
-  direction = input<"top" | "bottom">("top");
+  direction = input<"top" | "top-start" | "top-end" | "bottom">("top");
 
   constructor() {}
-
+  protected ButtonSize = ButtonSize;
+  protected ButtonType = ButtonType;
   protected hoveringRawSignal: WritableSignal<boolean> = signal(false);
-  protected hoveringSignal = debounced(this.hoveringRawSignal, 10);
-  protected fadeSignal = debounced(this.hoveringRawSignal, 60);
+  protected hoveringSignal = debounced(this.hoveringRawSignal, 250);
+  protected fadeSignal = debounced(this.hoveringRawSignal, 200);
+
+  protected overlayPosition: Signal<ConnectedPosition[]> = computed(() => {
+    switch (this.direction()) {
+      case "top-start":
+        return [
+          {
+            originX: "start",
+            originY: "top",
+            overlayX: "start",
+            overlayY: "bottom",
+            panelClass: ["[&_svg]:invisible"],
+          },
+        ];
+      case "top-end":
+        return [
+          {
+            originX: "end",
+            originY: "top",
+            overlayX: "end",
+            overlayY: "bottom",
+            panelClass: ["[&_svg]:invisible"],
+          },
+        ];
+      case "bottom":
+        return [
+          {
+            originX: "center",
+            originY: "bottom",
+            overlayX: "center",
+            overlayY: "top",
+          },
+        ];
+      case "top":
+        return [
+          {
+            originX: "center",
+            originY: "top",
+            overlayX: "center",
+            overlayY: "bottom",
+          },
+        ];
+    }
+  });
 
   protected fadeIn() {
     this.hoveringRawSignal.set(true);
