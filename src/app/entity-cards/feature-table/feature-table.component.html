@@ -152,7 +152,7 @@
                     [strongBorder]="reducedFeatures[i + 1]?.showFeatureName"
                     class="group"
                   >
-                    <td class="px-1 py-1 align-top">
+                    <td flowTableBodyCell class="px-1! align-top">
                       <!--Class has been set same as checkbox but implementation made it too hard to use library flow-checkbox-->
                       <input
                         type="checkbox"
@@ -164,13 +164,14 @@
                       />
                     </td>
                     <!-- button to toggle visibility of detailed info for current row -->
-                    <td flowTableBodyCell class="s-expand py-1 align-top">
+                    <td flowTableBodyCell class="s-expand px-1! align-top">
                       <flow-button
                         [type]="ButtonType.Transparent"
-                        [size]="ButtonSize.TinyNoPadding"
+                        [size]="ButtonSize.Small"
                         (click)="featureDetailShow(tplFeatureDetail, row)"
                         [rounded]="false"
                         [blockCentered]="true"
+                        [noPadding]="true"
                       >
                         <fa-icon flowLink [icon]="faPlus" />
                       </flow-button>

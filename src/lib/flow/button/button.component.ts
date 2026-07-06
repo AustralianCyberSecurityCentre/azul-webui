@@ -16,7 +16,6 @@ export enum ButtonType {
 }
 
 export enum ButtonSize {
-  TinyNoPadding = "tinyNoPadding",
   Tiny = "tiny",
   Icon = "icon",
   Small = "small",
@@ -42,4 +41,5 @@ export class ButtonComponent {
   rounded = input<boolean>(true);
   blockCentered = input<boolean>(false);
   disabled = input<boolean>(false);
+  noPadding = input<boolean>(false);
 }

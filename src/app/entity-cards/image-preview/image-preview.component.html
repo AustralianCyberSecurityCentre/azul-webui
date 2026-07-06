@@ -32,7 +32,6 @@
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
-        noPadding="true"
         (click)="toggleAutoPlay()"
       >
         <fa-icon [icon]="autoPlayEnabled() ? faPause : faPlay" />
@@ -42,7 +41,6 @@
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
-        noPadding="true"
         (click)="retreatImageByFrame()"
       >
         <fa-icon [icon]="faBackwardStep" />
@@ -52,7 +50,6 @@
       <flow-button
         [size]="ButtonSize.Icon"
         [type]="ButtonType.Light"
-        noPadding="true"
         (click)="advanceByFrameAndStopAutoplay()"
       >
         <fa-icon [icon]="faForwardStep" />
