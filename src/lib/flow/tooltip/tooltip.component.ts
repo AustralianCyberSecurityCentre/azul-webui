@@ -46,8 +46,8 @@ export class TooltipComponent {
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
   protected hoveringRawSignal: WritableSignal<boolean> = signal(false);
-  protected hoveringSignal = debounced(this.hoveringRawSignal, 200);
-  protected fadeSignal = debounced(this.hoveringRawSignal, 10);
+  protected hoveringSignal = debounced(this.hoveringRawSignal, 250);
+  protected fadeSignal = debounced(this.hoveringRawSignal, 200);
 
   protected fadeIn() {
     this.hoveringRawSignal.set(true);
