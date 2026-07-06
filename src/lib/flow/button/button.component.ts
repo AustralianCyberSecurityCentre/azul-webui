@@ -16,6 +16,7 @@ export enum ButtonType {
 }
 
 export enum ButtonSize {
+  TinyNoPadding = "tinyNoPadding",
   Tiny = "tiny",
   Icon = "icon",
   Small = "small",

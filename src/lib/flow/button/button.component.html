@@ -1,6 +1,7 @@
 <button
   [type]="submit() ? 'submit' : 'button'"
   [ngClass]="{
+    'px-0': size() === 'tinyNoPadding',
     'px-2': size() === 'tiny',
     'px-3': size() === 'icon' || size() === 'small',
     'px-5': size() === 'medium' || size() === 'large',

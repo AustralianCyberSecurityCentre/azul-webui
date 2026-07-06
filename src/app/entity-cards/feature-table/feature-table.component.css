@@ -25,9 +25,10 @@
 }
 
 .s-expand {
-  width: 22px;
-  max-width: 22px;
-  padding: 0;
+  width: 26px;
+  max-width: 26px;
+  padding-right: 2px;
+  padding-left: 2px;
 }
 .s-feature {
   min-width: 2vw;
