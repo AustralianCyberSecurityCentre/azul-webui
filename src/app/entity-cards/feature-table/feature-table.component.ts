@@ -161,9 +161,6 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
 
   constructor() {
     super();
-    const router = this.router;
-
-    this.router = router;
     this.initFilterForm("");
   }
 

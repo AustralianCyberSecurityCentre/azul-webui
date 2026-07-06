@@ -64,14 +64,22 @@
           />
         </div>
         <div class="flex grow flex-wrap gap-2">
-          <flow-tooltip
-            message="Show features from all plugins"
-            direction="bottom"
-          >
-            <flow-button [type]="ButtonType.Light" (click)="selectAllPlugins()">
-              All
-            </flow-button>
-          </flow-tooltip>
+          @if (
+            (currentPluginFilter$ | async).length !== pluginFVCounts().size
+          ) {
+            <flow-tooltip
+              message="Show features from all plugins"
+              direction="bottom"
+            >
+              <flow-button
+                [type]="ButtonType.Light"
+                (click)="selectAllPlugins()"
+                [outline]="false"
+              >
+                All
+              </flow-button>
+            </flow-tooltip>
+          }
           @for (
             pluginFVCount of pluginFVCounts() | keyvalue;
             track pluginFVCount
@@ -89,6 +97,7 @@
                     ? ButtonType.Primary
                     : ButtonType.Dark
                 "
+                [outline]="false"
               >
                 {{ pluginFVCount.key }}
                 <flow-button-label>{{ pluginFVCount.value }}</flow-button-label>

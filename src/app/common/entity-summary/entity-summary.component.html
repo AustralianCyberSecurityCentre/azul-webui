@@ -7,7 +7,11 @@
           <td>
             @for (row of sec; track row) {
               <div class="limit truncate" [title]="row">
-                <flow-tooltip message="{{ row }}" [copyText]="true">
+                <flow-tooltip
+                  message="{{ row }}"
+                  [copyText]="true"
+                  direction="top-start"
+                >
                   {{ row }}
                 </flow-tooltip>
               </div>
@@ -20,15 +24,24 @@
       <tr>
         <th flowTableBodyCell [rowHeader]="true">File Size</th>
         <td>
-          <flow-tooltip message="{{ d.file_size }} bytes" [copyText]="true">
-            {{ d.file_size | filesize }}</flow-tooltip
+          <flow-tooltip
+            message="{{ d.file_size }}"
+            additionalMessage=" bytes"
+            [copyText]="true"
+            direction="top-start"
+          >
+            <span> {{ d.file_size | filesize }}</span></flow-tooltip
           >
         </td>
       </tr>
       <tr>
         <th flowTableBodyCell [rowHeader]="true">Type</th>
         <td class="limit truncate">
-          <flow-tooltip message="{{ d.file_format }}" [copyText]="true">
+          <flow-tooltip
+            message="{{ d.file_format }}"
+            [copyText]="true"
+            direction="top-start"
+          >
             {{ d.file_format }}</flow-tooltip
           >
         </td>
@@ -38,7 +51,11 @@
         <td>
           @for (row of d.filenames; track row) {
             <div class="limit truncate">
-              <flow-tooltip message="{{ row }}" [copyText]="true">
+              <flow-tooltip
+                message="{{ row }}"
+                [copyText]="true"
+                direction="top-start"
+              >
                 {{ row }}
               </flow-tooltip>
             </div>
@@ -46,7 +63,9 @@
         </td>
       </tr>
       <tr>
-        <th flowTableBodyCell [rowHeader]="true">Magic</th>
+        <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+          Magic
+        </th>
         <td class="limit truncate">
           <flow-tooltip message="{{ d.magic }}" [copyText]="true">
             {{ d.magic }}</flow-tooltip
@@ -54,7 +73,7 @@
         </td>
       </tr>
       <tr>
-        <th flowTableBodyCell [rowHeader]="true">Mime</th>
+        <th flowTableBodyCell [rowHeader]="true" direction="top-start">Mime</th>
         <td class="limit truncate">
           <flow-tooltip message="{{ d.mime }}" [copyText]="true">
             {{ d.mime }}</flow-tooltip
@@ -63,7 +82,9 @@
       </tr>
       @if (d.md5) {
         <tr>
-          <th flowTableBodyCell [rowHeader]="true">MD5</th>
+          <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+            MD5
+          </th>
           <td class="hash truncate font-mono">
             <flow-tooltip message="{{ d.md5 }}" [copyText]="true">
               {{ d.md5 }}</flow-tooltip
@@ -73,7 +94,9 @@
       }
       @if (d.sha1) {
         <tr>
-          <th flowTableBodyCell [rowHeader]="true">SHA1</th>
+          <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+            SHA1
+          </th>
           <td class="hash truncate font-mono">
             <flow-tooltip message="{{ d.sha1 }}" [copyText]="true">
               {{ d.sha1 }}</flow-tooltip
@@ -83,7 +106,9 @@
       }
       @if (d.sha256) {
         <tr>
-          <th flowTableBodyCell [rowHeader]="true">SHA256</th>
+          <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+            SHA256
+          </th>
           <td class="hash truncate font-mono">
             <flow-tooltip message="{{ d.sha256 }}" [copyText]="true">
               {{ d.sha256 }}</flow-tooltip
@@ -93,7 +118,9 @@
       }
       @if (d.sha512) {
         <tr>
-          <th flowTableBodyCell [rowHeader]="true">SHA512</th>
+          <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+            SHA512
+          </th>
           <td class="hash truncate font-mono">
             <flow-tooltip message="{{ d.sha512 }}" [copyText]="true">
               {{ d.sha512 }}</flow-tooltip
@@ -103,7 +130,9 @@
       }
       @if (d.ssdeep) {
         <tr>
-          <th flowTableBodyCell [rowHeader]="true">ssdeep</th>
+          <th flowTableBodyCell [rowHeader]="true" direction="top-start">
+            ssdeep
+          </th>
           <td class="hash truncate font-mono">
             <flow-tooltip message="{{ d.ssdeep }}" [copyText]="true">
               {{ d.ssdeep }}</flow-tooltip
@@ -164,14 +193,14 @@
               <div class="flex flex-wrap gap-2">
                 @for (diagnostic of diagnostics; track diagnostic) {
                   <flow-tooltip [message]="diagnostic.body">
-                    <flow-button
-                      [size]="ButtonSize.Tiny"
-                      [type]="ButtonType.Yellow"
-                      [rounded]="false"
-                    >
+                    <fa-icon
+                      class="spinner-ontop text-orange-400"
+                      [icon]="faCircleExclamation"
+                    />
+                    <span class="cursor-text font-bold underline">
                       {{ diagnostic.title }}
-                    </flow-button></flow-tooltip
-                  >
+                    </span>
+                  </flow-tooltip>
                 }
               </div>
             </td>
