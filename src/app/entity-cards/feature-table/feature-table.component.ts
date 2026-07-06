@@ -337,7 +337,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   // Select all plugins in the specified group (e.g all the yara plugins with different rules)
   selectPluginGroup(plugins: Set<string>) {
     const pluginsToView: string[] = [];
-    for (let k of this.pluginFVCounts().keys()) {
+    for (const k of this.pluginFVCounts().keys()) {
       if (plugins.has(k)) {
         pluginsToView.push(k);
       }
