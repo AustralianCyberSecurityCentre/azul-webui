@@ -12,8 +12,8 @@ import { EntityWrap } from "@app/core/services";
 import { formatLink, FormattedLink } from "@app/core/user-url";
 import { getStatusColour } from "@app/core/util";
 import { config } from "@app/settings";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-
 /** Displays a summary of an entity's information in a table format. */
 @Component({
   selector: "azco-entity-summary",
@@ -32,6 +32,7 @@ export class EntitySummaryComponent implements OnChanges {
   >;
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
+  protected faCircleExclamation = faCircleExclamation;
 
   ngOnChanges() {
     this.entityLinks$ = combineLatest([
