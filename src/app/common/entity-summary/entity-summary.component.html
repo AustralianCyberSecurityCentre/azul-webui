@@ -20,7 +20,11 @@
       <tr>
         <th flowTableBodyCell [rowHeader]="true">File Size</th>
         <td>
-          <flow-tooltip message="{{ d.file_size }} bytes" [copyText]="true">
+          <flow-tooltip
+            message="{{ d.file_size }}"
+            additionalMessage=" bytes"
+            [copyText]="true"
+          >
             {{ d.file_size | filesize }}</flow-tooltip
           >
         </td>

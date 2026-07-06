@@ -62,6 +62,10 @@
   "
 >
   <div
+    (mouseover)="fadeIn()"
+    (mouseout)="fadeOut()"
+    (focus)="fadeIn()"
+    (blur)="fadeOut()"
     [ngClass]="{
       'opacity-100': fadeSignal.value(),
       'opacity-0': fadeSignal.value() === false,
@@ -75,7 +79,7 @@
       class="bg-azul-50 border-azul-500 text-azul-700 max-w-2xl rounded-lg border px-3 py-2 text-center text-sm font-medium break-words shadow-xs dark:border-gray-600 dark:bg-gray-800 dark:text-white"
     >
       @if (message()) {
-        {{ message() }}
+        {{ message() }}{{ additionalMessage() }}
       }
       @if (subText()) {
         <br />
@@ -84,8 +88,16 @@
       @if (copyText()) {
         <br />
         <p class="pt-1.5 text-xs text-gray-500">
-          <fa-icon [icon]="faCopy" class="pr-0.5" />
-          Triple click and press
+          @if (copyText()) {
+            <flow-button
+              [type]="ButtonType.Green"
+              [size]="ButtonSize.Tiny"
+              title="copy"
+              [cdkCopyToClipboard]="message()"
+              >Copy<fa-icon [icon]="faCopy" class="pr-0.5"
+            /></flow-button>
+          }
+          or Triple click and press
           <b class="rounded-xs border border-gray-600 px-1 py-0.5">Ctrl</b>
           + <b class="rounded-xs border border-gray-600 px-1 py-0.5">C</b>
           to copy
