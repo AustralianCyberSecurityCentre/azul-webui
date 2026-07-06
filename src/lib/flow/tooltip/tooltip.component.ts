@@ -1,11 +1,13 @@
 import { ClipboardModule } from "@angular/cdk/clipboard";
-import { OverlayModule } from "@angular/cdk/overlay";
+import { ConnectedPosition, OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   debounced,
   input,
+  Signal,
   signal,
   TemplateRef,
   WritableSignal,
@@ -40,7 +42,7 @@ export class TooltipComponent {
   copyText = input<boolean>(false);
   tplRef = input<TemplateRef<unknown> | null>(null);
   tplContext = input<unknown>(null);
-  direction = input<"top" | "bottom">("top");
+  direction = input<"top" | "top-start" | "top-end" | "bottom">("top");
 
   constructor() {}
   protected ButtonSize = ButtonSize;
@@ -48,6 +50,49 @@ export class TooltipComponent {
   protected hoveringRawSignal: WritableSignal<boolean> = signal(false);
   protected hoveringSignal = debounced(this.hoveringRawSignal, 250);
   protected fadeSignal = debounced(this.hoveringRawSignal, 200);
+
+  protected overlayPosition: Signal<ConnectedPosition[]> = computed(() => {
+    switch (this.direction()) {
+      case "top-start":
+        return [
+          {
+            originX: "start",
+            originY: "top",
+            overlayX: "start",
+            overlayY: "bottom",
+            panelClass: ["[&_svg]:invisible"],
+          },
+        ];
+      case "top-end":
+        return [
+          {
+            originX: "end",
+            originY: "top",
+            overlayX: "end",
+            overlayY: "bottom",
+            panelClass: ["[&_svg]:invisible"],
+          },
+        ];
+      case "bottom":
+        return [
+          {
+            originX: "center",
+            originY: "bottom",
+            overlayX: "center",
+            overlayY: "top",
+          },
+        ];
+      case "top":
+        return [
+          {
+            originX: "center",
+            originY: "top",
+            overlayX: "center",
+            overlayY: "bottom",
+          },
+        ];
+    }
+  });
 
   protected fadeIn() {
     this.hoveringRawSignal.set(true);

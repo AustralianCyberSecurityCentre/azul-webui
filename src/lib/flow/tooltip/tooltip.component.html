@@ -13,53 +13,7 @@
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
   [cdkConnectedOverlayOpen]="hoveringSignal.value() ?? false"
-  [cdkConnectedOverlayPositions]="
-    direction() === 'top'
-      ? [
-          {
-            originX: 'center',
-            originY: 'top',
-            overlayX: 'center',
-            overlayY: 'bottom',
-          },
-          {
-            originX: 'end',
-            originY: 'top',
-            overlayX: 'end',
-            overlayY: 'bottom',
-            panelClass: ['[&_svg]:invisible'],
-          },
-          {
-            originX: 'start',
-            originY: 'top',
-            overlayX: 'start',
-            overlayY: 'bottom',
-            panelClass: ['[&_svg]:invisible'],
-          },
-        ]
-      : [
-          {
-            originX: 'center',
-            originY: 'bottom',
-            overlayX: 'center',
-            overlayY: 'top',
-          },
-          {
-            originX: 'end',
-            originY: 'bottom',
-            overlayX: 'end',
-            overlayY: 'top',
-            panelClass: ['[&_svg]:invisible'],
-          },
-          {
-            originX: 'start',
-            originY: 'bottom',
-            overlayX: 'start',
-            overlayY: 'top',
-            panelClass: ['[&_svg]:invisible'],
-          },
-        ]
-  "
+  [cdkConnectedOverlayPositions]="overlayPosition()"
 >
   <div
     (mouseover)="fadeIn()"
