@@ -157,6 +157,9 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   pluginFVCounts: WritableSignal<Map<string, number>> = signal(
     new Map<string, number>(),
   );
+  pluginGroupings: WritableSignal<Map<string, Set<string>>> = signal(
+    new Map<string, Set<string>>(),
+  );
 
   constructor() {
     super();
@@ -239,6 +242,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
         ops.first(),
         ops.map((feats) => {
           const tempPluginFVCounts = new Map<string, number>();
+          const pluginWithCommonGroups = new Map<string, Set<string>>();
           feats.forEach((f) => {
             f.instances.forEach((plugin) => {
               const [_leadingId, authorType, authorName, _eventType] =
@@ -253,16 +257,39 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
                 } else {
                   tempPluginFVCounts.set(authorType, 1);
                 }
-              } else if (tempPluginFVCounts.has(authorName)) {
-                tempPluginFVCounts.set(
-                  authorName,
-                  tempPluginFVCounts.get(authorName) + 1,
-                );
               } else {
-                tempPluginFVCounts.set(authorName, 1);
+                // Add feature counts per author.
+                if (tempPluginFVCounts.has(authorName)) {
+                  tempPluginFVCounts.set(
+                    authorName,
+                    tempPluginFVCounts.get(authorName) + 1,
+                  );
+                } else {
+                  tempPluginFVCounts.set(authorName, 1);
+                }
+                // Add plugin groups
+                const startOfName = authorName.split("-");
+                if (pluginWithCommonGroups.has(startOfName[0])) {
+                  pluginWithCommonGroups.get(startOfName[0]).add(authorName);
+                } else {
+                  pluginWithCommonGroups.set(
+                    startOfName[0],
+                    new Set<string>([authorName]),
+                  );
+                }
               }
             });
           });
+          // Only keep plugin group selections if they have more than 1 plugin to map to
+          for (const [
+            pluginGroupKey,
+            pluginsInGroup,
+          ] of pluginWithCommonGroups) {
+            if (pluginsInGroup.size < 2) {
+              pluginWithCommonGroups.delete(pluginGroupKey);
+            }
+          }
+          this.pluginGroupings.set(pluginWithCommonGroups);
           return tempPluginFVCounts;
         }),
       )
@@ -302,8 +329,20 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     }
   }
 
+  // Select all plugins with features.
   selectAllPlugins() {
     this.currentPluginFilter$.next(Array.from(this.pluginFVCounts().keys()));
+  }
+
+  // Select all plugins in the specified group (e.g all the yara plugins with different rules)
+  selectPluginGroup(plugins: Set<string>) {
+    const pluginsToView: string[] = [];
+    for (const k of this.pluginFVCounts().keys()) {
+      if (plugins.has(k)) {
+        pluginsToView.push(k);
+      }
+    }
+    this.currentPluginFilter$.next(pluginsToView);
   }
 
   private sortAndFilter() {
