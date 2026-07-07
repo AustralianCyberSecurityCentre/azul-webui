@@ -1,104 +1,92 @@
 @if (row; as innerRow) {
-  <div
-    class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
-  >
-    <flow-checkbox
-      [ngModel]="_row.checked"
-      (ngModelChange)="onCheckboxChange($event)"
-      class="mt-2"
-    />
-    <!-- icon -->
-    <div class="flex-none">
-      <div class="pt-2" [title]="innerRow.file_format">
-        <fa-icon
-          [icon]="iconService.get('binary', innerRow.file_format)"
-          [fixedWidth]="true"
-          size="3x"
-        ></fa-icon>
-        <p class="pt-2 text-center">{{ innerRow.file_size | filesize }}</p>
-      </div>
-    </div>
-    <div class="flex min-w-0 grow flex-col justify-start gap-1">
-      <!-- SHA256 -->
-      @if (innerRow?.sha256 === undefined || innerRow?.sha256 === "") {
-        <div>
-          {{ innerRow.key }}
-        </div>
-      } @else {
-        <div>
-          <a
-            style="font-size: 120%"
-            class="table-link font-bold break-all text-ellipsis"
-            title="View this binary"
-            [routerLink]="['/pages/binaries/current', innerRow.sha256]"
-            target="_blank"
-          >
-            {{ innerRow?.sha256 }}
-          </a>
-        </div>
-      }
-      <!-- entropy -->
-      @if (innerRow?.exists === false) {
-        <div>
+  @if (!asTableRows()) {
+    <div
+      class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
+    >
+      <flow-checkbox
+        [ngModel]="_row.checked"
+        (ngModelChange)="onCheckboxChange($event)"
+        class="mt-2"
+      />
+      <!-- icon -->
+      <div class="flex-none">
+        <div class="pt-2" [title]="innerRow.file_format">
           <fa-icon
-            [icon]="faCircleXmark"
-            size="lg"
-            class="pr-2 text-red-600"
-          />This link is to a binary that is no longer in Azul
+            [icon]="iconService.get('binary', innerRow.file_format)"
+            [fixedWidth]="true"
+            size="3x"
+          ></fa-icon>
+          <p class="pt-2 text-center">{{ innerRow.file_size | filesize }}</p>
         </div>
-      } @else if (showEntropySignal()) {
-        <azco-entropy
-          #entropy
-          [rawEntropy$]="entropy$"
-          [height]="'10px'"
-          [showLevels]="showGraphLevelsSignal()"
-          [fullHeightBars]="true"
-        ></azco-entropy>
-      }
-
-      <!-- Family info including purge capability -->
-      @if (eType() !== undefined) {
-        <ng-container>
-          @if (
-            allowedToPurge(user.isUserAdmin$ | async, undefined, undefined) &&
-            innerRow.author_category !== "plugin"
-          ) {
-            <div>
-              <a
-                class="table-link"
-                title="Purge this link from the system"
-                [routerLink]="['/pages/binaries/purge']"
-                [queryParams]="
-                  getLinkPurgeParams(
-                    eType(),
-                    innerRow.track_link,
-                    originalSha256(),
-                    innerRow.sha256 ? innerRow.sha256 : innerRow.key,
-                    innerRow.author_name
-                  )
-                "
-              >
-                <fa-icon [icon]="faTrash" />
-              </a>
-            </div>
-          }
-        </ng-container>
-      }
-
-      <!-- entity tags -->
-      @if (innerRow.tags$ | async; as curTags) {
-        @if (innerRow.tags && innerRow.tags.length > 0) {
+      </div>
+      <div class="flex min-w-0 grow flex-col justify-start gap-1">
+        <!-- SHA256 -->
+        @if (innerRow?.sha256 === undefined || innerRow?.sha256 === "") {
           <div>
-            <azco-entity-tags
-              [addTag]="false"
-              [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
-              [tags]="innerRow.tags$.value"
-              (changed)="refreshRowTags(innerRow)"
+            {{ innerRow.key }}
+          </div>
+        } @else {
+          <div>
+            <a
+              style="font-size: 120%"
+              class="table-link font-bold break-all text-ellipsis"
+              title="View this binary"
+              [routerLink]="['/pages/binaries/current', innerRow.sha256]"
+              target="_blank"
             >
-            </azco-entity-tags>
+              {{ innerRow?.sha256 }}
+            </a>
           </div>
         }
-      } @else {
+        <!-- entropy -->
+        @if (innerRow?.exists === false) {
+          <div>
+            <fa-icon
+              [icon]="faCircleXmark"
+              size="lg"
+              class="pr-2 text-red-600"
+            />This link is to a binary that is no longer in Azul
+          </div>
+        } @else if (showEntropy()) {
+          <azco-entropy
+            #entropy
+            [rawEntropy$]="entropy$"
+            [height]="'10px'"
+            [showLevels]="showGraphLevelsSignal()"
+            [fullHeightBars]="true"
+          ></azco-entropy>
+        }
+
+        <!-- Family info including purge capability -->
+        @if (eType() !== undefined) {
+          <ng-container>
+            @if (
+              allowedToPurge(user.isUserAdmin$ | async, undefined, undefined) &&
+              innerRow.author_category !== "plugin"
+            ) {
+              <div>
+                <a
+                  class="table-link"
+                  title="Purge this link from the system"
+                  [routerLink]="['/pages/binaries/purge']"
+                  [queryParams]="
+                    getLinkPurgeParams(
+                      eType(),
+                      innerRow.track_link,
+                      originalSha256(),
+                      innerRow.sha256 ? innerRow.sha256 : innerRow.key,
+                      innerRow.author_name
+                    )
+                  "
+                >
+                  <fa-icon [icon]="faTrash" />
+                </a>
+              </div>
+            }
+          </ng-container>
+        }
+
+        <!-- entity tags -->
         @if (innerRow.tags && innerRow.tags.length > 0) {
           <div>
             <azco-entity-tags
@@ -110,124 +98,326 @@
             </azco-entity-tags>
           </div>
         }
-      }
-      <!-- filenames -->
-      @if (innerRow.filenames && innerRow.filenames.length > 0) {
-        <div class="flex min-w-0 flex-wrap">
-          @for (
-            filename of innerRow.filenames;
-            track $index;
-            let last = $last
-          ) {
-            <div class="flex min-w-0 text-gray-700 dark:text-gray-300">
-              <div
-                class="line-clamp-1 break-all text-ellipsis"
-                [title]="filename"
-              >
-                {{ filename }}
-              </div>
-              @if (!last) {
-                &nbsp;|&nbsp;
-              }
-            </div>
-          }
-        </div>
-      }
-      <!-- size and file format -->
-      <div>
-        <span>
-          @if (innerRow.has_content) {
-            <fa-icon title="File content available" [icon]="faEye" />
-          } @else {
-            <fa-icon title="File content unavailable" [icon]="faEyeSlash" />
-          }
-        </span>
-        |
-        <span [title]="'Type: ' + innerRow.file_format">{{
-          innerRow.file_format || "?"
-        }}</span>
-        @if (showMimetypeSignal()) {
-          |
-          <span [title]="'Mime: ' + innerRow.mime">{{
-            innerRow.mime || "?"
-          }}</span>
-        }
-        @if (showMagicSignal()) {
-          |
-          <span [title]="'Magic: ' + innerRow.magic">{{
-            innerRow.magic || "?"
-          }}</span>
-        }
-      </div>
-      <!-- Retrohunt search names -->
-      @if (retroHuntSearchNames()?.length) {
-        <div class="text-xs text-gray-500 dark:text-gray-300">
-          Appears in:
-          <span class="font-semibold">
-            {{ retroHuntSearchNames().join(", ") }}
-          </span>
-        </div>
-      }
-      <div class="grid grid-cols-[minmax(16rem,max-content)_auto] gap-y-1">
-        <!-- sources -->
-        @if (showSources()) {
-          @for (source of innerRow.sources; track $index) {
-            @if (source) {
-              <div class="mr-2">
-                <fa-icon
-                  class="mr-2"
-                  title="Source timestamp"
-                  [icon]="faClock"
-                />
-                <span>
-                  <span [title]="'Last Seen: ' + source.timestamp">{{
-                    source.timestamp | since
-                  }}</span
-                  >:
-                  {{ source.name }}
-                </span>
-              </div>
-              <div class="flex min-w-0 grow flex-wrap">
-                @for (
-                  kv of source.references | keyvalue;
-                  track kv;
-                  let last = $last
-                ) {
-                  @if (kv.value !== "INGEST") {
-                    <div class="flex min-w-0">
-                      <div
-                        class="line-clamp-1 min-w-0 truncate break-all"
-                        [title]="kv.key + ': ' + kv.value"
-                      >
-                        {{ kv.value }}
-                      </div>
-                      @if (!last) {
-                        &nbsp;|&nbsp;
-                      }
-                    </div>
-                  }
+        <!-- filenames -->
+        @if (innerRow.filenames && innerRow.filenames.length > 0) {
+          <div class="flex min-w-0 flex-wrap">
+            @for (
+              filename of innerRow.filenames;
+              track $index;
+              let last = $last
+            ) {
+              <div class="flex min-w-0 text-gray-700 dark:text-gray-300">
+                <div
+                  class="line-clamp-1 break-all text-ellipsis"
+                  [title]="filename"
+                >
+                  {{ filename }}
+                </div>
+                @if (!last) {
+                  &nbsp;|&nbsp;
                 }
               </div>
             }
-          }
+          </div>
         }
-        <!-- highlight -->
-        @for (kv of innerRow.highlight | keyvalue; track kv.key) {
-          <!-- Hide sha256 highlight if we are doing external pagination
+        <!-- size and file format -->
+        <div>
+          <span>
+            @if (innerRow.has_content) {
+              <fa-icon title="File content available" [icon]="faEye" />
+            } @else {
+              <fa-icon title="File content unavailable" [icon]="faEyeSlash" />
+            }
+          </span>
+          |
+          <span [title]="'Type: ' + innerRow.file_format">{{
+            innerRow.file_format || "?"
+          }}</span>
+          @if (showMimetype()) {
+            |
+            <span [title]="'Mime: ' + innerRow.mime">{{
+              innerRow.mime || "?"
+            }}</span>
+          }
+          @if (showMagic()) {
+            |
+            <span [title]="'Magic: ' + innerRow.magic">{{
+              innerRow.magic || "?"
+            }}</span>
+          }
+        </div>
+        <!-- Retrohunt search names -->
+        @if (retroHuntSearchNames()?.length) {
+          <div class="text-xs text-gray-500 dark:text-gray-300">
+            Appears in:
+            <span class="font-semibold">
+              {{ retroHuntSearchNames().join(", ") }}
+            </span>
+          </div>
+        }
+        <div class="grid grid-cols-[minmax(16rem,max-content)_auto] gap-y-1">
+          <!-- sources -->
+          @if (showSources()) {
+            @for (source of innerRow.sources; track $index) {
+              @if (source) {
+                <div class="mr-2">
+                  <fa-icon
+                    class="mr-2"
+                    title="Source timestamp"
+                    [icon]="faClock"
+                  />
+                  <span>
+                    <span [title]="'Last Seen: ' + source.timestamp">{{
+                      source.timestamp | since
+                    }}</span
+                    >:
+                    {{ source.name }}
+                  </span>
+                </div>
+                @if (showSourceReferences()) {
+                  <div class="flex min-w-0 grow flex-wrap">
+                    @for (
+                      kv of source.references | keyvalue;
+                      track kv;
+                      let last = $last
+                    ) {
+                      @if (kv.value !== "INGEST") {
+                        <div class="flex min-w-0">
+                          <div
+                            class="line-clamp-1 min-w-0 truncate break-all"
+                            [title]="kv.key + ': ' + kv.value"
+                          >
+                            {{ kv.value }}
+                          </div>
+                          @if (!last) {
+                            &nbsp;|&nbsp;
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              }
+            }
+          }
+          <!-- highlight -->
+          @for (kv of innerRow.highlight | keyvalue; track kv.key) {
+            <!-- Hide sha256 highlight if we are doing external pagination
             as that will use sha256 to pick binaries to display here. -->
-          @if (kv.key !== "entity.sha256" || !externalPagination()) {
-            <div class="mr-2 flex-none">
-              <p>{{ kv.key }}: {{ kv.value }}</p>
-            </div>
+            @if (kv.key !== "entity.sha256" || !externalPagination()) {
+              <div class="mr-2 flex-none">
+                <p>{{ kv.key }}: {{ kv.value }}</p>
+              </div>
+            }
           }
-        }
-      </div>
-      <div>
-        <div class="w-64 flex-none border-l border-l-slate-400 pl-1">
-          <!-- render any extra information thats difficult to standardise -->
-          <ng-content></ng-content>
+        </div>
+        <div>
+          <div class="w-64 flex-none border-l border-l-slate-400 pl-1">
+            <!-- render any extra information thats difficult to standardise -->
+            <ng-content></ng-content>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    @if (innerRow.similarity) {
+      <td>Similarity: {{ innerRow.similarity | number: "1.2-2" }}%</td>
+    }
+  } @else {
+    <!--Table view of same data.-->
+    <tr class="border-t">
+      <!--select checkbox-->
+      <td class="px-1 pbe-1">
+        <flow-checkbox
+          [ngModel]="_row.checked"
+          (ngModelChange)="onCheckboxChange($event)"
+          class="mt-2"
+        />
+      </td>
+      @if (allowedToPurge(user.isUserAdmin$ | async, undefined, undefined)) {
+        @if (eType() !== undefined && innerRow.author_category !== "plugin") {
+          <!-- Purge option-->
+          <td class="px-1 pbe-1">
+            <a
+              class="table-link"
+              title="Purge this link from the system"
+              [routerLink]="['/pages/binaries/purge']"
+              [queryParams]="
+                getLinkPurgeParams(
+                  eType(),
+                  innerRow.track_link,
+                  originalSha256(),
+                  innerRow.sha256 ? innerRow.sha256 : innerRow.key,
+                  innerRow.author_name
+                )
+              "
+            >
+              <fa-icon [icon]="faTrash" />
+            </a>
+          </td>
+        }
+      }
+      <!--has content-->
+      <td class="px-1 pbe-1">
+        @if (innerRow.has_content) {
+          <fa-icon title="File content available" [icon]="faEye" />
+        } @else {
+          <fa-icon title="File content unavailable" [icon]="faEyeSlash" />
+        }
+      </td>
+      <!--sha256-->
+      <td class="sha256-style line-clamp-2 px-1 pbe-1">
+        @if (innerRow?.sha256 === undefined || innerRow?.sha256 === "") {
+          {{ innerRow.key }}
+        } @else {
+          <a
+            class="table-link"
+            title="View this binary"
+            [routerLink]="['/pages/binaries/current', innerRow.sha256]"
+            target="_blank"
+          >
+            {{ innerRow?.sha256 }}
+          </a>
+        }
+      </td>
+      <!--Similarity-->
+      @if (innerRow.similarity) {
+        <td>{{ innerRow.similarity | number: "1.2-2" }}%</td>
+      }
+      <!--filename-->
+      <td class="min-w-4 px-1 pbe-1">
+        @if (innerRow.filenames && innerRow.filenames.length > 0) {
+          <table flowTable>
+            <tbody flowTableBody>
+              @for (
+                filename of innerRow.filenames;
+                track $index;
+                let last = $last
+              ) {
+                <td
+                  class="px-1 pbe-1"
+                  class="line-clamp-1 text-ellipsis"
+                  [title]="filename"
+                >
+                  {{ filename }}
+                </td>
+              }
+            </tbody>
+          </table>
+        }
+      </td>
+      <!--fileformat-->
+      <td
+        class="file-info-style px-1 pbe-1"
+        [title]="'Type: ' + innerRow.file_format"
+      >
+        {{ innerRow.file_format || "?" }}
+      </td>
+      @if (showMimetype()) {
+        <td
+          class="file-info-style px-1 pbe-1"
+          [title]="'Mime: ' + innerRow.mime"
+        >
+          {{ innerRow.mime || "?" }}
+        </td>
+      }
+      @if (showMagic()) {
+        <td
+          class="file-info-style px-1 pbe-1"
+          [title]="'Magic: ' + innerRow.magic"
+        >
+          {{ innerRow.magic || "?" }}
+        </td>
+      }
+      @if (showSources()) {
+        <td class="source-style px-1 pbe-1">
+          <table flowTable>
+            <tbody flowTableBody>
+              @for (source of innerRow.sources; track $index) {
+                @if (source) {
+                  <tr>
+                    <td class="file-info-style px-1 pbe-1">
+                      {{ source.name }}
+                    </td>
+                    <td class="px-1 pbe-1">
+                      <fa-icon
+                        class="mr-2"
+                        title="Source timestamp"
+                        [icon]="faClock"
+                      />
+                      <span [title]="'Last Seen: ' + source.timestamp">{{
+                        source.timestamp | since
+                      }}</span>
+                    </td>
+                    @if (showSourceReferences()) {
+                      <td class="px-1 pbe-1">
+                        @for (
+                          kv of source.references | keyvalue;
+                          track kv;
+                          let last = $last
+                        ) {
+                          @if (kv.value !== "INGEST") {
+                            <div
+                              class="line-clamp-1 break-all text-ellipsis"
+                              [title]="kv.key + ': ' + kv.value"
+                            >
+                              {{ kv.value }}
+                            </div>
+                          }
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </td>
+        <!-- Retrohunt search names -->
+        @if (retroHuntSearchNames()?.length) {
+          <td class="file-info-style px-1 pbe-1">
+            <span class="font-semibold">
+              {{ retroHuntSearchNames().join(", ") }}
+            </span>
+          </td>
+        }
+      }
+    </tr>
+    @if (innerRow.tags && innerRow.tags.length > 0) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">
+          <azco-entity-tags
+            [addTag]="false"
+            [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
+            [tags]="innerRow.tags"
+            (changed)="refreshRowTags(innerRow)"
+          >
+          </azco-entity-tags>
+        </td>
+      </tr>
+    }
+
+    @if (innerRow?.exists === false) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">
+          <fa-icon
+            [icon]="faCircleXmark"
+            size="lg"
+            class="pr-2 text-red-600"
+          />This link is to a binary that is no longer in Azul
+        </td>
+      </tr>
+    } @else if (showEntropy()) {
+      <tr class="w-full">
+        <td class="px-1 pbe-1" colspan="10">
+          <azco-entropy
+            #entropy
+            [rawEntropy$]="entropy$"
+            [height]="'10px'"
+            [showLevels]="showGraphLevelsSignal()"
+            [fullHeightBars]="true"
+          ></azco-entropy>
+        </td>
+      </tr>
+    }
+  }
 }

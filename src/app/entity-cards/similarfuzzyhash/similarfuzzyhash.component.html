@@ -2,14 +2,13 @@
   [cardTitle]="'Similar ' + hashType()"
   [obs$]="provider$"
   [help]="help"
-  [isScrollable]="true"
 >
   @if (provider$ | async; as d) {
     <az-entity-table
       [find$]="transformedFind$"
       [originalSha256]="this.entity.sha256"
       [tablename]="'Similar ' + hashType()"
-      [scroll]="true"
+      [tableScroll]="false"
       [externalPagination]="false"
     >
     </az-entity-table>

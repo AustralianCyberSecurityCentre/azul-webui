@@ -30,12 +30,13 @@
   >
     @for (tab of tabs; track tab) {
       <a
+        title="{{ tab.name }}"
         [ngClass]="{
           'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
             activeTabSignal() !== tab.key,
           'bg-azul-200 dark:bg-azul-400': activeTabSignal() === tab.key,
         }"
-        class="flex h-10 px-4 py-2"
+        class="line-clamp-1 h-10 px-1 py-2"
         (click)="activeTabSignal.set(tab.key)"
         (keypress)="activeTabSignal.set(tab.key)"
         tabindex="0"

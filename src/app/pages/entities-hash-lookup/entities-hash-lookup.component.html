@@ -34,7 +34,11 @@
   @if ((hashes$ | async).length > 0) {
     <flow-card>
       <flow-card-body>
-        <az-entity-table [find$]="filteredFind$" style="width: 100%">
+        <az-entity-table
+          [find$]="filteredFind$"
+          style="width: 100%"
+          [tableScroll]="true"
+        >
         </az-entity-table>
       </flow-card-body>
     </flow-card>
