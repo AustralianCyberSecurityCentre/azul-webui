@@ -9,7 +9,7 @@ export abstract class BaseCard {
   abstract help: string;
 
   // observable that returns the currently active entity
-  protected _current_entity$ = new ReplaySubject<EntityWrap>();
+  protected currentEntity$ = new ReplaySubject<EntityWrap>();
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
 
@@ -19,7 +19,7 @@ export abstract class BaseCard {
   }
   @Input() set entity(d) {
     this._entity = d;
-    this._current_entity$.next(d);
+    this.currentEntity$.next(d);
     this.onEntityChange();
   }
 
