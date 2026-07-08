@@ -6,7 +6,13 @@
 >
   <div>
     @for (curSource of sourceMap() | keyvalue; track curSource.key) {
-      <table flowTable class="w-full table-fixed">
+      <table
+        flowTable
+        class="w-full"
+        [ngClass]="{
+          'table-fixed': summary(),
+        }"
+      >
         <colgroup>
           @if (summary()) {
             <col span="1" class="w-20" />
