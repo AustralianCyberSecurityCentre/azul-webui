@@ -2,68 +2,89 @@
   class="flex w-full"
   cardTitle="Sources"
   [obs$]="entity.sources$"
-  [help]="help"
+  [help]="showHelp() ? help : ''"
 >
-  @if (sourceTabs$ | async; as sourceTabs) {
-    <flow-tablist
-      class="flex min-h-0 w-full shrink flex-col"
-      [tabs]="sourceTabs"
-    />
-  }
-</az-loading-card>
-<ng-template #tplSource let-row="row">
-  <div
-    class="s-table w-full overflow-y-auto"
-    [ngClass]="{
-      'max-h-20vh': restrictedHeight(),
-    }"
-  >
-    <table flowTable class="w-full">
-      <thead flowTableHeader>
-        <tr flowTableHeaderRow>
-          <th flowTableHeaderCell></th>
-          <th flowTableHeaderCell>Kind</th>
-          <th flowTableHeaderCell>Submitted</th>
-          <th flowTableHeaderCell>Security</th>
-          @for (k of row.refKeys; track k) {
-            <th flowTableHeaderCell [title]="k">
-              {{ k }}
-            </th>
+  <div>
+    @for (curSource of sourceMap() | keyvalue; track curSource.key) {
+      <table
+        flowTable
+        class="w-full"
+        [ngClass]="{
+          'table-fixed': summary(),
+        }"
+      >
+        <colgroup>
+          @if (summary()) {
+            <col span="1" class="w-20" />
+            <col
+              span="{{ curSource.value.refKeys.length }}"
+              [ngStyle]="{ width: 100 / curSource.value.refKeys.length + '%' }"
+            />
+          } @else {
+            <col span="1" class="w-20" />
+            <col span="3" class="w-3/20" />
+            <col
+              span="{{ curSource.value.refKeys.length }}"
+              [ngStyle]="{ width: 50 / curSource.value.refKeys.length + '%' }"
+            />
           }
-        </tr>
-      </thead>
-      <tbody flowTableBody>
-        <ng-container
-          *ngTemplateOutlet="
-            tplTableRows;
-            context: {
-              row: row.direct,
-              kind: 'direct',
-              refKeys: row.refKeys,
+        </colgroup>
+        <thead flowTableHeader>
+          <tr
+            class="dark:border-azul-50 border-t-2 text-center text-sm dark:border-t"
+          >
+            <th flowTableHeaderCell colspan="100%">
+              <b>{{ curSource.key }}</b>
+            </th>
+          </tr>
+          <tr>
+            <th flowTableHeaderCell></th>
+            @if (!summary()) {
+              <th flowTableHeaderCell>Kind</th>
+              <th flowTableHeaderCell>Submitted</th>
+              <th flowTableHeaderCell>Security</th>
             }
-          "
-        ></ng-container>
-        <ng-container
-          *ngTemplateOutlet="
-            tplTableRows;
-            context: {
-              row: row.indirect,
-              kind: 'indirect',
-              refKeys: row.refKeys,
+            @for (k of curSource.value.refKeys; track k) {
+              <th flowTableHeaderCell [title]="k">
+                {{ k }}
+              </th>
             }
-          "
-        ></ng-container>
-      </tbody>
-    </table>
-    <br />
+          </tr>
+        </thead>
+        <tbody flowTableBody>
+          <ng-container
+            *ngTemplateOutlet="
+              tplTableRows;
+              context: {
+                row: curSource.value.direct,
+                kind: 'direct',
+                refKeys: curSource.value.refKeys,
+              }
+            "
+          ></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              tplTableRows;
+              context: {
+                row: curSource.value.indirect,
+                kind: 'indirect',
+                refKeys: curSource.value.refKeys,
+              }
+            "
+          ></ng-container>
+        </tbody>
+      </table>
+    }
   </div>
-</ng-template>
+</az-loading-card>
 
 <ng-template #tplTableRows let-row="row" let-kind="kind" let-refKeys="refKeys">
   @for (item of row; track item.name) {
     <tr flowTableBodyRow>
       <td flowTableBodyCell class="flex">
-        <flow-tooltip message="View top-level binaries from this submission"
+        <flow-tooltip
+          message="View top-level binaries from this submission"
+          direction="top-start"
           ><a
             class="table-link"
             [routerLink]="['/pages/binaries/explore']"
@@ -80,6 +101,7 @@
         >&nbsp;
         <flow-tooltip
           message="View top-level binaries with same source references"
+          direction="top-start"
         >
           <a
             class="table-link"
@@ -121,15 +143,17 @@
           </a>
         }
       </td>
-      <td flowTableBodyCell>{{ kind }}</td>
-      <td flowTableBodyCell class="truncate" [title]="item.timestamp">
-        {{ item.timestamp | since }}
-      </td>
-      <td flowTableBodyCell class="truncate">
-        {{ item.security }}
-      </td>
+      @if (!summary()) {
+        <td flowTableBodyCell>{{ kind }}</td>
+        <td flowTableBodyCell class="truncate" [title]="item.timestamp">
+          {{ item.timestamp | since }}
+        </td>
+        <td flowTableBodyCell class="truncate">
+          {{ item.security }}
+        </td>
+      }
       @for (k of refKeys; track k) {
-        <td flowTableBodyCell [title]="item.references?.[k]">
+        <td flowTableBodyCell [title]="item.references?.[k]" class="truncate">
           <span class="truncate break-words">
             @if (item.references) {
               {{ item.references[k] }}

@@ -64,7 +64,7 @@ For plugins that have completed and published results, refer to the 'Authors' pa
   ngOnInit() {
     let latestStatus: LatestStatus = null;
 
-    const filteredStatuses$ = this._current_entity$.pipe(
+    const filteredStatuses$ = this.currentEntity$.pipe(
       ops.mergeMap((d) => d.statuses$),
       // if latest hasn't changed don't update DOM
       ops.filter((d) => {
@@ -89,7 +89,7 @@ For plugins that have completed and published results, refer to the 'Authors' pa
     );
 
     this.combinedStatuses$ = combineLatest([
-      this._current_entity$.pipe(ops.mergeMap((d) => d.instances$)),
+      this.currentEntity$.pipe(ops.mergeMap((d) => d.instances$)),
       filteredStatuses$,
     ]).pipe(
       ops.map(([instances, statuses]) => {

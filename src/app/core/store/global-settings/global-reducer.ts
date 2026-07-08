@@ -20,7 +20,7 @@ export interface GlobalSettingState {
 }
 
 export const initialState: GlobalSettingState = {
-  IsTableView: true,
+  IsTableView: false,
   BinaryExploreShowEntropy: true,
   BinaryExploreShowMimetype: false,
   BinaryExploreShowMagic: true,

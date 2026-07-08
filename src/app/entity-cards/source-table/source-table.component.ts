@@ -1,14 +1,17 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  Signal,
   TemplateRef,
   ViewChild,
+  WritableSignal,
+  computed,
   inject,
   input,
+  signal,
 } from "@angular/core";
-import { ReplaySubject, Subscription, combineLatest } from "rxjs";
+import { Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import { components } from "@app/core/api/openapi";
@@ -23,7 +26,6 @@ import {
   faMagnifyingGlass,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { Tab } from "@lib/flow/tablist/tablist.component";
 import { BaseCard } from "../base-card.component";
 
 type SourceInfo = components["schemas"]["BinarySource"] & {
@@ -35,13 +37,11 @@ const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);
 @Component({
   selector: "azec-source-table",
   templateUrl: "./source-table.component.html",
+  styleUrls: ["./source-table.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SourceTableComponent
-  extends BaseCard
-  implements AfterViewInit, OnDestroy
-{
+export class SourceTableComponent extends BaseCard implements OnDestroy {
   protected user = inject(UserService);
 
   help = `
@@ -54,9 +54,9 @@ It is divided into tabs for each source, with number to represent number of dire
 
 Each source will have a table showing the references supplied during an upload, and the ability to view other files uploaded as part of the same submission (if any).
   `;
+  showHelp = input<boolean>(true);
+  summary = input<boolean>(false);
   @ViewChild("tplSource") public tplSource: TemplateRef<unknown>;
-
-  restrictedHeight = input<boolean>(false);
 
   protected faMagnifyingGlass = faMagnifyingGlass;
   protected faTrash = faTrash;
@@ -66,39 +66,41 @@ Each source will have a table showing the references supplied during an upload, 
   protected getPurgeQueryParams = getPurgeQueryParams;
   protected allowedToPurge = allowedToPurge;
 
-  protected sourceTabs$ = new ReplaySubject<Tab[]>();
   protected sourceSub: Subscription;
+  protected sourceMap: WritableSignal<Map<string, SourceInfo>> = signal(
+    new Map<string, SourceInfo>(),
+  );
+  protected sortedSourceKeys: Signal<string[]> = computed(() => {
+    const sortedSources = Array.from(this.sourceMap().keys());
+    return sortedSources.sort((f1, f2) => sortString(f1, f2));
+  });
 
-  public ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.sourceSub?.unsubscribe();
-      this.sourceSub = combineLatest([
-        this._current_entity$.pipe(ops.switchMap((d) => d.sources$)),
-      ]).subscribe(([t]) => {
-        let sourceTabs: Tab[] = [];
-        const d = t as SourceInfo[];
-        for (const sourceInfo of d) {
-          const variants = sourceInfo.direct.concat(sourceInfo.indirect);
+  protected override onEntityChange() {
+    this.sourceSub?.unsubscribe();
+    this.sourceSub = this.currentEntity$
+      .pipe(ops.switchMap((d) => d.sources$))
+      .subscribe((allSources) => {
+        const newSourceList = new Map<string, SourceInfo>();
+        // setup each individual source
+        for (const curSource of allSources) {
+          const variants = curSource.direct.concat(curSource.indirect);
           const refKeys = new Set<string>();
           for (const row of variants) {
             for (const k in row.references) {
               refKeys.add(k);
             }
-            sourceInfo.refKeys = Array.from(refKeys);
           }
-          sourceTabs.push({
-            name: sourceInfo.source,
-            template: this.tplSource,
-            count:
-              sourceInfo.direct.length + " | " + sourceInfo.indirect.length,
-            context: { row: sourceInfo },
-          });
+          const infoConversion: SourceInfo = {
+            source: curSource.source,
+            direct: curSource.direct,
+            indirect: curSource.indirect,
+            refKeys: Array.from(refKeys),
+          };
+          newSourceList.set(curSource.source, infoConversion);
         }
-        // sort tabs by source name
-        sourceTabs = sourceTabs.sort((f1, f2) => sortString(f1.name, f2.name));
-        this.sourceTabs$.next(sourceTabs);
+
+        this.sourceMap.set(newSourceList);
       });
-    }, 0);
   }
 
   ngOnDestroy(): void {

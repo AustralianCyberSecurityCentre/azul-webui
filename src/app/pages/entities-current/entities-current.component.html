@@ -251,9 +251,10 @@
       >
         <azco-entity-summary [entity]="entity" />
         <azec-source-table
-          class="flex min-h-36 shrink overflow-x-auto"
+          class="flex min-h-36 shrink overflow-y-visible"
           [entity]="entity"
-          [restrictedHeight]="true"
+          [showHelp]="false"
+          [summary]="true"
         />
       </div>
       <div class="min-h-32 grow">
