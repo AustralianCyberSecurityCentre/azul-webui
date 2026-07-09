@@ -160,10 +160,16 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
           if (this.dialog) {
             this.dialogClose();
           }
-
-          this.router.navigate(["/unauthorized"], {
-            state: { exception: errMsg },
-          });
+          // Temporary unavailable so redirect to unavailable instead.
+          if (err.includes("503")) {
+            this.router.navigate(["/unavailable"], {
+              state: { exception: errMsg },
+            });
+          } else {
+            this.router.navigate(["/unauthorized"], {
+              state: { exception: errMsg },
+            });
+          }
           return of(null);
         }),
       )

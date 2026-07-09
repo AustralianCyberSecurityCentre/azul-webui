@@ -6,6 +6,7 @@ import { AutoLoginPartialRoutesGuard } from "angular-auth-oidc-client";
 import { config } from "@app/settings";
 import { CallbackComponent } from "./pages/callback/callback.component";
 import { UnauthorizedComponent } from "./pages/unauthorized/unauthorized.component";
+import { UnavailableComponent } from "./pages/unavailable/unavailable.component";
 
 // Optional oidc auth
 const pagesRoute: Routes = [];
@@ -30,6 +31,10 @@ const routes: Routes = [
   {
     path: "unauthorized",
     component: UnauthorizedComponent,
+  },
+  {
+    path: "unavailable",
+    component: UnavailableComponent,
   },
   ...pagesRoute,
   { path: "**", redirectTo: "pages" },

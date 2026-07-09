@@ -7,15 +7,23 @@
     </aside>
     <main class="bg-azul-500 col-span-2 h-full px-8 pt-56 text-white">
       <h1 class="pb-4 text-4xl font-extrabold text-gray-50">
-        You don't have access to Azul...
+        @if (helpOverride()) {
+          Azul is not currently Available...
+        } @else {
+          You don't have access to Azul...
+        }
       </h1>
       <div class="pb-4 text-2xl">
-        Unfortunately, your attempt to access Azul was unsuccessful. This is due
-        to invalid authentication or missing permissions.
+        Unfortunately, your attempt to access Azul was unsuccessful.
+        {{ reason() }}
       </div>
       <div class="pb-4 text-2xl">Here is some further information:</div>
       <div class="pb-8 text-xl">
-        <flow-markdown [markdown]="help" />
+        @if (helpOverride()) {
+          <flow-markdown [markdown]="helpOverride()" />
+        } @else {
+          <flow-markdown [markdown]="help()" />
+        }
       </div>
       <div class="pb-8">
         <flow-button
