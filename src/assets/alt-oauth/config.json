@@ -10,7 +10,7 @@
   "oidc_url": "http://keycloak/auth/realms/azul",
   "oidc_scopes": "openid profile email offline_access",
   "unauthorized_help": "This is a help message displayed to users who need help with *unauthorized* errors, potentially with email contacts for support or [links](https://localhost) to ticketing systems.\n\nThis can be configured in the Azul Helm chart.",
-  "restapi_unreachable_help": "This is a help message displayed when the WebUI can't contact the restapi due to it being unavailable (503 error)",
+  "unavailable_help": "This is a help message displayed when there is a server side error with Azul, please contact your system administrator.",
   "global_external_links": {
     "nsrl_url": "https://nsrllookupserver/"
   },

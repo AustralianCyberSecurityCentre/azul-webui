@@ -22,8 +22,8 @@ export class UnavailableComponent {
 
   constructor() {
     const route = inject(ActivatedRoute);
-    if (config?.restapi_unreachable_help) {
-      this.help.set(config.restapi_unreachable_help);
+    if (config?.unavailable_help) {
+      this.help.set(config.unavailable_help);
     }
   }
 }

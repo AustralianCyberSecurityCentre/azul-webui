@@ -14,8 +14,13 @@
         }
       </h1>
       <div class="pb-4 text-2xl">
-        Unfortunately, your attempt to access Azul was unsuccessful.
-        {{ reason() }}
+        @if (helpOverride()) {
+          Unfortunately, your attempt to access Azul was unsuccessful. This is
+          due to an issue with Azul, please contact your administrator.
+        } @else {
+          Unfortunately, your attempt to access Azul was unsuccessful. This is
+          due to invalid authentication or missing permissions.
+        }
       </div>
       <div class="pb-4 text-2xl">Here is some further information:</div>
       <div class="pb-8 text-xl">

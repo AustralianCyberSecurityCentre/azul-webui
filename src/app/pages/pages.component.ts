@@ -161,7 +161,18 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
             this.dialogClose();
           }
           // Temporary unavailable so redirect to unavailable instead.
-          if (err.includes("503")) {
+          if (
+            // Check status code from error object and fall back to string checks if required.
+            (err?.status && err?.status >= 500 && err?.status < 600) ||
+            (err?.response?.status &&
+              err?.response?.status >= 500 &&
+              err?.response?.status < 600) ||
+            err.includes("500") ||
+            err.includes("501") ||
+            err.includes("502") ||
+            err.includes("503") ||
+            err.includes("504")
+          ) {
             this.router.navigate(["/unavailable"], {
               state: { exception: errMsg },
             });

@@ -52,7 +52,7 @@ export type DynamicConfig = {
   deployment_text: string;
 
   unauthorized_help: string;
-  restapi_unreachable_help: string;
+  unavailable_help: string;
 
   banner_message?: string;
   banner_severity: "info" | "warning" | "error";

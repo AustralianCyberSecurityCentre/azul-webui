@@ -26,9 +26,6 @@ export class UnauthorizedComponent {
 
   protected error$: Observable<string | undefined>;
   protected help: WritableSignal<string> = signal("");
-  reason = input<string>(
-    "This is due to invalid authentication or missing permissions.",
-  );
   helpOverride = input<string | undefined>(undefined);
   readonly ButtonType = ButtonType;
 
