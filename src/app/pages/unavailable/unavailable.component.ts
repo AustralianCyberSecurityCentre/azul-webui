@@ -24,6 +24,8 @@ export class UnavailableComponent {
     const route = inject(ActivatedRoute);
     if (config?.unavailable_help) {
       this.help.set(config.unavailable_help);
+    } else {
+      this.help.set("Azul is down");
     }
   }
 }
