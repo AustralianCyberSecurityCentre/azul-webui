@@ -152,7 +152,9 @@ export class SecurityService {
       window.location.pathname == "/callback" ||
       window.location.pathname == "/unauthorized" ||
       window.location.pathname == "/ui/callback" ||
-      window.location.pathname == "/ui/unauthorized"
+      window.location.pathname == "/ui/unauthorized" ||
+      window.location.pathname == "/unavailable" ||
+      window.location.pathname == "/ui/unavailable"
     );
   }
 

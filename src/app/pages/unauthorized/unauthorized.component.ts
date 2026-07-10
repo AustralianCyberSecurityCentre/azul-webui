@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";
 
@@ -18,7 +25,8 @@ export class UnauthorizedComponent {
   protected security = inject(Security);
 
   protected error$: Observable<string | undefined>;
-  protected help: string = "";
+  protected help: WritableSignal<string> = signal("");
+  helpOverride = input<string | undefined>(undefined);
   readonly ButtonType = ButtonType;
 
   constructor() {
@@ -28,7 +36,7 @@ export class UnauthorizedComponent {
       ops.map((_x) => window.history.state.exception),
     );
     if (config?.unauthorized_help) {
-      this.help = config.unauthorized_help;
+      this.help.set(config.unauthorized_help);
     }
   }
 }

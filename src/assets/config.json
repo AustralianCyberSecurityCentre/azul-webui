@@ -8,6 +8,7 @@
   "deployment_text": "LOCAL DEVELOPMENT",
   "retrohunt_enabled": true,
   "unauthorized_help": "This is a help message displayed to users who need help with *unauthorized* errors, potentially with email contacts for support or [links](https://localhost) to ticketing systems.\n\nThis can be configured in the Azul Helm chart.",
+  "unavailable_help": "This is a help message displayed when there is a server side error with Azul, please contact your system administrator.",
   "global_external_links": {
     "nsrl_url": "https://nsrllookupserver/"
   },

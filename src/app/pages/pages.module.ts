@@ -37,6 +37,7 @@ import { SourcesCurrentComponent } from "./sources-current/sources-current.compo
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
+import { UnavailableComponent } from "./unavailable/unavailable.component";
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     FeaturesTagsCurrentComponent,
     BinariesHashLookupComponent,
     UnauthorizedComponent,
+    UnavailableComponent,
     CallbackComponent,
     PageHelpComponent,
     BinariesHashDownloadComponent,
@@ -82,6 +84,6 @@ import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
     FormField,
     AngularSplitModule,
   ],
-  exports: [CallbackComponent, BinariesExploreComponent],
+  exports: [CallbackComponent, BinariesExploreComponent, UnauthorizedComponent],
 })
 export class PagesModule {}
