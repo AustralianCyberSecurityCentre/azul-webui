@@ -12,7 +12,7 @@
     "lint": "ng lint"
   },
   "private": true,
-  "packageManager": "npm@11.17.0",
+  "packageManager": "npm@11.18.0",
   "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
   "overrides": {
     "ngx-monaco-editor-v2": {
@@ -79,7 +79,7 @@
     "@schematics/angular": "22.0.5",
     "@tailwindcss/forms": "0.5.11",
     "@types/d3": "7.4.3",
-    "@types/node": "26.0.1",
+    "@types/node": "26.1.0",
     "@types/showdown": "2.0.6",
     "@types/upng-js": "2.1.5",
     "@zip.js/zip.js": "2.8.26",
@@ -87,7 +87,7 @@
     "eslint": "10.6.0",
     "openapi-typescript": "7.13.0",
     "postcss": "8.5.16",
-    "prettier": "3.9.1",
+    "prettier": "3.9.4",
     "prettier-plugin-tailwindcss": "0.8.0",
     "tailwindcss": "4.3.1",
     "typescript": "^6.0.0",
