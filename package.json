@@ -63,7 +63,7 @@
     "date-fns": "^4.4.0",
     "monaco-editor": "^0.55.1",
     "monaco-types": "^0.1.2",
-    "ngx-monaco-editor-v2": "^21.1.4",
+    "ngx-monaco-editor-v2": "^22.0.0",
     "ngx-toastr": "^20.0.5",
     "rxjs": "^7.8.2",
     "showdown": "^2.1.0",
