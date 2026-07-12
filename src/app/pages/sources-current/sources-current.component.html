@@ -21,10 +21,11 @@
     <flow-card style="width: 100%">
       <flow-card-header title="Source | {{ sourceId }}">
         <div class="flex items-center gap-x-1">
-          <flow-label for="input-select" [noPadding]="true">View:</flow-label>
+          <flow-label for="input-select" [noPadding]="true"
+            >Change Source View</flow-label
+          >
           <select
             flowSelect
-            class="w-full"
             id="input-select"
             [formField]="sourceViewForm.sourceView"
           >
