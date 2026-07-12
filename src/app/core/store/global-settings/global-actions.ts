@@ -1,5 +1,9 @@
 import { createAction, props } from "@ngrx/store";
-import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
+import {
+  ColorTheme,
+  RelationalGraphLevel,
+  SourceViewEnum,
+} from "./global-state.types";
 
 export const saveIsTableView = createAction(
   "[GlobalSetting] Save IsTableView",
@@ -57,4 +61,9 @@ export const setColorTheme = createAction(
 export const saveEnableHexStringSync = createAction(
   "[GlobalSetting] Save Enable Hex String Sync",
   props<{ enableHexStringSync: boolean }>(),
+);
+
+export const saveDefaultSourceView = createAction(
+  "[GlobalSetting] Save Default Source View",
+  props<{ defaultSourceView: SourceViewEnum }>(),
 );

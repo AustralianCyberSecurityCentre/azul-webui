@@ -68,3 +68,10 @@ export const selectEnableHexStringSync = createSelector(
     return state.enableHexStringSync;
   },
 );
+
+export const selectDefaultSourceView = createSelector(
+  selectGlobalConfigState,
+  (state) => {
+    return state.defaultSourceView;
+  },
+);

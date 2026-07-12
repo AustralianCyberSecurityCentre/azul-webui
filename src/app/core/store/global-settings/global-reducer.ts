@@ -1,6 +1,10 @@
 import { createReducer, on } from "@ngrx/store";
 import * as GlobalSettingActions from "./global-actions";
-import { ColorTheme, RelationalGraphLevel } from "./global-state.types";
+import {
+  ColorTheme,
+  RelationalGraphLevel,
+  SourceViewEnum,
+} from "./global-state.types";
 
 const GLOBAL_SETTING_STATE = "GLOBAL_SETTING_STATE";
 
@@ -17,6 +21,7 @@ export interface GlobalSettingState {
   debugQueryEditorHeightPx: number;
   theme: ColorTheme;
   enableHexStringSync: boolean;
+  defaultSourceView: SourceViewEnum;
 }
 
 export const initialState: GlobalSettingState = {
@@ -32,6 +37,7 @@ export const initialState: GlobalSettingState = {
   debugQueryEditorHeightPx: 300,
   theme: ColorTheme.Dark,
   enableHexStringSync: true,
+  defaultSourceView: SourceViewEnum.References,
 };
 
 /**load from local storage*/
@@ -161,6 +167,18 @@ export const globalSettingReducer = createReducer(
       const currentState = {
         ...state,
         enableHexStringSync: enableHexStringSync,
+      };
+      saveGlobalSettingState(currentState);
+      return currentState;
+    },
+  ),
+
+  on(
+    GlobalSettingActions.saveDefaultSourceView,
+    (state, { defaultSourceView }) => {
+      const currentState = {
+        ...state,
+        defaultSourceView: defaultSourceView,
       };
       saveGlobalSettingState(currentState);
       return currentState;

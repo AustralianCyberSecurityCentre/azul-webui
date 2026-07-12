@@ -10,3 +10,9 @@ export enum RelationalGraphLevel {
   YES = "show cousins",
   YES_LARGE = "show max cousins",
 }
+
+export enum SourceViewEnum {
+  References = "References",
+  GroupedReferences = "Grouped References",
+  Submission = "Submission",
+}
