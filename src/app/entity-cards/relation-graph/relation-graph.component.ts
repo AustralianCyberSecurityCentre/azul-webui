@@ -76,7 +76,7 @@ type RefineLink = {
   // event: string
   // author_type: string
   // author_name: string
-  node: components["schemas"]["PathNode"];
+  node: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"];
 };
 
 type Refine = {
@@ -87,7 +87,7 @@ type Refine = {
   node_entities: {
     id: string;
     current: boolean;
-    entities: components["schemas"]["PathNode"][];
+    entities: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][];
   }[];
   link: RefineLink[];
 };
@@ -440,7 +440,7 @@ not be shown on the graph.
       {
         id: string;
         current: boolean;
-        entities: components["schemas"]["PathNode"][];
+        entities: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][];
       }
     >();
     const sources = new Map<string, Refine["node_source"][0]>();
@@ -488,12 +488,13 @@ not be shown on the graph.
 
   private genContent(
     current: boolean,
-    raw_datas: components["schemas"]["PathNode"][],
+    raw_datas: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][],
   ): string {
     let label = "";
 
     // remove duplicate ids
-    const datas: components["schemas"]["PathNode"][] = [];
+    const datas: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][] =
+      [];
     let prev = "";
     for (const row of raw_datas) {
       if (row.sha256 != prev) {

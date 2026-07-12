@@ -1064,7 +1064,9 @@ export class ApiService {
 
   entityStatus(
     sha256: string,
-  ): Observable<readonly components["schemas"]["StatusEvent"][]> {
+  ): Observable<
+    readonly components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"][]
+  > {
     return this.getOperation(
       "/api/v0/binaries/{sha256}/statuses",
       {},
@@ -1407,6 +1409,23 @@ export class ApiService {
   ): Observable<readonly components["schemas"]["ReferenceSet"][]> {
     return this.getOperation(
       "/api/v0/sources/{source}/references",
+      { term },
+      { source },
+    ).pipe(
+      ops.tap((d) => {
+        this.addReceivedSecurity(d.meta);
+      }),
+      ops.map((d) => d.data.items),
+      ops.catchError((e) => this.handle(e, [], [404])),
+    );
+  }
+
+  groupedSourceRefsRead(
+    source: string,
+    term: string,
+  ): Observable<readonly components["schemas"]["ReferenceSetGrouped"][]> {
+    return this.getOperation(
+      "/api/v0/sources/{source}/references/grouped",
       { term },
       { source },
     ).pipe(

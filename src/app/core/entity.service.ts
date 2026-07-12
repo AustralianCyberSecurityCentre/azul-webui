@@ -76,8 +76,12 @@ export class EntityWrap {
     new BehaviorSubject<components["schemas"]["FeatureValueTag"]>(null);
   streams$: Observable<readonly components["schemas"]["DatastreamInstances"][]>;
   info$: Observable<readonly components["schemas"]["BinaryInfo"][]>;
-  parents$: Observable<readonly components["schemas"]["PathNode"][]>;
-  children$: Observable<readonly components["schemas"]["PathNode"][]>;
+  parents$: Observable<
+    readonly components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][]
+  >;
+  children$: Observable<
+    readonly components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][]
+  >;
   // Different levels of nearby queries to enable switching between them without reloading.
   nearby$: Observable<components["schemas"]["ReadNearby"]>;
   nearbySmall$: Observable<components["schemas"]["ReadNearby"]>;
@@ -94,7 +98,9 @@ export class EntityWrap {
 
   featuresOffset$: Observable<FeatureWithDecodedValue[]>;
 
-  statuses$: Observable<readonly components["schemas"]["StatusEvent"][]>;
+  statuses$: Observable<
+    readonly components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"][]
+  >;
 
   entropy$: Observable<tInfo.Entropy>;
   sandbox$: Observable<tInfo.Sandbox[]>;
