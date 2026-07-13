@@ -192,9 +192,13 @@
   <ng-template #tplReferenceSetsGrouped>
     @if (sources$ | async; as sources) {
       <flow-card class="w-full">
-        <flow-card-header title="Reference Sets" />
+        <flow-card-header title="Grouped Reference Sets" />
         <flow-card-body>
-          <az-loading-card [obs$]="sourceRefs$" class="w-full" [show]="true">
+          <az-loading-card
+            [obs$]="sourceRefsGrouped$"
+            class="w-full"
+            [show]="true"
+          >
             <div class="flex flex-col gap-2">
               <flow-input
                 [icon]="faMagnifyingGlass"
