@@ -21,7 +21,7 @@ type LatestStatus = {
 type CombinedAuthorStatus = {
   [key: string]: {
     [version: string]: {
-      status?: components["schemas"]["StatusEvent"];
+      status?: components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"];
       featureEvents: components["schemas"]["EntityInstance"][];
       author: components["schemas"]["EntityInstanceAuthor"];
       classification: string;

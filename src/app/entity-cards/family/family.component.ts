@@ -44,7 +44,7 @@ export class FamilyComponent extends BaseCard {
 
   protected familyTemplateInputType: {
     data$: Observable<
-      (components["schemas"]["PathNode"] & {
+      (components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"] & {
         _localEntitySummary$: Observable<
           components["schemas"]["EntityFindItem"]
         >;

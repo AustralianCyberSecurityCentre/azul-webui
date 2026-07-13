@@ -4,10 +4,16 @@
       <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
     </div>
     <div>
-      @if (!showSubmissionView) {
-        <ng-container *ngTemplateOutlet="tplReferenceSets"></ng-container>
-      } @else {
+      @if (sourceViewModel().sourceView === SourceViewEnum.Submission) {
         <ng-container *ngTemplateOutlet="tplSubmissions"></ng-container>
+      } @else if (
+        sourceViewModel().sourceView === SourceViewEnum.GroupedReferences
+      ) {
+        <ng-container
+          *ngTemplateOutlet="tplReferenceSetsGrouped"
+        ></ng-container>
+      } @else {
+        <ng-container *ngTemplateOutlet="tplReferenceSets"></ng-container>
       }
     </div>
   </div>
@@ -16,13 +22,22 @@
       <flow-card-header title="Source | {{ sourceId }}">
         <div class="flex items-center gap-x-1">
           <flow-label for="input-select" [noPadding]="true"
-            >Show Submission View</flow-label
+            >Change Source View</flow-label
           >
-          <flow-toggle
-            id="toggle-select"
-            [(ngModel)]="showSubmissionView"
-            class="contents"
-          ></flow-toggle>
+          <select
+            flowSelect
+            id="input-select"
+            [formField]="sourceViewForm.sourceView"
+          >
+            @for (
+              sourceViewOpt of SourceViewEnum | keyvalue;
+              track sourceViewOpt.value
+            ) {
+              <option [value]="sourceViewOpt.value">
+                {{ sourceViewOpt.value }}
+              </option>
+            }
+          </select>
         </div>
       </flow-card-header>
       <flow-card-body>
@@ -120,7 +135,7 @@
                           <td flowTableBodyCell [title]="row.timestamp">
                             {{ row.timestamp | since }}
                           </td>
-                          <td flowTableBodyCell class="text-center">
+                          <td flowTableBodyCell>
                             <a
                               class="table-link"
                               title="View top-level binaries with these source references"
@@ -130,6 +145,102 @@
                                   sourceId,
                                   0,
                                   row.track_source_references,
+                                  null
+                                ),
+                              }"
+                            >
+                              {{ row.num_entities | number }}
+                            </a>
+                          </td>
+                          @for (
+                            key of sources[sourceId].references;
+                            track key
+                          ) {
+                            <td flowTableBodyCell>
+                              {{ row.values[key.name] }}
+                            </td>
+                          }
+                          <td flowTableBodyCell>
+                            <a
+                              title="Upload binaries to this reference set"
+                              [routerLink]="['/pages/binaries/upload']"
+                              [queryParams]="
+                                getSourceInstanceQueryParams(
+                                  sourceId,
+                                  sources[sourceId].references,
+                                  row.values
+                                )
+                              "
+                            >
+                              <flow-button [size]="ButtonSize.Tiny">
+                                Upload
+                              </flow-button>
+                            </a>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  }
+                </table>
+              </div>
+            </div>
+          </az-loading-card>
+        </flow-card-body>
+      </flow-card>
+    }
+  </ng-template>
+  <ng-template #tplReferenceSetsGrouped>
+    @if (sources$ | async; as sources) {
+      <flow-card class="w-full">
+        <flow-card-header title="Grouped Reference Sets" />
+        <flow-card-body>
+          <az-loading-card
+            [obs$]="sourceRefsGrouped$"
+            class="w-full"
+            [show]="true"
+          >
+            <div class="flex flex-col gap-2">
+              <flow-input
+                [icon]="faMagnifyingGlass"
+                class="grow"
+                placeholder="Search Reference Sets"
+                [(ngModel)]="term"
+                (ngModelChange)="searchChange()"
+              />
+              <div>
+                <table flowTable class="w-full">
+                  <thead flowTableHeader class="sticky top-0">
+                    <tr flowTableHeaderRow>
+                      <th flowTableHeaderCell>Most Recent Use</th>
+                      <th flowTableHeaderCell>Binaries</th>
+                      @for (ref of sources[sourceId].references; track ref) {
+                        <th flowTableHeaderCell>
+                          {{ ref.name }}
+                          @if (ref.required) {
+                            (required)
+                          }
+                        </th>
+                      }
+                      <th flowTableHeaderCell>Actions</th>
+                    </tr>
+                  </thead>
+                  @if (sourceRefsGrouped$ | async; as refs) {
+                    <tbody flowTableBody>
+                      @for (row of refs; track row) {
+                        <tr flowTableBodyRow>
+                          <td flowTableBodyCell [title]="row.timestamp">
+                            {{ row.timestamp | since }}
+                          </td>
+                          <td flowTableBodyCell>
+                            <a
+                              class="table-link"
+                              title="View top-level binaries with these source references"
+                              [routerLink]="['/pages/binaries/explore']"
+                              [queryParams]="{
+                                term: groupedSourceRefsAsParams(
+                                  sourceId,
+                                  0,
+                                  row.track_source_references_grouped,
                                   null
                                 ),
                               }"
@@ -210,7 +321,7 @@
                         <td flowTableBodyCell [title]="row.timestamp">
                           {{ row.timestamp | since }}
                         </td>
-                        <td flowTableBodyCell class="text-center">
+                        <td flowTableBodyCell>
                           <a
                             class="table-link"
                             title="View top-level binaries with these source references"

@@ -95,5 +95,27 @@
     >
   </div>
 </ng-container>
-
 <flow-hr />
+
+<h2 class="mb-2 text-lg font-bold dark:text-white">Binary Source Options</h2>
+<ng-container>
+  <div class="grid grid-cols-2 gap-2">
+    <flow-label for="default-source-view-select"
+      >Default Source View</flow-label
+    >
+    <select
+      flowSelect
+      id="default-source-view-select"
+      [formControl]="defaultSourceViewForm"
+    >
+      @for (
+        sourceViewOpt of SourceViewEnum | keyvalue;
+        track sourceViewOpt.value
+      ) {
+        <option [value]="sourceViewOpt.value">
+          {{ sourceViewOpt.value }}
+        </option>
+      }
+    </select>
+  </div>
+</ng-container>

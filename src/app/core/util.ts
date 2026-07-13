@@ -212,6 +212,23 @@ export function sourceRefsAsParams(
   return base;
 }
 
+export function groupedSourceRefsAsParams(
+  source: string,
+  source_depth: number,
+  track_source_references_grouped: string,
+  timestamp: string | null,
+) {
+  let base = `source.name:${escapeValue(source)} DOCAND depth:${source_depth}`;
+  if (track_source_references_grouped.length > 0) {
+    base += ` DOCAND track_source_references_grouped:${escapeValue(track_source_references_grouped)}`;
+  }
+  // optionally filter by source timestamp as well
+  if (timestamp) {
+    base += ` source.timestamp:${escapeValue(timestamp)}`;
+  }
+  return base;
+}
+
 /**Converts source information into a purge request */
 export function getPurgeQueryParams(
   trackSubmission: string,

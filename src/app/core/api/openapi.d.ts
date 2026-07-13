@@ -1089,50 +1089,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/retrohunts/{hunt_id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Hunt Results
-     * @description Fetch details of specified hunt.
-     */
-    readonly get: operations["hunt_results_api_retrohunts__hunt_id__get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/api/retrohunts": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * List Hunts
-     * @description Return list of hunts.
-     */
-    readonly get: operations["list_hunts_api_retrohunts_get"];
-    readonly put?: never;
-    /**
-     * Submit Hunt
-     * @description Submit a new retrohunt for processing.
-     */
-    readonly post: operations["submit_hunt_api_retrohunts_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/retrohunt/retrohunts/{hunt_id}": {
     readonly parameters: {
       readonly query?: never;
@@ -1366,6 +1322,26 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/sources/{source}/references/grouped": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Source Grouped Refs
+     * @description Read source reference details only including the priority reference fields.
+     */
+    readonly get: operations["source_grouped_refs_api_v0_sources__source__references_grouped_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/sources/{source}/submissions": {
     readonly parameters: {
       readonly query?: never;
@@ -1426,26 +1402,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return parsed info for for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me/opensearch": {
     readonly parameters: {
       readonly query?: never;
@@ -1458,6 +1414,26 @@ export interface paths {
      * @description Return Opensearch access for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return parsed info for for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -1844,12 +1820,12 @@ export interface components {
        * Parents
        * @default []
        */
-      readonly parents: readonly components["schemas"]["PathNode"][];
+      readonly parents: readonly components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][];
       /**
        * Children
        * @default []
        */
-      readonly children: readonly components["schemas"]["PathNode"][];
+      readonly children: readonly components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"][];
       /**
        * Instances
        * @default []
@@ -3079,6 +3055,19 @@ export interface components {
      * @enum {string}
      */
     readonly FindBinariesSortEnum: "_score" | "source.timestamp" | "timestamp";
+    /**
+     * GroupedReferences
+     * @description Grouped source references.
+     */
+    readonly GroupedReferences: {
+      /** Items */
+      readonly items: readonly components["schemas"]["ReferenceSetGrouped"][];
+    };
+    /** Response:<class 'azul_bedrock.models_restapi.sources.GroupedReferences'> */
+    readonly GroupedReferences__: {
+      readonly data?: components["schemas"]["GroupedReferences"];
+      readonly meta: components["schemas"]["Meta"];
+    };
     /** HTTPValidationError */
     readonly HTTPValidationError: {
       /** Detail */
@@ -3633,7 +3622,7 @@ export interface components {
       readonly child: string;
       /** Parent */
       readonly parent?: string | null;
-      readonly child_node: components["schemas"]["PathNode"];
+      readonly child_node: components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"];
       readonly source?: components["schemas"]["EventSource"] | null;
     };
     /** Response:<class 'azul_bedrock.models_restapi.binaries.ReadNearby'> */
@@ -3689,6 +3678,24 @@ export interface components {
       };
     };
     /**
+     * ReferenceSetGrouped
+     * @description Summary of priority reference fields set for a source in metastore.
+     */
+    readonly ReferenceSetGrouped: {
+      /** Track Source References Grouped */
+      readonly track_source_references_grouped: string;
+      /** Timestamp */
+      readonly timestamp: string;
+      /** Num Entities */
+      readonly num_entities: number;
+      /** Num Entities Min */
+      readonly num_entities_min: boolean;
+      /** Values */
+      readonly values: {
+        readonly [key: string]: string;
+      };
+    };
+    /**
      * References
      * @description Source references.
      */
@@ -3722,7 +3729,7 @@ export interface components {
     /** Response:list[azul_bedrock.models_restapi.binaries.StatusEvent] */
     readonly Response_StatusEvent_: {
       /** Data */
-      readonly data?: readonly components["schemas"]["StatusEvent"][];
+      readonly data?: readonly components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"][];
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:typing.Annotated[typing.Union[azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteNone, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteInitial, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldName, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteFieldValue, azul_bedrock.models_restapi.binaries_auto_complete.AutocompleteError], FieldInfo(annotation=NoneType, required=True, discriminator='type')] */
@@ -4135,6 +4142,11 @@ export interface components {
        * @default false
        */
       readonly highlight: boolean;
+      /**
+       * Priority
+       * @default true
+       */
+      readonly priority: boolean;
     };
     /** Response:<class 'azul_bedrock.models_restapi.sources.Source'> */
     readonly Source__: {
@@ -4160,7 +4172,7 @@ export interface components {
      */
     readonly Status: {
       /** Items */
-      readonly items: readonly components["schemas"]["StatusEvent"][];
+      readonly items: readonly components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"][];
     };
     /**
      * StatusEntity
@@ -4207,7 +4219,7 @@ export interface components {
       /** Num Items */
       readonly num_items: number;
       /** Items */
-      readonly items: readonly components["schemas"]["StatusEvent"][];
+      readonly items: readonly components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"][];
     };
     /**
      * StatusInput
@@ -4558,7 +4570,7 @@ export interface components {
      * PathNode
      * @description Relationship link from a parent entity to a child, or the top level link in a path (no parent).
      */
-    readonly PathNode: {
+    readonly azul_bedrock__models_restapi__binaries__PathNode: {
       /** Sha256 */
       readonly sha256: string;
       readonly action: components["schemas"]["BinaryAction"];
@@ -4584,7 +4596,7 @@ export interface components {
      * StatusEvent
      * @description Status information to return from the api.
      */
-    readonly StatusEvent: {
+    readonly azul_bedrock__models_restapi__binaries__StatusEvent: {
       /** Timestamp */
       readonly timestamp: string;
       readonly author: components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
@@ -4816,6 +4828,7 @@ export type FeatureValueTag = components["schemas"]["FeatureValueTag"];
 export type Features = components["schemas"]["Features__"];
 export type FindBinariesSortEnum =
   components["schemas"]["FindBinariesSortEnum"];
+export type GroupedReferences = components["schemas"]["GroupedReferences__"];
 export type HttpValidationError = components["schemas"]["HTTPValidationError"];
 export type HuntState = components["schemas"]["HuntState"];
 export type IncludeCousinsEnum = components["schemas"]["IncludeCousinsEnum"];
@@ -4863,6 +4876,7 @@ export type ReadNearbyLink = components["schemas"]["ReadNearbyLink"];
 export type ReadTags = components["schemas"]["ReadTags__"];
 export type ReadTagsTag = components["schemas"]["ReadTagsTag"];
 export type ReferenceSet = components["schemas"]["ReferenceSet"];
+export type ReferenceSetGrouped = components["schemas"]["ReferenceSetGrouped"];
 export type References = components["schemas"]["References__"];
 export type ResponseAuthor = components["schemas"]["Response_Author_"];
 export type ResponseLatestPluginWithVersions =
@@ -4934,9 +4948,9 @@ export type AzulBedrockModelsNetworkStatusEventEntity =
 export type AzulBedrockModelsRestapiBasicAuthor =
   components["schemas"]["azul_bedrock__models_restapi__basic__Author"];
 export type AzulBedrockModelsRestapiBinariesPathNode =
-  components["schemas"]["PathNode"];
+  components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"];
 export type AzulBedrockModelsRestapiBinariesStatusEvent =
-  components["schemas"]["StatusEvent"];
+  components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"];
 export type AzulBedrockModelsRestapiPurgePurgeResults =
   components["schemas"]["azul_bedrock__models_restapi__purge__PurgeResults"];
 export type AzulBedrockModelsRestapiSourcesSource =
@@ -8181,171 +8195,6 @@ export interface operations {
       };
     };
   };
-  readonly hunt_results_api_retrohunts__hunt_id__get: {
-    readonly parameters: {
-      readonly query?: {
-        /** @description Exclude these security labels during queries */
-        readonly x?: readonly string[];
-        /** @description Include these RELs for AND search in opensearch during queries */
-        readonly i?: readonly string[];
-        /** @description Include all Opensearch queries run during request. */
-        readonly include_queries?: boolean;
-      };
-      readonly header?: never;
-      readonly path: {
-        readonly hunt_id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["RetrohuntResponse"];
-        };
-      };
-      /** @description The retrohunt was not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
-  readonly list_hunts_api_retrohunts_get: {
-    readonly parameters: {
-      readonly query?: {
-        readonly limit?: number;
-        /** @description Exclude these security labels during queries */
-        readonly x?: readonly string[];
-        /** @description Include these RELs for AND search in opensearch during queries */
-        readonly i?: readonly string[];
-        /** @description Include all Opensearch queries run during request. */
-        readonly include_queries?: boolean;
-      };
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["RetrohuntsResponse"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
-  readonly submit_hunt_api_retrohunts_post: {
-    readonly parameters: {
-      readonly query?: {
-        /** @description Exclude these security labels during queries */
-        readonly x?: readonly string[];
-        /** @description Include these RELs for AND search in opensearch during queries */
-        readonly i?: readonly string[];
-        /** @description Include all Opensearch queries run during request. */
-        readonly include_queries?: boolean;
-      };
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["RetrohuntSubmission"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["RetrohuntResponse"];
-        };
-      };
-      /** @description Not found */
-      readonly 404: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-      /** @description Something went wrong */
-      readonly 500: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["BaseError"];
-        };
-      };
-    };
-  };
   readonly hunt_results_route_api_v0_retrohunt_retrohunts__hunt_id__get: {
     readonly parameters: {
       readonly query?: {
@@ -8952,6 +8801,61 @@ export interface operations {
       };
     };
   };
+  readonly source_grouped_refs_api_v0_sources__source__references_grouped_get: {
+    readonly parameters: {
+      readonly query?: {
+        readonly term?: string;
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly source: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["GroupedReferences__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly source_submissions_read_api_v0_sources__source__submissions_get: {
     readonly parameters: {
       readonly query?: {
@@ -9098,7 +9002,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
+  readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9113,7 +9017,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
+          readonly "application/json": components["schemas"]["UserAccess"];
         };
       };
       /** @description Not found */
@@ -9134,7 +9038,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_opensearch_get: {
+  readonly read_users_me_api_v0_users_me_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9149,7 +9053,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserAccess"];
+          readonly "application/json": components["schemas"]["UserInfo"];
         };
       };
       /** @description Not found */

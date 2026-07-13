@@ -52,9 +52,10 @@ export type SimilarFeatureMatchWithSummary =
 /**
  * Adds entity metadata to a related entity response.
  */
-export type PathWithSummary = components["schemas"]["PathNode"] & {
-  _localEntitySummary$: Observable<components["schemas"]["EntityFindItem"]>;
-};
+export type PathWithSummary =
+  components["schemas"]["azul_bedrock__models_restapi__binaries__PathNode"] & {
+    _localEntitySummary$: Observable<components["schemas"]["EntityFindItem"]>;
+  };
 
 /**
  * Adds entity metadata to a search response.
@@ -113,9 +114,10 @@ export type SimilarEntropyMatchWithSummary = {
 /**
  * Adds entity metadata to a plugin status event.
  */
-export type PluginItemWithSummary = components["schemas"]["StatusEvent"] & {
-  entitySummary$?: Observable<components["schemas"]["EntityFindItem"]>;
-};
+export type PluginItemWithSummary =
+  components["schemas"]["azul_bedrock__models_restapi__binaries__StatusEvent"] & {
+    entitySummary$?: Observable<components["schemas"]["EntityFindItem"]>;
+  };
 
 /**
  * Adds entity metadata to a plugin status events.

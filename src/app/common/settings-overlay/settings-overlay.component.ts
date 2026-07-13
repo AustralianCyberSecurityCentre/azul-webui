@@ -14,6 +14,7 @@ import {
 import {
   ColorTheme,
   RelationalGraphLevel,
+  SourceViewEnum,
 } from "@app/core/store/global-settings/global-state.types";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
@@ -40,6 +41,7 @@ export class SettingsOverlayComponent implements OnInit {
   protected entityBucketSizeForm: FormControl;
   protected entityShowDebugInfoForm: FormControl;
   protected enableHexStringSyncForm: FormControl;
+  protected defaultSourceViewForm: FormControl;
   protected debugEditorHeightPxForm: FormControl;
 
   protected formBinaryViewTableFormat: FormControl;
@@ -58,6 +60,8 @@ export class SettingsOverlayComponent implements OnInit {
 
   protected darkColorTheme = ColorTheme.Dark;
   protected lightColorTheme = ColorTheme.Light;
+
+  protected SourceViewEnum = SourceViewEnum;
 
   protected faSpinner = faSpinner;
 
@@ -296,6 +300,22 @@ export class SettingsOverlayComponent implements OnInit {
             this.store.dispatch(
               globalAction.saveEnableHexStringSync({
                 enableHexStringSync: state,
+              }),
+            );
+          },
+        );
+      });
+
+    this.store
+      .select(fromGlobalSettings.selectDefaultSourceView)
+      .pipe(ops.first())
+      .subscribe((value) => {
+        this.defaultSourceViewForm = this.fb.control(value);
+        this.defaultSourceViewForm.valueChanges.subscribe(
+          (state: SourceViewEnum) => {
+            this.store.dispatch(
+              globalAction.saveDefaultSourceView({
+                defaultSourceView: state,
               }),
             );
           },
