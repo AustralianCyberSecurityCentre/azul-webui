@@ -78,6 +78,11 @@ a.table-link:visited {
   @apply text-blue-600 dark:text-blue-300;
 }
 
+a.fragment-link {
+  @apply text-blue-600 dark:text-blue-300;
+  cursor: pointer;
+}
+
 /**
  * relation graph formatting start
  * has to be applied globally!

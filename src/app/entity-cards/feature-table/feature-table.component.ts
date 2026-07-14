@@ -104,8 +104,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   get unboundedFeatures$() {
     return this._features$;
   }
-  @Input() set features$(d$: Observable<ShowFeature[]>) {
-    this._features$ = d$;
+  @Input() set features$(d$: Observable<FeatureWithDecodedValue[]>) {
+    this._features$ = d$ as Observable<ShowFeature[]>;
     this.filterFeaturesByBoundary();
     this.sortAndFilter();
     this.countPluginsFeature();

@@ -36,7 +36,6 @@ import { FlowModule } from "@lib/flow/flow.module";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { BannersComponent } from "./banners/banners.component";
 import { EntitySearchComponent } from "./entity-search/entity-search.component";
-import { EntitySummaryComponent } from "./entity-summary/entity-summary.component";
 import { HoverTextableComponent } from "./hover-textable/hover-textable.component";
 import { LoadingContentComponent } from "./loading-content/loading-content.component";
 import { LoadingIndicatorFailedComponent } from "./loading-indicator-failed/loading-indicator-failed.component";
@@ -65,7 +64,6 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     EntityContentSearchComponent,
     EntityTagsComponent,
     EntitySearchComponent,
-    EntitySummaryComponent,
     EntropyComponent,
     EntityResultsComponent,
     LoadingIndicatorFailedComponent,
@@ -112,7 +110,6 @@ import { TagPickerComponent } from "./tag-picker/tag-picker.component";
     EntityContentSearchComponent,
     EntityTagsComponent,
     EntitySearchComponent,
-    EntitySummaryComponent,
     EntropyComponent,
     SourcePickerComponent,
     EntityResultsComponent,

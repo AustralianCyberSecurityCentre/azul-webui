@@ -27,6 +27,7 @@ import { StatusComponent } from "./status/status.component";
 import { StreamMergedTextTabMonacoComponent } from "./stream-merged-text-tab-monaco/stream-merged-text-tab-monaco.component";
 import { StreamTextTabMonacoComponent } from "./stream-text-tab-monaco/stream-text-tab-monaco.component";
 import { StringsComponent } from "./strings/strings.component";
+import { EntitySummaryComponent } from "./entity-summary/entity-summary.component";
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { StringsComponent } from "./strings/strings.component";
     SimilarfuzzyhashComponent,
     SimilarEntropyComponent,
     ImagePreviewComponent,
+    EntitySummaryComponent,
   ],
   imports: [
     CommonModule,
@@ -76,6 +78,7 @@ import { StringsComponent } from "./strings/strings.component";
     SimilarEntropyComponent,
     SandboxResultsComponent,
     ImagePreviewComponent,
+    EntitySummaryComponent,
   ],
 })
 export class AzEntityCardsModule {}

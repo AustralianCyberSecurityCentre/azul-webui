@@ -2,22 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  Signal,
   WritableSignal,
+  computed,
   inject,
   signal,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import {
-  BehaviorSubject,
-  Observable,
-  ReplaySubject,
-  Subscription,
-  combineLatest,
-  of,
-  timer,
-} from "rxjs";
-import * as ops from "rxjs/operators";
-
 import { ApiService } from "@app/core/api/api.service";
 import { IconService } from "@app/core/icon.service";
 import { Entity, EntityWrap, Nav } from "@app/core/services";
@@ -32,10 +23,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Store } from "@ngrx/store";
 import { ActiveToast, ToastrService } from "ngx-toastr";
+import {
+  Observable,
+  ReplaySubject,
+  Subscription,
+  combineLatest,
+  of,
+  timer,
+} from "rxjs";
+import * as ops from "rxjs/operators";
 
 import { components } from "@app/core/api/openapi";
 import { selectShowDebugInfo } from "@app/core/store/global-settings/global-selector";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
+import {
+  binaryTabsEnum,
+  EntityNavService,
+} from "@app/entity-cards/entity-nav.services";
 
 type Highlight = {
   label: string;
@@ -61,11 +65,13 @@ export class BinariesCurrentComponent implements OnDestroy {
   private navService = inject(Nav);
   private iconService = inject(IconService);
   private store = inject(Store);
+  protected entityNavService = inject(EntityNavService);
 
   protected getStatusColour = getStatusColour;
   protected sourceRefsAsParams = sourceRefsAsParams;
 
   protected entity$ = new ReplaySubject<EntityWrap>(1);
+  protected binaryTabsEnum = binaryTabsEnum;
 
   private refreshNewSub: Subscription;
   private downloadSub: Subscription;
@@ -88,39 +94,41 @@ export class BinariesCurrentComponent implements OnDestroy {
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
 
-  protected downloading$: ReplaySubject<number>;
+  protected downloading: WritableSignal<number | null> = signal(null);
   protected expedite$: Observable<number>;
   protected isExpeditedSignal: WritableSignal<boolean> = signal(false);
 
-  protected showDebugInfo$: Observable<boolean> = of(false);
+  protected showDebugInfoSignal: Signal<boolean> = signal(false);
 
   protected tabNames = [
-    "Overview",
-    "Features",
-    "Data",
-    "Relations",
-    "Status",
-    "Debug",
+    binaryTabsEnum.Overview,
+    binaryTabsEnum.Features,
+    binaryTabsEnum.Data,
+    binaryTabsEnum.Relations,
+    binaryTabsEnum.Status,
+    binaryTabsEnum.Debug,
   ];
-  protected activeTabSignal: WritableSignal<string> = signal("");
-  protected tabBadges$ = new BehaviorSubject(
-    new Array<number>(this.tabNames.length).fill(0),
+  protected tabBadgesSignal: WritableSignal<Map<string, number>> = signal(
+    new Map<string, number>(),
   );
-  protected tabs$ = this.tabBadges$.pipe(
-    ops.combineLatestWith(this.store.select(selectShowDebugInfo)),
-    ops.map(([tabs, showDebugInfo]) => {
-      let tabsWithBadges = tabs.map((value, index) => ({
-        name: this.tabNames[index],
-        badgeCount: value,
-      }));
-      // Filter out debug info if users don't want to see it.
-      if (!showDebugInfo) {
+  protected tabsSignal: Signal<{ name: string; badgeCount: number }[]> =
+    computed(() => {
+      let tabsWithBadges: { name: string; badgeCount: number }[] = [];
+      const badgeCountMap = this.tabBadgesSignal();
+      this.tabNames.forEach((tabName) => {
+        tabsWithBadges.push({
+          name: tabName,
+          badgeCount: badgeCountMap.has(tabName)
+            ? badgeCountMap.get(tabName)
+            : 0,
+        });
+      });
+
+      if (!this.showDebugInfoSignal()) {
         tabsWithBadges = tabsWithBadges.filter((val) => val.name !== "Debug");
       }
-
       return tabsWithBadges;
-    }),
-  );
+    });
 
   protected sourceInformation$: Observable<SourceWithDefinitions>;
   protected featureTags$: Observable<
@@ -132,8 +140,7 @@ export class BinariesCurrentComponent implements OnDestroy {
 
   constructor() {
     const api = inject(ApiService);
-
-    this.showDebugInfo$ = this.store.select(selectShowDebugInfo);
+    this.showDebugInfoSignal = this.store.selectSignal(selectShowDebugInfo);
     this.route.params.subscribe((p) => {
       const ent = this.entityService.entity(p.sha256);
       this.entity$.next(ent);
@@ -198,20 +205,6 @@ export class BinariesCurrentComponent implements OnDestroy {
       ops.map((summ) => this.iconService.get("binary", summ.file_format)),
     );
 
-    this.route.fragment
-      .pipe(
-        ops.combineLatestWith(
-          this.entity$.pipe(ops.concatMap((ent) => ent.summary$)),
-        ),
-      )
-      .subscribe(([f, entity]) => {
-        if (entity?.exists && this.tabNames.includes(f)) {
-          this.activeTabSignal.set(f);
-        } else {
-          this.activeTabSignal.set(this.tabNames[0]);
-        }
-      });
-
     // check for updated page information every few seconds if page is active
     let haveNew = false;
     this.refreshNewSub = this.entity$
@@ -266,16 +259,16 @@ export class BinariesCurrentComponent implements OnDestroy {
     if (!sha256) {
       return;
     }
-    this.downloading$ = new ReplaySubject<number>();
     // The filesize used here corresponds to the raw file; CaRTs are compressed
     // so it is likely this will finish early. Not an issue as we are just trying
     // to provide a guesstimate to the user.
+    this.downloadSub?.unsubscribe();
     this.downloadSub = this.entityService.download(sha256, fileSize).subscribe({
       next: (percentage: number) => {
-        this.downloading$.next(Math.round(percentage));
+        this.downloading.set(Math.round(percentage));
       },
       complete: () => {
-        this.downloading$ = null;
+        this.downloading.set(null);
       },
     });
   }
@@ -308,9 +301,8 @@ export class BinariesCurrentComponent implements OnDestroy {
   }
 
   setTabBadgeCount(name: string, count: number) {
-    const nameIndex = this.tabNames.findIndex((elem) => elem === name);
-    const badgeCount = this.tabBadges$.value;
-    badgeCount[nameIndex] = count;
-    this.tabBadges$.next(badgeCount);
+    const tabs = this.tabBadgesSignal();
+    tabs.set(name, count);
+    this.tabBadgesSignal.set(new Map<string, number>(tabs));
   }
 }

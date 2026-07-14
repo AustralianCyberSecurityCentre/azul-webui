@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   OnChanges,
 } from "@angular/core";
@@ -14,6 +15,7 @@ import { getStatusColour } from "@app/core/util";
 import { config } from "@app/settings";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
+import { EntityNavService, RelationsTabs } from "../entity-nav.services";
 /** Displays a summary of an entity's information in a table format. */
 @Component({
   selector: "azco-entity-summary",
@@ -22,8 +24,9 @@ import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
   standalone: false,
 })
 export class EntitySummaryComponent implements OnChanges {
-  protected getStatusColour = getStatusColour;
+  protected entityNavService = inject(EntityNavService);
 
+  protected getStatusColour = getStatusColour;
   entity = input<EntityWrap>();
 
   protected entityLinks$: Observable<FormattedLink[]>;
@@ -60,6 +63,12 @@ export class EntitySummaryComponent implements OnChanges {
           .map((feature) => feature.tags)
           .flat(),
       ),
+    );
+  }
+
+  linkToSsdeepPage() {
+    this.entityNavService.navigateToRelationsSubTab(
+      RelationsTabs.SimilarSsdeep,
     );
   }
 }

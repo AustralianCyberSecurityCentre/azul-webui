@@ -1,25 +1,25 @@
 <div class="flex h-full w-full grow flex-col">
   <div class="min-h-0 w-full grow overflow-auto p-4 text-sm">
-    @switch (activeTabSignal()) {
-      @case (0) {
+    @switch (entityNavService.activateRelationsSubTab()) {
+      @case (RelationsTabs.SimilarFeatures) {
         <azec-similar-features [entity]="entity()" />
       }
-      @case (1) {
+      @case (RelationsTabs.SimilarSsdeep) {
         <azec-similarfuzzyhash [entity]="entity()" hashType="ssdeep" />
       }
-      @case (2) {
+      @case (RelationsTabs.SimilarTLSH) {
         <azec-similarfuzzyhash [entity]="entity()" hashType="tlsh" />
       }
-      @case (3) {
+      @case (RelationsTabs.SimilarEntropy) {
         <azec-similar-entropy [entity]="entity()" />
       }
-      @case (4) {
+      @case (RelationsTabs.Parents) {
         <azec-family [entity]="entity()" [isParent]="true" />
       }
-      @case (5) {
+      @case (RelationsTabs.Children) {
         <azec-family [entity]="entity()" [isParent]="false" />
       }
-      @case (6) {
+      @case (RelationsTabs.Sources) {
         <azec-source-table [entity]="entity()" />
       }
     }
@@ -30,18 +30,19 @@
   >
     @for (tab of tabs; track tab) {
       <a
-        title="{{ tab.name }}"
+        title="{{ tab }}"
         [ngClass]="{
           'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
-            activeTabSignal() !== tab.key,
-          'bg-azul-200 dark:bg-azul-400': activeTabSignal() === tab.key,
+            entityNavService.activateRelationsSubTab() !== tab,
+          'bg-azul-200 dark:bg-azul-400':
+            entityNavService.activateRelationsSubTab() === tab,
         }"
         class="line-clamp-1 h-10 px-1 py-2"
-        (click)="activeTabSignal.set(tab.key)"
-        (keypress)="activeTabSignal.set(tab.key)"
+        (click)="entityNavService.navigateToRelationsSubTab(tab)"
+        (keypress)="entityNavService.navigateToRelationsSubTab(tab)"
         tabindex="0"
       >
-        {{ tab.name }}
+        {{ tab }}
       </a>
     }
   </div>
