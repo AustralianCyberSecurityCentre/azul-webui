@@ -18,14 +18,20 @@
             <col span="1" class="w-20" />
             <col
               span="{{ curSource.value.refKeys.length }}"
-              [ngStyle]="{ width: 100 / curSource.value.refKeys.length + '%' }"
+              [ngStyle]="{
+                width:
+                  100 / limitMinLength(curSource.value.refKeys.length) + '%',
+              }"
             />
           } @else {
             <col span="1" class="w-20" />
             <col span="3" class="w-3/20" />
             <col
-              span="{{ curSource.value.refKeys.length }}"
-              [ngStyle]="{ width: 50 / curSource.value.refKeys.length + '%' }"
+              span="{{ limitMinLength(curSource.value.refKeys.length) }}"
+              [ngStyle]="{
+                width:
+                  50 / limitMinLength(curSource.value.refKeys.length) + '%',
+              }"
             />
           }
         </colgroup>
@@ -44,10 +50,16 @@
               <th flowTableHeaderCell>Submitted</th>
               <th flowTableHeaderCell>Security</th>
             }
-            @for (k of curSource.value.refKeys; track k) {
-              <th flowTableHeaderCell [title]="k">
-                {{ k }}
-              </th>
+            @if (
+              curSource.value.refKeys || curSource.value.refKeys.length === 0
+            ) {
+              <th flowTableHeaderCell title=""></th>
+            } @else {
+              @for (k of curSource.value.refKeys; track k) {
+                <th flowTableHeaderCell [title]="k">
+                  {{ k }}
+                </th>
+              }
             }
           </tr>
         </thead>
@@ -152,14 +164,18 @@
           {{ item.security }}
         </td>
       }
-      @for (k of refKeys; track k) {
-        <td flowTableBodyCell [title]="item.references?.[k]" class="truncate">
-          <span class="truncate break-words">
-            @if (item.references) {
-              {{ item.references[k] }}
-            }
-          </span>
-        </td>
+      @if (!refKeys || refKeys.length === 0) {
+        <td flowTableBodyCell>No reference data</td>
+      } @else {
+        @for (k of refKeys; track k) {
+          <td flowTableBodyCell [title]="item.references?.[k]" class="truncate">
+            <span class="truncate break-words">
+              @if (item.references) {
+                {{ item.references[k] }}
+              }
+            </span>
+          </td>
+        }
       }
     </tr>
   }

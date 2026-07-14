@@ -103,6 +103,13 @@ Each source will have a table showing the references supplied during an upload, 
       });
   }
 
+  protected limitMinLength(refLength: number) {
+    if (refLength === 0) {
+      return 1;
+    }
+    return refLength;
+  }
+
   ngOnDestroy(): void {
     this.sourceSub?.unsubscribe();
   }
