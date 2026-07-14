@@ -94,7 +94,8 @@
               >
                 <flow-button
                   [type]="
-                    (entity.hasContent$ | async) === false || !!downloading$
+                    (entity.hasContent$ | async) === false ||
+                    downloading() !== null
                       ? ButtonType.Disabled
                       : ButtonType.Light
                   "
@@ -102,8 +103,8 @@
                   (click)="doDownload(d.sha256, d.file_size)"
                 >
                   <fa-icon [icon]="faDownload" />
-                  @if (!!downloading$) {
-                    {{ (downloading$ | async) || 0 }}%
+                  @if (downloading() !== null) {
+                    {{ downloading() }}%
                   }
                 </flow-button>
               </flow-tooltip>
@@ -116,7 +117,8 @@
               >
                 <flow-button
                   [type]="
-                    (entity.hasContent$ | async) === false || !!downloading$
+                    (entity.hasContent$ | async) === false ||
+                    downloading() !== null
                       ? ButtonType.Disabled
                       : ButtonType.Light
                   "
@@ -167,57 +169,63 @@
     >
       @if ((entity.summary$ | async)?.exists) {
         <div class="flex min-h-0 w-full grow justify-stretch overflow-y-auto">
-          @if (activeTabSignal() === "Overview") {
+          @if (entityNavService.activeBinaryTab() === binaryTabsEnum.Overview) {
             <ng-container
               *ngTemplateOutlet="tabOverview; context: { entity: entity }"
             />
           }
-          @if (activeTabSignal() === "Features") {
-            <ng-container
-              *ngTemplateOutlet="tabFeatures; context: { entity: entity }"
+          @if (entityNavService.activeBinaryTab() === binaryTabsEnum.Features) {
+            <azec-feature-table
+              [entity]="entity"
+              [features$]="entity.features$"
+              tablename="Features"
+              class="m-2 min-w-0 grow"
             />
           }
           <ng-container>
             <!-- We want the data tab to be able to load its resources to populate badges -->
-            <ng-container
-              *ngTemplateOutlet="
-                tabData;
-                context: { entity: entity, tab: activeTabSignal() }
-              "
+            <azco-data-tab
+              [entity]="entity"
+              (badgeCount)="setTabBadgeCount(binaryTabsEnum.Data, $event)"
+              [ngClass]="{
+                hidden:
+                  entityNavService.activeBinaryTab() !== binaryTabsEnum.Data,
+              }"
+              class="m-2 min-w-0 grow"
             />
           </ng-container>
-          @if (activeTabSignal() === "Relations") {
-            <ng-container
-              *ngTemplateOutlet="tabRelations; context: { entity: entity }"
-            />
+          @if (
+            entityNavService.activeBinaryTab() === binaryTabsEnum.Relations
+          ) {
+            <azco-relations-tab [entity]="entity" class="min-w-0 grow" />
           }
-          @if (activeTabSignal() === "Status") {
-            <ng-container
-              *ngTemplateOutlet="tabStatus; context: { entity: entity }"
-            />
+          @if (entityNavService.activeBinaryTab() === binaryTabsEnum.Status) {
+            <azec-statuses [entity]="entity" class="m-2 min-w-0 grow" />
           }
-          @if (showDebugInfo$ | async) {
+          @if (showDebugInfoSignal()) {
             <!-- Allow debug to render and stay in the DOM to make it easier to keep your position. -->
-            <ng-container
-              *ngTemplateOutlet="
-                tabDebug;
-                context: { entity: entity, tab: activeTabSignal() }
-              "
+            <azco-debug-tab
+              [entity]="entity"
+              [ngClass]="{
+                hidden:
+                  entityNavService.activeBinaryTab() !== binaryTabsEnum.Debug,
+              }"
+              class="m-2 min-w-0 grow"
             />
           }
         </div>
         <div
           class="bg-azul-100 dark:bg-azul-600 flex h-10 items-center justify-center gap-4 select-none dark:text-white"
         >
-          @for (tab of tabs$ | async; track tab.name) {
+          @for (tab of tabsSignal(); track tab.name) {
             <a
               [ngClass]="{
                 'hover:bg-azul-300 dark:hover:bg-azul-500 cursor-pointer':
-                  activeTabSignal() !== tab.name,
-                'bg-azul-200 dark:bg-azul-400': activeTabSignal() === tab.name,
+                  entityNavService.activeBinaryTab() !== tab.name,
+                'bg-azul-200 dark:bg-azul-400':
+                  entityNavService.activeBinaryTab() === tab.name,
               }"
               class="flex h-10 px-4 py-2"
-              (click)="activeTabSignal.set(tab.name)"
               routerLink="."
               [fragment]="tab.name"
             >
@@ -265,38 +273,4 @@
       </div>
     </div>
   }
-</ng-template>
-
-<ng-template #tabFeatures let-entity="entity">
-  <azec-feature-table
-    [entity]="entity"
-    [features$]="entity.features$"
-    tablename="Features"
-    class="m-2 min-w-0 grow"
-  />
-</ng-template>
-
-<ng-template #tabData let-entity="entity" let-tab="tab">
-  <azco-data-tab
-    [entity]="entity"
-    (badgeCount)="setTabBadgeCount('Data', $event)"
-    [ngClass]="{ hidden: tab !== 'Data' }"
-    class="m-2 min-w-0 grow"
-  />
-</ng-template>
-
-<ng-template #tabRelations let-entity="entity">
-  <azco-relations-tab [entity]="entity" class="min-w-0 grow" />
-</ng-template>
-
-<ng-template #tabStatus let-entity="entity">
-  <azec-statuses [entity]="entity" class="m-2 min-w-0 grow" />
-</ng-template>
-
-<ng-template #tabDebug let-entity="entity" let-tab="tab">
-  <azco-debug-tab
-    [entity]="entity"
-    [ngClass]="{ hidden: tab !== 'Debug' }"
-    class="m-2 min-w-0 grow"
-  />
 </ng-template>

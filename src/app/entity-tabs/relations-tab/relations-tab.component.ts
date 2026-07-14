@@ -1,24 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
-  signal,
-  WritableSignal,
 } from "@angular/core";
 
 import { CommonModule } from "@angular/common";
 import { EntityWrap } from "@app/core/entity.service";
 import { AzEntityCardsModule } from "@app/entity-cards/entity-cards.module";
-
-const enum TabKey {
-  SimilarFeatures = 0,
-  SimilarSsdeep = 1,
-  SimilarTLSH = 2,
-  SimilarEntropy = 3,
-  Parents = 4,
-  Children = 5,
-  Sources = 6,
-}
+import {
+  EntityNavService,
+  RelationsTabs,
+} from "@app/entity-cards/entity-nav.services";
 
 @Component({
   selector: "azco-relations-tab",
@@ -27,37 +20,18 @@ const enum TabKey {
   imports: [CommonModule, AzEntityCardsModule],
 })
 export class RelationsTabComponent {
-  protected tabs = [
-    {
-      key: TabKey.Sources,
-      name: "Sources",
-    },
-    {
-      key: TabKey.Parents,
-      name: "Parents",
-    },
-    {
-      key: TabKey.Children,
-      name: "Children",
-    },
-    {
-      key: TabKey.SimilarFeatures,
-      name: "Similar Features",
-    },
-    {
-      key: TabKey.SimilarSsdeep,
-      name: "Similar ssdeep",
-    },
-    {
-      key: TabKey.SimilarTLSH,
-      name: "Similar TLSH",
-    },
-    {
-      key: TabKey.SimilarEntropy,
-      name: "Similar Entropy",
-    },
-  ];
-  protected activeTabSignal: WritableSignal<TabKey> = signal(TabKey.Sources);
+  protected entityNavService = inject(EntityNavService);
 
+  protected RelationsTabs = RelationsTabs;
+  // Order of this list determines order of the tabs.
+  protected tabs = [
+    RelationsTabs.Sources,
+    RelationsTabs.Parents,
+    RelationsTabs.Children,
+    RelationsTabs.SimilarFeatures,
+    RelationsTabs.SimilarSsdeep,
+    RelationsTabs.SimilarTLSH,
+    RelationsTabs.SimilarEntropy,
+  ];
   entity = input<EntityWrap>();
 }

@@ -135,7 +135,13 @@
           </th>
           <td class="truncate font-mono">
             <flow-tooltip message="{{ d.ssdeep }}" [copyText]="true">
-              {{ d.ssdeep }}</flow-tooltip
+              <a
+                class="fragment-link"
+                (click)="linkToSsdeepPage()"
+                (keypress)="linkToSsdeepPage()"
+                tabindex="0"
+                >{{ d.ssdeep }}</a
+              ></flow-tooltip
             >
           </td>
         </tr>
