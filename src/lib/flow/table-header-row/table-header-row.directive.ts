@@ -1,4 +1,4 @@
-import { Directive } from "@angular/core";
+import { Directive, ElementRef, inject } from "@angular/core";
 
 // https://flowbite.com/docs/components/tables/
 
@@ -7,5 +7,13 @@ import { Directive } from "@angular/core";
   standalone: true,
 })
 export class TableHeaderRowDirective {
-  // Stub for consistency
+  constructor() {
+    const el = inject(ElementRef);
+
+    el.nativeElement.classList.add(
+      ..."text-xs leading-5 text-gray-700 uppercase bg-azul-50 dark:bg-azul-700 dark:text-gray-400".split(
+        " ",
+      ),
+    );
+  }
 }
