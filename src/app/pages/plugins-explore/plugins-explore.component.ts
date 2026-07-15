@@ -56,21 +56,18 @@ export class PluginsExploreComponent implements OnInit {
         );
         let lastSeenMultiPlugin = `${mpUpdatedList[0]?.newest_version?.name}-`;
         let lastSeenMultiPluginIndex = 0;
-        let currentPluginName = "";
         mpUpdatedList.forEach((currentPlugin, index) => {
-          currentPluginName = currentPlugin?.newest_version?.name;
-          if (
-            currentPlugin?.newest_version?.name.startsWith(lastSeenMultiPlugin)
-          ) {
+          const currentPluginName = currentPlugin?.newest_version?.name;
+          if (currentPluginName.startsWith(lastSeenMultiPlugin)) {
             currentPlugin.multiPluginKey = lastSeenMultiPlugin;
-            currentPlugin.shortName = currentPlugin?.newest_version?.name.slice(
+            currentPlugin.shortName = currentPluginName.slice(
               lastSeenMultiPlugin.length,
             );
             mpUpdatedList[lastSeenMultiPluginIndex].isRootPlugin = true;
             mpUpdatedList[lastSeenMultiPluginIndex].multiPluginKey =
               lastSeenMultiPlugin;
           } else {
-            lastSeenMultiPlugin = `${currentPlugin?.newest_version?.name}-`;
+            lastSeenMultiPlugin = `${currentPluginName}-`;
             lastSeenMultiPluginIndex = index;
           }
         });
