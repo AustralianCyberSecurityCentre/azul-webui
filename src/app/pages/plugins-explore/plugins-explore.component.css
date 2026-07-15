@@ -5,3 +5,10 @@
 .limit-medium {
   max-width: 16em;
 }
+
+.mp-border {
+  box-sizing: border-box;
+  border-left: 5px;
+  border-left-color: var(--color-red-700);
+  border-style: solid;
+}

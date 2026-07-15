@@ -2,9 +2,9 @@
   <div>
     <flow-card style="width: 100%">
       <flow-card-header title="Plugins" />
-      @if (plugins$ | async; as d) {
+      @if (plugins$ | async; as allPlugins) {
         <flow-card-body>
-          Viewing {{ d.length || 0 | number }} plugins
+          Viewing {{ allPlugins.length || 0 | number }} plugins
         </flow-card-body>
       }
     </flow-card>
@@ -18,8 +18,8 @@
   <flow-card>
     <flow-card-body>
       <az-loading-card [obs$]="plugins$" class="w-full">
-        @if (plugins$ | async; as d) {
-          @if (d.length > 0) {
+        @if (plugins$ | async; as allPlugins) {
+          @if (allPlugins.length > 0) {
             <div>
               <table flowTable class="w-full">
                 <thead flowTableHeader class="sticky top-0">
@@ -54,60 +54,124 @@
                   </tr>
                 </thead>
                 <tbody flowTableBody>
-                  @for (row of d; track row; let i = $index) {
-                    <tr flowTableBodyRow>
-                      <td flowTableBodyCell class="limit-medium">
-                        <flow-tooltip message="View this plugin">
-                          <a
-                            class="table-link text-wrap break-words"
-                            [routerLink]="[
-                              '/pages/plugins/current',
-                              row.newest_version.name,
-                              'versions',
-                              row.newest_version.version,
-                            ]"
-                          >
-                            <strong>{{ row.newest_version.name }}</strong>
-                          </a>
-                        </flow-tooltip>
-                      </td>
-                      <td flowTableBodyCell class="truncate">
-                        <span class="line-clamp-2 text-wrap break-words">
-                          {{ row.newest_version.version }}
-                        </span>
-                      </td>
-                      <td flowTableBodyCell class="truncate">
-                        <span class="line-clamp-2 text-wrap break-words">
-                          {{ row.newest_version.security }}
-                        </span>
-                      </td>
-                      <td flowTableBodyCell class="limit-description">
-                        <flow-tooltip
-                          message="{{ row.newest_version.description }}"
-                          [copyText]="true"
+                  @for (
+                    currentPlugin of allPlugins;
+                    track currentPlugin;
+                    let i = $index
+                  ) {
+                    @if (
+                      currentPlugin.multiPluginKey?.length > 0 &&
+                      currentPlugin.isRootPlugin !== true &&
+                      hiddenMultiPlugins().includes(
+                        currentPlugin.multiPluginKey
+                      )
+                    ) {
+                    } @else {
+                      <tr flowTableBodyRow>
+                        <td
+                          flowTableBodyCell
+                          class="limit-medium"
+                          [ngClass]="{
+                            'mp-border border-red-500':
+                              currentPlugin.multiPluginKey?.length > 0,
+                            'indent-8': currentPlugin.shortName?.length > 0,
+                          }"
                         >
-                          <span class="line-clamp-2 text-wrap break-words">
-                            {{ row.newest_version.description }}
+                          <span>
+                            @if (
+                              currentPlugin.isRootPlugin &&
+                              currentPlugin.multiPluginKey.length > 0
+                            ) {
+                              @if (
+                                hiddenMultiPlugins().includes(
+                                  currentPlugin.multiPluginKey
+                                )
+                              ) {
+                                <button
+                                  aria-label="Hide multiplugins"
+                                  class="cursor-pointer pr-1 hover:text-gray-200"
+                                  (click)="
+                                    showMultiPlugin(
+                                      currentPlugin.multiPluginKey
+                                    )
+                                  "
+                                >
+                                  <fa-icon [icon]="faChevronRight" size="lg" />
+                                </button>
+                              } @else {
+                                <button
+                                  aria-label="Hide multiplugins"
+                                  class="cursor-pointer pr-1 hover:text-gray-200"
+                                  (click)="
+                                    hideMultiPlugin(
+                                      currentPlugin.multiPluginKey
+                                    )
+                                  "
+                                >
+                                  <fa-icon [icon]="faChevronDown" size="lg" />
+                                </button>
+                              }
+                            }
+                            <a
+                              class="table-link text-wrap break-words"
+                              [routerLink]="[
+                                '/pages/plugins/current',
+                                currentPlugin.newest_version.name,
+                                'versions',
+                                currentPlugin.newest_version.version,
+                              ]"
+                            >
+                              @if (currentPlugin?.shortName) {
+                                <strong>{{ currentPlugin?.shortName }}</strong>
+                              } @else {
+                                <strong>{{
+                                  currentPlugin.newest_version.name
+                                }}</strong>
+                              }
+                            </a>
                           </span>
-                        </flow-tooltip>
-                      </td>
-                      <td flowTableBodyCell class="limit-last-completed">
-                        <span class="line-clamp-2 text-wrap break-words">{{
-                          row.last_completion | since
-                        }}</span>
-                      </td>
-                      <td flowTableBodyCell>
-                        {{
-                          (row.newest_version.features?.length | number) || "0"
-                        }}
-                      </td>
-                      <td flowTableBodyCell>
-                        {{ (row?.success_count | number) || "" }}
-                      </td>
-                      <td flowTableBodyCell>
-                        {{ (row?.error_count | number) || "" }}
-                      </td>
-                    </tr>
+                        </td>
+                        <td flowTableBodyCell class="truncate">
+                          <span class="line-clamp-2 text-wrap break-words">
+                            {{ currentPlugin.newest_version.version }}
+                          </span>
+                        </td>
+                        <td flowTableBodyCell class="truncate">
+                          <span class="line-clamp-2 text-wrap break-words">
+                            {{ currentPlugin.newest_version.security }}
+                          </span>
+                        </td>
+                        <td flowTableBodyCell class="limit-description">
+                          <flow-tooltip
+                            message="{{
+                              currentPlugin.newest_version.description
+                            }}"
+                            [copyText]="true"
+                          >
+                            <span class="line-clamp-2 text-wrap break-words">
+                              {{ currentPlugin.newest_version.description }}
+                            </span>
+                          </flow-tooltip>
+                        </td>
+                        <td flowTableBodyCell class="limit-last-completed">
+                          <span class="line-clamp-2 text-wrap break-words">{{
+                            currentPlugin.last_completion | since
+                          }}</span>
+                        </td>
+                        <td flowTableBodyCell>
+                          {{
+                            (currentPlugin.newest_version.features?.length
+                              | number) || "0"
+                          }}
+                        </td>
+                        <td flowTableBodyCell>
+                          {{ (currentPlugin?.success_count | number) || "" }}
+                        </td>
+                        <td flowTableBodyCell>
+                          {{ (currentPlugin?.error_count | number) || "" }}
+                        </td>
+                      </tr>
+                    }
                   }
                 </tbody>
               </table>
