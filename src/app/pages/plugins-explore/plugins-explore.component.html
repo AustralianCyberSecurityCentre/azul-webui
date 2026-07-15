@@ -67,14 +67,17 @@
                       )
                     ) {
                     } @else {
-                      <tr flowTableBodyRow>
+                      <tr
+                        flowTableBodyRow
+                        [noBorder]="currentPlugin.multiPluginKey?.length > 0"
+                      >
                         <td
                           flowTableBodyCell
                           class="limit-medium"
                           [ngClass]="{
                             'mp-border border-red-500':
                               currentPlugin.multiPluginKey?.length > 0,
-                            'indent-10': currentPlugin.shortName?.length > 0,
+                            'pl-15': currentPlugin.shortName?.length > 0,
                           }"
                         >
                           <span>

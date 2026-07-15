@@ -7,8 +7,5 @@
 }
 
 .mp-border {
-  box-sizing: border-box;
-  border-left: 5px;
-  border-left-color: var(--color-red-700);
-  border-style: solid;
+  box-shadow: inset 5px 0px 0 var(--color-red-700);
 }
