@@ -58,7 +58,7 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   value: ModelSignal<string | number> = model<string | number>("");
   displayValue = linkedSignal(() => this.value());
 
-  setOutputValue(value: any) {
+  setOutputValue(value: string) {
     if (this.fieldType() === "number") {
       this.value.set(Number(value));
       return;
