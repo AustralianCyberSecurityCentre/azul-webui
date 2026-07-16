@@ -168,7 +168,8 @@
                   class="truncate font-mono"
                   [title]="row.string"
                 >
-                  {{ row.string }}
+                  <!--NO White space between the '<span>{{' and '}}</span>' for the span are super important otherwise extra spaces get added around strings values (because of the feature-value-render class)-->
+                  <span class="feature-value-render">{{ row.string }}</span>
                 </td>
               </tr>
             </tbody>
