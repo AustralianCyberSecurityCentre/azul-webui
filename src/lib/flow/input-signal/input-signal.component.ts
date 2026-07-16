@@ -7,6 +7,7 @@ import {
   TemplateRef,
   ViewChild,
   input,
+  linkedSignal,
   model,
   output,
 } from "@angular/core";
@@ -55,4 +56,21 @@ export class SignalInputComponent implements FormValueControl<string | number> {
   inputSelectionChange = output<Event>();
 
   value: ModelSignal<string | number> = model<string | number>("");
+  displayValue = linkedSignal(() => this.value());
+
+  setOutputValue(value: any) {
+    if (this.fieldType() === "number") {
+      this.value.set(Number(value));
+      return;
+    }
+    this.value.set(value);
+  }
+
+  onBlur() {
+    if (this.fieldType() === "number") {
+      this.value.set(Number(this.displayValue()));
+      return;
+    }
+    this.value.set(this.displayValue());
+  }
 }

@@ -30,11 +30,11 @@
     [attr.step]="step()"
     [attr.size]="size()"
     (focus)="inputFocus.emit($event)"
-    (blur)="inputBlur.emit($event); touched.set(true)"
+    (blur)="onBlur(); inputBlur.emit($event); touched.set(true)"
     (focusout)="inputFocusOut.emit($event)"
     (selectionchange)="inputSelectionChange.emit($event)"
-    [value]="value()"
-    (input)="value.set($event.target.value)"
+    [value]="displayValue()"
+    (input)="displayValue.set($event.target.value)"
   />
 
   @if (suffixTpl()) {
