@@ -20,7 +20,7 @@
           </select>
           <div class="flex h-6 items-center">
             <flow-label
-              class="flex"
+              class="flex pr-2"
               fieldSize="small-nopadding"
               [noPadding]="true"
               for="min-length-strings"
@@ -29,7 +29,7 @@
             </flow-label>
             <flow-signal-input
               title="Min length of a string that can be found"
-              class="max-w-20 shrink"
+              class="w-14 shrink"
               id="min-length-strings"
               [formField]="stringsFilterForm.min_length_strings"
               fieldSize="small"
@@ -38,7 +38,7 @@
           </div>
           <div class="flex h-6 items-center">
             <flow-label
-              class="flex"
+              class="flex pr-2"
               fieldSize="small-nopadding"
               [noPadding]="true"
               for="max-length-strings"
@@ -47,7 +47,7 @@
             </flow-label>
             <flow-signal-input
               title="Max length of a string that can be found"
-              class="flex max-w-20 shrink"
+              class="flex w-14 shrink"
               id="max-length-strings"
               [formField]="stringsFilterForm.max_length_strings"
               fieldSize="small"
