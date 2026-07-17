@@ -12,7 +12,7 @@
     "lint": "ng lint"
   },
   "private": true,
-  "packageManager": "npm@11.18.0",
+  "packageManager": "npm@12.0.0",
   "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
   "overrides": {
     "ngx-monaco-editor-v2": {
