@@ -1,19 +1,59 @@
 <az-loading-card cardTitle="Strings" [obs$]="_stringsLoaded$" [help]="help">
   @if (currentStringsSignal(); as currentStrings) {
     <div class="flex h-full flex-col">
-      <form [formGroup]="form">
+      <form>
         <div class="mb-2 flex items-center gap-2">
-          <flow-input
+          <flow-signal-input
             class="grow"
             id="filter"
-            formControlName="filter"
+            [formField]="stringsFilterForm.filter"
             placeholder="Filter"
             fieldSize="small"
           />
-          <select formControlName="filterType" flowSelect fieldSize="small">
+          <select
+            [formField]="stringsFilterForm.filterType"
+            flowSelect
+            fieldSize="small"
+          >
             <option value="filter">Free-text</option>
             <option value="regex">Regex</option>
           </select>
+          <div class="flex h-6 items-center">
+            <flow-label
+              class="flex pr-2"
+              fieldSize="small-nopadding"
+              [noPadding]="true"
+              for="min-length-strings"
+            >
+              Min
+            </flow-label>
+            <flow-signal-input
+              title="Min length of a string that can be found"
+              class="w-14 shrink"
+              id="min-length-strings"
+              [formField]="stringsFilterForm.min_length_strings"
+              fieldSize="small"
+              fieldType="number"
+            />
+          </div>
+          <div class="flex h-6 items-center">
+            <flow-label
+              class="flex pr-2"
+              fieldSize="small-nopadding"
+              [noPadding]="true"
+              for="max-length-strings"
+            >
+              Max
+            </flow-label>
+            <flow-signal-input
+              title="Max length of a string that can be found"
+              class="flex w-14 shrink"
+              id="max-length-strings"
+              [formField]="stringsFilterForm.max_length_strings"
+              fieldSize="small"
+              fieldType="number"
+            />
+          </div>
           <div class="flex h-6 items-center">
             @if (
               (fileInfoSubject | async).file_size >= allStringsMinSize10Mib
@@ -25,7 +65,7 @@
                 >
                   <flow-toggle
                     id="show-all-strings-toggle"
-                    [formControlName]="'showAllStringsToggle'"
+                    [formField]="stringsFilterForm.showAllStringsToggle"
                   >
                   </flow-toggle>
                 </flow-tooltip>
@@ -46,7 +86,7 @@
                 >
                   <flow-toggle
                     id="ai-filter-toggle"
-                    [formControlName]="'aiToggle'"
+                    [formField]="stringsFilterForm.aiToggle"
                     [class]="'cursor-not-allowed opacity-50'"
                   >
                   </flow-toggle>
@@ -54,7 +94,7 @@
               } @else {
                 <flow-toggle
                   id="ai-filter-toggle"
-                  [formControlName]="'aiToggle'"
+                  [formField]="stringsFilterForm.aiToggle"
                 >
                 </flow-toggle>
               }
@@ -85,7 +125,7 @@
         </thead>
       </table>
       <div class="flex min-h-0 w-full grow">
-        @if (isLoadingInitial$ | async) {
+        @if (isLoadingInitialSignal()) {
           <span class="absolute inset-0 z-50 flex items-center justify-center">
             <az-loading-indicator />
           </span>
@@ -103,8 +143,8 @@
             flowTable
             class="w-full"
             [ngClass]="{
-              'opacity-50': (isLoadingInitial$ | async),
-              'opacity-100': (isLoadingInitial$ | async) === false,
+              'opacity-50': isLoadingInitialSignal(),
+              'opacity-100': isLoadingInitialSignal() === false,
             }"
           >
             <tbody flowTableBody>
@@ -128,7 +168,8 @@
                   class="truncate font-mono"
                   [title]="row.string"
                 >
-                  {{ row.string }}
+                  <!--NO White space between the '<span>{{' and '}}</span>' for the span are super important otherwise extra spaces get added around strings values (because of the feature-value-render class)-->
+                  <span class="feature-value-render">{{ row.string }}</span>
                 </td>
               </tr>
             </tbody>

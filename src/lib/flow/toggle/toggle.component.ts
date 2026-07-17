@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  model,
+} from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { HostControlDirective } from "@lib/host-control/host-control.directive";
+import { FormCheckboxControl } from "@angular/forms/signals";
 
 // https://flowbite.com/docs/forms/toggle/
 
@@ -9,8 +14,13 @@ import { HostControlDirective } from "@lib/host-control/host-control.directive";
   templateUrl: "./toggle.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule],
-  hostDirectives: [HostControlDirective],
 })
-export class ToggleComponent {
-  hcd = inject(HostControlDirective);
+export class ToggleComponent implements FormCheckboxControl {
+  checked = model<boolean>(false);
+  disabled = input(false);
+
+  onToggle(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.checked.set(inputElement.checked);
+  }
 }
