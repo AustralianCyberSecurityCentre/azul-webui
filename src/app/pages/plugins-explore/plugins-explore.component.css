@@ -5,3 +5,7 @@
 .limit-medium {
   max-width: 16em;
 }
+
+.mp-border {
+  box-shadow: inset 5px 0px 0 var(--color-red-700);
+}
