@@ -7,11 +7,12 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  Signal,
   ViewChild,
   WritableSignal,
+  computed,
   inject,
 } from "@angular/core";
-import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 import { Entity } from "@app/core/services";
 import { ToastrService } from "ngx-toastr";
 import {
@@ -29,6 +30,7 @@ import { signal } from "@angular/core";
 import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { HexStringSyncService } from "../hex-string-sync.service";
+import { form } from "@angular/forms/signals";
 
 /** Data for a row of a 16-byte wide hexdump */
 interface HexRow {
@@ -217,7 +219,6 @@ export class PositiveIntegerRange {
 })
 export class HexviewComponent extends BaseCard implements OnInit, OnDestroy {
   private toastrService = inject(ToastrService);
-  private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
   private host = inject(ElementRef);
   protected hexStringSyncService = inject(HexStringSyncService);
@@ -239,6 +240,9 @@ Ctrl-C will copy selected hexadecimal.`;
   protected spinnerIcon = faSpinner;
   protected checkIcon = faCheck;
 
+  // Note this directly maps to what class is used for rendering so adding more requires more classes be created.
+  protected readonly validHexSpaces: string[] = ["1", "2", "4", "16"];
+
   hexViewReady$ = new ReplaySubject<boolean>();
 
   sha256: string;
@@ -249,7 +253,9 @@ Ctrl-C will copy selected hexadecimal.`;
 
   private selectStartPoint = -1;
   private range = new PositiveIntegerRange(-1, -1);
-  protected range$ = new BehaviorSubject<PositiveIntegerRange>(this.range);
+  protected rangeSignal: WritableSignal<PositiveIntegerRange> = signal(
+    this.range,
+  );
   protected isDragging = false;
 
   ds: HexBinaryDataSource | undefined = undefined;
@@ -257,22 +263,50 @@ Ctrl-C will copy selected hexadecimal.`;
   private fileAvailableSubscription: Subscription | undefined;
   /* Divides up the source data if too big to avoid overwhelming the browser */
   protected chunkIndex$ = new BehaviorSubject<number>(0);
-  protected totalChunks$ = new BehaviorSubject<number>(0);
+  protected totalChunksSignal: WritableSignal<number> = signal(0);
 
   protected dsOffset$ = new BehaviorSubject<number>(0);
 
-  offsetForm: UntypedFormGroup;
+  offsetFormModel: WritableSignal<{ offsetGoto: string; hexSpaces: string }> =
+    signal({
+      offsetGoto: "",
+      hexSpaces: this.validHexSpaces[1],
+    });
+  offsetForm = form(this.offsetFormModel);
 
-  protected loadedBytes$ = new BehaviorSubject<number>(0);
-  protected totalBytes$ = new BehaviorSubject<number>(0);
+  protected hexScrollViewPortWidth: Signal<string> = computed(() => {
+    switch (this.offsetFormModel().hexSpaces) {
+      case "1":
+        return "76ch";
+      case "2":
+        return "70ch";
+      case "4":
+        return "66ch";
+      case "16":
+        return "64ch";
+    }
+    return "70ch";
+  });
+  protected hexDigitClass: Signal<string> = computed(() => {
+    switch (this.offsetFormModel().hexSpaces) {
+      case "1":
+        return "hex-digit-1";
+      case "2":
+        return "hex-digit-2";
+      case "4":
+        return "hex-digit-4";
+      case "16":
+        return "hex-digit-16";
+    }
+    return "hex-digit-2";
+  });
+
+  protected loadedBytesSignal: WritableSignal<number> = signal(0);
+  protected totalBytesSignal: WritableSignal<number> = signal(0);
 
   private resizeObs?: ResizeObserver;
 
   ngOnInit(): void {
-    this.offsetForm = this.fb.group({
-      offsetGoto: this.fb.control(""),
-    });
-
     // Force the hexview to automatically resize when the height of the element
     // changes
     this.resizeObs = new ResizeObserver((_entries) => {
@@ -303,7 +337,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
   /** Scrolls to the row containing the specified offset, moving chunks if required. */
   focusRow(offset: number): Observable<(HexRow | undefined)[]> {
-    const rangedOffset = Math.min(offset, this.totalBytes$.value);
+    const rangedOffset = Math.min(offset, this.totalBytesSignal());
     const chunk = Math.trunc(rangedOffset / this.CHUNK_SIZE);
     const relativeOffset = rangedOffset - chunk * this.CHUNK_SIZE;
     const row = Math.trunc(relativeOffset / 16);
@@ -371,7 +405,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
   protected nextChunk() {
     this.chunkIndex$.next(
-      Math.min(this.chunkIndex$.value + 1, this.totalChunks$.value - 1),
+      Math.min(this.chunkIndex$.value + 1, this.totalChunksSignal() - 1),
     );
   }
 
@@ -380,7 +414,7 @@ Ctrl-C will copy selected hexadecimal.`;
   }
 
   protected lastChunk() {
-    this.chunkIndex$.next(this.totalChunks$.value - 1);
+    this.chunkIndex$.next(this.totalChunksSignal() - 1);
   }
 
   protected jumpAndSelectBytes([offset, length]: [number, number]) {
@@ -404,17 +438,17 @@ Ctrl-C will copy selected hexadecimal.`;
     }
 
     this.range = new PositiveIntegerRange(lower, higher);
-    this.range$.next(this.range);
+    this.rangeSignal.set(this.range);
   }
 
   protected jumpToOffset() {
-    let jumpOffset = this.offsetForm.value.offsetGoto as string;
+    let jumpOffset = this.offsetFormModel().offsetGoto as string;
     if (jumpOffset.startsWith("0x") || jumpOffset.startsWith("0X")) {
       jumpOffset = jumpOffset.substring(2);
     }
 
     this.focusRow(parseInt(jumpOffset, 16));
-    this.offsetForm.setValue({ offsetGoto: "" });
+    this.offsetFormModel.update((v) => ({ ...v, offsetGoto: "" }));
   }
 
   protected handleCopy(event: KeyboardEvent) {
@@ -459,8 +493,8 @@ Ctrl-C will copy selected hexadecimal.`;
       if (hasContent) {
         this.viewport?.scrollToIndex(0, "instant");
 
-        this.totalBytes$.next(obs.file_size);
-        this.totalChunks$.next(Math.ceil(obs.file_size / this.CHUNK_SIZE));
+        this.totalBytesSignal.set(obs.file_size);
+        this.totalChunksSignal.set(Math.ceil(obs.file_size / this.CHUNK_SIZE));
 
         const offset = chunkIndex * this.CHUNK_SIZE;
         let size = this.CHUNK_SIZE;
@@ -489,7 +523,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
         this.dsSubscription?.unsubscribe();
         this.dsSubscription = this.ds.dataStream$.subscribe((value) => {
-          this.loadedBytes$.next(this.ds.getLoadedByteCount());
+          this.loadedBytesSignal.set(this.ds.getLoadedByteCount());
           // Once data is ready, propagate that up to the loading card
           if (value) {
             this.hexViewReady$.next(true);

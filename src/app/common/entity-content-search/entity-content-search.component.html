@@ -1,10 +1,10 @@
 <div class="relative">
-  <form [formGroup]="searchForm" class="flex gap-1">
+  <form class="flex gap-1">
     <div>
       <select
         flowSelect
         id="searchType"
-        formControlName="searchType"
+        [formField]="searchForm.searchType"
         fieldSize="small"
       >
         <option value="hex">Hex</option>
@@ -12,19 +12,22 @@
       </select>
     </div>
     <div class="grow">
-      <flow-input
+      <flow-signal-input
         fieldSize="small"
         id="searchQuery"
-        formControlName="searchQuery"
+        [formField]="searchForm.searchQuery"
         placeholder="Enter search query"
         (input)="queryValidator($event)"
         (keyup.enter)="doSearch()"
         class="grow"
       />
-      @if (searchForm.errors && (searchForm.touched || searchForm.dirty)) {
+      @if (
+        searchForm().errors() &&
+        (searchForm().touched() || searchForm().dirty())
+      ) {
         <div class="text-xs">
           &nbsp;
-          @for (item of searchForm.errors | keyvalue; track item) {
+          @for (item of searchForm().errors() | keyvalue; track item) {
             <span>
               <b>{{ item.value }}</b>
             </span>
@@ -34,7 +37,7 @@
     </div>
     <flow-button
       (click)="doSearch()"
-      [type]="searchForm.valid ? ButtonType.Primary : ButtonType.Disabled"
+      [type]="searchForm().valid() ? ButtonType.Primary : ButtonType.Disabled"
       [size]="ButtonSize.Icon"
       >Search</flow-button
     >

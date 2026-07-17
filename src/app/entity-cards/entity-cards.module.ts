@@ -28,6 +28,7 @@ import { StreamMergedTextTabMonacoComponent } from "./stream-merged-text-tab-mon
 import { StreamTextTabMonacoComponent } from "./stream-text-tab-monaco/stream-text-tab-monaco.component";
 import { StringsComponent } from "./strings/strings.component";
 import { EntitySummaryComponent } from "./entity-summary/entity-summary.component";
+import { FormField } from "@angular/forms/signals";
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { EntitySummaryComponent } from "./entity-summary/entity-summary.componen
     EntitySummaryComponent,
   ],
   imports: [
+    FormField,
     CommonModule,
     RouterModule,
     ScrollingModule,

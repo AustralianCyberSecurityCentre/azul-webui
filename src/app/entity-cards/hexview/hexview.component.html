@@ -8,26 +8,48 @@
             [animation]="ds.loadingPagesSignal() ? 'spin' : undefined"
             [title]="
               'Loaded: ' +
-              (loadedBytes$ | async) +
+              loadedBytesSignal() +
               ' / ' +
-              (totalBytes$ | async) +
+              totalBytesSignal() +
               ' bytes'
             "
             class="py-2"
           ></fa-icon>
           <div class="py-2">|</div>
-          <form [formGroup]="offsetForm">
-            <div>
-              <flow-input
-                id="offsetGoto"
-                fieldSize="small"
-                formControlName="offsetGoto"
-                placeholder="Jump to offset (e.g. A1B2, 0x1234)"
-                (input)="hexValidator($event)"
-                (keyup.enter)="jumpToOffset()"
-              />
-            </div>
-          </form>
+          <div class="py-2">
+            <flow-label
+              fieldSize="small-nopadding"
+              [noPadding]="true"
+              for="hex-group-by"
+            >
+              Group Hex
+            </flow-label>
+          </div>
+          <div>
+            <select
+              title="Number of bytes in a group for hex view"
+              flowSelect
+              [formField]="offsetForm.hexSpaces"
+              fieldSize="small"
+              id="hex-group-by"
+            >
+              @for (hexSpace of validHexSpaces; track hexSpace) {
+                <option [value]="hexSpace">
+                  {{ hexSpace }}
+                </option>
+              }
+            </select>
+          </div>
+          <div>
+            <flow-signal-input
+              id="offsetGoto"
+              fieldSize="small"
+              [formField]="offsetForm.offsetGoto"
+              placeholder="Jump to offset (e.g. A1B2, 0x1234)"
+              (input)="hexValidator($event)"
+              (keyup.enter)="jumpToOffset()"
+            />
+          </div>
           <div class="py-2">|</div>
           <az-content-search
             (rowSelected)="jumpAndSelectBytes($event)"
@@ -37,8 +59,26 @@
         </div>
         <div class="hex-view-header custom-header shrink-0">
           <div class="row-address font-mono">ADDRESS :</div>
-          <div class="hex-digit font-mono whitespace-nowrap">
-            0001 0203 0405 0607 0809 0a0b 0c0d 0e0f
+          <div
+            class="hex-digit font-mono whitespace-nowrap"
+            [ngClass]="hexDigitClass()"
+          >
+            <div>00</div>
+            <div>01</div>
+            <div>02</div>
+            <div>03</div>
+            <div>04</div>
+            <div>05</div>
+            <div>06</div>
+            <div>07</div>
+            <div>08</div>
+            <div>09</div>
+            <div>0a</div>
+            <div>0b</div>
+            <div>0c</div>
+            <div>0d</div>
+            <div>0e</div>
+            <div>0f</div>
           </div>
           <div class="ascii-digit font-mono">ASCII</div>
         </div>
@@ -50,6 +90,7 @@
           class="s-table min-h-0 grow"
           (keydown)="handleCopy($event)"
           tabindex="0"
+          [ngStyle]="{ 'min-width': hexScrollViewPortWidth() }"
         >
           <div
             *cdkVirtualFor="let row of ds"
@@ -66,7 +107,11 @@
                 >
                   {{ row.address | hex }}:
                 </div>
-                <div class="hex-digit font-mono" event="mouseenter">
+                <div
+                  class="hex-digit font-mono"
+                  event="mouseenter"
+                  [ngClass]="hexDigitClass()"
+                >
                   @for (hexNum of row.hex; track $index; let i = $index) {
                     <div
                       (mouseover)="
@@ -82,7 +127,7 @@
                         hovered:
                           hexStringSyncService.HexOffsetSignal() ===
                             row.address + i && !isDragging,
-                        selected: (range$ | async)?.contains(row.address + i),
+                        selected: rangeSignal()?.contains(row.address + i),
                         'null-value': hexNum === '00',
                       }"
                       [innerText]="hexNum"
@@ -105,7 +150,7 @@
                         hovered:
                           hexStringSyncService.HexOffsetSignal() ===
                             row.address + i && !isDragging,
-                        selected: (range$ | async)?.contains(row.address + i),
+                        selected: rangeSignal()?.contains(row.address + i),
                       }"
                       [innerText]="ascii"
                     ></div>
@@ -117,7 +162,7 @@
             }
           </div>
         </cdk-virtual-scroll-viewport>
-        @if ((totalChunks$ | async) > 1) {
+        @if (totalChunksSignal() > 1) {
           <div class="my-2 flex gap-2">
             <flow-button (click)="firstChunk()" [size]="ButtonSize.Tiny">
               &lt;&lt;
@@ -131,8 +176,7 @@
             <flow-button (click)="lastChunk()" [size]="ButtonSize.Tiny">
               &gt;&gt;
             </flow-button>
-            Page: {{ (chunkIndex$ | async) + 1 }} /
-            {{ totalChunks$ | async }}
+            Page: {{ (chunkIndex$ | async) + 1 }} / totalChunksSignal()
           </div>
         }
       </div>
