@@ -31,7 +31,7 @@ export interface GlobalSettingState {
   defaultSourceView: SourceViewEnum;
 }
 
-export const initialState: GlobalSettingState = {
+export const InitialGlobalSettingState: GlobalSettingState = {
   IsTableView: false,
   BinaryExploreShowEntropy: true,
   BinaryExploreShowMimetype: false,
@@ -53,10 +53,13 @@ const loadGlobalSettingState = (): GlobalSettingState => {
     localStorage.getItem(GLOBAL_SETTING_STATE) || "{}",
   );
   if (typeof loadedState?.bucketSize === "number") {
-    const defaultAndLoadedState = { ...initialState, ...loadedState };
+    const defaultAndLoadedState = {
+      ...InitialGlobalSettingState,
+      ...loadedState,
+    };
     return defaultAndLoadedState;
   }
-  return initialState;
+  return InitialGlobalSettingState;
 };
 
 /**save to local storage*/
