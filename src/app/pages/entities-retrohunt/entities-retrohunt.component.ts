@@ -18,12 +18,11 @@ import { ApiService } from "@app/core/api/api.service";
 import type { components } from "@app/core/api/openapi";
 import { EntityFindWithPurgeExtras } from "@app/core/api/state";
 import { RetrohuntService } from "@app/core/retrohunt.service";
-import { colorThemeConfig } from "@app/core/store/global-settings/global-selector";
-import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+import { ColorTheme } from "@app/core/signal-store/global-state.types";
 import { UserService } from "@app/core/user.service";
 import { faTrash, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { ButtonType } from "@lib/flow/button/button.component";
-import { Store } from "@ngrx/store";
 import { BehaviorSubject, forkJoin, take } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
@@ -51,7 +50,7 @@ type RetrohuntCreateResponse = {
 export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private retro = inject(RetrohuntService);
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
@@ -256,15 +255,10 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.retro.refresh());
 
-    this.store
-      .select(colorThemeConfig)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((theme) => {
-        if (theme) {
-          this.currentTheme = theme;
-        }
-        this.cdr.detectChanges();
-      });
+    if (this.store.theme()) {
+      this.currentTheme = this.store.theme();
+    }
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {

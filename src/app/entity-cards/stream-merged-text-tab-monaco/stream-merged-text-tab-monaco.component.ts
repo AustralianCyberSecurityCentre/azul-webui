@@ -9,16 +9,15 @@ import {
 } from "@angular/core";
 import { StreamMetadata } from "@app/common/misc-interfaces/stream-metadata";
 import { ApiService } from "@app/core/api/api.service";
-import { colorThemeConfig } from "@app/core/store/global-settings/global-selector";
-import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+import { ColorTheme } from "@app/core/signal-store/global-state.types";
 import {
   addCommonMonacoActions,
   getDefaultMonacoSettings,
   recalculateFonts,
 } from "@app/core/util";
-import { Store } from "@ngrx/store";
 import { IDisposable, editor, languages } from "monaco-types";
-import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
+import { BehaviorSubject, Observable, merge } from "rxjs";
 import * as ops from "rxjs/operators";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
@@ -35,7 +34,7 @@ declare let monaco: any;
 })
 export class StreamMergedTextTabMonacoComponent implements OnDestroy {
   private api = inject(ApiService);
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
 
   help = `The text preview card provides a text view for a particular text stream.
 
@@ -70,26 +69,20 @@ Quick Shortcuts can be found in the F1 menu.
 
   protected loadingCard$ = new BehaviorSubject(true);
 
-  private storeSubscription: Subscription;
   private editor: editor.IStandaloneCodeEditor;
   private cursorPosSubscription?: IDisposable;
   protected totalFileSize: WritableSignal<number> = signal(0);
 
   constructor() {
-    this.storeSubscription = this.store
-      .select(colorThemeConfig)
-      .subscribe((theme: ColorTheme) => {
-        if (theme == ColorTheme.Light) {
-          this.editorOptions.theme = "vs-light";
-        } else {
-          this.editorOptions.theme = "vs-dark";
-        }
-        this.updateMonacoSettings();
-      });
+    if (this.store.theme() == ColorTheme.Light) {
+      this.editorOptions.theme = "vs-light";
+    } else {
+      this.editorOptions.theme = "vs-dark";
+    }
+    this.updateMonacoSettings();
   }
 
   ngOnDestroy(): void {
-    this.storeSubscription?.unsubscribe();
     this.cursorPosSubscription?.dispose();
   }
 

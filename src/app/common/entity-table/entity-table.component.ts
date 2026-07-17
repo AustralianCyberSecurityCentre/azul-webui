@@ -15,9 +15,8 @@ import {
 import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
-import * as fromGlobalSettings from "@app/core/store/global-settings/global-selector";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -41,7 +40,7 @@ Includes highlighting data from elasticsearch.
 })
 export class EntityTableComponent implements OnChanges {
   private router = inject(Router);
-  private store = inject(Store);
+  protected store = inject(GlobalSettingStore);
 
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
@@ -51,12 +50,6 @@ export class EntityTableComponent implements OnChanges {
   protected itemsCount$: Observable<number>;
   protected selectedRowMap = new Map<string, EntityFindRow>();
 
-  protected showEntropySignal: Signal<boolean> = signal(true);
-  protected showMimetypeSignal: Signal<boolean> = signal(true);
-  protected showMagicSignal: Signal<boolean> = signal(true);
-  protected showSourcesSignal: Signal<boolean> = signal(true);
-  protected showSourceReferencesSignal: Signal<boolean> = signal(true);
-  protected useTableView: Signal<boolean> = signal(true);
   protected showSimilarityHeader: WritableSignal<boolean> = signal(false);
 
   useTableViewOverride = input<boolean | undefined>(undefined);
@@ -76,27 +69,6 @@ export class EntityTableComponent implements OnChanges {
     }
     return 0;
   });
-
-  constructor() {
-    this.useTableView = this.store.selectSignal(
-      fromGlobalSettings.selectIsTableView,
-    );
-    this.showEntropySignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowEntropy,
-    );
-    this.showMimetypeSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowMimetype,
-    );
-    this.showMagicSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowMagic,
-    );
-    this.showSourcesSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowSources,
-    );
-    this.showSourceReferencesSignal = this.store.selectSignal(
-      fromGlobalSettings.selectBinaryExploreShowSourceReferences,
-    );
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     this.itemsCount$ = this.find$.pipe(

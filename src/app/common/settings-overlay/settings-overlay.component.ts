@@ -17,7 +17,6 @@ import {
   SourceViewEnum,
 } from "@app/core/store/global-settings/global-state.types";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
 import * as ops from "rxjs/operators";
 import * as globalAction from "../../core/store/global-settings/global-actions";
 import {
@@ -27,6 +26,9 @@ import {
 import * as globalSettingsReducer from "../../core/store/global-settings/global-reducer";
 import * as fromGlobal from "../../core/store/global-settings/global-selector";
 import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+
+// TODO TODO TODO - this whole thing needs to be re-written for this to work.
 
 @Component({
   selector: "az-settings-overlay",
@@ -35,7 +37,7 @@ import * as fromGlobalSettings from "../../core/store/global-settings/global-sel
   standalone: false,
 })
 export class SettingsOverlayComponent implements OnInit {
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
   private fb = inject(UntypedFormBuilder);
 
   protected entityBucketSizeForm: FormControl;
