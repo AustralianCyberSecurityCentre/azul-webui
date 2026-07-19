@@ -68,17 +68,20 @@
     <flow-tooltip
       message="Change how many bytes are grouped together on the binary hex viewer."
     >
-      <select
-        flowSelect
-        id="hex-group-by"
-        [formField]="settingsForm.hexViewGroupingSize"
-      >
-        @for (hexSpace of orderedValidHexSpaces; track hexSpace) {
-          <option [value]="hexSpace">
-            {{ hexSpace }}
-          </option>
-        }
-      </select>
+      <div class="flex">
+        <flow-label for="hex-group-by">Group Hex Bytes: </flow-label>
+        <select
+          flowSelect
+          id="hex-group-by"
+          [formField]="settingsForm.hexViewGroupingSize"
+        >
+          @for (hexSpace of orderedValidHexSpaces; track hexSpace) {
+            <option [value]="hexSpace">
+              {{ hexSpace }}
+            </option>
+          }
+        </select>
+      </div>
     </flow-tooltip>
   </div>
 </ng-container>
