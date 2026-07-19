@@ -86,7 +86,7 @@
     "angular-eslint": "22.0.0",
     "eslint": "10.7.0",
     "openapi-typescript": "7.13.0",
-    "postcss": "8.5.16",
+    "postcss": "8.5.17",
     "prettier": "3.9.5",
     "prettier-plugin-tailwindcss": "0.8.0",
     "tailwindcss": "4.3.2",
