@@ -16,30 +16,6 @@
             class="py-2"
           ></fa-icon>
           <div class="py-2">|</div>
-          <div class="py-2">
-            <flow-label
-              fieldSize="small-nopadding"
-              [noPadding]="true"
-              for="hex-group-by"
-            >
-              Group Hex
-            </flow-label>
-          </div>
-          <div>
-            <select
-              title="Number of bytes in a group for hex view"
-              flowSelect
-              [formField]="offsetForm.hexSpaces"
-              fieldSize="small"
-              id="hex-group-by"
-            >
-              @for (hexSpace of validHexSpaces; track hexSpace) {
-                <option [value]="hexSpace">
-                  {{ hexSpace }}
-                </option>
-              }
-            </select>
-          </div>
           <div>
             <flow-signal-input
               id="offsetGoto"

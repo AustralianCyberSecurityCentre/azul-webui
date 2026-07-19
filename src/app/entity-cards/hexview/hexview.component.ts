@@ -27,10 +27,11 @@ import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 
 import { signal } from "@angular/core";
+import { form } from "@angular/forms/signals";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { HexStringSyncService } from "../hex-string-sync.service";
-import { form } from "@angular/forms/signals";
 
 /** Data for a row of a 16-byte wide hexdump */
 interface HexRow {
@@ -239,9 +240,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
   protected spinnerIcon = faSpinner;
   protected checkIcon = faCheck;
-
-  // Note this directly maps to what class is used for rendering so adding more requires more classes be created.
-  protected readonly validHexSpaces: string[] = ["1", "2", "4", "16"];
+  private store = inject(GlobalSettingStore);
 
   hexViewReady$ = new ReplaySubject<boolean>();
 
@@ -267,15 +266,13 @@ Ctrl-C will copy selected hexadecimal.`;
 
   protected dsOffset$ = new BehaviorSubject<number>(0);
 
-  offsetFormModel: WritableSignal<{ offsetGoto: string; hexSpaces: string }> =
-    signal({
-      offsetGoto: "",
-      hexSpaces: this.validHexSpaces[1],
-    });
+  offsetFormModel: WritableSignal<{ offsetGoto: string }> = signal({
+    offsetGoto: "",
+  });
   offsetForm = form(this.offsetFormModel);
 
   protected hexScrollViewPortWidth: Signal<string> = computed(() => {
-    switch (this.offsetFormModel().hexSpaces) {
+    switch (this.store.hexViewGroupingSize()) {
       case "1":
         return "76ch";
       case "2":
@@ -288,7 +285,7 @@ Ctrl-C will copy selected hexadecimal.`;
     return "70ch";
   });
   protected hexDigitClass: Signal<string> = computed(() => {
-    switch (this.offsetFormModel().hexSpaces) {
+    switch (this.store.hexViewGroupingSize()) {
       case "1":
         return "hex-digit-1";
       case "2":

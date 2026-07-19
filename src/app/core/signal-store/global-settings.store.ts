@@ -1,17 +1,18 @@
 import { effect, inject, InjectionToken } from "@angular/core";
 import {
+  getState,
+  patchState,
+  signalStore,
+  withHooks,
+  withMethods,
+  withState,
+} from "@ngrx/signals";
+import {
   ColorTheme,
   RelationalGraphLevel,
   SourceViewEnum,
+  ValidHexSpaces,
 } from "./global-state.types";
-import {
-  signalStore,
-  withState,
-  getState,
-  withHooks,
-  withMethods,
-  patchState,
-} from "@ngrx/signals";
 
 const GLOBAL_SETTING_STATE = "GLOBAL_SETTING_STATE";
 
@@ -29,6 +30,7 @@ export interface GlobalSettingState {
   theme: ColorTheme;
   enableHexStringSync: boolean;
   defaultSourceView: SourceViewEnum;
+  hexViewGroupingSize: ValidHexSpaces;
 }
 
 export const InitialGlobalSettingState: GlobalSettingState = {
@@ -45,6 +47,7 @@ export const InitialGlobalSettingState: GlobalSettingState = {
   theme: ColorTheme.Dark,
   enableHexStringSync: true,
   defaultSourceView: SourceViewEnum.References,
+  hexViewGroupingSize: ValidHexSpaces.opt2,
 };
 
 /**load from local storage*/
@@ -85,6 +88,9 @@ export const GlobalSettingStore = signalStore(
     },
   }),
   withMethods((store) => ({
+    updateAllFields(updateAll: GlobalSettingState) {
+      patchState(store, updateAll);
+    },
     updateIsTableView(IsTableView: boolean) {
       patchState(store, () => ({
         IsTableView: IsTableView,
@@ -153,6 +159,11 @@ export const GlobalSettingStore = signalStore(
     updateDefaultSourceView(defaultSourceView: SourceViewEnum) {
       patchState(store, () => ({
         defaultSourceView: defaultSourceView,
+      }));
+    },
+    updateHexViewGroupingSize(hexViewGroupingSize: ValidHexSpaces) {
+      patchState(store, () => ({
+        hexViewGroupingSize: hexViewGroupingSize,
       }));
     },
   })),
