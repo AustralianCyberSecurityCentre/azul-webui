@@ -12,7 +12,7 @@
     "lint": "ng lint"
   },
   "private": true,
-  "packageManager": "npm@11.18.0",
+  "packageManager": "npm@12.0.1",
   "//": "Override required because ngx-monaco-editor-v2 is slow at updating",
   "overrides": {
     "ngx-monaco-editor-v2": {
@@ -75,27 +75,27 @@
   },
   "devDependencies": {
     "@angular-eslint/builder": "22.0.0",
-    "@angular/build": "22.0.5",
-    "@angular/cli": "22.0.5",
-    "@angular/compiler-cli": "22.0.5",
+    "@angular/build": "22.0.6",
+    "@angular/cli": "22.0.6",
+    "@angular/compiler-cli": "22.0.6",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.61.1",
-    "@schematics/angular": "22.0.5",
+    "@schematics/angular": "22.0.6",
     "@tailwindcss/forms": "0.5.11",
     "@types/d3": "7.4.3",
-    "@types/node": "26.1.0",
+    "@types/node": "26.1.1",
     "@types/showdown": "2.0.6",
     "@types/upng-js": "2.1.5",
     "@zip.js/zip.js": "2.8.26",
     "angular-eslint": "22.0.0",
-    "eslint": "10.6.0",
+    "eslint": "10.7.0",
     "openapi-typescript": "7.13.0",
-    "postcss": "8.5.16",
-    "prettier": "3.9.4",
+    "postcss": "8.5.17",
+    "prettier": "3.9.5",
     "prettier-plugin-tailwindcss": "0.8.0",
     "tailwindcss": "4.3.2",
     "typescript": "^6.0.0",
-    "typescript-eslint": "8.62.1",
+    "typescript-eslint": "8.63.0",
     "upng-js": "2.1.0"
   }
 }

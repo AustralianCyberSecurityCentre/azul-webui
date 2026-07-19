@@ -7,11 +7,13 @@ import {
   OnInit,
   ViewChild,
   WritableSignal,
+  effect,
   inject,
   signal,
+  untracked,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
+import { disabled, form, max, min, validate } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -33,6 +35,16 @@ type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
 type FileInfo = { file_size: number; file_type: string };
 
+export type filterType = "filter" | "regex";
+interface StringsFilterForm {
+  filter: string;
+  filterType: filterType;
+  aiToggle: boolean;
+  showAllStringsToggle: boolean;
+  min_length_strings: number;
+  max_length_strings: number;
+}
+
 @Component({
   selector: "azec-strings",
   templateUrl: "./strings.component.html",
@@ -41,7 +53,6 @@ type FileInfo = { file_size: number; file_type: string };
 })
 export class StringsComponent extends BaseCard implements OnInit, OnDestroy {
   private toastrService = inject(ToastrService);
-  private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
   private hexStringSyncService = inject(HexStringSyncService);
   private store = inject(GlobalSettingStore);
@@ -77,14 +88,11 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   protected readonly allStringsMinSize10Mib = 1000 * 1000 * 10;
 
   private lastRequest: Subscription | undefined = undefined;
-  private formSubscription: Subscription | undefined = undefined;
   private summarySubscription: Subscription | undefined = undefined;
   private aiSupportedSubscription: Subscription | undefined = undefined;
 
   /** If an update to the strings table has been requested for first time */
-  isLoadingInitial$ = new BehaviorSubject(false);
-
-  protected showAllStringsToggle: boolean = false;
+  isLoadingInitialSignal: WritableSignal<boolean> = signal(false);
 
   @ViewChild("stringViewport", { read: CdkVirtualScrollViewport })
   viewport: CdkVirtualScrollViewport;
@@ -93,21 +101,46 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   stringIndexFromHexHoverSub: Subscription;
 
   isAISupported$ = new Observable<boolean>();
+  protected isAiToggleDisabled: WritableSignal<boolean> = signal(true);
 
-  form: UntypedFormGroup;
-  private filter = "";
-  private filterType: "filter" | "regex" = "filter";
-  private aiToggle: boolean = false;
+  protected stringsFilterModel: WritableSignal<StringsFilterForm> = signal({
+    filter: "",
+    filterType: "filter",
+    aiToggle: false,
+    showAllStringsToggle: false,
+    min_length_strings: 4,
+    max_length_strings: 200,
+  });
+  protected stringsFilterForm = form(this.stringsFilterModel, (f) => {
+    disabled(f.aiToggle, {
+      when: () => this.isAiToggleDisabled(),
+    });
+    min(f.min_length_strings, 2, {
+      message: "min string must be at least 2.",
+    });
+    max(f.min_length_strings, 200, {
+      message: "min string can be at most 200.",
+    });
+    max(f.max_length_strings, 200, {
+      message: "max string can be at most 200.",
+    });
+    min(f.min_length_strings, 2, {
+      message: "max string must be at least 2.",
+    });
+    validate(f.min_length_strings, ({ value, valueOf }) => {
+      if (value() > valueOf(f.max_length_strings)) {
+        return {
+          kind: "minMaxLengthError",
+          message:
+            "Minimum length must be less than or equal to max length of strings.",
+        };
+      }
+      return null;
+    });
+  });
 
   constructor() {
     super();
-    this.form = this.fb.group({
-      filter: this.fb.control(""),
-      filterType: this.fb.control("filter"),
-      aiToggle: this.fb.control(this.aiToggle),
-      showAllStringsToggle: this.fb.control(this.showAllStringsToggle),
-    });
-
     this.isAISupported$ = combineLatest([
       this.fileInfoSubject.asObservable(),
     ]).pipe(
@@ -117,12 +150,11 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     // Needed to fully disable the ai checkbox if AI isn't supported.
     this.aiSupportedSubscription = this.isAISupported$.subscribe(
       (supported) => {
-        const aiToggleControl = this.form.get("aiToggle");
-        aiToggleControl.setValue(false);
+        this.stringsFilterModel.update((v) => ({ ...v, aiToggle: false }));
         if (supported) {
-          aiToggleControl?.enable();
+          this.isAiToggleDisabled.set(false);
         } else {
-          aiToggleControl?.disable();
+          this.isAiToggleDisabled.set(true);
         }
       },
     );
@@ -179,19 +211,20 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
           this.viewport?.scrollToIndex(indexToJumpTo);
         }
       });
+
+    effect(() => {
+      // Changes to this model trigger the effect
+      this.stringsFilterModel();
+      // There is many signals inside this function so don't allow them changing to trigger the effect.
+      untracked(() => {
+        if (this.stringsFilterForm().valid()) {
+          this.jumpToFileOffset(0);
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
-    this.formSubscription = this.form.valueChanges
-      .pipe(ops.debounceTime(500))
-      .subscribe(() => {
-        this.filter = this.form.value.filter;
-        this.filterType = this.form.value.filterType;
-        this.aiToggle = this.form.value.aiToggle;
-        this.showAllStringsToggle = this.form.value.showAllStringsToggle;
-        // Force the scroll element to jump to the top
-        this.jumpToFileOffset(0);
-      });
     this._setupScrollOccurredSubscription();
   }
 
@@ -200,7 +233,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.scrollDownSub?.unsubscribe();
     this.scrollOccurredSub?.unsubscribe();
     this.lastRequest?.unsubscribe();
-    this.formSubscription?.unsubscribe();
     this.summarySubscription?.unsubscribe();
     this.aiSupportedSubscription?.unsubscribe();
     this.stringIndexFromHexHoverSub?.unsubscribe();
@@ -248,7 +280,6 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   private currentMinByteOffset: number = -1;
   private currentMaxByteOffset: number = -1;
   private _take_n_strings = 1000;
-  private MIN_LENGTH_STRING = 4;
   private SCROLL_UP_JUMP_AMOUNT = 1024 * 20; // 20kB jump - arbitrary and may need adjusting in the future
 
   sha256Subject: ReplaySubject<string> = new ReplaySubject();
@@ -282,15 +313,17 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     // Compose the cachable part of the query for comparison later
     const searchQuery = {
       take_n_strings: this._take_n_strings,
-      min_length: this.MIN_LENGTH_STRING,
+      min_length: this.stringsFilterModel().min_length_strings,
+      max_length: this.stringsFilterModel().max_length_strings,
       //Add extra param if the ai toggle is on to return ai-filtered strings
-      ...(this.aiToggle && {
+      ...(this.stringsFilterModel().aiToggle && {
         file_format: this.extractFilterType(fileInfo.file_type),
       }),
     };
 
-    if (this.filter !== "") {
-      searchQuery[this.filterType] = this.filter;
+    if (this.stringsFilterModel().filter !== "") {
+      searchQuery[this.stringsFilterModel().filterType] =
+        this.stringsFilterModel().filter;
     }
 
     // If the max bytes to read is less than 0 leave it as the default.
@@ -435,7 +468,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     // else show a less intrusive spinner
     if (this.currentMaxByteOffset <= -1) {
       this.currentMaxByteOffset = 0;
-      this.isLoadingInitial$.next(true);
+      this.isLoadingInitialSignal.set(true);
     }
 
     // Already have all the strings don't try and scroll any further.
@@ -454,7 +487,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         ops.switchMap(([fileInfo, sha256]) => {
           let maxBytesToRead = -1;
           // Toggle ability to show/hide All strings.
-          if (this.showAllStringsToggle === true) {
+          if (this.stringsFilterModel().showAllStringsToggle === true) {
             maxBytesToRead = fileInfo.file_size;
           }
           return this.__createQueryCommon(
@@ -474,8 +507,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       )
       .subscribe((s: AggregatedStrings) => {
         this._stringsLoaded$ = of(true);
-        if (this.isLoadingInitial$.value) {
-          this.isLoadingInitial$.next(false);
+        if (this.isLoadingInitialSignal()) {
+          this.isLoadingInitialSignal.set(false);
         }
         // If there is an error ensure scroll can recover
         if (!s) {

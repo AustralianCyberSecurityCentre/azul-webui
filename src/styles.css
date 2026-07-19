@@ -272,3 +272,9 @@ th {
 .fa-icon-red {
   color: red;
 }
+
+.sticky-header {
+  position: sticky;
+  top: 66px;
+  z-index: 10;
+}
