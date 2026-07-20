@@ -4,6 +4,7 @@ import {
   Input,
   OnDestroy,
   WritableSignal,
+  effect,
   inject,
   signal,
 } from "@angular/core";
@@ -74,12 +75,14 @@ Quick Shortcuts can be found in the F1 menu.
   protected totalFileSize: WritableSignal<number> = signal(0);
 
   constructor() {
-    if (this.store.theme() == ColorTheme.Light) {
-      this.editorOptions.theme = "vs-light";
-    } else {
-      this.editorOptions.theme = "vs-dark";
-    }
-    this.updateMonacoSettings();
+    effect(() => {
+      if (this.store.theme() == ColorTheme.Light) {
+        this.editorOptions.theme = "vs-light";
+      } else {
+        this.editorOptions.theme = "vs-dark";
+      }
+      this.updateMonacoSettings();
+    });
   }
 
   ngOnDestroy(): void {

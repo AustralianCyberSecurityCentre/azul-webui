@@ -4,6 +4,7 @@ import {
   Input,
   OnDestroy,
   WritableSignal,
+  effect,
   inject,
   signal,
 } from "@angular/core";
@@ -73,12 +74,14 @@ Quick Shortcuts can be found in the F1 menu.
   private cursorPosSubscription?: IDisposable;
 
   constructor() {
-    if (this.store.theme() == ColorTheme.Light) {
-      this.editorOptions.theme = "vs-light";
-    } else {
-      this.editorOptions.theme = "vs-dark";
-    }
-    this.updateMonacoSettings();
+    effect(() => {
+      if (this.store.theme() == ColorTheme.Light) {
+        this.editorOptions.theme = "vs-light";
+      } else {
+        this.editorOptions.theme = "vs-dark";
+      }
+      this.updateMonacoSettings();
+    });
   }
 
   ngOnDestroy(): void {

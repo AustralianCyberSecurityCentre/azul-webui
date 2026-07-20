@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   WritableSignal,
+  effect,
   inject,
   signal,
 } from "@angular/core";
@@ -17,9 +18,9 @@ import {
 } from "@angular/router";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import { Subscription } from "rxjs";
-import { config } from "./settings";
 import { GlobalSettingStore } from "./core/signal-store/global-settings.store";
 import { ColorTheme } from "./core/signal-store/global-state.types";
+import { config } from "./settings";
 
 @Component({
   selector: "app-root",
@@ -35,7 +36,7 @@ import { ColorTheme } from "./core/signal-store/global-state.types";
 })
 export class AppComponent implements OnInit, OnDestroy {
   private injector = inject(Injector);
-  private store = inject(GlobalSettingStore);
+  protected store = inject(GlobalSettingStore);
   private router = inject(Router);
 
   title = "azul-webui";
@@ -56,15 +57,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.isLoadingCompleteSignal.set(true);
       }
     });
-  }
-
-  ngOnInit(): void {
-    if (config.oauth_enabled) {
-      const oidcSecurityService = this.injector.get(OidcSecurityService);
-      oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
-        console.log("callback authenticated", isAuthenticated);
-      });
-    }
 
     if (!this.store.theme()) {
       // No Azul theme set, set this according to the current browser preference
@@ -76,7 +68,9 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log("Configuring initial Azul theme:", theme);
 
       this.store.updateTheme(theme);
-    } else {
+    }
+
+    effect(() => {
       console.log("Changing DOM Azul theme to", this.store.theme());
       // We have a color theme; apply it to the DOM
       if (this.store.theme() == ColorTheme.Dark) {
@@ -86,6 +80,15 @@ export class AppComponent implements OnInit, OnDestroy {
       } else {
         document.documentElement.classList.remove("dark");
       }
+    });
+  }
+
+  ngOnInit(): void {
+    if (config.oauth_enabled) {
+      const oidcSecurityService = this.injector.get(OidcSecurityService);
+      oidcSecurityService.checkAuth().subscribe(({ isAuthenticated }) => {
+        console.log("callback authenticated", isAuthenticated);
+      });
     }
 
     // Watch the browser for updates to the color theme

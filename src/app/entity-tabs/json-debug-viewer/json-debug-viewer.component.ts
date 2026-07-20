@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   input,
 } from "@angular/core";
@@ -43,13 +44,15 @@ export class JsonDebugViewerComponent {
   private wordWrapEnabled = false;
 
   constructor() {
-    if (this.store.theme() == ColorTheme.Light) {
-      this.editorOptions.theme = "vs-light";
-    } else {
-      this.editorOptions.theme = "vs-dark";
-    }
-    this.debugEditorHeight = this.store.debugQueryEditorHeightPx();
-    this.updateMonacoSettings();
+    effect(() => {
+      if (this.store.theme() == ColorTheme.Light) {
+        this.editorOptions.theme = "vs-light";
+      } else {
+        this.editorOptions.theme = "vs-dark";
+      }
+      this.debugEditorHeight = this.store.debugQueryEditorHeightPx();
+      this.updateMonacoSettings();
+    });
   }
 
   protected onMonacoInit(editor: editor.IEditor) {

@@ -250,15 +250,17 @@ export class BinariesRetrohuntComponent implements OnInit, OnDestroy {
       });
   }
 
+  constructor() {
+    effect(() => {
+      this.currentTheme = this.store.theme();
+      this.cdr.detectChanges();
+    });
+  }
+
   ngOnInit(): void {
     this.route.queryParamMap
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.retro.refresh());
-
-    if (this.store.theme()) {
-      this.currentTheme = this.store.theme();
-    }
-    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
