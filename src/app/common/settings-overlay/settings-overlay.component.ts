@@ -142,7 +142,6 @@ export class SettingsOverlayComponent {
         formState.bucketSize = this.largeBucketSize;
         didBucketChange = true;
       }
-      console.error(formState);
       // General store update
       this.store.updateAllFields(formState);
 
