@@ -22,6 +22,7 @@ type PluginSummaryWithMultiPluginIndicator =
     multiPluginKey?: string;
     isRootPlugin?: boolean;
     shortName?: string;
+    successPercentage?: number;
   };
 
 @Component({
@@ -57,6 +58,21 @@ export class PluginsExploreComponent implements OnInit {
         let lastSeenMultiPlugin = `${mpUpdatedList[0]?.newest_version?.name}-`;
         let lastSeenMultiPluginIndex = 0;
         mpUpdatedList.forEach((currentPlugin, index) => {
+          const success_count = currentPlugin?.success_count;
+          let error_count = currentPlugin?.error_count;
+          if (error_count === undefined) {
+            error_count = 0;
+          }
+          if (success_count === undefined || success_count === 0) {
+            currentPlugin.successPercentage = 0;
+          } else {
+            currentPlugin.successPercentage =
+              Math.round(
+                1000 * (success_count / (success_count + error_count)),
+              ) / 10;
+          }
+
+          // Determine multi-plugin status.
           const currentPluginName = currentPlugin?.newest_version?.name;
           if (currentPluginName.startsWith(lastSeenMultiPlugin)) {
             currentPlugin.multiPluginKey = lastSeenMultiPlugin;
