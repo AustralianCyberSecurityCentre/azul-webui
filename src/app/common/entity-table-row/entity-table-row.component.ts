@@ -29,7 +29,6 @@ import {
   faEyeSlash,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
 import { BehaviorSubject, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -77,7 +76,6 @@ export class EntityTableRowComponent {
   featureService = inject(FeatureService);
   apiService = inject(ApiService);
   private api = inject(ApiService);
-  private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
 
   @HostBinding("hidden") isHidden = false;

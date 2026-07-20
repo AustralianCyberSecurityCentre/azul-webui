@@ -21,7 +21,6 @@ import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import { IconService } from "@app/core/icon.service";
 import { Nav } from "@app/core/services";
-import { RelationalGraphLevel } from "@app/core/store/global-settings/global-state.types";
 import {
   faCompress,
   faExpand,
@@ -30,13 +29,13 @@ import {
   faMagnifyingGlassPlus,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
 import * as d3 from "d3";
 import * as dd3 from "dagre-d3-es";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
-import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
 import { BaseCard } from "../base-card.component";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+import { RelationalGraphLevel } from "@app/core/signal-store/global-state.types";
 
 /**a single node on the graph*/
 type Node = {
@@ -115,7 +114,7 @@ export class RelationGraphComponent extends BaseCard implements OnDestroy {
   private router = inject(Router);
   private nav = inject(Nav);
   private iconService = inject(IconService);
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
 
   dbg = (...d) => console.debug("RelationGraphComponent:", ...d);
   err = (...d) => console.error("RelationGraphComponent:", ...d);
@@ -315,32 +314,30 @@ not be shown on the graph.
   private zoomer: d3.ZoomBehavior<Element, unknown>;
   constructor() {
     super();
-    this.store
-      .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
-      .pipe(ops.take(1))
-      .subscribe((defaultRelational) => {
-        this.relationalGraphDetailSignal.set(defaultRelational);
-        switch (defaultRelational) {
-          case RelationalGraphLevel.NO:
-            this.complexitySliderValue = 0;
-            break;
-          case RelationalGraphLevel.YES_SMALL:
-            this.complexitySliderValue = 1;
-            break;
-          case RelationalGraphLevel.YES:
-            this.complexitySliderValue = 2;
-            break;
-          case RelationalGraphLevel.YES_LARGE:
-            this.complexitySliderValue = 3;
-            break;
-          default:
-            this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
-            this.complexitySliderValue = 2;
-        }
-        this.relationalGraphDetail$ = toObservable(
-          this.relationalGraphDetailSignal,
-        );
-      });
+
+    this.relationalGraphDetailSignal.set(
+      this.store.relationalGraphShowCousinsByDefault(),
+    );
+    switch (this.relationalGraphDetailSignal()) {
+      case RelationalGraphLevel.NO:
+        this.complexitySliderValue = 0;
+        break;
+      case RelationalGraphLevel.YES_SMALL:
+        this.complexitySliderValue = 1;
+        break;
+      case RelationalGraphLevel.YES:
+        this.complexitySliderValue = 2;
+        break;
+      case RelationalGraphLevel.YES_LARGE:
+        this.complexitySliderValue = 3;
+        break;
+      default:
+        this.relationalGraphDetailSignal.set(RelationalGraphLevel.YES);
+        this.complexitySliderValue = 2;
+    }
+    this.relationalGraphDetail$ = toObservable(
+      this.relationalGraphDetailSignal,
+    );
   }
 
   ngOnDestroy() {

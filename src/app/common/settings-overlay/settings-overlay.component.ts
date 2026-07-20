@@ -2,31 +2,26 @@ import { LabelType, Options } from "@angular-slider/ngx-slider";
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
-  OnInit,
   signal,
+  WritableSignal,
 } from "@angular/core";
+
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
+import { form, max, min } from "@angular/forms/signals";
 import {
-  FormControl,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-} from "@angular/forms";
+  GlobalSettingState,
+  GlobalSettingStore,
+  InitialGlobalSettingState,
+} from "@app/core/signal-store/global-settings.store";
 import {
   ColorTheme,
   RelationalGraphLevel,
   SourceViewEnum,
-} from "@app/core/store/global-settings/global-state.types";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
-import * as ops from "rxjs/operators";
-import * as globalAction from "../../core/store/global-settings/global-actions";
-import {
-  saveBucketSize,
-  saveShowDebugInfo,
-} from "../../core/store/global-settings/global-actions";
-import * as globalSettingsReducer from "../../core/store/global-settings/global-reducer";
-import * as fromGlobal from "../../core/store/global-settings/global-selector";
-import * as fromGlobalSettings from "../../core/store/global-settings/global-selector";
+  ValidHexSpaces,
+} from "@app/core/signal-store/global-state.types";
 
 @Component({
   selector: "az-settings-overlay",
@@ -34,29 +29,40 @@ import * as fromGlobalSettings from "../../core/store/global-settings/global-sel
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class SettingsOverlayComponent implements OnInit {
-  private store = inject(Store);
-  private fb = inject(UntypedFormBuilder);
+export class SettingsOverlayComponent {
+  private store = inject(GlobalSettingStore);
 
-  protected entityBucketSizeForm: FormControl;
-  protected entityShowDebugInfoForm: FormControl;
-  protected enableHexStringSyncForm: FormControl;
-  protected defaultSourceViewForm: FormControl;
-  protected debugEditorHeightPxForm: FormControl;
+  protected readonly smallBucketSize = InitialGlobalSettingState.bucketSize; // 100
+  protected readonly largeBucketSize = 1000;
 
-  protected formBinaryViewTableFormat: FormControl;
-  protected formBinaryExploreShowEntropy: FormControl;
-  protected formBinaryExploreShowMimetype: FormControl;
-  protected formBinaryExploreShowMagic: FormControl;
-  protected formBinaryExploreShowBinarySources: FormControl;
-  protected formBinaryExploreShowBinarySourceReferences: FormControl;
+  protected settingsFormModel: WritableSignal<
+    GlobalSettingState & { isLargeBucketSize: boolean }
+  > = signal({
+    IsTableView: this.store.IsTableView(),
+    BinaryExploreShowEntropy: this.store.BinaryExploreShowEntropy(),
+    BinaryExploreShowMimetype: this.store.BinaryExploreShowMimetype(),
+    BinaryExploreShowMagic: this.store.BinaryExploreShowMagic(),
+    BinaryExploreShowSources: this.store.BinaryExploreShowSources(),
+    BinaryExploreShowSourceReferences:
+      this.store.BinaryExploreShowSourceReferences(),
+    bucketSize: this.store.bucketSize(),
+    isLargeBucketSize: this.store.bucketSize() === this.largeBucketSize,
+    relationalGraphShowCousinsByDefault:
+      this.store.relationalGraphShowCousinsByDefault(),
+    showDebugInfo: this.store.showDebugInfo(),
+    debugQueryEditorHeightPx: this.store.debugQueryEditorHeightPx(),
+    theme: this.store.theme(),
+    enableHexStringSync: this.store.enableHexStringSync(),
+    defaultSourceView: this.store.defaultSourceView(),
+    hexViewGroupingSize: this.store.hexViewGroupingSize(),
+  });
 
-  protected globalForm: UntypedFormGroup;
+  protected settingsForm = form(this.settingsFormModel, (f) => {
+    max(f.debugQueryEditorHeightPx, 5000);
+    min(f.debugQueryEditorHeightPx, 10);
+  });
 
   protected bucketToggleDelayActiveSignal = signal(false);
-  protected readonly smallBucketSize =
-    globalSettingsReducer.initialState.bucketSize; // 100
-  protected readonly largeBucketSize = 1000;
 
   protected darkColorTheme = ColorTheme.Dark;
   protected lightColorTheme = ColorTheme.Light;
@@ -77,33 +83,23 @@ export class SettingsOverlayComponent implements OnInit {
     translate: (value: number, _label: LabelType): string => {
       switch (value) {
         case 0:
-          this.store.dispatch(
-            globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault: RelationalGraphLevel.NO,
-            }),
+          this.store.updateRelationalGraphShowCousinsByDefault(
+            RelationalGraphLevel.NO,
           );
           return "Basic";
         case 1:
-          this.store.dispatch(
-            globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault:
-                RelationalGraphLevel.YES_SMALL,
-            }),
+          this.store.updateRelationalGraphShowCousinsByDefault(
+            RelationalGraphLevel.YES_SMALL,
           );
           return "Simple";
         case 2:
-          this.store.dispatch(
-            globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES,
-            }),
+          this.store.updateRelationalGraphShowCousinsByDefault(
+            RelationalGraphLevel.YES,
           );
           return "Normal";
         case 3:
-          this.store.dispatch(
-            globalAction.saveRelationalGraphShowCousinsByDefault({
-              relationalGraphShowCousinsByDefault:
-                RelationalGraphLevel.YES_LARGE,
-            }),
+          this.store.updateRelationalGraphShowCousinsByDefault(
+            RelationalGraphLevel.YES_LARGE,
           );
           return "Complex";
         default:
@@ -112,223 +108,68 @@ export class SettingsOverlayComponent implements OnInit {
     },
   };
 
-  ngOnInit() {
-    this.store
-      .select(fromGlobal.colorThemeConfig)
-      .pipe(ops.first())
-      .subscribe((theme: ColorTheme) => {
-        this.globalForm = this.fb.group({
-          theme: this.fb.group({
-            color: [theme],
-          }),
-        });
-      });
+  protected orderedValidHexSpaces = [
+    ValidHexSpaces.opt1,
+    ValidHexSpaces.opt2,
+    ValidHexSpaces.opt4,
+    ValidHexSpaces.opt16,
+  ];
 
-    this.globalForm.valueChanges.subscribe((newValues) => {
-      this.store.dispatch(
-        globalAction.setColorTheme({ newColorTheme: newValues.theme.color }),
-      );
+  constructor() {
+    effect(() => {
+      this.settingsForm();
+      const formState = this.settingsFormModel();
+
+      // Ensure pixel heigh is never invalid
+      if (formState.debugQueryEditorHeightPx > 5000) {
+        formState.debugQueryEditorHeightPx = 5000;
+      } else if (formState.debugQueryEditorHeightPx < 10) {
+        formState.debugQueryEditorHeightPx = 10;
+      }
+
+      // Special bucket handling
+      let didBucketChange = false;
+      if (
+        formState.bucketSize === this.largeBucketSize &&
+        formState.isLargeBucketSize === false
+      ) {
+        formState.bucketSize = this.smallBucketSize;
+        didBucketChange = true;
+      } else if (
+        formState.bucketSize === this.smallBucketSize &&
+        formState.isLargeBucketSize === true
+      ) {
+        formState.bucketSize = this.largeBucketSize;
+        didBucketChange = true;
+      }
+      // General store update
+      this.store.updateAllFields(formState);
+
+      // Handle hiding bucket
+      if (didBucketChange) {
+        this.bucketToggleDelayActiveSignal.set(true);
+        setTimeout(() => {
+          this.bucketToggleDelayActiveSignal.set(false);
+        }, 1000);
+      }
     });
 
-    this.store
-      .select(fromGlobalSettings.selectBucketSize)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.entityBucketSizeForm = this.fb.control(
-          value == this.largeBucketSize,
-        );
-        this.entityBucketSizeForm.valueChanges.subscribe((e) => {
-          this.handleBucketSizeChange(e);
-        });
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectRelationalGraphShowCousinsByDefault)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        switch (value) {
-          case RelationalGraphLevel.NO:
-            this.sliderValue = 0;
-            break;
-          case RelationalGraphLevel.YES_SMALL:
-            this.sliderValue = 1;
-            break;
-          case RelationalGraphLevel.YES:
-            this.sliderValue = 2;
-            break;
-          case RelationalGraphLevel.YES_LARGE:
-            this.sliderValue = 3;
-            break;
-          default:
-            this.sliderValue = 2;
-        }
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectShowDebugInfo)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.entityShowDebugInfoForm = this.fb.control(value);
-        this.entityShowDebugInfoForm.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(saveShowDebugInfo({ showDebugInfo: state }));
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectDebugEditorHeightPx)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.debugEditorHeightPxForm = this.fb.control(value);
-
-        this.debugEditorHeightPxForm.valueChanges.subscribe((state: number) => {
-          state = Math.max(10, state);
-          state = Math.min(5000, state);
-          this.store.dispatch(
-            globalAction.saveDebugEditorHeightPx({
-              editorHeightPx: Math.round(state),
-            }),
-          );
-        });
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectIsTableView)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryViewTableFormat = this.fb.control(value);
-        this.formBinaryViewTableFormat.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveIsTableView({
-                IsTableView: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowEntropy)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowEntropy = this.fb.control(value);
-        this.formBinaryExploreShowEntropy.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowEntropy({
-                BinaryExploreShowEntropy: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowMimetype)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowMimetype = this.fb.control(value);
-        this.formBinaryExploreShowMimetype.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowMimetype({
-                BinaryExploreShowMimetype: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowMagic)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowMagic = this.fb.control(value);
-        this.formBinaryExploreShowMagic.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowMagic({
-                BinaryExploreShowMagic: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowSources)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowBinarySources = this.fb.control(value);
-        this.formBinaryExploreShowBinarySources.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowSources({
-                BinaryExploreShowSources: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectBinaryExploreShowSourceReferences)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.formBinaryExploreShowBinarySourceReferences =
-          this.fb.control(value);
-        this.formBinaryExploreShowBinarySourceReferences.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveBinaryExploreShowSourceReferences({
-                BinaryExploreShowSourceReferences: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectEnableHexStringSync)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.enableHexStringSyncForm = this.fb.control(value);
-        this.enableHexStringSyncForm.valueChanges.subscribe(
-          (state: boolean) => {
-            this.store.dispatch(
-              globalAction.saveEnableHexStringSync({
-                enableHexStringSync: state,
-              }),
-            );
-          },
-        );
-      });
-
-    this.store
-      .select(fromGlobalSettings.selectDefaultSourceView)
-      .pipe(ops.first())
-      .subscribe((value) => {
-        this.defaultSourceViewForm = this.fb.control(value);
-        this.defaultSourceViewForm.valueChanges.subscribe(
-          (state: SourceViewEnum) => {
-            this.store.dispatch(
-              globalAction.saveDefaultSourceView({
-                defaultSourceView: state,
-              }),
-            );
-          },
-        );
-      });
-  }
-
-  handleBucketSizeChange(state: boolean): void {
-    const bucketSize = state ? this.largeBucketSize : this.smallBucketSize;
-    this.store.dispatch(saveBucketSize({ size: bucketSize }));
-    this.bucketToggleDelayActiveSignal.set(true);
-    setTimeout(() => {
-      this.bucketToggleDelayActiveSignal.set(false);
-    }, 1000);
+    // Affects rendering, translate handles the rest.
+    switch (this.store.relationalGraphShowCousinsByDefault()) {
+      case RelationalGraphLevel.NO:
+        this.sliderValue = 0;
+        break;
+      case RelationalGraphLevel.YES_SMALL:
+        this.sliderValue = 1;
+        break;
+      case RelationalGraphLevel.YES:
+        this.sliderValue = 2;
+        break;
+      case RelationalGraphLevel.YES_LARGE:
+        this.sliderValue = 3;
+        break;
+      default:
+        this.sliderValue = 2;
+    }
   }
 }

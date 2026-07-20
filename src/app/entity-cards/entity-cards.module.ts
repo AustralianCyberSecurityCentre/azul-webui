@@ -29,6 +29,7 @@ import { StatusComponent } from "./status/status.component";
 import { StreamMergedTextTabMonacoComponent } from "./stream-merged-text-tab-monaco/stream-merged-text-tab-monaco.component";
 import { StreamTextTabMonacoComponent } from "./stream-text-tab-monaco/stream-text-tab-monaco.component";
 import { StringsComponent } from "./strings/strings.component";
+
 @NgModule({
   declarations: [
     FeatureTableComponent,

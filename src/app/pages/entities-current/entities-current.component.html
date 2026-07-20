@@ -202,7 +202,7 @@
           @if (entityNavService.activeBinaryTab() === binaryTabsEnum.Status) {
             <azec-statuses [entity]="entity" class="m-2 min-w-0 grow" />
           }
-          @if (showDebugInfoSignal()) {
+          @if (store.showDebugInfo()) {
             <!-- Allow debug to render and stay in the DOM to make it easier to keep your position. -->
             <azco-debug-tab
               [entity]="entity"

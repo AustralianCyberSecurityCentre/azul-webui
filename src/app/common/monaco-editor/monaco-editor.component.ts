@@ -10,8 +10,8 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { ColorTheme } from "@app/core/signal-store/global-state.types";
 
-import { ColorTheme } from "@app/core/store/global-settings/global-state.types";
 import { getDefaultMonacoSettings, recalculateFonts } from "@app/core/util";
 import * as monaco from "monaco-editor";
 

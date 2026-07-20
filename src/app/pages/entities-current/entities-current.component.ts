@@ -21,7 +21,6 @@ import {
   faRotate,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
 import { ActiveToast, ToastrService } from "ngx-toastr";
 import {
   Observable,
@@ -34,12 +33,12 @@ import {
 import * as ops from "rxjs/operators";
 
 import { components } from "@app/core/api/openapi";
-import { selectShowDebugInfo } from "@app/core/store/global-settings/global-selector";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import {
   binaryTabsEnum,
   EntityNavService,
 } from "@app/entity-cards/entity-nav.services";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 
 type Highlight = {
   label: string;
@@ -64,7 +63,7 @@ export class BinariesCurrentComponent implements OnDestroy {
   private toastrService = inject(ToastrService);
   private navService = inject(Nav);
   private iconService = inject(IconService);
-  private store = inject(Store);
+  protected store = inject(GlobalSettingStore);
   protected entityNavService = inject(EntityNavService);
 
   protected getStatusColour = getStatusColour;
@@ -98,8 +97,6 @@ export class BinariesCurrentComponent implements OnDestroy {
   protected expedite$: Observable<number>;
   protected isExpeditedSignal: WritableSignal<boolean> = signal(false);
 
-  protected showDebugInfoSignal: Signal<boolean> = signal(false);
-
   protected tabNames = [
     binaryTabsEnum.Overview,
     binaryTabsEnum.Features,
@@ -124,7 +121,7 @@ export class BinariesCurrentComponent implements OnDestroy {
         });
       });
 
-      if (!this.showDebugInfoSignal()) {
+      if (!this.store.showDebugInfo()) {
         tabsWithBadges = tabsWithBadges.filter((val) => val.name !== "Debug");
       }
       return tabsWithBadges;
@@ -140,7 +137,6 @@ export class BinariesCurrentComponent implements OnDestroy {
 
   constructor() {
     const api = inject(ApiService);
-    this.showDebugInfoSignal = this.store.selectSignal(selectShowDebugInfo);
     this.route.params.subscribe((p) => {
       const ent = this.entityService.entity(p.sha256);
       this.entity$.next(ent);
