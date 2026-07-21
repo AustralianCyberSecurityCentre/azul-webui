@@ -15,7 +15,9 @@ import * as ops from "rxjs/operators";
 import {
   faChevronDown,
   faChevronRight,
+  faAngleDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { form } from "@angular/forms/signals";
 
 type PluginSummaryWithMultiPluginIndicator =
   components["schemas"]["PluginStatusSummary"] & {
@@ -24,6 +26,17 @@ type PluginSummaryWithMultiPluginIndicator =
     shortName?: string;
     successPercentage?: number;
   };
+
+interface PluginExploreShowColumnModel {
+  version: boolean;
+  security: boolean;
+  description: boolean;
+  last_completed: boolean;
+  features: boolean;
+  completed: boolean;
+  errors: boolean;
+  completed_percent: boolean;
+}
 
 @Component({
   selector: "app-plugins-explore",
@@ -39,8 +52,20 @@ export class PluginsExploreComponent implements OnInit {
   protected ButtonType = ButtonType;
   protected faChevronDown = faChevronDown;
   protected faChevronRight = faChevronRight;
+  protected faAngleDown = faAngleDown;
 
   hiddenMultiPlugins: WritableSignal<string[]> = signal([]);
+  showColumns: WritableSignal<PluginExploreShowColumnModel> = signal({
+    version: true,
+    security: true,
+    description: true,
+    last_completed: true,
+    features: true,
+    completed: true,
+    errors: true,
+    completed_percent: true,
+  });
+  showColumnsForm = form(this.showColumns);
 
   plugins$: Observable<PluginSummaryWithMultiPluginIndicator[]>;
   ngOnInit(): void {

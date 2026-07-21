@@ -1,10 +1,17 @@
 <div>
   <div>
     <flow-card style="width: 100%">
-      <flow-card-header title="Plugins" />
+      <flow-card-header title="Plugins"> </flow-card-header>
       @if (plugins$ | async; as allPlugins) {
-        <flow-card-body>
-          Viewing {{ allPlugins.length || 0 | number }} plugins
+        <flow-card-body class="w-full">
+          <div class="flex w-full justify-between">
+            <div class="flex gap-x-2">
+              Viewing {{ allPlugins.length || 0 | number }} plugins
+            </div>
+            <div class="flex gap-x-2">
+              <ng-container *ngTemplateOutlet="columnSelect"></ng-container>
+            </div>
+          </div>
         </flow-card-body>
       }
     </flow-card>
@@ -25,39 +32,55 @@
                 <thead flowTableHeader class="sticky top-0">
                   <tr flowTableHeaderRow class="sticky-header">
                     <th flowTableHeaderCell>Name</th>
-                    <th flowTableHeaderCell>Version</th>
-                    <th flowTableHeaderCell>Security</th>
-                    <th flowTableHeaderCell>Description</th>
-                    <th flowTableHeaderCell>
-                      <az-hover-textable
-                        message="Time since a plugin last completed"
-                      >
-                        Last Completed
-                      </az-hover-textable>
-                    </th>
-                    <th flowTableHeaderCell class="w-20">Features</th>
-                    <th flowTableHeaderCell class="w-24">
-                      <!--Inaccurate because the api endpoint doesn't filter out duplicates values-->
-                      <!--Duplicates are where a plugin processes the same binary when it has different source paths.-->
-                      <az-hover-textable
-                        message="Number of times a plugin completed in the last 7 days (inaccurate)"
-                        >Completed</az-hover-textable
-                      >
-                    </th>
-                    <th flowTableHeaderCell class="w-20">
-                      <az-hover-textable
-                        message="Number of times a plugin reported 'error|exception|timeout|invalid result' statuses in the last 7 days (inaccurate)"
-                      >
-                        Error
-                      </az-hover-textable>
-                    </th>
-                    <th flowTableHeaderCell class="w-20">
-                      <az-hover-textable
-                        message="Percentage of successful results compared to error results."
-                      >
-                        Completed(%)
-                      </az-hover-textable>
-                    </th>
+                    @if (showColumns().version) {
+                      <th flowTableHeaderCell>Version</th>
+                    }
+                    @if (showColumns().security) {
+                      <th flowTableHeaderCell>Security</th>
+                    }
+                    @if (showColumns().description) {
+                      <th flowTableHeaderCell>Description</th>
+                    }
+                    @if (showColumns().last_completed) {
+                      <th flowTableHeaderCell>
+                        <az-hover-textable
+                          message="Time since a plugin last completed"
+                        >
+                          Last Completed
+                        </az-hover-textable>
+                      </th>
+                    }
+                    @if (showColumns().features) {
+                      <th flowTableHeaderCell class="w-20">Features</th>
+                    }
+                    @if (showColumns().completed) {
+                      <th flowTableHeaderCell class="w-24">
+                        <!--Inaccurate because the api endpoint doesn't filter out duplicates values-->
+                        <!--Duplicates are where a plugin processes the same binary when it has different source paths.-->
+                        <az-hover-textable
+                          message="Number of times a plugin completed in the last 7 days (inaccurate)"
+                          >Completed</az-hover-textable
+                        >
+                      </th>
+                    }
+                    @if (showColumns().errors) {
+                      <th flowTableHeaderCell class="w-20">
+                        <az-hover-textable
+                          message="Number of times a plugin reported 'error|exception|timeout|invalid result' statuses in the last 7 days (inaccurate)"
+                        >
+                          Error
+                        </az-hover-textable>
+                      </th>
+                    }
+                    @if (showColumns().completed_percent) {
+                      <th flowTableHeaderCell class="w-20">
+                        <az-hover-textable
+                          message="Percentage of successful results compared to error results."
+                        >
+                          Completed(%)
+                        </az-hover-textable>
+                      </th>
+                    }
                   </tr>
                 </thead>
                 <tbody flowTableBody>
@@ -141,48 +164,64 @@
                             </a>
                           </span>
                         </td>
-                        <td flowTableBodyCell class="truncate">
-                          <span class="line-clamp-2 text-wrap break-words">
-                            {{ currentPlugin.newest_version.version }}
-                          </span>
-                        </td>
-                        <td flowTableBodyCell class="truncate">
-                          <span class="line-clamp-2 text-wrap break-words">
-                            {{ currentPlugin.newest_version.security }}
-                          </span>
-                        </td>
-                        <td flowTableBodyCell class="limit-description">
-                          <flow-tooltip
-                            message="{{
-                              currentPlugin.newest_version.description
-                            }}"
-                            [copyText]="true"
-                          >
+                        @if (showColumns().version) {
+                          <td flowTableBodyCell class="truncate">
                             <span class="line-clamp-2 text-wrap break-words">
-                              {{ currentPlugin.newest_version.description }}
+                              {{ currentPlugin.newest_version.version }}
                             </span>
-                          </flow-tooltip>
-                        </td>
-                        <td flowTableBodyCell class="limit-last-completed">
-                          <span class="line-clamp-2 text-wrap break-words">{{
-                            currentPlugin.last_completion | since
-                          }}</span>
-                        </td>
-                        <td flowTableBodyCell>
-                          {{
-                            (currentPlugin.newest_version.features?.length
-                              | number) || "0"
-                          }}
-                        </td>
-                        <td flowTableBodyCell>
-                          {{ (currentPlugin?.success_count | number) || "" }}
-                        </td>
-                        <td flowTableBodyCell>
-                          {{ (currentPlugin?.error_count | number) || "" }}
-                        </td>
-                        <td flowTableBodyCell>
-                          {{ currentPlugin?.successPercentage + "%" || "" }}
-                        </td>
+                          </td>
+                        }
+                        @if (showColumns().security) {
+                          <td flowTableBodyCell class="truncate">
+                            <span class="line-clamp-2 text-wrap break-words">
+                              {{ currentPlugin.newest_version.security }}
+                            </span>
+                          </td>
+                        }
+                        @if (showColumns().description) {
+                          <td flowTableBodyCell class="limit-description">
+                            <flow-tooltip
+                              message="{{
+                                currentPlugin.newest_version.description
+                              }}"
+                              [copyText]="true"
+                            >
+                              <span class="line-clamp-2 text-wrap break-words">
+                                {{ currentPlugin.newest_version.description }}
+                              </span>
+                            </flow-tooltip>
+                          </td>
+                        }
+                        @if (showColumns().last_completed) {
+                          <td flowTableBodyCell class="limit-last-completed">
+                            <span class="line-clamp-2 text-wrap break-words">{{
+                              currentPlugin.last_completion | since
+                            }}</span>
+                          </td>
+                        }
+                        @if (showColumns().last_completed) {
+                          <td flowTableBodyCell>
+                            {{
+                              (currentPlugin.newest_version.features?.length
+                                | number) || "0"
+                            }}
+                          </td>
+                        }
+                        @if (showColumns().completed) {
+                          <td flowTableBodyCell>
+                            {{ (currentPlugin?.success_count | number) || "" }}
+                          </td>
+                        }
+                        @if (showColumns().errors) {
+                          <td flowTableBodyCell>
+                            {{ (currentPlugin?.error_count | number) || "" }}
+                          </td>
+                        }
+                        @if (showColumns().completed_percent) {
+                          <td flowTableBodyCell>
+                            {{ currentPlugin?.successPercentage + "%" || "" }}
+                          </td>
+                        }
                       </tr>
                     }
                   }
@@ -196,4 +235,57 @@
       </az-loading-card>
     </flow-card-body>
   </flow-card>
+</ng-template>
+
+<ng-template #columnSelect>
+  <div class="group relative mx-2" tabindex="0">
+    <div
+      role="tab"
+      class="transition-color text-md bg-azul-500 flex cursor-pointer items-center gap-2 rounded-xs p-2 font-semibold group-hover:bg-slate-600"
+    >
+      <span>Hide Columns</span><fa-icon [icon]="faAngleDown" />
+    </div>
+
+    <div
+      role="tabpanel"
+      class="border-azul-600 bg-azul-500 shadow-azul-900/20 absolute top-full z-10 hidden w-96 border shadow-md group-hover:block group-active:block"
+    >
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.version">Version</flow-toggle>
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.security"
+          >Security</flow-toggle
+        >
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.description"
+          >Description</flow-toggle
+        >
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.last_completed"
+          >Last Completed</flow-toggle
+        >
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.features"
+          >Features</flow-toggle
+        >
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.completed"
+          >Completed</flow-toggle
+        >
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.errors">Errors</flow-toggle>
+      </div>
+      <div class="p-1">
+        <flow-toggle [formField]="showColumnsForm.completed_percent"
+          >Completed %</flow-toggle
+        >
+      </div>
+    </div>
+  </div>
 </ng-template>
