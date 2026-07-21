@@ -16,3 +16,12 @@ export enum SourceViewEnum {
   GroupedReferences = "Grouped References",
   Submission = "Submission",
 }
+
+// Valid options for hex view groupings
+// Note this directly maps to what class is used for rendering (on the hex view tab) so adding more requires more classes be created.
+export enum ValidHexSpaces {
+  opt1 = "1",
+  opt2 = "2",
+  opt4 = "4",
+  opt16 = "16",
+}

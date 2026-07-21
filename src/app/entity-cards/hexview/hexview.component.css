@@ -19,7 +19,6 @@ cdk-virtual-scroll-viewport {
 .s-table {
   max-height: calc(75vh - 2ch);
   contain: none;
-  min-width: 70ch;
 }
 
 .s-table ::selection {
@@ -43,17 +42,6 @@ cdk-virtual-scroll-viewport {
 .hex-view-header {
   top: 0;
   z-index: 10;
-}
-
-.hex-digit div,
-.ascii-digit div {
-  display: inline-block;
-  height: min-content;
-  width: min-content;
-}
-
-.hex-digit div:nth-child(2n)::after {
-  content: "\00a0";
 }
 
 .null-value {
@@ -89,9 +77,46 @@ cdk-virtual-scroll-viewport {
   display: inline-block;
 }
 
-.hex-digit {
-  width: 42ch;
+.hex-digit div,
+.ascii-digit div {
   display: inline-block;
+  height: min-content;
+  width: min-content;
+}
+.hex-digit {
+  display: inline-block;
+}
+
+.hex-digit-1 div:nth-child(1n)::after {
+  content: "\00a0";
+}
+
+.hex-digit-1 {
+  width: 50ch;
+  display: inline-block;
+}
+
+.hex-digit-2 div:nth-child(2n)::after {
+  content: "\00a0";
+}
+
+.hex-digit-2 {
+  width: 42ch;
+}
+.hex-digit-4 div:nth-child(4n)::after {
+  content: "\00a0";
+}
+
+.hex-digit-4 {
+  width: 38ch;
+}
+
+.hex-digit-16 div:nth-child(16n)::after {
+  content: "\00a0";
+}
+
+.hex-digit-16 {
+  width: 34ch;
 }
 
 .ascii-digit {

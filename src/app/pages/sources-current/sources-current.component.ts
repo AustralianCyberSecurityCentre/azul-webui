@@ -16,8 +16,6 @@ import * as ops from "rxjs/operators";
 
 import { form } from "@angular/forms/signals";
 import { Api } from "@app/core/services";
-import { selectDefaultSourceView } from "@app/core/store/global-settings/global-selector";
-import { SourceViewEnum } from "@app/core/store/global-settings/global-state.types";
 import { UserService } from "@app/core/user.service";
 import {
   allowedToPurge,
@@ -26,7 +24,8 @@ import {
   sourceRefsAsParams,
 } from "@app/core/util";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { Store } from "@ngrx/store";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+import { SourceViewEnum } from "@app/core/signal-store/global-state.types";
 
 interface SourceViewModel {
   sourceView: SourceViewEnum;
@@ -44,7 +43,7 @@ export class SourcesCurrentComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   protected user = inject(UserService);
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
 
   protected faMagnifyingGlass = faMagnifyingGlass;
   protected faTriangleExclamation = faTriangleExclamation;
@@ -84,8 +83,7 @@ export class SourcesCurrentComponent implements OnInit {
   protected;
 
   constructor() {
-    const initalSourceView = this.store.selectSignal(selectDefaultSourceView);
-    this.sourceViewModel.set({ sourceView: initalSourceView() });
+    this.sourceViewModel.set({ sourceView: this.store.defaultSourceView() });
   }
 
   ngOnInit(): void {

@@ -2,11 +2,7 @@ import { Injectable, inject } from "@angular/core";
 
 import { ApiService } from "@app/core/api/api.service";
 import { FeatureService, b64ToReadable } from "@app/core/feature.service";
-import {
-  selectBucketSize,
-  selectShowDebugInfo,
-} from "@app/core/store/global-settings/global-selector";
-import { Store } from "@ngrx/store";
+
 import {
   BehaviorSubject,
   Observable,
@@ -30,8 +26,9 @@ import {
   SimilarEntropyMatchWithSummary,
   SimilarFeatureMatchWithSummary,
 } from "./api/state";
-import { AppState } from "./store/main-store";
 import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
+import { GlobalSettingStore } from "./signal-store/global-settings.store";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 /** turns a list of items into a list of list of items, constrained by max items per chunk */
 function chunkify<T>(items: T[], max: number): T[][] {
@@ -253,9 +250,10 @@ export class EntityWrap {
     );
   }
 
+  private store = inject(GlobalSettingStore);
+
   constructor(
     private api: ApiService,
-    private store: Store<AppState>,
     private featureService: FeatureService,
     eid: string,
     detail: components["schemas"]["BinaryMetadataDetail"][],
@@ -271,8 +269,8 @@ export class EntityWrap {
     // this prevents errors from causing the data to be re-requested constantly
     // under certain circumstances when shareReplay is used, while still caching data.
     const main$ = combineLatest([
-      this.store.select(selectBucketSize),
-      this.store.select(selectShowDebugInfo),
+      toObservable(this.store.bucketSize),
+      toObservable(this.store.showDebugInfo),
     ]).pipe(
       ops.switchMap(([bucketSize, getDebugInfo]) =>
         this.api.entityReadMain(this.sha256, {
@@ -700,7 +698,6 @@ export class EntityWrap {
 })
 export class EntityService {
   private api = inject(ApiService);
-  private store = inject(Store);
   private featureService = inject(FeatureService);
   private trigger$ = new Subject<void>();
   dbg = (...d) => console.debug("EntityService:", ...d);
@@ -781,14 +778,7 @@ export class EntityService {
     detail: components["schemas"]["BinaryMetadataDetail"][] = [],
   ) {
     const fn = () =>
-      new EntityWrap(
-        this.api,
-        this.store,
-        this.featureService,
-        eid,
-        detail,
-        this,
-      );
+      new EntityWrap(this.api, this.featureService, eid, detail, this);
     return cacheData("entity", 5, `${eid}.${detail}`, fn);
   }
 

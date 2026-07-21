@@ -16,9 +16,7 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { disabled, form, max, min, validate } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
-import { selectEnableHexStringSync } from "@app/core/store/global-settings/global-selector";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import {
   BehaviorSubject,
@@ -31,6 +29,7 @@ import {
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
@@ -56,7 +55,7 @@ export class StringsComponent extends BaseCard implements OnInit, OnDestroy {
   private toastrService = inject(ToastrService);
   private entityService = inject(Entity);
   private hexStringSyncService = inject(HexStringSyncService);
-  private store = inject(Store);
+  private store = inject(GlobalSettingStore);
 
   help = `
 This panel displays bits of text that were found in the file.
@@ -164,7 +163,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     this.stringIndexFromHexHoverSub = combineLatest([
       toObservable(this.hexStringSyncService.HexOffsetSignal),
       toObservable(this.currentStringsSignal),
-      this.store.select(selectEnableHexStringSync),
+      toObservable(this.store.enableHexStringSync),
     ])
       .pipe(
         ops.map(([hexOffset, currentStringList, enableHexStringSync]) => {

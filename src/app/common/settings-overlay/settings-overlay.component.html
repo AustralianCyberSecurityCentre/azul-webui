@@ -1,14 +1,14 @@
 <h2 class="mb-2 text-lg font-bold dark:text-white">Global Options</h2>
 
-<form [formGroup]="globalForm">
-  <div class="grid grid-cols-2 gap-2" formGroupName="theme">
+<form>
+  <div class="grid grid-cols-2 gap-2">
     <div>
       <flow-label for="color-control">Theme</flow-label>
       <select
         flowSelect
         class="w-full"
         id="color-control"
-        formControlName="color"
+        [formField]="settingsForm.theme"
       >
         <option [value]="darkColorTheme">Dark</option>
         <option [value]="lightColorTheme">Light</option>
@@ -23,7 +23,7 @@
 <ng-container>
   <div class="grid grid-cols-2 gap-2">
     @if (!bucketToggleDelayActiveSignal()) {
-      <flow-toggle [formControl]="entityBucketSizeForm"
+      <flow-toggle [formField]="settingsForm.isLargeBucketSize"
         >Increase Query Size</flow-toggle
       >
     } @else {
@@ -44,28 +44,44 @@
         >Relations Graph Complexity(default)</flow-label
       >
     </div>
-    <flow-toggle [formControl]="entityShowDebugInfoForm"
+    <flow-toggle [formField]="settingsForm.showDebugInfo"
       >Show Debug Tab</flow-toggle
     >
     <div>
       <flow-label [noPadding]="true" class="pt-1"
         >Debug Editor Height (pixels)</flow-label
       >
-      <flow-input
+      <flow-signal-input
         fieldType="number"
-        [min]="10"
         [step]="10"
-        [max]="5000"
-        [formControl]="debugEditorHeightPxForm"
+        [formField]="settingsForm.debugQueryEditorHeightPx"
         [size]="5"
       />
     </div>
     <flow-tooltip
       message="Enable the strings view to jump to the highlighted value in the hex viewer on a binaries data page."
     >
-      <flow-toggle [formControl]="enableHexStringSyncForm"
+      <flow-toggle [formField]="settingsForm.enableHexStringSync"
         >Sync hex and string viewer</flow-toggle
       >
+    </flow-tooltip>
+    <flow-tooltip
+      message="Change how many bytes are grouped together on the binary hex viewer."
+    >
+      <div class="flex">
+        <flow-label for="hex-group-by">Group Hex Bytes: </flow-label>
+        <select
+          flowSelect
+          id="hex-group-by"
+          [formField]="settingsForm.hexViewGroupingSize"
+        >
+          @for (hexSpace of orderedValidHexSpaces; track hexSpace) {
+            <option [value]="hexSpace">
+              {{ hexSpace }}
+            </option>
+          }
+        </select>
+      </div>
     </flow-tooltip>
   </div>
 </ng-container>
@@ -75,22 +91,22 @@
 <h2 class="mb-2 text-lg font-bold dark:text-white">Binary Explorer Options</h2>
 <ng-container>
   <div class="grid grid-cols-2 gap-2">
-    <flow-toggle [formControl]="formBinaryViewTableFormat"
+    <flow-toggle [formField]="settingsForm.IsTableView"
       >Table Format</flow-toggle
     >
-    <flow-toggle [formControl]="formBinaryExploreShowEntropy"
+    <flow-toggle [formField]="settingsForm.BinaryExploreShowEntropy"
       >Show Entropy</flow-toggle
     >
-    <flow-toggle [formControl]="formBinaryExploreShowMimetype"
+    <flow-toggle [formField]="settingsForm.BinaryExploreShowMimetype"
       >Show Mimetype</flow-toggle
     >
-    <flow-toggle [formControl]="formBinaryExploreShowMagic"
+    <flow-toggle [formField]="settingsForm.BinaryExploreShowMagic"
       >Show Magic</flow-toggle
     >
-    <flow-toggle [formControl]="formBinaryExploreShowBinarySources"
+    <flow-toggle [formField]="settingsForm.BinaryExploreShowSources"
       >Show Source</flow-toggle
     >
-    <flow-toggle [formControl]="formBinaryExploreShowBinarySourceReferences"
+    <flow-toggle [formField]="settingsForm.BinaryExploreShowSourceReferences"
       >Show Source References</flow-toggle
     >
   </div>
@@ -106,7 +122,7 @@
     <select
       flowSelect
       id="default-source-view-select"
-      [formControl]="defaultSourceViewForm"
+      [formField]="settingsForm.defaultSourceView"
     >
       @for (
         sourceViewOpt of SourceViewEnum | keyvalue;

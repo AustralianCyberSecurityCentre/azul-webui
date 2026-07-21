@@ -6,20 +6,12 @@ import {
   Component,
   ElementRef,
   OnDestroy,
-  OnInit,
   ViewChild,
   WritableSignal,
   inject,
   output,
   signal,
 } from "@angular/core";
-import {
-  AbstractControl,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
 import { paths } from "@app/core/api/openapi";
 import { MultiPageResults } from "@app/core/api/state";
 import { Entity } from "@app/core/services";
@@ -28,6 +20,12 @@ import { BaseCard } from "@app/entity-cards/base-card.component";
 import { Subscription, of } from "rxjs";
 import * as ops from "rxjs/operators";
 import { ContinuousScroll } from "../continuous-scroll/continuous-scroll.class";
+import { form, required, validate } from "@angular/forms/signals";
+
+interface SearchFormModel {
+  searchType: string;
+  searchQuery: string;
+}
 
 @Component({
   selector: "az-content-search",
@@ -38,9 +36,8 @@ import { ContinuousScroll } from "../continuous-scroll/continuous-scroll.class";
 })
 export class EntityContentSearchComponent
   extends BaseCard
-  implements OnInit, OnDestroy
+  implements OnDestroy
 {
-  private fb = inject(UntypedFormBuilder);
   private entityService = inject(Entity);
 
   // This shouldn't be seen by a user:
@@ -51,7 +48,33 @@ export class EntityContentSearchComponent
   /** Handler for if a row entry has been clicked. */
   rowSelected = output<[number, number]>();
 
-  searchForm: UntypedFormGroup;
+  searchFormModel: WritableSignal<SearchFormModel> = signal({
+    searchType: "hex",
+    searchQuery: "",
+  });
+
+  searchForm = form(this.searchFormModel, (f) => {
+    required(f.searchQuery);
+    validate(f.searchQuery, ({ value, valueOf }) => {
+      const searchType = valueOf(f.searchType);
+
+      if (searchType === "hex") {
+        const strippedQuery = value().replace(" ", "");
+        if (strippedQuery.length % 2 != 0) {
+          return {
+            kind: "invalid-hex",
+            message: "Hex string is not of a valid length (groups of 2)",
+          };
+        } else if (strippedQuery.length == 0) {
+          return {
+            kind: "invalid-hex",
+            message: "Missing hex string to search for",
+          };
+        }
+      }
+      return null;
+    });
+  });
 
   resultSignal: WritableSignal<MultiPageResults | undefined> =
     signal(undefined);
@@ -74,60 +97,27 @@ export class EntityContentSearchComponent
     | paths["/api/v0/binaries/{sha256}/search/hex"]["get"]["parameters"]["query"]
     | undefined;
 
-  ngOnInit(): void {
-    this.searchForm = this.fb.group({
-      searchType: this.fb.control("hex"),
-      searchQuery: this.fb.control("").addValidators(Validators.required),
-    });
-    this.searchForm.addValidators(
-      (control: AbstractControl): ValidationErrors | null => {
-        const type = control.value.searchType;
-        const query = control.value.searchQuery ?? "";
-
-        const errors = {};
-        let hasErrors = false;
-
-        if (type === "hex") {
-          const strippedQuery = query.replace(" ", "");
-          if (strippedQuery.length % 2 != 0) {
-            hasErrors = true;
-            errors["invalid-hex"] =
-              "Hex string is not of a valid length (groups of 2)";
-          } else if (strippedQuery.length == 0) {
-            hasErrors = true;
-            errors["invalid-hex"] = "Missing hex string to search for";
-          }
-        }
-
-        if (hasErrors) {
-          return errors;
-        }
-        return null;
-      },
-    );
-  }
-
   protected override onEntityChange() {
     this.updateData();
   }
 
   /** Validates the search query is valid. */
   protected queryValidator(event: Event) {
-    if (this.searchForm.value.searchType == "hex") {
+    if (this.searchFormModel().searchType == "hex") {
       hexValidator(event);
     }
   }
 
   /** Initiates a new search operation. */
   protected doSearch() {
-    if (!this.searchForm.valid) {
+    if (!this.searchForm().valid()) {
       // Don't submit bad data
       return;
     }
 
     this.hideResultsSignal.set(false);
 
-    if (this.searchForm.value.searchType == "hex") {
+    if (this.searchFormModel().searchType == "hex") {
       this.cs.offset = 0;
       this.update();
     }
@@ -167,7 +157,7 @@ export class EntityContentSearchComponent
 
   /** get next values */
   update() {
-    const filter = (this.searchForm?.value.searchQuery ?? "").trim();
+    const filter = (this.searchFormModel()?.searchQuery ?? "").trim();
 
     if (filter == "") {
       return;

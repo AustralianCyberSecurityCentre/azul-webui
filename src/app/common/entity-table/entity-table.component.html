@@ -72,7 +72,7 @@
       }
       @if (
         (useTableViewOverride() !== undefined && useTableViewOverride()) ||
-        (useTableViewOverride() === undefined && useTableView())
+        (useTableViewOverride() === undefined && store.IsTableView())
       ) {
         @if (tableScroll()) {
           <div class="w-full overflow-x-auto overflow-y-auto">
@@ -109,13 +109,13 @@
       }
       <th flowTableHeaderCell class="px-1">Filename</th>
       <th flowTableHeaderCell class="px-1">File Type</th>
-      @if (showMimetypeSignal()) {
+      @if (store.BinaryExploreShowMimetype()) {
         <th flowTableHeaderCell class="px-1">Mime</th>
       }
-      @if (showMagicSignal()) {
+      @if (store.BinaryExploreShowMagic()) {
         <th flowTableHeaderCell class="px-1">Magic</th>
       }
-      @if (showSourcesSignal()) {
+      @if (store.BinaryExploreShowSources()) {
         <th flowTableHeaderCell class="px-1">Sources</th>
       }
       @if (retrohuntNumberOfSearchKeys() > 0) {
@@ -137,14 +137,14 @@
       [originalSha256]="originalSha256()"
       [asTableRows]="
         useTableViewOverride() === undefined
-          ? useTableView()
+          ? store.IsTableView()
           : useTableViewOverride()
       "
-      [showEntropy]="showEntropySignal()"
-      [showMimetype]="showMimetypeSignal()"
-      [showMagic]="showMagicSignal()"
-      [showSources]="showSourcesSignal()"
-      [showSourceReferences]="showSourceReferencesSignal()"
+      [showEntropy]="store.BinaryExploreShowEntropy()"
+      [showMimetype]="store.BinaryExploreShowMimetype()"
+      [showMagic]="store.BinaryExploreShowMagic()"
+      [showSources]="store.BinaryExploreShowSources()"
+      [showSourceReferences]="store.BinaryExploreShowSourceReferences()"
       (checkChanged)="onRowCheckedChange(overrow, $event)"
       [retroHuntSearchNames]="
         retroHuntSearchNames()[overrow.sha256 || overrow.key]
