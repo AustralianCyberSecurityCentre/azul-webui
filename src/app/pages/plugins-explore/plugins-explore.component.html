@@ -199,7 +199,7 @@
                             }}</span>
                           </td>
                         }
-                        @if (showColumns().last_completed) {
+                        @if (showColumns().features) {
                           <td flowTableBodyCell>
                             {{
                               (currentPlugin.newest_version.features?.length
@@ -241,14 +241,17 @@
   <div class="group relative mx-2" tabindex="0">
     <div
       role="tab"
-      class="transition-color text-md bg-azul-500 flex cursor-pointer items-center gap-2 rounded-xs p-2 font-semibold group-hover:bg-slate-600"
+      class="transition-color text-md bg-azul-500 flex w-50 cursor-pointer items-center gap-2 rounded-xs p-2 font-semibold group-hover:bg-slate-600"
     >
-      <span>Hide Columns</span><fa-icon [icon]="faAngleDown" />
+      <div class="flex w-full justify-between">
+        <div class="flex gap-x-2">Hide Columns</div>
+        <div class="flex gap-x-2"><fa-icon [icon]="faAngleDown" /></div>
+      </div>
     </div>
 
     <div
       role="tabpanel"
-      class="border-azul-600 bg-azul-500 shadow-azul-900/20 absolute top-full z-10 hidden w-96 border shadow-md group-hover:block group-active:block"
+      class="border-azul-600 bg-azul-500 shadow-azul-900/20 absolute top-full right-0 z-10 hidden w-50 border shadow-md group-hover:block group-active:block"
     >
       <div class="p-1">
         <flow-toggle [formField]="showColumnsForm.version">Version</flow-toggle>

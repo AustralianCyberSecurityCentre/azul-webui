@@ -25,3 +25,14 @@ export enum ValidHexSpaces {
   opt4 = "4",
   opt16 = "16",
 }
+
+export interface PluginExploreShowColumnModel {
+  version: boolean;
+  security: boolean;
+  description: boolean;
+  last_completed: boolean;
+  features: boolean;
+  completed: boolean;
+  errors: boolean;
+  completed_percent: boolean;
+}

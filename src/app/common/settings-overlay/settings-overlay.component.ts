@@ -55,6 +55,7 @@ export class SettingsOverlayComponent {
     enableHexStringSync: this.store.enableHexStringSync(),
     defaultSourceView: this.store.defaultSourceView(),
     hexViewGroupingSize: this.store.hexViewGroupingSize(),
+    pluginPageColumns: this.store.pluginPageColumns(),
   });
 
   protected settingsForm = form(this.settingsFormModel, (f) => {
