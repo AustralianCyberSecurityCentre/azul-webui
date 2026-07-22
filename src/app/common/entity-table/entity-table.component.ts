@@ -55,6 +55,8 @@ export class EntityTableComponent implements OnChanges {
   displayText = input<string>("matching the search parameters.");
   useTableViewOverride = input<boolean | undefined>(undefined);
   externalPagination = input<boolean>(false);
+  showSsdeep = input<boolean>(false);
+  showTlsh = input<boolean>(false);
   tablename = input<string | null>(null);
   tableScroll = input<boolean>(false);
   tableXScroll = input<boolean>(false);

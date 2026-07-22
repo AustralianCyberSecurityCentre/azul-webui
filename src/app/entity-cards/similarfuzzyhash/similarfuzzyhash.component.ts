@@ -51,7 +51,6 @@ Note that files can only be compared this way if they are somewhat similar in si
         this.entity.summary$.pipe(ops.take(1)).subscribe((summary) => {
           this.matchingHashValue.set(summary.ssdeep);
         });
-        this.entity.similar_tlsh$;
         break;
       case "tlsh":
         this.provider$ = this.entity.similar_tlsh$;
