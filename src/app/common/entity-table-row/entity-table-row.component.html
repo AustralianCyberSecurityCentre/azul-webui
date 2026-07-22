@@ -211,6 +211,16 @@
             }
           }
         </div>
+        @if (showSsdeep()) {
+          <div class="flex min-w-0 flex-wrap break-all">
+            ssdeep: {{ innerRow.ssdeep }}
+          </div>
+        }
+        @if (showTlsh()) {
+          <div class="flex min-w-0 flex-wrap break-all">
+            tlsh: {{ innerRow.tlsh }}
+          </div>
+        }
         <div>
           <div class="w-64 flex-none border-l border-l-slate-400 pl-1">
             <!-- render any extra information thats difficult to standardise -->
@@ -393,6 +403,17 @@
           >
           </azco-entity-tags>
         </td>
+      </tr>
+    }
+
+    @if (showSsdeep()) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">ssdeep: {{ innerRow.ssdeep }}</td>
+      </tr>
+    }
+    @if (showTlsh()) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">ssdeep: {{ innerRow.tlsh }}</td>
       </tr>
     }
 

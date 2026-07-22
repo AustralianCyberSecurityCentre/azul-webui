@@ -64,10 +64,10 @@
     <div>
       <!-- External pagination will render this itself -->
       @if (!externalPagination()) {
-        <div class="text-md py-2">
+        <div class="text-md py-2 wrap-break-word">
           Displaying {{ (filteredFind$ | async)?.length | number }} of
-          {{ (itemsCount$ | async) || "?" }} binaries matching the search
-          parameters.
+          {{ (itemsCount$ | async) || "?" }} binaries
+          <span [innerHTML]="displayText()"></span>
         </div>
       }
       @if (
@@ -149,6 +149,8 @@
       [retroHuntSearchNames]="
         retroHuntSearchNames()[overrow.sha256 || overrow.key]
       "
+      [showSsdeep]="showSsdeep()"
+      [showTlsh]="showTlsh()"
     >
     </az-entity-table-row>
   }

@@ -133,6 +133,8 @@ export class EntityTableRowComponent {
   originalSha256 = input<string | undefined>(undefined);
   eType = input<"parents" | "children" | undefined>(undefined);
   retroHuntSearchNames = input<string[] | undefined>(undefined);
+  showSsdeep = input<boolean>(false);
+  showTlsh = input<boolean>(false);
 
   checkChanged = output<boolean>();
 
