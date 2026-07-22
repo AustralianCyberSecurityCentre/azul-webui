@@ -406,6 +406,17 @@
       </tr>
     }
 
+    @if (showSsdeep()) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">ssdeep: {{ innerRow.ssdeep }}</td>
+      </tr>
+    }
+    @if (showTlsh()) {
+      <tr>
+        <td class="px-1 pbe-1" colspan="10">ssdeep: {{ innerRow.tlsh }}</td>
+      </tr>
+    }
+
     @if (innerRow?.exists === false) {
       <tr>
         <td class="px-1 pbe-1" colspan="10">
