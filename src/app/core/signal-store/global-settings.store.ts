@@ -9,6 +9,7 @@ import {
 } from "@ngrx/signals";
 import {
   ColorTheme,
+  PluginExploreShowColumnModel,
   RelationalGraphLevel,
   SourceViewEnum,
   ValidHexSpaces,
@@ -31,6 +32,7 @@ export interface GlobalSettingState {
   enableHexStringSync: boolean;
   defaultSourceView: SourceViewEnum;
   hexViewGroupingSize: ValidHexSpaces;
+  pluginPageColumns: PluginExploreShowColumnModel;
 }
 
 export const InitialGlobalSettingState: GlobalSettingState = {
@@ -48,6 +50,16 @@ export const InitialGlobalSettingState: GlobalSettingState = {
   enableHexStringSync: true,
   defaultSourceView: SourceViewEnum.References,
   hexViewGroupingSize: ValidHexSpaces.opt2,
+  pluginPageColumns: {
+    version: true,
+    security: true,
+    description: true,
+    last_completed: true,
+    features: true,
+    completed: true,
+    errors: true,
+    completed_percent: false,
+  },
 };
 
 /**load from local storage*/
@@ -164,6 +176,13 @@ export const GlobalSettingStore = signalStore(
     updateHexViewGroupingSize(hexViewGroupingSize: ValidHexSpaces) {
       patchState(store, () => ({
         hexViewGroupingSize: hexViewGroupingSize,
+      }));
+    },
+    updatePluginExploreViewableColumns(
+      pluginPageColumns: PluginExploreShowColumnModel,
+    ) {
+      patchState(store, () => ({
+        pluginPageColumns: { ...pluginPageColumns },
       }));
     },
   })),
