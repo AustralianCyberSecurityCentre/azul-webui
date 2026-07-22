@@ -10,6 +10,9 @@
       [tablename]="'Similar ' + hashType()"
       [tableScroll]="false"
       [externalPagination]="false"
+      [displayText]="
+        'matching the ' + hashType() + ' <b>' + matchingHashValue() + '</b> '
+      "
     >
     </az-entity-table>
   } @else {

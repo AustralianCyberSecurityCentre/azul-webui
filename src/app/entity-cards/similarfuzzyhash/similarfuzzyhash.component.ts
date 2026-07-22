@@ -3,6 +3,8 @@ import {
   Component,
   inject,
   input,
+  signal,
+  WritableSignal,
 } from "@angular/core";
 import { components } from "@app/core/api/openapi";
 import { FuzzyMatchWithSummary } from "@app/core/api/state";
@@ -10,6 +12,7 @@ import { Entity } from "@app/core/services";
 import { Observable, combineLatest, of } from "rxjs";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
+import * as ops from "rxjs/operators";
 
 type HashType = "ssdeep" | "tlsh";
 
@@ -30,6 +33,7 @@ The similarity is a measure of how many parts of the file are shared by both.
 Note that files can only be compared this way if they are somewhat similar in size.
 `;
   protected provider$: Observable<FuzzyMatchWithSummary>;
+  protected matchingHashValue: WritableSignal<string> = signal("");
 
   hashType = input.required<HashType>();
 
@@ -44,9 +48,16 @@ Note that files can only be compared this way if they are somewhat similar in si
     switch (this.hashType()) {
       case "ssdeep":
         this.provider$ = this.entity.similar_ssdeep$;
+        this.entity.summary$.pipe(ops.take(1)).subscribe((summary) => {
+          this.matchingHashValue.set(summary.ssdeep);
+        });
+        this.entity.similar_tlsh$;
         break;
       case "tlsh":
         this.provider$ = this.entity.similar_tlsh$;
+        this.entity.summary$.pipe(ops.take(1)).subscribe((summary) => {
+          this.matchingHashValue.set(summary.tlsh);
+        });
         break;
     }
 

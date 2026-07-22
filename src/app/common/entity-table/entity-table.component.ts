@@ -52,8 +52,8 @@ export class EntityTableComponent implements OnChanges {
 
   protected showSimilarityHeader: WritableSignal<boolean> = signal(false);
 
+  displayText = input<string>("matching the search parameters.");
   useTableViewOverride = input<boolean | undefined>(undefined);
-
   externalPagination = input<boolean>(false);
   tablename = input<string | null>(null);
   tableScroll = input<boolean>(false);
