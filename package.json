@@ -18,7 +18,7 @@
     "ngx-monaco-editor-v2": {
       "@angular/common": "^22.0.0",
       "@angular/core": "^22.0.0",
-      "monaco-editor": "^0.55.1"
+      "monaco-editor": "^0.56.0"
     },
     "@ngrx/router-store": {
       "@angular/common": "^22.0.0",
@@ -61,11 +61,11 @@
     "angular-auth-oidc-client": "^21.0.2",
     "angular-split": "^20.0.0",
     "axios": "1.18.1",
-    "axios-cache-interceptor": "1.12.0",
+    "axios-cache-interceptor": "1.12.1",
     "d3": "^7.9.0",
     "dagre-d3-es": "^7.0.14",
     "date-fns": "^4.4.0",
-    "monaco-editor": "^0.55.1",
+    "monaco-editor": "^0.56.0",
     "monaco-types": "^0.1.2",
     "ngx-monaco-editor-v2": "^22.0.0",
     "ngx-toastr": "^20.0.5",
@@ -86,12 +86,12 @@
     "@types/node": "26.1.1",
     "@types/showdown": "2.0.6",
     "@types/upng-js": "2.1.5",
-    "@zip.js/zip.js": "2.8.31",
+    "@zip.js/zip.js": "2.8.34",
     "angular-eslint": "22.1.0",
     "eslint": "10.8.0",
     "openapi-typescript": "7.13.0",
-    "postcss": "8.5.20",
-    "prettier": "3.9.5",
+    "postcss": "8.5.23",
+    "prettier": "3.9.6",
     "prettier-plugin-tailwindcss": "0.8.1",
     "tailwindcss": "4.3.3",
     "typescript": "^6.0.0",
