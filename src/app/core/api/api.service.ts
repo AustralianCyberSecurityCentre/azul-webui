@@ -189,7 +189,9 @@ class AxiosClient {
 })
 export class ApiService {
   toastrService = inject(ToastrService);
-  private oidcService = inject(OidcSecurityService);
+  private oidcService = config.oauth_enabled
+    ? inject(OidcSecurityService)
+    : undefined;
 
   dbg = (...d) => console.debug("ApiService:", ...d);
   err = (...d) => console.error("ApiService:", ...d);

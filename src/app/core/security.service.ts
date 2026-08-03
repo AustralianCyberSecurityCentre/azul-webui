@@ -14,7 +14,7 @@ import { MutableSettings } from "./api/state";
 })
 export class SecurityService {
   private api = inject(ApiService);
-  private oidc = inject(OidcSecurityService);
+  private oidc = config.oauth_enabled ? inject(OidcSecurityService) : undefined;
 
   dbg = (...d) => console.debug("SecurityService:", ...d);
   err = (...d) => console.error("SecurityService:", ...d);
