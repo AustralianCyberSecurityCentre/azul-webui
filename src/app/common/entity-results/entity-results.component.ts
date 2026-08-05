@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  effect,
   inject,
   input,
   OnChanges,
@@ -50,8 +50,6 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   dbg = (...d) => console.info("EntityResultsComponent:", ...d);
   err = (...d) => console.error("EntityResultsComponent:", ...d);
-
-  private cd = inject(ChangeDetectorRef);
 
   protected faBackwardStep = faBackwardStep;
   protected faForwardStep = faForwardStep;
@@ -105,14 +103,16 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   termOption = input<string | "">("");
   forceEmptySearchOption = input<boolean>(true);
 
-  ngOnInit(): void {
-    this.entitySearchSub = this.entityService
-      .onEntitySearchTriggered()
-      .subscribe(() => {
-        this.doSearch();
-        this.cd.detectChanges();
-      });
+  constructor() {
+    // On searchtrigger changing perform a search operation.
+    effect(() => {
+      // Value isn't important just that it changed.
+      this.entityService.searchTrigger();
+      this.doSearch();
+    });
+  }
 
+  ngOnInit(): void {
     this.clearPagination();
     this.doSearch();
   }

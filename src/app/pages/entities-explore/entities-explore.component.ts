@@ -103,6 +103,7 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
         preParamForm.count = count;
       }
       this.exploreSearchFormSignal.set(preParamForm);
+      this.entityService.entityTriggerSearch();
     });
   }
 

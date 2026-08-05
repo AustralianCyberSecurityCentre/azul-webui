@@ -1,8 +1,9 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, WritableSignal, inject, signal } from "@angular/core";
 
 import { ApiService } from "@app/core/api/api.service";
 import { FeatureService, b64ToReadable } from "@app/core/feature.service";
 
+import { toObservable } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   Observable,
@@ -26,9 +27,8 @@ import {
   SimilarEntropyMatchWithSummary,
   SimilarFeatureMatchWithSummary,
 } from "./api/state";
-import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
 import { GlobalSettingStore } from "./signal-store/global-settings.store";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { cacheData, getCacheKeys, getCachedValue, hashObject } from "./util";
 
 /** turns a list of items into a list of list of items, constrained by max items per chunk */
 function chunkify<T>(items: T[], max: number): T[][] {
@@ -699,7 +699,8 @@ export class EntityWrap {
 export class EntityService {
   private api = inject(ApiService);
   private featureService = inject(FeatureService);
-  private trigger$ = new Subject<void>();
+  // Just needs to toggle between true and false to trigger searches, value is not important.
+  searchTrigger: WritableSignal<boolean> = signal(false);
   dbg = (...d) => console.debug("EntityService:", ...d);
   err = (...d) => console.error("EntityService:", ...d);
   requestBulkEntitySummary(
@@ -997,10 +998,6 @@ export class EntityService {
   }
 
   entityTriggerSearch(): void {
-    this.trigger$.next();
-  }
-
-  onEntitySearchTriggered(): Observable<void> {
-    return this.trigger$.asObservable();
+    this.searchTrigger.update((t) => !t);
   }
 }
