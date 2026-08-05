@@ -375,7 +375,10 @@
         </div>
 
         <form (ngSubmit)="onSubmit()" class="mx-12 w-full">
-          <azco-entity-search [term]="term" class="flex w-full grow py-11" />
+          <azco-entity-search
+            [(termModel)]="termModel"
+            class="flex w-full grow py-11"
+          />
         </form>
         <div class="flex flex-wrap justify-center gap-2">
           <flow-button

@@ -3,8 +3,8 @@ import {
   Component,
   OnInit,
   inject,
+  model,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Observable } from "rxjs";
 
+import { SearchFormInterface } from "@app/common/entity-search/entity-search.component";
 import { Api, User } from "@app/core/services";
 import { escapeValue } from "@app/core/util";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
@@ -39,7 +40,7 @@ export class FrontComponent implements OnInit {
   protected faUpload = faUpload;
   protected faBook = faBook;
 
-  protected term = new FormControl("");
+  protected termModel = model<SearchFormInterface>({ term: "" });
 
   protected statistics$: Observable<
     components["schemas"]["StatisticSummary"] | undefined
@@ -51,7 +52,7 @@ export class FrontComponent implements OnInit {
 
   onSubmit() {
     this.router.navigate(["/pages/binaries/explore"], {
-      queryParams: { term: this.term.value },
+      queryParams: { term: this.termModel().term },
     });
   }
 }

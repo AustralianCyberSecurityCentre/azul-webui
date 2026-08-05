@@ -1,13 +1,14 @@
 <div class="relative z-10 w-full break-words text-ellipsis">
-  <flow-input
+  <flow-signal-input
     #termInput
     [id]="'termInput'"
     placeholder="Search binary metadata"
-    [formControl]="term"
+    [formField]="termForm.term"
     [icon]="faMagnifyingGlass"
     (inputFocus)="showAutocomplete$.next(true)"
     (inputFocusOut)="handleFocusOut($event)"
     (inputSelectionChange)="caretChange$.emit()"
+    [updateValueOnInput]="true"
     tabindex="0"
   />
   @if (autocompleteContext$ | async; as token) {
@@ -98,46 +99,44 @@
             </div>
           }
         </div>
-        @if (suggestions$ | async; as suggestions) {
-          @if (suggestions.length > 0) {
-            <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
-            <table class="w-full">
-              <tbody>
-                @for (
-                  suggestion of suggestions;
-                  track suggestion;
-                  let i = $index
-                ) {
-                  <tr
-                    class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
+        @if (suggestions().length > 0) {
+          <hr class="mx-8 my-1 h-px border-0 bg-gray-200 dark:bg-gray-700" />
+          <table class="w-full">
+            <tbody>
+              @for (
+                suggestion of suggestions();
+                track suggestion;
+                let i = $index
+              ) {
+                <tr
+                  class="cursor-pointer break-all text-ellipsis focus-within:bg-gray-700 focus-within:text-white hover:bg-gray-700 hover:text-white"
+                >
+                  <td
+                    class="pl-8 leading-loose"
+                    id="suggestion{{ i }}"
+                    [tabindex]="0"
+                    (focusout)="handleFocusOut($event)"
+                    [title]="suggestion.originalFieldName"
+                    (click)="fillSuggestion($event, suggestion)"
+                    (keydown)="fillSuggestion($event, suggestion)"
                   >
-                    <td
-                      class="pl-8 leading-loose"
-                      id="suggestion{{ i }}"
-                      [tabindex]="0"
-                      (focusout)="handleFocusOut($event)"
-                      [title]="suggestion.originalFieldName"
-                      (click)="fillSuggestion($event, suggestion)"
-                      (keydown)="fillSuggestion($event, suggestion)"
-                    >
-                      <b>
-                        @for (section of suggestion.fieldName; track section) {
-                          <span [ngClass]="{ underline: section.underlined }">{{
-                            section.value
-                          }}</span>
-                        }
-                      </b>
-                      ({{ suggestion.fieldType }})
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          }
+                    <b>
+                      @for (section of suggestion.fieldName; track section) {
+                        <span [ngClass]="{ underline: section.underlined }">{{
+                          section.value
+                        }}</span>
+                      }
+                    </b>
+                    ({{ suggestion.fieldType }})
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         }
       </div>
     }
-    @if (token.type === "Error" && (termIsHash$ | async) !== true) {
+    @if (token.type === "Error" && termIsHash() !== true) {
       <div class="ml-2 font-semibold text-red-800 dark:text-red-300">
         {{ token.message }}. Make sure special characters/terms are quoted.
       </div>

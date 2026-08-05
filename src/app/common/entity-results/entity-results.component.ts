@@ -75,7 +75,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   private forceEmptySearch: boolean = false;
   private entitySearchSub!: Subscription;
-  noSearch: boolean = false;
+  noSearch: WritableSignal<boolean> = signal(false);
 
   // pagination variables
   protected pageCurrentPageSignal: WritableSignal<number> = signal(0);
@@ -143,7 +143,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     this.pageLoadingSignal.set(false);
     this.pageMaxSignal.set(null);
     this.find$ = of({ items_count: 0, items: [] });
-    this.noSearch = true;
+    this.noSearch.set(true);
   }
 
   private getNonDefault(d: { [key: string]: unknown }): {
@@ -202,10 +202,10 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     );
     // Don't search if the search field is empty and no query params are set, unless user clicks submit without an override.
     if (!this.forceEmptySearch && !paramsAdded && trimmedQuery.length === 0) {
-      this.noSearch = true;
+      this.noSearch.set(true);
       return c;
     }
-    this.noSearch = false;
+    this.noSearch.set(false);
     if (c.max_entities == "all") {
       this.paginationActiveSignal.set(true);
       this.switchPage(0);

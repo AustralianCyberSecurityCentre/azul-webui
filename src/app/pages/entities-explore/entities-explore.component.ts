@@ -2,18 +2,27 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Input,
+  model,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { form, validate } from "@angular/forms/signals";
 import { ActivatedRoute } from "@angular/router";
-import { EntitySearchComponent } from "@app/common/entity-search/entity-search.component";
-import { components } from "@app/core/api/openapi";
+import {
+  EntitySearchComponent,
+  SearchFormInterface,
+} from "@app/common/entity-search/entity-search.component";
 import { EntityService } from "@app/core/entity.service";
 import { ButtonType } from "@lib/flow/button/button.component";
-import { Observable, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
+
+interface EntityExploreSearchForm {
+  sort: string;
+  count: string;
+  forceEmptySearch: boolean;
+}
 
 export type SortOption = {
   title: string;
@@ -38,29 +47,29 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   @ViewChild("entitySearch", { read: EntitySearchComponent })
   protected entitySearch: EntitySearchComponent;
 
-  protected termControl = new FormControl("");
-  protected sortControl = new FormControl("newest_sourced");
-  protected countControl = new FormControl("50");
-  @Input() set countControlInput(control: FormControl) {
-    this.countControl = control ?? new FormControl("");
-  }
-
-  protected searchParams: {
-    term: string;
-    count: string;
-    sort: string;
-    forceEmptySearch: boolean;
-  } = {
-    term: "",
-    count: "",
-    sort: "",
+  protected exploreSearchFormSignal = signal<EntityExploreSearchForm>({
+    sort: "newest_sourced",
+    count: "50",
     forceEmptySearch: true,
-  };
+  });
+
+  protected exploreSearchForm = form(this.exploreSearchFormSignal, (f) => {
+    validate(f.count, ({ value, valueOf }) => {
+      if (this.countOptions.includes(value())) {
+        return null;
+      }
+      return {
+        kind: "InvalidCount",
+        message: `Count must be one of the allowable values '${this.countOptions}'`,
+      };
+    });
+  });
+
+  protected termModel = model<SearchFormInterface>({ term: "" });
+
   protected ButtonType = ButtonType;
   /**params we can send to api to find entities*/
   private paramsSub: Subscription;
-  /**all found entities*/
-  protected find$: Observable<components["schemas"]["EntityFind"]>;
 
   sortOptions: { [short: string]: SortOption } = {
     newest_sourced: {
@@ -73,31 +82,27 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
 
   countOptions = ["50", "500", "1000", "all"];
 
-  private forceEmptySearch: boolean = false;
-  noSearch: boolean = false;
-
   // Match md5, sha1, sha256, sha512
   private match_hashes =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
 
   ngOnInit(): void {
-    this.clearForm();
     this.paramsSub = this.route.queryParamMap.subscribe((map) => {
+      let preParamForm = this.exploreSearchFormSignal();
       // update the pages form for parameters in url
       const term = map.get("term");
       if (term) {
-        this.termControl.setValue(term);
+        this.termModel.set({ term: term });
       }
-
       const sort = map.get("sort");
       if (sort) {
-        this.sortControl.setValue(sort);
+        preParamForm.sort = sort;
       }
-
       const count = map.get("count");
-      if (count) {
-        this.countControl.setValue(count);
+      if (count && this.countOptions.includes(count)) {
+        preParamForm.count = count;
       }
+      this.exploreSearchFormSignal.set(preParamForm);
     });
   }
 
@@ -105,23 +110,8 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
     this.paramsSub?.unsubscribe();
   }
 
-  private clearForm() {
-    this.termControl.setValue("");
-    this.sortControl.setValue("newest_sourced");
-    this.countControl.setValue("50");
-  }
-
   protected onSubmit() {
-    if (this.termControl.value) {
-      this.searchParams.term = this.termControl.value;
-    } else {
-      this.searchParams.term = "";
-    }
-    this.searchParams.count = this.countControl.value;
-    this.searchParams.sort = this.sortControl.value;
-    this.searchParams.forceEmptySearch = true;
     this.entitySearch.hideSuggestions();
-    this.forceEmptySearch = true;
     this.entityService.entityTriggerSearch();
   }
 }
