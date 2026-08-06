@@ -9,6 +9,7 @@ import {
   OnInit,
   signal,
   SimpleChanges,
+  untracked,
   ViewChild,
   WritableSignal,
 } from "@angular/core";
@@ -108,7 +109,10 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     effect(() => {
       // Value isn't important just that it changed.
       this.entityService.searchTrigger();
-      this.doSearch();
+      // Avoid triggering on signals within this section.
+      untracked(() => {
+        this.doSearch();
+      });
     });
   }
 
