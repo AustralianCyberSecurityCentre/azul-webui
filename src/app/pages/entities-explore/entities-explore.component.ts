@@ -54,7 +54,7 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
   });
 
   protected exploreSearchForm = form(this.exploreSearchFormSignal, (f) => {
-    validate(f.count, ({ value, valueOf }) => {
+    validate(f.count, ({ value }) => {
       if (this.countOptions.includes(value())) {
         return null;
       }
@@ -88,7 +88,7 @@ export class BinariesExploreComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.paramsSub = this.route.queryParamMap.subscribe((map) => {
-      let preParamForm = this.exploreSearchFormSignal();
+      const preParamForm = this.exploreSearchFormSignal();
       // update the pages form for parameters in url
       const term = map.get("term");
       if (term) {
