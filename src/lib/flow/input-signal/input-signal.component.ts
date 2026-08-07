@@ -57,6 +57,7 @@ export class SignalInputComponent implements FormValueControl<string | number> {
 
   value: ModelSignal<string | number> = model<string | number>("");
   displayValue = linkedSignal(() => this.value());
+  updateValueOnInput = input<boolean>(false);
 
   setOutputValue(value: string) {
     if (this.fieldType() === "number") {
@@ -72,5 +73,13 @@ export class SignalInputComponent implements FormValueControl<string | number> {
       return;
     }
     this.value.set(this.displayValue());
+  }
+
+  inputHandle(event: InputEvent) {
+    const target = event.target as HTMLInputElement;
+    this.displayValue.set(target.value);
+    if (this.updateValueOnInput()) {
+      this.setOutputValue(target.value);
+    }
   }
 }

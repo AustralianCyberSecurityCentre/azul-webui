@@ -1,6 +1,6 @@
 <div>
   <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
-  @if (!noSearch) {
+  @if (!noSearch()) {
     <ng-container *ngTemplateOutlet="tplResult"></ng-container>
   }
   @if (pageEstimateBinariesSignal() > 50) {

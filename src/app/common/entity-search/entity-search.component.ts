@@ -2,13 +2,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
+  WritableSignal,
+  computed,
   inject,
+  model,
+  signal,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { form } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -17,7 +21,6 @@ import createFuzzySearch, { FuzzySearcher } from "@nozbe/microfuzz";
 import {
   BehaviorSubject,
   Observable,
-  ReplaySubject,
   Subject,
   Subscription,
   combineLatest,
@@ -38,6 +41,10 @@ type Suggestion = {
   originalFieldName: string;
 };
 
+export interface SearchFormInterface {
+  term: string;
+}
+
 @Component({
   selector: "azco-entity-search",
   templateUrl: "./entity-search.component.html",
@@ -57,8 +64,8 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   /**
    * Form control to store textual user information into.
    */
-  @Input()
-  term: FormControl;
+  termModel = model<SearchFormInterface>({ term: "" });
+  termForm = form(this.termModel);
 
   /** Suggestion model for autocomplete */
   private model$ = new Subject<FuzzySearcher<Suggestion>>();
@@ -68,7 +75,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     components["schemas"]["Response_Union_AutocompleteNone_AutocompleteInitial_AutocompleteFieldName_AutocompleteFieldValue_AutocompleteError___FieldInfo_annotation_NoneType__required_True__discriminator__type___"]["data"]
   >;
   /** Suggestions for the current autocomplete. */
-  protected suggestions$ = new ReplaySubject<Suggestion[]>(1);
+  protected suggestions: WritableSignal<Suggestion[]> = signal([]);
   protected suggestionsSub: Subscription;
 
   protected termValid$: Observable<boolean>;
@@ -80,6 +87,23 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   // Match md5, sha1, sha256, sha512
   readonly pattern =
     /^(?:[^0-9a-f]|^)([0-9a-f]{32}|[0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{128})$/;
+
+  protected cleanedTerm = computed(() => {
+    const newTerm = this.termModel().term;
+    return newTerm || "";
+  });
+  protected cleanedTerm$: Observable<string>;
+
+  protected termIsHash = computed(() => {
+    if (this.pattern.test(this.cleanedTerm())) {
+      return true;
+    }
+    return false;
+  });
+
+  constructor() {
+    this.cleanedTerm$ = toObservable(this.cleanedTerm);
+  }
 
   ngOnInit(): void {
     // Load the model greedily and only once
@@ -102,27 +126,13 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
       )
       .subscribe((result) => this.model$.next(result));
 
-    const cleanedTerm$ = concat(
-      defer(() => of(this.term.value)),
-      this.term.valueChanges,
-    ).pipe(ops.map((value) => value || ""));
-
     const caretChangeWithInitial = concat(
       defer(() => of(undefined)),
       this.caretChange$,
     );
 
-    this.termIsHash$ = cleanedTerm$.pipe(
-      ops.map((term) => {
-        if (this.pattern.test(term)) {
-          return true;
-        }
-        return false;
-      }),
-    );
-
     this.autocompleteContext$ = combineLatest([
-      cleanedTerm$,
+      this.cleanedTerm$,
       caretChangeWithInitial,
       this.showAutocomplete$,
     ]).pipe(
@@ -131,16 +141,15 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
       ops.map(([term, _caret, _show_autocomplete]) => {
         // Attempt to determine what token is currently selected
         if (this.textInputElement) {
-          return this.entityService
-            .findAutocomplete(
-              term,
-              Math.max(
-                this.textInputElement.inputElement.nativeElement
-                  .selectionStart - 1,
-                0,
-              ),
-            )
-            .pipe(ops.shareReplay(1));
+          const result = this.entityService.findAutocomplete(
+            term,
+            Math.max(
+              this.textInputElement.inputElement.nativeElement.selectionStart -
+                1,
+              0,
+            ),
+          );
+          return result;
         }
         return null;
       }),
@@ -158,14 +167,13 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     this.suggestionsSub = combineLatest([
       this.autocompleteContext$,
       this.model$,
-    ]).subscribe(([context, model]) => {
+    ]).subscribe(([context, fuzzyModel]) => {
       let results: Suggestion[] = [];
-
       if (
         (context.type === "FieldValue" && !context.key) ||
         context.type === "FieldName"
       ) {
-        results = model(context.prefix)
+        results = fuzzyModel(context.prefix)
           .sort((a, b) => a.score - b.score)
           .splice(0, 10)
           .map((result) => {
@@ -210,8 +218,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
             };
           });
       }
-
-      this.suggestions$.next(results);
+      this.suggestions.set(results);
     });
   }
 
@@ -223,7 +230,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
     */
     // Determine the leading text to keep.
     const replacementText = sug.originalFieldName + ':""';
-    const currentTextAsList = String(this.term.value).split(" ");
+    const currentTextAsList = String(this.termModel().term).split(" ");
     // Remove the text being replaced by the suggestion and make a string again.
     currentTextAsList.pop();
     const currentTextWithoutSuggestion = currentTextAsList?.join(" ") + " ";
@@ -234,7 +241,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
 
     if (event?.type === "keydown") {
       if (event?.key === "Enter") {
-        this.term.setValue(newText);
+        this.termModel.set({ term: newText });
         // Delay to prevent the form from submitting.
         setTimeout(() => {
           this.textInputElement.inputElement.nativeElement.setRangeText(
@@ -247,7 +254,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
         }, 200);
       }
     } else {
-      this.term.setValue(newText);
+      this.termModel.set({ term: newText });
       this.textInputElement.inputElement.nativeElement.setRangeText(
         "placeholder",
         newText.length - 1,

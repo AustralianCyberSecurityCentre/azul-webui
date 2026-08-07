@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  effect,
   inject,
   input,
   OnChanges,
@@ -9,6 +9,7 @@ import {
   OnInit,
   signal,
   SimpleChanges,
+  untracked,
   ViewChild,
   WritableSignal,
 } from "@angular/core";
@@ -51,8 +52,6 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   dbg = (...d) => console.info("EntityResultsComponent:", ...d);
   err = (...d) => console.error("EntityResultsComponent:", ...d);
 
-  private cd = inject(ChangeDetectorRef);
-
   protected faBackwardStep = faBackwardStep;
   protected faForwardStep = faForwardStep;
 
@@ -75,7 +74,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   private forceEmptySearch: boolean = false;
   private entitySearchSub!: Subscription;
-  noSearch: boolean = false;
+  noSearch: WritableSignal<boolean> = signal(false);
 
   // pagination variables
   protected pageCurrentPageSignal: WritableSignal<number> = signal(0);
@@ -105,14 +104,19 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   termOption = input<string | "">("");
   forceEmptySearchOption = input<boolean>(true);
 
-  ngOnInit(): void {
-    this.entitySearchSub = this.entityService
-      .onEntitySearchTriggered()
-      .subscribe(() => {
+  constructor() {
+    // On searchtrigger changing perform a search operation.
+    effect(() => {
+      // Value isn't important just that it changed.
+      this.entityService.searchTrigger();
+      // Avoid triggering on signals within this section.
+      untracked(() => {
         this.doSearch();
-        this.cd.detectChanges();
       });
+    });
+  }
 
+  ngOnInit(): void {
     this.clearPagination();
     this.doSearch();
   }
@@ -143,7 +147,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     this.pageLoadingSignal.set(false);
     this.pageMaxSignal.set(null);
     this.find$ = of({ items_count: 0, items: [] });
-    this.noSearch = true;
+    this.noSearch.set(true);
   }
 
   private getNonDefault(d: { [key: string]: unknown }): {
@@ -202,10 +206,10 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
     );
     // Don't search if the search field is empty and no query params are set, unless user clicks submit without an override.
     if (!this.forceEmptySearch && !paramsAdded && trimmedQuery.length === 0) {
-      this.noSearch = true;
+      this.noSearch.set(true);
       return c;
     }
-    this.noSearch = false;
+    this.noSearch.set(false);
     if (c.max_entities == "all") {
       this.paginationActiveSignal.set(true);
       this.switchPage(0);

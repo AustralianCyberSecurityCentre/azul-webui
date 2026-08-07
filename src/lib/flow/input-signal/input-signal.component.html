@@ -34,7 +34,7 @@
     (focusout)="inputFocusOut.emit($event)"
     (selectionchange)="inputSelectionChange.emit($event)"
     [value]="displayValue()"
-    (input)="displayValue.set($event.target.value)"
+    (input)="inputHandle($event)"
   />
 
   @if (suffixTpl()) {

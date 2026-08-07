@@ -67,7 +67,6 @@ export class BinariesHashLookupComponent implements OnInit, OnDestroy {
       },
     );
 
-    // this.clearForm()
     this.filteredFind$ = this.hashes$.pipe(
       ops.filter((d) => d.length > 0),
       ops.mergeMap((d) =>
