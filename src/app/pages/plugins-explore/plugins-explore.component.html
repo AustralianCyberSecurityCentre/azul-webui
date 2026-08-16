@@ -1,4 +1,4 @@
-<div>
+<div class="flex min-h-0 shrink grow flex-col">
   <div>
     <flow-card style="width: 100%">
       <flow-card-header title="Plugins"> </flow-card-header>
@@ -16,21 +16,21 @@
       }
     </flow-card>
   </div>
-  <div>
+  <div class="flex min-h-0 shrink grow">
     <ng-container *ngTemplateOutlet="tplResult"></ng-container>
   </div>
 </div>
 
 <ng-template #tplResult>
-  <flow-card>
-    <flow-card-body>
-      <az-loading-card [obs$]="plugins$" class="w-full">
+  <flow-card class="flex min-h-0 w-full shrink grow" [isFlex]="true">
+    <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
+      <az-loading-card [obs$]="plugins$" class="flex min-h-0 w-full">
         @if (plugins$ | async; as allPlugins) {
           @if (allPlugins.length > 0) {
-            <div>
+            <div class="min-h-0 shrink grow overflow-auto">
               <table flowTable class="w-full">
-                <thead flowTableHeader class="sticky top-0">
-                  <tr flowTableHeaderRow class="sticky-header">
+                <thead flowTableHeader class="sticky top-0 z-1">
+                  <tr flowTableHeaderRow>
                     <th flowTableHeaderCell>Name</th>
                     @if (showColumns().version) {
                       <th flowTableHeaderCell>Version</th>
