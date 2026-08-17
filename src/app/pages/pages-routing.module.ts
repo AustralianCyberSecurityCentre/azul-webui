@@ -91,7 +91,11 @@ const routes: Routes = [
         path: "plugins",
         children: [
           { path: "", redirectTo: "explore", pathMatch: "full" },
-          { path: "explore", component: PluginsExploreComponent },
+          {
+            path: "explore",
+            component: PluginsExploreComponent,
+            data: { noScroll: true },
+          },
           {
             path: "current/:name/versions/:version",
             component: PluginsCurrentComponent,

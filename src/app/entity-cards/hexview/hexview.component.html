@@ -152,7 +152,7 @@
             <flow-button (click)="lastChunk()" [size]="ButtonSize.Tiny">
               &gt;&gt;
             </flow-button>
-            Page: {{ (chunkIndex$ | async) + 1 }} / totalChunksSignal()
+            Page: {{ (chunkIndex$ | async) + 1 }} / {{ totalChunksSignal() }}
           </div>
         }
       </div>
