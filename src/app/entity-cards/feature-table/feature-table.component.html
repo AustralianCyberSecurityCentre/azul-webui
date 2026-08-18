@@ -6,7 +6,7 @@
   <ng-container>
     <div class="flex h-full flex-col">
       <div class="flex flex-row-reverse flex-wrap place-content-between gap-2">
-        <div class="mb-2 flex items-center gap-2">
+        <div class="mb-2 flex gap-2">
           <ng-template #filterButton>
             <flow-tooltip
               [message]="
@@ -63,65 +63,78 @@
             (extent)="visibleExtent$.next($event)"
           />
         </div>
-        <div class="flex grow flex-wrap gap-2">
-          @for (
-            pluginFVCount of pluginFVCounts() | keyvalue;
-            track pluginFVCount
-          ) {
-            <flow-tooltip
-              message="View features from {{
-                pluginFVCount.key
-              }} (CTRL + Click to toggle)"
-              direction="bottom"
-            >
-              <flow-button
-                (click)="clickButton(pluginFVCount.key, $event)"
-                [size]="ButtonSize.Small"
-                [type]="
-                  (currentPluginFilter$ | async).includes(pluginFVCount.key)
-                    ? ButtonType.Primary
-                    : ButtonType.Dark
-                "
-                [outline]="false"
-              >
-                {{ pluginFVCount.key }}
-                <flow-button-label>{{ pluginFVCount.value }}</flow-button-label>
-              </flow-button>
-            </flow-tooltip>
-          }
-          @if (pluginGroupings().size > 0) {
-            @for (kv of pluginGroupings() | keyvalue; track kv.key) {
+        <div class="grow flex-col">
+          <div class="flex grow flex-wrap gap-2">
+            <div class="py-1">Plugins:</div>
+            @for (
+              pluginFVCount of pluginFVCounts() | keyvalue;
+              track pluginFVCount
+            ) {
               <flow-tooltip
-                message="Select all {{ kv.key }} plugins"
+                message="View features from {{
+                  pluginFVCount.key
+                }} (CTRL + Click to toggle)"
                 direction="bottom"
               >
                 <flow-button
-                  [type]="ButtonType.Green"
+                  (click)="clickButton(pluginFVCount.key, $event)"
                   [size]="ButtonSize.Small"
-                  (click)="selectPluginGroup(kv.value)"
+                  [type]="
+                    (currentPluginFilter$ | async).includes(pluginFVCount.key)
+                      ? ButtonType.Primary
+                      : ButtonType.Dark
+                  "
                   [outline]="false"
                 >
-                  {{ kv.key }}
+                  {{ pluginFVCount.key }}
+                  <flow-button-label>{{
+                    pluginFVCount.value
+                  }}</flow-button-label>
                 </flow-button>
               </flow-tooltip>
             }
-          }
+          </div>
           @if (
+            pluginGroupings().size > 0 ||
             (currentPluginFilter$ | async).length !== pluginFVCounts().size
           ) {
-            <flow-tooltip
-              message="Show features from all plugins"
-              direction="bottom"
-            >
-              <flow-button
-                [type]="ButtonType.Light"
-                [size]="ButtonSize.Small"
-                (click)="selectAllPlugins()"
-                [outline]="false"
-              >
-                All
-              </flow-button>
-            </flow-tooltip>
+            <div class="flex grow flex-wrap gap-2 pt-2">
+              <div class="py-1">Groups:</div>
+              @if (pluginGroupings().size > 0) {
+                @for (kv of pluginGroupings() | keyvalue; track kv.key) {
+                  <flow-tooltip
+                    message="Select all {{ kv.key }} plugins"
+                    direction="bottom"
+                  >
+                    <flow-button
+                      [type]="ButtonType.Green"
+                      [size]="ButtonSize.Small"
+                      (click)="selectPluginGroup(kv.value)"
+                      [outline]="false"
+                    >
+                      {{ kv.key }}
+                    </flow-button>
+                  </flow-tooltip>
+                }
+              }
+              @if (
+                (currentPluginFilter$ | async).length !== pluginFVCounts().size
+              ) {
+                <flow-tooltip
+                  message="Show features from all plugins"
+                  direction="bottom"
+                >
+                  <flow-button
+                    [type]="ButtonType.Light"
+                    [size]="ButtonSize.Small"
+                    (click)="selectAllPlugins()"
+                    [outline]="false"
+                  >
+                    All
+                  </flow-button>
+                </flow-tooltip>
+              }
+            </div>
           }
         </div>
       </div>
