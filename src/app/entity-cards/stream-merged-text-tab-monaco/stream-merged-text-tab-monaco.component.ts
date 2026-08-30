@@ -17,7 +17,7 @@ import {
   getDefaultMonacoSettings,
   recalculateFonts,
 } from "@app/core/util";
-import { IDisposable, editor, languages } from "monaco-types";
+import { IDisposable, editor, languages } from "monaco-editor";
 import { BehaviorSubject, Observable, merge } from "rxjs";
 import * as ops from "rxjs/operators";
 

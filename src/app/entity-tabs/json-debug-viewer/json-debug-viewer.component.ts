@@ -14,7 +14,7 @@ import {
   getDefaultMonacoSettings,
   recalculateFonts,
 } from "@app/core/util";
-import { editor } from "monaco-types";
+import { editor } from "monaco-editor";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 
 // Angular's Webpack doesn't like Monaco, but monaco-editor-types *is* available - we
