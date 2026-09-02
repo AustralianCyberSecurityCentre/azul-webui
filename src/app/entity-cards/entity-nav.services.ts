@@ -61,4 +61,10 @@ export class EntityNavService {
       fragment: `${binaryTabsEnum.Relations}-${subTab}`,
     });
   }
+
+  navigateToEntityTab(tab: binaryTabsEnum) {
+    this.router.navigate([], {
+      fragment: `${tab}`,
+    });
+  }
 }
