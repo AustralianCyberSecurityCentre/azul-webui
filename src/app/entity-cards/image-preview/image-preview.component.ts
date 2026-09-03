@@ -46,7 +46,7 @@ export class ImagePreviewComponent
   help = `
   This panel displays a sanitized preview of the file if it is an image file type and it can be sanitized.
   `;
-  private TIME_BETWEEN_FRAMES_MS = 500;
+  private TIME_BETWEEN_FRAMES_MS = 100;
   private ANIMATED_IMAGE_TYPES = ["image/gif", "image/webp"];
 
   displayImage$: ReplaySubject<boolean> = new ReplaySubject();
@@ -137,6 +137,7 @@ export class ImagePreviewComponent
 
     canvas2d.drawImage(decodedImage.image, 0, 0);
     this.currentFrameIndex.set(this.desiredFrameIndexSubject.value);
+    decodedImage.image.close();
 
     if (this.autoPlayEnabled()) {
       // Wait 500ms and then check if a pause has occurred before advancing.
