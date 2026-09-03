@@ -16,6 +16,7 @@
   "banner_message": "This is a test banner. No action is required.",
   "banner_severity": "info",
   "banner_dismissable": true,
+  "highlight_features": ["family"],
   "global_external_links": {
     "nsrl_url": "https://example.internal"
   },
