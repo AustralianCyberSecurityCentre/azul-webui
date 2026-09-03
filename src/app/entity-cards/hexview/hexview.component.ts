@@ -40,22 +40,29 @@ interface HexRow {
   ascii: string[];
 }
 
+// How many pages to request from the server per viewable page.
+const PAGES_PER_PAGE = 200;
+// Max number of bytes to get per request
+const REQUEST_SIZE = 8192;
+// Max bytes per viewable page
+const BYTES_PER_PAGE = REQUEST_SIZE * PAGES_PER_PAGE;
+// Number of bytes in one row
+const ROW_WIDTH_BYTES = 16;
+
 export class HexBinaryDataSource extends DataSource<HexRow> {
-  private requestSize = 8192;
-
-  private rowWidth = 16;
+  // How many bytes per row.
   // Each row in a returned request covers 16 bytes
-  private pageSize = this.requestSize / this.rowWidth;
+  private chunkSize = REQUEST_SIZE / ROW_WIDTH_BYTES;
 
-  /** Page cache for fetched hex values */
+  /** Chunk cache for fetched hex values */
   private cachedData: HexRow[];
 
-  private attemptedFetchPages = new Set<number>();
+  private attemptedFetchChunk = new Set<number>();
   private loadedByteCount = 0;
   private subscription = new Subscription();
 
   private pendingRequests = 0;
-  loadingPagesSignal: WritableSignal<boolean> = signal(false);
+  loadingChunkSignal: WritableSignal<boolean> = signal(false);
 
   dataStream$: BehaviorSubject<(HexRow | undefined)[]>;
 
@@ -71,7 +78,9 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     super();
     // This is a sparse array by default in Firefox/Chrome, so this
     // doesn't allocate data initially
-    this.cachedData = Array.from<HexRow>({ length: fileSize / this.rowWidth });
+    this.cachedData = Array.from<HexRow>({
+      length: fileSize / ROW_WIDTH_BYTES,
+    });
     this.dataStream$ = new BehaviorSubject<(HexRow | undefined)[]>(
       this.cachedData,
     );
@@ -82,10 +91,10 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
       collectionViewer.viewChange
         .pipe(ops.debounceTime(200))
         .subscribe((range) => {
-          const startPage = this.getPageForIndex(range.start);
-          const endPage = this.getPageForIndex(range.end - 1);
-          for (let i = startPage; i <= endPage; i++) {
-            this.fetchPage(i);
+          const startChunk = this.getChunkForIndex(range.start);
+          const endChunk = this.getChunkForIndex(range.end - 1);
+          for (let i = startChunk; i <= endChunk; i++) {
+            this.fetchChunk(i);
           }
         }),
     );
@@ -96,19 +105,22 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     this.subscription.unsubscribe();
   }
 
-  private getPageForIndex(index: number): number {
-    return Math.floor(index / this.pageSize);
+  private getChunkForIndex(index: number): number {
+    return Math.floor(index / this.chunkSize);
   }
 
   /** Returns a list of hexadecimal for the specified range. Pages must be loaded. */
   getHexForRange(range: PositiveIntegerRange): string[] {
     const data = [];
-    for (let i = range.start; i <= range.end; i++) {
-      const byteRow = Math.floor(i / this.rowWidth);
-      const byteRowIndex = i % this.rowWidth;
+    for (let byteIndex = range.start; byteIndex <= range.end; byteIndex++) {
+      // Current byte index on this page.
+      const pageByteIndex = byteIndex % BYTES_PER_PAGE;
+      // Get the correct row on this page.
+      const byteRow = Math.floor(pageByteIndex / ROW_WIDTH_BYTES);
+      // find how far within the row the byte is.
+      const byteRowIndex = pageByteIndex % ROW_WIDTH_BYTES;
       // Ensure that getting the row works between different pages.
-      const byteRowMod = byteRow % this.pageSize;
-      const byte = this.cachedData[byteRowMod].hex[byteRowIndex];
+      const byte = this.cachedData[byteRow].hex[byteRowIndex];
       data.push(byte);
     }
 
@@ -125,7 +137,7 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
 
   private incrementPendingRequests() {
     this.pendingRequests++;
-    this.loadingPagesSignal.set(true);
+    this.loadingChunkSignal.set(true);
   }
 
   private decrementPendingRequests() {
@@ -133,27 +145,27 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
     if (this.pendingRequests < 0) {
       this.pendingRequests = 0;
     }
-    this.loadingPagesSignal.set(this.pendingRequests != 0);
+    this.loadingChunkSignal.set(this.pendingRequests != 0);
   }
 
-  fetchPage(page: number) {
-    if (this.attemptedFetchPages.has(page)) {
+  fetchChunk(chunkId: number) {
+    if (this.attemptedFetchChunk.has(chunkId)) {
       return;
     }
-    this.attemptedFetchPages.add(page);
+    this.attemptedFetchChunk.add(chunkId);
 
     this.incrementPendingRequests();
 
     this.entityService
       .hexview(this.sha256, {
-        offset: this.offset + page * this.requestSize,
-        max_bytes_to_read: this.requestSize,
+        offset: this.offset + chunkId * REQUEST_SIZE,
+        max_bytes_to_read: REQUEST_SIZE,
         shortform: false,
       })
       .pipe(
         ops.first(),
         ops.catchError((e) => {
-          this.attemptedFetchPages.delete(page);
+          this.attemptedFetchChunk.delete(chunkId);
           this.decrementPendingRequests();
           throw e;
         }),
@@ -178,13 +190,13 @@ export class HexBinaryDataSource extends DataSource<HexRow> {
             };
           });
           this.cachedData.splice(
-            page * this.pageSize,
+            chunkId * this.chunkSize,
             s.hex_strings.length,
             ...(editedData as [HexRow]),
           );
           this.dataStream$.next(this.cachedData);
         } else {
-          console.warn("Hexview: fetch for page", page, "failed!");
+          console.warn("Hexview: fetch for chunk", chunkId, "failed!");
           if (this.loadedByteCount === 0) {
             // Our first request failed - the server is likely unable to provide us with
             // any binary contents for this file, so bail:
@@ -236,7 +248,6 @@ Ctrl-C will copy selected hexadecimal.`;
 
   /** Constant for how many pixels high each row is. */
   protected ROW_HEIGHT = 20;
-  protected CHUNK_SIZE = 8192 * 200;
 
   protected spinnerIcon = faSpinner;
   protected checkIcon = faCheck;
@@ -261,8 +272,8 @@ Ctrl-C will copy selected hexadecimal.`;
   private dsSubscription: Subscription | undefined;
   private fileAvailableSubscription: Subscription | undefined;
   /* Divides up the source data if too big to avoid overwhelming the browser */
-  protected chunkIndex$ = new BehaviorSubject<number>(0);
-  protected totalChunksSignal: WritableSignal<number> = signal(0);
+  protected pageIndex$ = new BehaviorSubject<number>(0);
+  protected totalPagesSignal: WritableSignal<number> = signal(0);
 
   protected dsOffset$ = new BehaviorSubject<number>(0);
 
@@ -332,15 +343,15 @@ Ctrl-C will copy selected hexadecimal.`;
     );
   }
 
-  /** Scrolls to the row containing the specified offset, moving chunks if required. */
+  /** Scrolls to the row containing the specified offset, moving pages if required. */
   focusRow(offset: number): Observable<(HexRow | undefined)[]> {
     const rangedOffset = Math.min(offset, this.totalBytesSignal());
-    const chunk = Math.trunc(rangedOffset / this.CHUNK_SIZE);
-    const relativeOffset = rangedOffset - chunk * this.CHUNK_SIZE;
-    const row = Math.trunc(relativeOffset / 16);
+    const pageNumber = Math.trunc(rangedOffset / BYTES_PER_PAGE);
+    const relativeOffset = rangedOffset - pageNumber * BYTES_PER_PAGE;
+    const row = Math.trunc(relativeOffset / ROW_WIDTH_BYTES);
 
-    if (chunk != this.chunkIndex$.value) {
-      this.chunkIndex$.next(chunk);
+    if (pageNumber != this.pageIndex$.value) {
+      this.pageIndex$.next(pageNumber);
 
       const result = new Subject<(HexRow | undefined)[]>();
 
@@ -348,7 +359,7 @@ Ctrl-C will copy selected hexadecimal.`;
       // We also don't want to subscribe to this multiple times to avoid calling scrollToRow multiple times
       this.dsOffset$
         .pipe(
-          ops.filter((x) => x === chunk),
+          ops.filter((x) => x === pageNumber),
           ops.first(),
           // Wait for the first row to be available
           ops.mergeMap((_) =>
@@ -396,22 +407,22 @@ Ctrl-C will copy selected hexadecimal.`;
     hexValidator(event, 8);
   }
 
-  protected previousChunk() {
-    this.chunkIndex$.next(Math.max(this.chunkIndex$.value - 1, 0));
+  protected previousPage() {
+    this.pageIndex$.next(Math.max(this.pageIndex$.value - 1, 0));
   }
 
-  protected nextChunk() {
-    this.chunkIndex$.next(
-      Math.min(this.chunkIndex$.value + 1, this.totalChunksSignal() - 1),
+  protected nextPage() {
+    this.pageIndex$.next(
+      Math.min(this.pageIndex$.value + 1, this.totalPagesSignal() - 1),
     );
   }
 
-  protected firstChunk() {
-    this.chunkIndex$.next(0);
+  protected firstPage() {
+    this.pageIndex$.next(0);
   }
 
-  protected lastChunk() {
-    this.chunkIndex$.next(this.totalChunksSignal() - 1);
+  protected lastPage() {
+    this.pageIndex$.next(this.totalPagesSignal() - 1);
   }
 
   protected jumpAndSelectBytes([offset, length]: [number, number]) {
@@ -451,6 +462,7 @@ Ctrl-C will copy selected hexadecimal.`;
   protected handleCopy(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == "c") {
       // Get text for region
+      console.error(this.range);
       const hex = this.ds.getHexForRange(this.range).join("");
 
       // Attempt to insert this content into the browser clipboard
@@ -485,16 +497,16 @@ Ctrl-C will copy selected hexadecimal.`;
     this.summarySub = combineLatest([
       this.entity.summary$,
       this.entity.hasContent$,
-      this.chunkIndex$,
-    ]).subscribe(([obs, hasContent, chunkIndex]) => {
+      this.pageIndex$,
+    ]).subscribe(([obs, hasContent, pageIndex]) => {
       if (hasContent) {
         this.viewport?.scrollToIndex(0, "instant");
 
         this.totalBytesSignal.set(obs.file_size);
-        this.totalChunksSignal.set(Math.ceil(obs.file_size / this.CHUNK_SIZE));
+        this.totalPagesSignal.set(Math.ceil(obs.file_size / BYTES_PER_PAGE));
 
-        const offset = chunkIndex * this.CHUNK_SIZE;
-        let size = this.CHUNK_SIZE;
+        const offset = pageIndex * BYTES_PER_PAGE;
+        let size = BYTES_PER_PAGE;
 
         if (offset + size > obs.file_size) {
           size = obs.file_size - offset;
@@ -506,7 +518,7 @@ Ctrl-C will copy selected hexadecimal.`;
           size,
           offset,
         );
-        this.dsOffset$.next(chunkIndex);
+        this.dsOffset$.next(pageIndex);
 
         this.fileAvailableSubscription?.unsubscribe();
         this.fileAvailableSubscription = this.ds.fileAvailable$.subscribe(
@@ -537,7 +549,7 @@ Ctrl-C will copy selected hexadecimal.`;
             this.hexViewReady$.next(false);
           }
         });
-        this.ds.fetchPage(0);
+        this.ds.fetchChunk(0);
       } else {
         this.hexViewReady$.next(false);
       }

@@ -4,8 +4,8 @@
       <div class="hex-view flex h-full max-h-full flex-col">
         <div class="status-bar mb-2 flex flex-row gap-1">
           <fa-icon
-            [icon]="ds.loadingPagesSignal() ? spinnerIcon : checkIcon"
-            [animation]="ds.loadingPagesSignal() ? 'spin' : undefined"
+            [icon]="ds.loadingChunkSignal() ? spinnerIcon : checkIcon"
+            [animation]="ds.loadingChunkSignal() ? 'spin' : undefined"
             [title]="
               'Loaded: ' +
               loadedBytesSignal() +
@@ -138,21 +138,21 @@
             }
           </div>
         </cdk-virtual-scroll-viewport>
-        @if (totalChunksSignal() > 1) {
+        @if (totalPagesSignal() > 1) {
           <div class="my-2 flex gap-2">
-            <flow-button (click)="firstChunk()" [size]="ButtonSize.Tiny">
+            <flow-button (click)="firstPage()" [size]="ButtonSize.Tiny">
               &lt;&lt;
             </flow-button>
-            <flow-button (click)="previousChunk()" [size]="ButtonSize.Tiny">
+            <flow-button (click)="previousPage()" [size]="ButtonSize.Tiny">
               &lt;
             </flow-button>
-            <flow-button (click)="nextChunk()" [size]="ButtonSize.Tiny">
+            <flow-button (click)="nextPage()" [size]="ButtonSize.Tiny">
               &gt;
             </flow-button>
-            <flow-button (click)="lastChunk()" [size]="ButtonSize.Tiny">
+            <flow-button (click)="lastPage()" [size]="ButtonSize.Tiny">
               &gt;&gt;
             </flow-button>
-            Page: {{ (chunkIndex$ | async) + 1 }} / {{ totalChunksSignal() }}
+            Page: {{ (pageIndex$ | async) + 1 }} / {{ totalPagesSignal() }}
           </div>
         }
       </div>
