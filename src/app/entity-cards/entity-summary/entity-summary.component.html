@@ -162,36 +162,65 @@
           </tr>
         }
       }
-      @if (entity().diagnostics$ | async; as diagnostics) {
-        @if (featureTags$ | async; as featureTags) {
-          @if (featureTags.length > 0) {
-            <tr>
-              <th flowTableBodyCell [rowHeader]="true">Feature Tags</th>
-              <td>
-                <div class="flex flex-wrap gap-2">
-                  @for (featureTag of featureTags; track featureTag) {
-                    <flow-tooltip
-                      [message]="
-                        featureTag.feature_name +
-                        ': ' +
-                        featureTag.feature_value
-                      "
-                    >
-                      <flow-button
-                        [size]="ButtonSize.Tiny"
-                        [routerLink]="['/pages/features/tags', featureTag.tag]"
-                        [type]="getStatusColour(featureTag.tag)"
-                        [rounded]="false"
-                      >
-                        {{ featureTag.tag }}
-                      </flow-button></flow-tooltip
-                    >
-                  }
-                </div>
-              </td>
-            </tr>
-          }
+      @if (highlightFeaturesPresent$ | async; as highlightFeaturesPresent) {
+        @if (highlightFeaturesPresent.length > 0) {
+          <tr>
+            <th
+              flowTableBodyCell
+              [rowHeader]="true"
+              title="Highlighted features, highlighted in as important in the azul config."
+            >
+              Features
+            </th>
+            <td>
+              <div class="flex flex-wrap gap-2">
+                @for (
+                  featureName of highlightFeaturesPresent;
+                  track featureName
+                ) {
+                  <flow-tooltip message="featureName">
+                    <flow-button
+                      [size]="ButtonSize.Tiny"
+                      class="fragment-link"
+                      (click)="linkToFeaturesPage()"
+                      (keypress)="linkToFeaturesPage()"
+                      >{{ featureName }}</flow-button
+                    ></flow-tooltip
+                  >
+                }
+              </div>
+            </td>
+          </tr>
         }
+      }
+      @if (featureTags$ | async; as featureTags) {
+        @if (featureTags.length > 0) {
+          <tr>
+            <th flowTableBodyCell [rowHeader]="true">Feature Tags</th>
+            <td>
+              <div class="flex flex-wrap gap-2">
+                @for (featureTag of featureTags; track featureTag) {
+                  <flow-tooltip
+                    [message]="
+                      featureTag.feature_name + ': ' + featureTag.feature_value
+                    "
+                  >
+                    <flow-button
+                      [size]="ButtonSize.Tiny"
+                      [routerLink]="['/pages/features/tags', featureTag.tag]"
+                      [type]="getStatusColour(featureTag.tag)"
+                      [rounded]="false"
+                    >
+                      {{ featureTag.tag }}
+                    </flow-button></flow-tooltip
+                  >
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      }
+      @if (entity().diagnostics$ | async; as diagnostics) {
         @if (diagnostics.length > 0) {
           <tr>
             <th flowTableBodyCell [rowHeader]="true">Warnings</th>

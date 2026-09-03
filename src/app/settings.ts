@@ -60,6 +60,7 @@ export type DynamicConfig = {
 
   global_external_links?: GlobalExternalLinks;
   binary_external_links?: BinaryExternalLink[];
+  highlight_features?: string[];
 
   retrohunt_enabled: boolean;
 };

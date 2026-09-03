@@ -15,7 +15,12 @@ import { getStatusColour } from "@app/core/util";
 import { config } from "@app/settings";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { EntityNavService, RelationsTabs } from "../entity-nav.services";
+import {
+  binaryTabsEnum,
+  EntityNavService,
+  RelationsTabs,
+} from "../entity-nav.services";
+
 /** Displays a summary of an entity's information in a table format. */
 @Component({
   selector: "azco-entity-summary",
@@ -33,6 +38,7 @@ export class EntitySummaryComponent implements OnChanges {
   protected featureTags$: Observable<
     components["schemas"]["FeatureValueTag"][]
   >;
+  protected highlightFeaturesPresent$: Observable<string[]>;
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
   protected faCircleExclamation = faCircleExclamation;
@@ -64,11 +70,32 @@ export class EntitySummaryComponent implements OnChanges {
           .flat(),
       ),
     );
+
+    this.highlightFeaturesPresent$ = this.entity().features$.pipe(
+      ops.map((feats) => {
+        const highlight_features = config?.highlight_features ?? [];
+        const filteredHits = feats.filter(
+          (fv) => highlight_features.indexOf(fv.name) !== -1,
+        );
+        if (filteredHits.length > 0) {
+          const matchingFeatureNames = [];
+          filteredHits.forEach((fv) => {
+            matchingFeatureNames.push(fv.name);
+          });
+          return matchingFeatureNames;
+        }
+        return [];
+      }),
+    );
   }
 
   linkToSsdeepPage() {
     this.entityNavService.navigateToRelationsSubTab(
       RelationsTabs.SimilarSsdeep,
     );
+  }
+
+  linkToFeaturesPage() {
+    this.entityNavService.navigateToEntityTab(binaryTabsEnum.Features);
   }
 }
