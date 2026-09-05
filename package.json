@@ -86,7 +86,7 @@
     "@types/node": "26.4.0",
     "@types/showdown": "2.0.6",
     "@types/upng-js": "2.1.5",
-    "@zip.js/zip.js": "2.8.60",
+    "@zip.js/zip.js": "2.8.61",
     "angular-eslint": "22.1.0",
     "eslint": "10.9.1",
     "openapi-typescript": "7.13.0",
