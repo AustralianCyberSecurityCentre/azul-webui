@@ -22,6 +22,7 @@ import { PluginsExploreComponent } from "./plugins-explore/plugins-explore.compo
 import { SourcesCurrentComponent } from "./sources-current/sources-current.component";
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
+import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 
 const routes: Routes = [
   {
@@ -67,6 +68,10 @@ const routes: Routes = [
         children: [
           { path: "", redirectTo: "explore", pathMatch: "full" },
           { path: "explore", component: SourcesExploreComponent },
+          {
+            path: "references/:sourceId",
+            component: SourceReferenceBinariesExploreComponent,
+          },
           { path: "current/:sourceId", component: SourcesCurrentComponent },
         ],
       },

@@ -38,6 +38,7 @@ import { SourcesExploreComponent } from "./sources-explore/sources-explore.compo
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
 import { UnavailableComponent } from "./unavailable/unavailable.component";
+import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 
 @NgModule({
   declarations: [
@@ -66,6 +67,7 @@ import { UnavailableComponent } from "./unavailable/unavailable.component";
     CallbackComponent,
     PageHelpComponent,
     BinariesHashDownloadComponent,
+    SourceReferenceBinariesExploreComponent,
   ],
   imports: [
     CommonModule,

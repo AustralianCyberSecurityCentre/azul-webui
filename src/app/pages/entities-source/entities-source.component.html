@@ -1,0 +1,53 @@
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <ng-container *ngTemplateOutlet="tplMainSearch"></ng-container>
+  </div>
+
+  <div>
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  </div>
+
+  <ng-template #tplMainSearch>
+    <flow-card class="w-full">
+      <flow-card-header [title]="pageTitle()" />
+      <flow-card-body>
+        <div class="flex items-start gap-2">
+          <div
+            class="relative z-10 flex w-full flex-col break-words text-ellipsis"
+          >
+            <div class="grid grid-cols-[auto_1fr] gap-x-2">
+              <span>source:</span> <span>{{ sourceId() }}</span>
+              @for (ref of references() | keyvalue; track ref.key) {
+                <span>{{ ref.key }}:</span><span>{{ ref.value }}</span>
+              }
+            </div>
+          </div>
+          <a
+            [routerLink]="['/pages/binaries/explore']"
+            [queryParams]="{
+              term: termModel().term,
+            }"
+          >
+            <flow-button [type]="ButtonType.Primary"> Search </flow-button>
+          </a>
+          <a
+            title="Upload to source"
+            [routerLink]="['/pages/binaries/upload']"
+            [queryParams]="getSourceInstanceQueryParams()"
+          >
+            <flow-button [type]="ButtonType.Primary">Upload</flow-button>
+          </a>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </ng-template>
+
+  <ng-template #tplResult>
+    <azco-entity-results
+      [termOption]="termModel().term"
+      [countOption]="exploreSearchFormSignal().count"
+      [sortOption]="exploreSearchFormSignal().sort"
+      [forceEmptySearchOption]="exploreSearchFormSignal().forceEmptySearch"
+    ></azco-entity-results>
+  </ng-template>
+</form>
