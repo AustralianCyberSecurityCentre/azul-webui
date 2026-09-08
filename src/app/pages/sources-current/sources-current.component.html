@@ -139,14 +139,12 @@
                             <a
                               class="table-link"
                               title="View top-level binaries with these source references"
-                              [routerLink]="['/pages/binaries/explore']"
+                              [routerLink]="[
+                                '/pages/sources/references/' + sourceId,
+                              ]"
                               [queryParams]="{
-                                term: sourceRefsAsParams(
-                                  sourceId,
-                                  0,
-                                  row.track_source_references,
-                                  null
-                                ),
+                                source: sourceId,
+                                source_ref: row.track_source_references,
                               }"
                             >
                               {{ row.num_entities | number }}
@@ -235,14 +233,13 @@
                             <a
                               class="table-link"
                               title="View top-level binaries with these source references"
-                              [routerLink]="['/pages/binaries/explore']"
+                              [routerLink]="[
+                                '/pages/sources/references/' + sourceId,
+                              ]"
                               [queryParams]="{
-                                term: groupedSourceRefsAsParams(
-                                  sourceId,
-                                  0,
+                                source: sourceId,
+                                source_ref_group:
                                   row.track_source_references_grouped,
-                                  null
-                                ),
                               }"
                             >
                               {{ row.num_entities | number }}
@@ -325,14 +322,13 @@
                           <a
                             class="table-link"
                             title="View top-level binaries with these source references"
-                            [routerLink]="['/pages/binaries/explore']"
+                            [routerLink]="[
+                              '/pages/sources/references/' + sourceId,
+                            ]"
                             [queryParams]="{
-                              term: sourceRefsAsParams(
-                                sourceId,
-                                0,
-                                row.track_source_references,
-                                row.timestamp
-                              ),
+                              source: sourceId,
+                              source_ref: row.track_source_references,
+                              timestamp: row.timestamp,
                             }"
                           >
                             {{ row.num_entities | number }}
