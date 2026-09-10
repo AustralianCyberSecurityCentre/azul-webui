@@ -168,9 +168,10 @@ For plugins that have completed and published results, refer to the 'Authors' pa
               shortName: "",
             };
           } else {
-            combinedDict
-              .get(featureEvent.author.name)
-              [featureEvent.author.version]["featureEvents"].push(featureEvent);
+            const tempAuthorRef = combinedDict.get(featureEvent.author.name);
+            tempAuthorRef[featureEvent.author.version]["featureEvents"].push(
+              featureEvent,
+            );
           }
         }
 
