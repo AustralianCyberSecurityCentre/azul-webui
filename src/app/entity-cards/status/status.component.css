@@ -12,3 +12,11 @@ pre {
 .errored {
   @apply bg-rose-200 dark:bg-rose-800;
 }
+
+.mp-border {
+  box-shadow: inset 5px 0px 0 var(--color-red-700);
+}
+
+.limit-first-col {
+  max-width: 10em;
+}

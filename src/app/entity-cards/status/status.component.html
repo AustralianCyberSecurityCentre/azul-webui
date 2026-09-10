@@ -1,7 +1,7 @@
 <az-loading-card cardTitle="Status" [obs$]="combinedStatuses$" [help]="help">
   <div class="h-full">
     <ng-template #tplNoStatus> No status information available </ng-template>
-    @if (combinedStatuses$ | async; as d) {
+    @if (combinedStatuses$ | async; as combinedStatus) {
       <div class="h-full overflow-y-auto">
         <table flowTable class="w-full">
           <thead flowTableHeader class="sticky top-0">
@@ -21,10 +21,11 @@
               <th flowTableHeaderCell>Event Type</th>
               <th flowTableHeaderCell>Features</th>
               <th flowTableHeaderCell>Security</th>
+              <th flowTableHeaderCell>Actions</th>
             </tr>
           </thead>
           <tbody flowTableBody>
-            @for (pluginEntry of d | keyvalue; track pluginEntry) {
+            @for (pluginEntry of combinedStatus | keyvalue; track pluginEntry) {
               @for (
                 versionEntry of pluginEntry.value | keyvalue;
                 track versionEntry;
@@ -35,130 +36,254 @@
                   track featureEvent;
                   let featureIndex = $index
                 ) {
-                  <tr
-                    flowTableBodyRow
-                    [ngClass]="{
-                      errored:
-                        versionEntry.value.status?.entity.status ===
-                        'exception',
-                    }"
-                  >
-                    @if (
-                      featureIndex === 0 &&
-                      versionEntry.value.status?.entity?.status !==
-                        "completed" &&
-                      versionEntry.value.status?.entity?.status !==
-                        "completed-empty" &&
-                      versionEntry.value.status?.entity?.status !== "queued" &&
-                      versionEntry?.value?.status
-                    ) {
-                      <td flowTableBodyCell>
-                        <flow-button
-                          [size]="ButtonSize.Tiny"
-                          [type]="ButtonType.Transparent"
-                          (click)="
-                            openDialog(tplDetailedCard, {
-                              data: versionEntry.value.status,
-                            })
-                          "
-                        >
-                          <flow-tooltip message="More details">
-                            <fa-icon [icon]="faInfoCircle" size="lg" />
-                          </flow-tooltip>
-                        </flow-button>
-                      </td>
-                    } @else {
-                      <td>&nbsp;</td>
-                    }
-                    <!-- Display author names in the first row even where multiple versions/feature events exist -->
-                    @if (featureIndex === 0) {
-                      <td flowTableBodyCell>
-                        @if (versionEntry.value.author.category !== "plugin") {
-                          {{ versionEntry.value.author.category }}
-                          |
-                        }
-                        <flow-tooltip
-                          message="{{ versionEntry.value.author.name }}"
-                          [copyText]="true"
-                        >
-                          {{ versionEntry.value.author.name }}
-                        </flow-tooltip>
-                      </td>
-                    } @else {
-                      <td>&nbsp;</td>
-                    }
-                    <!-- Only display new versions in the first row where multiple feature events exist -->
-                    @if (featureIndex === 0) {
-                      <td flowTableBodyCell>
-                        <flow-tooltip
-                          message="{{ versionEntry.value.author.version }}"
-                          [copyText]="true"
-                        >
-                          {{ versionEntry.value.author.version }}
-                        </flow-tooltip>
-                      </td>
-                    } @else {
-                      <td>&nbsp;</td>
-                    }
-                    <!-- Not all files will have status entries: -->
-                    @if (versionEntry.value.status) {
-                      <td flowTableBodyCell class="truncate">
-                        <az-hover-textable
-                          [message]="
-                            STATUS_DESCRIPTIONS[
-                              versionEntry.value.status.entity.status
-                            ] ||
-                            'This status is missing a description. Please report as a bug.'
-                          "
-                          >{{
-                            versionEntry.value.status.entity.status
-                          }}</az-hover-textable
-                        >
-                      </td>
-                      <td flowTableBodyCell class="truncate text-center">
-                        {{ versionEntry.value.status.completed }}
-                      </td>
-                      <td flowTableBodyCell class="truncate">
-                        <flow-tooltip
-                          message="{{ versionEntry.value.status.timestamp }}"
-                        >
-                          {{
-                            versionEntry.value.status.timestamp | since
-                          }}</flow-tooltip
-                        >
-                      </td>
-                      <td flowTableBodyCell class="truncate text-center">
-                        {{
-                          versionEntry.value.status.entity.runtime
-                            | friendlyTime
-                        }}
-                      </td>
-                    } @else {
-                      <td colspan="4">&nbsp;</td>
-                    }
-                    @if (featureEvent) {
-                      <td flowTableBodyCell>
-                        {{ ACTION_NAMES[featureEvent.action] }}
-                      </td>
-                    } @else {
-                      <td>&nbsp;</td>
-                    }
-                    @if (featureEvent) {
-                      <td flowTableBodyCell>
-                        {{ featureEvent.num_feature_values | number }}
-                      </td>
-                    } @else {
-                      <td>&nbsp;</td>
-                    }
-                    <td flowTableBodyCell class="truncate">
-                      <flow-tooltip
-                        message="{{ versionEntry.value.classification }}"
-                        [copyText]="true"
+                  @if (
+                    versionEntry.value.multiPluginKey?.length > 0 &&
+                    versionEntry.value.isRootPlugin !== true &&
+                    hiddenMultiPlugins().includes(
+                      versionEntry.value.multiPluginKey
+                    )
+                  ) {
+                  } @else {
+                    <tr
+                      flowTableBodyRow
+                      [ngClass]="{
+                        errored:
+                          versionEntry.value.status?.entity.status ===
+                          'exception',
+                      }"
+                    >
+                      <td
+                        flowTableBodyCell
+                        class="limit-first-col"
+                        [ngClass]="{
+                          'mp-border border-red-500':
+                            versionEntry.value?.multiPluginKey?.length > 0,
+                        }"
                       >
-                        {{ versionEntry.value.classification }}
-                      </flow-tooltip>
-                    </td>
-                  </tr>
+                        <span>
+                          @if (
+                            versionEntry.value.isRootPlugin &&
+                            versionEntry.value.multiPluginKey.length > 0
+                          ) {
+                            @if (
+                              hiddenMultiPlugins().includes(
+                                versionEntry.value.multiPluginKey
+                              )
+                            ) {
+                              <button
+                                aria-label="Hide multiplugins"
+                                class="cursor-pointer pr-1 hover:text-gray-200"
+                                (click)="
+                                  showMultiPlugin(
+                                    versionEntry.value.multiPluginKey
+                                  )
+                                "
+                              >
+                                <fa-icon [icon]="faChevronRight" size="lg" />
+                              </button>
+                            } @else {
+                              <button
+                                aria-label="Hide multiplugins"
+                                class="cursor-pointer pr-1 hover:text-gray-200"
+                                (click)="
+                                  hideMultiPlugin(
+                                    versionEntry.value.multiPluginKey
+                                  )
+                                "
+                              >
+                                <fa-icon [icon]="faChevronDown" size="lg" />
+                              </button>
+                            }
+                          }
+                          @if (
+                            featureIndex === 0 &&
+                            versionEntry.value.status?.entity?.status !==
+                              "completed" &&
+                            versionEntry.value.status?.entity?.status !==
+                              "completed-empty" &&
+                            versionEntry.value.status?.entity?.status !==
+                              "queued" &&
+                            versionEntry?.value?.status
+                          ) {
+                            <flow-button
+                              [size]="ButtonSize.Tiny"
+                              [type]="ButtonType.Transparent"
+                              (click)="
+                                openDialog(tplDetailedCard, {
+                                  data: versionEntry.value.status,
+                                })
+                              "
+                            >
+                              <flow-tooltip message="More details">
+                                <fa-icon [icon]="faInfoCircle" size="lg" />
+                              </flow-tooltip>
+                            </flow-button>
+                          }
+                        </span>
+                      </td>
+                      <!-- Display author names in the first row even where multiple versions/feature events exist -->
+                      @if (featureIndex === 0) {
+                        <td
+                          flowTableBodyCell
+                          flowTableBodyCell
+                          [ngClass]="{
+                            'pl-9': versionEntry.value?.shortName?.length > 0,
+                          }"
+                        >
+                          @if (
+                            versionEntry.value.author.category !== "plugin"
+                          ) {
+                            {{ versionEntry.value.author.category }}
+                            |
+                          }
+                          <flow-tooltip
+                            message="{{ versionEntry.value.author.name }}"
+                            [copyText]="true"
+                          >
+                            @if (
+                              versionEntry.value?.shortName?.length > 0 &&
+                              !versionEntry.value?.isRootPlugin
+                            ) {
+                              {{ versionEntry.value.shortName }}
+                            } @else {
+                              {{ versionEntry.value.author.name }}
+                            }
+                          </flow-tooltip>
+                        </td>
+                      } @else {
+                        <td>&nbsp;</td>
+                      }
+                      <!-- Only display new versions in the first row where multiple feature events exist -->
+                      @if (featureIndex === 0) {
+                        <td flowTableBodyCell>
+                          <flow-tooltip
+                            message="{{ versionEntry.value.author.version }}"
+                            [copyText]="true"
+                          >
+                            {{ versionEntry.value.author.version }}
+                          </flow-tooltip>
+                        </td>
+                      } @else {
+                        <td>&nbsp;</td>
+                      }
+                      <!-- Not all files will have status entries: -->
+                      @if (versionEntry.value.status) {
+                        <td flowTableBodyCell class="truncate">
+                          <az-hover-textable
+                            [message]="
+                              STATUS_DESCRIPTIONS[
+                                versionEntry.value.status.entity.status
+                              ] ||
+                              'This status is missing a description. Please report as a bug.'
+                            "
+                            >{{
+                              versionEntry.value.status.entity.status
+                            }}</az-hover-textable
+                          >
+                        </td>
+                        <td flowTableBodyCell class="truncate text-center">
+                          {{ versionEntry.value.status.completed }}
+                        </td>
+                        <td flowTableBodyCell class="truncate">
+                          <flow-tooltip
+                            message="{{ versionEntry.value.status.timestamp }}"
+                          >
+                            {{
+                              versionEntry.value.status.timestamp | since
+                            }}</flow-tooltip
+                          >
+                        </td>
+                        <td flowTableBodyCell class="truncate text-center">
+                          {{
+                            versionEntry.value.status.entity.runtime
+                              | friendlyTime
+                          }}
+                        </td>
+                      } @else {
+                        <td colspan="4">&nbsp;</td>
+                      }
+                      @if (featureEvent) {
+                        <td flowTableBodyCell>
+                          {{ ACTION_NAMES[featureEvent.action] }}
+                        </td>
+                      } @else {
+                        <td>&nbsp;</td>
+                      }
+                      @if (featureEvent) {
+                        <td flowTableBodyCell>
+                          {{ featureEvent.num_feature_values | number }}
+                        </td>
+                      } @else {
+                        <td>&nbsp;</td>
+                      }
+                      <td flowTableBodyCell class="truncate">
+                        <flow-tooltip
+                          message="{{ versionEntry.value.classification }}"
+                          [copyText]="true"
+                        >
+                          {{ versionEntry.value.classification }}
+                        </flow-tooltip>
+                      </td>
+                      <td flowTableBodyCell class="truncate">
+                        @if (versionEntry.value?.shortName?.length === 0) {
+                          @if (entity.summary$ | async; as d) {
+                            @if ((expedite$ | async) < 100) {
+                              <flow-tooltip
+                                message="Run Latest {{
+                                  versionEntry.value.author.name
+                                }} (takes 10 seconds)"
+                              >
+                                <flow-button
+                                  [type]="
+                                    whatPluginIsBeingExpeditedSignal().length >
+                                    0
+                                      ? ButtonType.Disabled
+                                      : ButtonType.Light
+                                  "
+                                  [size]="ButtonSize.Tiny"
+                                  (click)="
+                                    doExpeditePlugin(
+                                      versionEntry.value.author.name
+                                    )
+                                  "
+                                >
+                                  @if (
+                                    whatPluginIsBeingExpeditedSignal()
+                                      .length === 0
+                                  ) {
+                                    <fa-icon [icon]="faRotate" />
+                                  } @else {
+                                    @if (
+                                      whatPluginIsBeingExpeditedSignal() ===
+                                      versionEntry.value.author.name
+                                    ) {
+                                      <fa-icon
+                                        [icon]="faSpinner"
+                                        animation="spin"
+                                      />
+                                    } @else {
+                                      <fa-icon [icon]="faRotate" />
+                                    }
+                                  }
+                                </flow-button>
+                              </flow-tooltip>
+                            }
+                            @if ((expedite$ | async) === 100) {
+                              <flow-tooltip message="Load Latest Results">
+                                <flow-button
+                                  [type]="ButtonType.Light"
+                                  [size]="ButtonSize.Tiny"
+                                  (click)="doRefresh()"
+                                >
+                                  <fa-icon [icon]="faBolt" />
+                                </flow-button>
+                              </flow-tooltip>
+                            }
+                          }
+                        }
+                      </td>
+                    </tr>
+                  }
                 }
               }
             }

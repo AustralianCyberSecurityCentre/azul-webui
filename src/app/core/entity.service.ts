@@ -226,6 +226,15 @@ export class EntityWrap {
     );
   }
 
+  expeditePlugin(plugin: string) {
+    return this.api
+      .binaryExpedite(this.sha256, { bypass_cache: true, plugin: plugin })
+      .pipe(
+        ops.map(() => 100),
+        ops.shareReplay(1),
+      );
+  }
+
   /**find info from a specific author (e.g. entropy)*/
   private infoSpecific$(
     category: string,
