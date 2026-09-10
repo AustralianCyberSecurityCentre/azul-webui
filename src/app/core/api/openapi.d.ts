@@ -1464,6 +1464,25 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * ApiAccessEnum
+     * @description Different access enums.
+     * @enum {string}
+     */
+    readonly ApiAccessEnum:
+      | "all"
+      | "binary-source-upload"
+      | "binary-child-upload"
+      | "binary-download-request"
+      | "binary-download-streams"
+      | "binary-hex-and-strings"
+      | "binary-expedite"
+      | "binary-modify-tags"
+      | "binary-search"
+      | "features-search"
+      | "feature-modify-tags"
+      | "plugin-search"
+      | "sources-search";
+    /**
      * AutocompleteError
      * @description Autocomplete mode where the current input is invalid.
      */
@@ -2655,6 +2674,7 @@ export interface components {
       | "TestRunnerExecutionEventTooLarge"
       | "MetastoreContextBadSecurity"
       | "MetastoreContextInsufficientPermissionsForWrite"
+      | "MetastoreApiAccessForbidden"
       | "MetastoreEntryBadInputParameters"
       | "MetastoreIngestorEventTypeNotSet"
       | "MetastoreIngestorBadStatusDocument"
@@ -2788,6 +2808,7 @@ export interface components {
       | "MetastoreInvalidTimestampForPurge"
       | "MetastoreInvalidPurgeExceptionApi"
       | "MetastoreUserUnauthorized"
+      | "MetastoreUserNoSubctxCredentials"
       | "MetastoreSetSecurityHeaderUnexpected"
       | "MetastoreUserInfoNotAvailable"
       | "MetastoreNoSourcesInAzul"
@@ -3316,6 +3337,8 @@ export interface components {
       readonly description: string;
       /** Owner Username */
       readonly owner_username: string;
+      /** Api Access */
+      readonly api_access: readonly components["schemas"]["ApiAccessEnum"][];
       /** Roles */
       readonly roles: readonly string[];
       /** Creation Date */
@@ -3339,6 +3362,11 @@ export interface components {
        * @default
        */
       readonly description: string;
+      /**
+       * Api Access
+       * @description Access level for the PAT, note if you choose all that gives the maximum access and discards all others: [['all', 'binary-source-upload', 'binary-child-upload', 'binary-download-request', 'binary-download-streams', 'binary-hex-and-strings', 'binary-expedite', 'binary-modify-tags', 'binary-search', 'features-search', 'feature-modify-tags', 'plugin-search', 'sources-search']]
+       */
+      readonly api_access: readonly components["schemas"]["ApiAccessEnum"][];
       /** Roles */
       readonly roles: readonly string[];
     };
@@ -3358,6 +3386,8 @@ export interface components {
       readonly description: string;
       /** Owner Username */
       readonly owner_username: string;
+      /** Api Access */
+      readonly api_access: readonly components["schemas"]["ApiAccessEnum"][];
       /** Roles */
       readonly roles: readonly string[];
       /** Creation Date */
@@ -4290,6 +4320,11 @@ export interface components {
        * @default []
        */
       readonly roles: readonly string[];
+      /**
+       * Api Access
+       * @default []
+       */
+      readonly api_access: readonly components["schemas"]["ApiAccessEnum"][];
       /** Email */
       readonly email?: string | null;
       readonly credentials?: components["schemas"]["Credentials"] | null;
@@ -4720,6 +4755,7 @@ export interface components {
   pathItems: never;
 }
 export type AnnotationUpdated = components["schemas"]["AnnotationUpdated__"];
+export type ApiAccessEnum = components["schemas"]["ApiAccessEnum"];
 export type AutocompleteError = components["schemas"]["AutocompleteError"];
 export type AutocompleteFieldName =
   components["schemas"]["AutocompleteFieldName"];
@@ -7047,6 +7083,8 @@ export interface operations {
     readonly parameters: {
       readonly query?: {
         readonly bypass_cache?: boolean;
+        /** @description Target a single plugin to expedite rather than all plugins, plugin name is case sensitive and expected to be the exact plugin name. */
+        readonly plugin?: string;
         /** @description Exclude these security labels during queries */
         readonly x?: readonly string[];
         /** @description Include these RELs for AND search in opensearch during queries */
