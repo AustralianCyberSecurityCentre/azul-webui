@@ -1,6 +1,6 @@
 ARG REGISTRY="docker.io/library"
 ARG BUILD_IMAGE='node'
-ARG BUILD_TAG='lts-trixie@sha256:f7d34e58713740f9eef9092c0bd6ff10369d132f7238399a4b270f16d47fa608'
+ARG BUILD_TAG='lts-trixie@sha256:9516e2220ff64c75233a3d6d8aa90f857381bc6266de5803d620b2b2dbaf9e60'
 ARG BASE_IMAGE='nginxinc/nginx-unprivileged'
 ARG BASE_TAG='stable-alpine'
 
