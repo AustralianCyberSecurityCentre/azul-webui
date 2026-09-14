@@ -39,6 +39,7 @@ import {
 } from "@app/entity-cards/entity-nav.services";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { CreateHotToastRef, HotToastService } from "@ngxpert/hot-toast";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 type Highlight = {
   label: string;
@@ -212,9 +213,17 @@ export class BinariesCurrentComponent implements OnDestroy {
               if (!haveNew) {
                 if (d < 0) {
                   this.toastrPauseCheckRef?.close();
-                  this.toastrPauseCheckRef = this.toastrService.info(
-                    `Result checking paused`,
-                    { autoClose: false, dismissible: true },
+                  this.toastrPauseCheckRef = this.toastrService.show(
+                    ToastComponent,
+                    {
+                      data: {
+                        toastType: "toast-info",
+                        title: `Result checking paused`,
+                        message: `Page not active`,
+                      },
+                      autoClose: false,
+                      dismissible: true,
+                    },
                   );
                 }
                 if (d == 0) {
@@ -230,9 +239,17 @@ export class BinariesCurrentComponent implements OnDestroy {
                 haveNew = true;
                 this.resultCount = d.count;
                 this.toastrNewResultsRef?.close();
-                this.toastrNewResultsRef = this.toastrService.info(
-                  `Refresh the page to view<br/>There are ${d.count} new results for this binary`,
-                  { autoClose: false, dismissible: true },
+                this.toastrNewResultsRef = this.toastrService.show(
+                  ToastComponent,
+                  {
+                    data: {
+                      toastType: "toast-info",
+                      title: `Refresh the page to view`,
+                      message: `There are ${d.count} new results for this binary`,
+                    },
+                    autoClose: false,
+                    dismissible: true,
+                  },
                 );
               }
             }),

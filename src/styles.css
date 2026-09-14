@@ -272,10 +272,16 @@ th {
 }
 
 :not(.dark) {
-  .custom-hot-toast.div {
+  .custom-hot-toast {
     background-color: "bg-white";
     border-color: "border-azul-200";
     color: black;
+  }
+  .hot-toast-close-btn {
+    opacity: 1;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    cursor: pointer;
   }
 }
 .dark {
@@ -283,5 +289,12 @@ th {
     background-color: var(--color-azul-600);
     border-color: var(--border-azul-800);
     color: white;
+  }
+  .hot-toast-close-btn {
+    background-color: lightgrey;
+    opacity: 1;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    cursor: pointer;
   }
 }

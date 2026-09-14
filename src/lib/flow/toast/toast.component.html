@@ -1,2 +1,43 @@
-<fa-icon [icon]="faIcons.get(toastRef?.data?.toastType)" size="xl" />
-<span [innerHtml]="toastRef?.data?.message"></span>
+<div
+  class="flex w-74 items-center divide-x divide-gray-200 dark:divide-gray-700"
+  role="alert"
+  [ngClass]="{
+    'w-80': toastRef.getToast().autoClose,
+  }"
+>
+  <div
+    class="flex-none"
+    [ngClass]="{
+      'text-green-600 dark:text-green-400':
+        toastRef?.data?.toastType === 'toast-success',
+      'text-yellow-600 dark:text-yellow-400':
+        toastRef?.data?.toastType === 'toast-warning',
+      'text-red-600 dark:text-red-400':
+        toastRef?.data?.toastType === 'toast-error',
+    }"
+  >
+    <fa-icon [icon]="faIcons.get(toastRef?.data?.toastType)" size="xl" />
+  </div>
+  <div class="grow">
+    <div class="wrap ml-3 text-sm font-normal break-words">
+      @if (toastRef?.data?.title) {
+        <span
+          class="mb-1 text-sm font-semibold text-gray-900 dark:text-white"
+          [attr.aria-label]="toastRef?.data?.title"
+        >
+          {{ toastRef?.data?.title }}
+        </span>
+      }
+
+      @if (toastRef?.data?.message) {
+        <div
+          role="alert"
+          class="wrap text-sm font-normal break-words text-ellipsis"
+          [attr.aria-label]="toastRef?.data?.message"
+        >
+          {{ toastRef?.data?.message }}
+        </div>
+      }
+    </div>
+  </div>
+</div>

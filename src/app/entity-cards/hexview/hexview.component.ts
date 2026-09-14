@@ -474,7 +474,8 @@ Ctrl-C will copy selected hexadecimal.`;
           console.log("Hex copy succeeded.");
           this.toastrService.show(ToastComponent, {
             data: {
-              toastType: "copy",
+              toastType: "toast-copy",
+              title: "Copied data!",
               message: "Copied selected data as hex.",
             },
             duration: 1000,
@@ -482,10 +483,14 @@ Ctrl-C will copy selected hexadecimal.`;
         },
         (reason) => {
           console.log("Hex copy failed:", reason);
-          this.toastrService.warning(
-            "Failed to copy data.<br/>Your browser blocked the copy operation",
-            { duration: 1, autoClose: true },
-          );
+          this.toastrService.show(ToastComponent, {
+            data: {
+              toastType: "toast-warning",
+              title: "Failed to copy data",
+              message: "Your browser blocked the copy operation",
+            },
+            duration: 1000,
+          });
         },
       );
 

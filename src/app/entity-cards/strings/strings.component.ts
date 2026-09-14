@@ -30,6 +30,7 @@ import {
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
@@ -420,9 +421,14 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }
         // show toast if AI string filter timed out
         if (s.time_out === true) {
-          this.toastrService.warning(
-            "String filter timeout<br/>Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
-          );
+          this.toastrService.show(ToastComponent, {
+            data: {
+              toastType: "toast-warning",
+              title: "String filter timeout",
+              message:
+                "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+            },
+          });
         }
 
         // can now ask for more again
@@ -523,9 +529,14 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         }
         // show toast if AI string filter timed out
         if (s.time_out === true) {
-          this.toastrService.warning(
-            "String filter timeout<br/>Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
-          );
+          this.toastrService.show(ToastComponent, {
+            data: {
+              toastType: "toast-warning",
+              title: "String filter timeout",
+              message:
+                "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+            },
+          });
         }
         // can now ask for more again
         this.currentMaxByteOffset = s.next_offset;

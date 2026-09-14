@@ -75,13 +75,35 @@ export class TestbedComponent implements OnInit {
   ];
 
   dialogTypes = {
-    success: () => this.toastrService.success("Success!"),
-    info: () => this.toastrService.info("Info!"),
-    warning: () => this.toastrService.warning("Warning!"),
-    error: () => this.toastrService.error("Error!"),
+    success: () =>
+      this.toastrService.show(ToastComponent, {
+        data: {
+          toastType: "toast-success",
+          title: "Title!",
+          message: "Success!",
+        },
+        autoClose: false,
+        dismissible: true,
+      }),
+    info: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "toast-info", title: "Title!", message: "Info!" },
+      }),
+    warning: () =>
+      this.toastrService.show(ToastComponent, {
+        data: {
+          toastType: "toast-warning",
+          title: "Title!",
+          message: "Warning!",
+        },
+      }),
+    error: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "toast-error", title: "Title!", message: "Error!" },
+      }),
     copy: () =>
       this.toastrService.show(ToastComponent, {
-        data: { toastType: "copy", message: "Copy!" },
+        data: { toastType: "toast-copy", title: "Copy!", message: "Copy!" },
       }),
   };
 
@@ -123,15 +145,22 @@ export class TestbedComponent implements OnInit {
       "I designed the pdf specification!",
       "I have told you everything I know!",
       "Wait, there is one other thing!",
+      "Wait, there is one other thing!... Wait, there is one other thing!.. Wait, there is one other thing!. Wait, there is one other thing!",
       "I have told you everything I know!",
     ];
     this.toastrService.show(ToastComponent, {
       data: {
-        toastType: "copy",
-        message: `Hi there! I'm Clippy!<br/>facts${this.clippyCount}`,
+        toastType: "toast-copy",
+        title: "Hi there! I'm Clippy!",
+        message: `${facts[this.clippyCount]}`,
       },
+      autoClose: false,
+      dismissible: true,
     });
     this.clippyCount += 1;
+    if (this.clippyCount >= facts.length) {
+      this.clippyCount = 0;
+    }
     this.clippyCount = Math.min(this.clippyCount, facts.length - 1);
   }
 }

@@ -26,6 +26,7 @@ import { HotToastService } from "@ngxpert/hot-toast";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import Axios, { AxiosError } from "axios";
 import { CacheRequestConfig, setupCache } from "axios-cache-interceptor";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 /**
  * RxJS wrapper for Axios.
@@ -249,9 +250,16 @@ export class ApiService {
       return of(allowdata);
     }
 
-    const etitle = `API: ${e.message}<br/>${e.config?.url}`;
-    this.toastrService.error(etitle, { duration: 20000 });
+    const etitle = `API: ${e.message}`;
 
+    this.toastrService.show(ToastComponent, {
+      data: {
+        toastType: "toast-error",
+        title: etitle,
+        message: e.config?.url,
+      },
+      duration: 20000,
+    });
     console.warn("Internal error handler failed to handle error:", e.message);
     throw e.message;
   }
@@ -294,9 +302,15 @@ export class ApiService {
           // can't do a detailed handling.
           return this.handle(innerE, allowdata, []);
         }
-        this.toastrService.error(`${etitle}<br/>${responseDetail?.message}`, {
+        this.toastrService.show(ToastComponent, {
+          data: {
+            toastType: "toast-error",
+            title: etitle,
+            message: responseDetail?.message,
+          },
           duration: 20000,
         });
+
         throw innerE;
       },
     );
@@ -322,7 +336,12 @@ export class ApiService {
           // can't do a detailed handling.
           return this.handle(innerE, allowdata, []);
         }
-        this.toastrService.error(etitle + "<br/>" + detailedMessage?.message, {
+        this.toastrService.show(ToastComponent, {
+          data: {
+            toastType: "toast-error",
+            title: etitle,
+            message: detailedMessage?.message,
+          },
           duration: 20000,
         });
 
