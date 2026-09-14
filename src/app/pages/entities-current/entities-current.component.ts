@@ -21,7 +21,6 @@ import {
   faRotate,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import { ActiveToast, ToastrService } from "ngx-toastr";
 import {
   Observable,
   ReplaySubject,
@@ -33,12 +32,13 @@ import {
 import * as ops from "rxjs/operators";
 
 import { components } from "@app/core/api/openapi";
-import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import {
-  binaryTabsEnum,
-  EntityNavService,
-} from "@app/entity-cards/entity-nav.services";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
+import {
+  EntityNavService,
+  binaryTabsEnum,
+} from "@app/entity-cards/entity-nav.services";
+import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
+import { CreateHotToastRef, HotToastService } from "@ngxpert/hot-toast";
 
 type Highlight = {
   label: string;
@@ -60,7 +60,7 @@ type SourceWithDefinitions = {
 export class BinariesCurrentComponent implements OnDestroy {
   private entityService = inject(Entity);
   private route = inject(ActivatedRoute);
-  private toastrService = inject(ToastrService);
+  private toastrService = inject(HotToastService);
   private navService = inject(Nav);
   private iconService = inject(IconService);
   protected store = inject(GlobalSettingStore);
@@ -74,8 +74,8 @@ export class BinariesCurrentComponent implements OnDestroy {
 
   private refreshNewSub: Subscription;
   private downloadSub: Subscription;
-  private toastrPauseCheckRef: ActiveToast<unknown>;
-  private toastrNewResultsRef: ActiveToast<unknown>;
+  private toastrPauseCheckRef: CreateHotToastRef<unknown>;
+  private toastrNewResultsRef: CreateHotToastRef<unknown>;
 
   protected resultCount: number = -1;
 
@@ -211,15 +211,14 @@ export class BinariesCurrentComponent implements OnDestroy {
             ops.tap((d) => {
               if (!haveNew) {
                 if (d < 0) {
-                  this.toastrPauseCheckRef?.toastRef.close();
+                  this.toastrPauseCheckRef?.close();
                   this.toastrPauseCheckRef = this.toastrService.info(
-                    `Page not active`,
                     `Result checking paused`,
-                    { disableTimeOut: true },
+                    { autoClose: false, dismissible: true },
                   );
                 }
                 if (d == 0) {
-                  this.toastrPauseCheckRef?.toastRef.close();
+                  this.toastrPauseCheckRef?.close();
                 }
               }
             }),
@@ -230,11 +229,10 @@ export class BinariesCurrentComponent implements OnDestroy {
               if (d.count > 0 && d.count !== this.resultCount) {
                 haveNew = true;
                 this.resultCount = d.count;
-                this.toastrNewResultsRef?.toastRef.close();
+                this.toastrNewResultsRef?.close();
                 this.toastrNewResultsRef = this.toastrService.info(
-                  `Refresh the page to view`,
-                  `There are ${d.count} new results for this binary`,
-                  { disableTimeOut: true },
+                  `Refresh the page to view<br/>There are ${d.count} new results for this binary`,
+                  { autoClose: false, dismissible: true },
                 );
               }
             }),
@@ -246,7 +244,7 @@ export class BinariesCurrentComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.refreshNewSub?.unsubscribe();
-    this.toastrPauseCheckRef?.toastRef.close();
+    this.toastrPauseCheckRef?.close();
     // Cancel download if you navigate away.
     this.downloadSub?.unsubscribe();
   }

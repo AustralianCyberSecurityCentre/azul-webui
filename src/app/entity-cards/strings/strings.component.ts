@@ -16,8 +16,9 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { disabled, form, max, min, validate } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
+import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { ToastrService } from "ngx-toastr";
+import { HotToastService } from "@ngxpert/hot-toast";
 import {
   BehaviorSubject,
   Observable,
@@ -29,7 +30,6 @@ import {
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
-import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
@@ -52,7 +52,7 @@ interface StringsFilterForm {
   standalone: false,
 })
 export class StringsComponent extends BaseCard implements OnInit, OnDestroy {
-  private toastrService = inject(ToastrService);
+  private toastrService = inject(HotToastService);
   private entityService = inject(Entity);
   private hexStringSyncService = inject(HexStringSyncService);
   private store = inject(GlobalSettingStore);
@@ -421,8 +421,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         // show toast if AI string filter timed out
         if (s.time_out === true) {
           this.toastrService.warning(
-            "String filter timeout",
-            "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+            "String filter timeout<br/>Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
           );
         }
 
@@ -525,8 +524,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         // show toast if AI string filter timed out
         if (s.time_out === true) {
           this.toastrService.warning(
-            "String filter timeout",
-            "Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
+            "String filter timeout<br/>Too many strings were filtered out and the execution timeout was reached. A reduced subset of strings is being shown.",
           );
         }
         // can now ask for more again

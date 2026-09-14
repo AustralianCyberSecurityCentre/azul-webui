@@ -60,14 +60,6 @@ a.node-link:hover {
   @apply underline;
 }
 
-/**
- * ngx-toastr doesn't allow multiple CSS classes on its container; use a Tailwind
- * apply to merge them:
- **/
-.toast-container {
-  @apply fixed right-5 bottom-5 z-[9000] flex flex-col gap-4;
-}
-
 /* special looking table links */
 a.table-link:hover {
   @apply text-slate-700 underline;
@@ -277,4 +269,19 @@ th {
   position: sticky;
   top: 66px;
   z-index: 10;
+}
+
+:not(.dark) {
+  .custom-hot-toast.div {
+    background-color: "bg-white";
+    border-color: "border-azul-200";
+    color: black;
+  }
+}
+.dark {
+  .custom-hot-toast {
+    background-color: var(--color-azul-600);
+    border-color: var(--border-azul-800);
+    color: white;
+  }
 }

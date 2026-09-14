@@ -1,6 +1,6 @@
 import { DialogModule } from "@angular/cdk/dialog";
 import { OverlayModule } from "@angular/cdk/overlay";
-import { NgModule, provideZonelessChangeDetection } from "@angular/core";
+import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 
 import { base_url, config } from "./settings";
@@ -15,9 +15,8 @@ import {
   StoreRouterConnectingModule,
 } from "@ngrx/router-store";
 import { StoreModule } from "@ngrx/store";
+import { provideHotToastConfig } from "@ngxpert/hot-toast";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
-import { ToastrModule } from "ngx-toastr";
-import { ToastComponent } from "../lib/flow/toast/toast.component";
 import { AuthConfigModule } from "./auth/auth-config.module";
 import { reducers } from "./core/store/main-store";
 import { PagesModule } from "./pages/pages.module";
@@ -38,11 +37,6 @@ if (config.oauth_enabled) {
     PagesModule,
     DialogModule,
     OverlayModule,
-    ToastrModule.forRoot({
-      newestOnTop: false,
-      toastComponent: ToastComponent,
-      timeOut: 3000,
-    }),
     StoreModule.forRoot(reducers),
     StoreRouterConnectingModule.forRoot({
       routerState: RouterState.Minimal,
@@ -53,7 +47,16 @@ if (config.oauth_enabled) {
       baseUrl: new URL("./assets/monaco/min/vs", base_url).href,
     }),
   ],
-  providers: [IconService, provideZonelessChangeDetection()],
+  providers: [
+    IconService,
+    provideHotToastConfig({
+      visibleToasts: 10,
+      autoClose: true,
+      position: "bottom-right",
+      className:
+        "custom-hot-toast block rounded-lg border textx-black shadow-sm dark:text-white",
+    }),
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {

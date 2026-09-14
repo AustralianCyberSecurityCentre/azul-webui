@@ -18,7 +18,8 @@ import {
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { FieldType } from "@lib/flow/input/input.component";
 import { LinkColour } from "@lib/flow/link/link.directive";
-import { ToastrService } from "ngx-toastr";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
+import { HotToastService } from "@ngxpert/hot-toast";
 
 @Component({
   selector: "app-testbed",
@@ -28,7 +29,7 @@ import { ToastrService } from "ngx-toastr";
 })
 export class TestbedComponent implements OnInit {
   user = inject(User);
-  toastrService = inject(ToastrService);
+  toastrService = inject(HotToastService);
 
   protected faInternetExplorer = faInternetExplorer;
   protected faHammer = faHammer;
@@ -74,11 +75,14 @@ export class TestbedComponent implements OnInit {
   ];
 
   dialogTypes = {
-    success: () => this.toastrService.success("Success!", "Title"),
-    info: () => this.toastrService.info("Info!", "Title"),
-    warning: () => this.toastrService.warning("Warning!", "Title"),
-    error: () => this.toastrService.error("Error!", "Title"),
-    copy: () => this.toastrService.show("Copy!", "Title", {}, "copy"),
+    success: () => this.toastrService.success("Success!"),
+    info: () => this.toastrService.info("Info!"),
+    warning: () => this.toastrService.warning("Warning!"),
+    error: () => this.toastrService.error("Error!"),
+    copy: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "copy", message: "Copy!" },
+      }),
   };
 
   cuteAnimals = [
@@ -121,12 +125,12 @@ export class TestbedComponent implements OnInit {
       "Wait, there is one other thing!",
       "I have told you everything I know!",
     ];
-    this.toastrService.show(
-      facts[this.clippyCount],
-      `Hi there! I'm Clippy!`,
-      {},
-      "copy",
-    );
+    this.toastrService.show(ToastComponent, {
+      data: {
+        toastType: "copy",
+        message: `Hi there! I'm Clippy!<br/>facts${this.clippyCount}`,
+      },
+    });
     this.clippyCount += 1;
     this.clippyCount = Math.min(this.clippyCount, facts.length - 1);
   }

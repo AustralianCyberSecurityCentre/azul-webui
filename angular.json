@@ -36,7 +36,7 @@
                 "output": "/assets/monaco/"
               }
             ],
-            "styles": ["src/styles.css"],
+            "styles": ["src/styles.css", "@ngxpert/hot-toast/styles.css"],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,
