@@ -26,8 +26,7 @@ export class RelationsTabComponent {
   // Order of this list determines order of the tabs.
   protected tabs = [
     RelationsTabs.Sources,
-    RelationsTabs.Parents,
-    RelationsTabs.Children,
+    RelationsTabs.Family,
     RelationsTabs.SimilarFeatures,
     RelationsTabs.SimilarSsdeep,
     RelationsTabs.SimilarTLSH,
