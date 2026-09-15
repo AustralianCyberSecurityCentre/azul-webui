@@ -22,10 +22,11 @@ import {
 import { components, paths } from "@app/core/api/openapi";
 import { DownloadType, FileUpload } from "@app/core/api/state";
 import { config } from "@app/settings";
+import { HotToastService } from "@ngxpert/hot-toast";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import Axios, { AxiosError } from "axios";
 import { CacheRequestConfig, setupCache } from "axios-cache-interceptor";
-import { ToastrService } from "ngx-toastr";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 /**
  * RxJS wrapper for Axios.
@@ -188,7 +189,8 @@ class AxiosClient {
   providedIn: "root",
 })
 export class ApiService {
-  toastrService = inject(ToastrService);
+  toastrService = inject(HotToastService);
+
   private oidcService = config.oauth_enabled
     ? inject(OidcSecurityService)
     : undefined;
@@ -249,8 +251,15 @@ export class ApiService {
     }
 
     const etitle = `API: ${e.message}`;
-    this.toastrService.error(e.config?.url, etitle, { timeOut: 20000 });
 
+    this.toastrService.show(ToastComponent, {
+      data: {
+        toastType: "toast-error",
+        title: etitle,
+        message: e.config?.url,
+      },
+      duration: 20000,
+    });
     console.warn("Internal error handler failed to handle error:", e.message);
     throw e.message;
   }
@@ -293,9 +302,15 @@ export class ApiService {
           // can't do a detailed handling.
           return this.handle(innerE, allowdata, []);
         }
-        this.toastrService.error(responseDetail?.message, etitle, {
-          timeOut: 20000,
+        this.toastrService.show(ToastComponent, {
+          data: {
+            toastType: "toast-error",
+            title: etitle,
+            message: responseDetail?.message,
+          },
+          duration: 20000,
         });
+
         throw innerE;
       },
     );
@@ -321,8 +336,13 @@ export class ApiService {
           // can't do a detailed handling.
           return this.handle(innerE, allowdata, []);
         }
-        this.toastrService.error(detailedMessage?.message, etitle, {
-          timeOut: 20000,
+        this.toastrService.show(ToastComponent, {
+          data: {
+            toastType: "toast-error",
+            title: etitle,
+            message: detailedMessage?.message,
+          },
+          duration: 20000,
         });
 
         console.warn(

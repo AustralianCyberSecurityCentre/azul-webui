@@ -14,7 +14,6 @@ import {
   inject,
 } from "@angular/core";
 import { Entity } from "@app/core/services";
-import { ToastrService } from "ngx-toastr";
 import {
   BehaviorSubject,
   Observable,
@@ -31,6 +30,8 @@ import { form } from "@angular/forms/signals";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
+import { HotToastService } from "@ngxpert/hot-toast";
 import { HexStringSyncService } from "../hex-string-sync.service";
 
 /** Data for a row of a 16-byte wide hexdump */
@@ -231,7 +232,7 @@ export class PositiveIntegerRange {
   standalone: false,
 })
 export class HexviewComponent extends BaseCard implements OnInit, OnDestroy {
-  private toastrService = inject(ToastrService);
+  private toastrService = inject(HotToastService);
   private entityService = inject(Entity);
   private host = inject(ElementRef);
   protected hexStringSyncService = inject(HexStringSyncService);
@@ -471,19 +472,25 @@ Ctrl-C will copy selected hexadecimal.`;
       navigator.clipboard.writeText(hex).then(
         (_value) => {
           console.log("Hex copy succeeded.");
-          this.toastrService.show(
-            "Copied selected data as hex.",
-            "Copied data!",
-            {},
-            "copy",
-          );
+          this.toastrService.show(ToastComponent, {
+            data: {
+              toastType: "toast-copy",
+              title: "Copied data!",
+              message: "Copied selected data as hex.",
+            },
+            duration: 1000,
+          });
         },
         (reason) => {
           console.log("Hex copy failed:", reason);
-          this.toastrService.warning(
-            "Your browser blocked the copy operation",
-            "Failed to copy data",
-          );
+          this.toastrService.show(ToastComponent, {
+            data: {
+              toastType: "toast-warning",
+              title: "Failed to copy data",
+              message: "Your browser blocked the copy operation",
+            },
+            duration: 1000,
+          });
         },
       );
 

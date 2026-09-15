@@ -18,7 +18,8 @@ import {
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { FieldType } from "@lib/flow/input/input.component";
 import { LinkColour } from "@lib/flow/link/link.directive";
-import { ToastrService } from "ngx-toastr";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
+import { HotToastService } from "@ngxpert/hot-toast";
 
 @Component({
   selector: "app-testbed",
@@ -28,7 +29,7 @@ import { ToastrService } from "ngx-toastr";
 })
 export class TestbedComponent implements OnInit {
   user = inject(User);
-  toastrService = inject(ToastrService);
+  toastrService = inject(HotToastService);
 
   protected faInternetExplorer = faInternetExplorer;
   protected faHammer = faHammer;
@@ -74,11 +75,36 @@ export class TestbedComponent implements OnInit {
   ];
 
   dialogTypes = {
-    success: () => this.toastrService.success("Success!", "Title"),
-    info: () => this.toastrService.info("Info!", "Title"),
-    warning: () => this.toastrService.warning("Warning!", "Title"),
-    error: () => this.toastrService.error("Error!", "Title"),
-    copy: () => this.toastrService.show("Copy!", "Title", {}, "copy"),
+    success: () =>
+      this.toastrService.show(ToastComponent, {
+        data: {
+          toastType: "toast-success",
+          title: "Title!",
+          message: "Success!",
+        },
+        autoClose: false,
+        dismissible: true,
+      }),
+    info: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "toast-info", title: "Title!", message: "Info!" },
+      }),
+    warning: () =>
+      this.toastrService.show(ToastComponent, {
+        data: {
+          toastType: "toast-warning",
+          title: "Title!",
+          message: "Warning!",
+        },
+      }),
+    error: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "toast-error", title: "Title!", message: "Error!" },
+      }),
+    copy: () =>
+      this.toastrService.show(ToastComponent, {
+        data: { toastType: "toast-copy", title: "Copy!", message: "Copy!" },
+      }),
   };
 
   cuteAnimals = [
@@ -119,15 +145,22 @@ export class TestbedComponent implements OnInit {
       "I designed the pdf specification!",
       "I have told you everything I know!",
       "Wait, there is one other thing!",
+      "Wait, there is one other thing!... Wait, there is one other thing!.. Wait, there is one other thing!. Wait, there is one other thing!",
       "I have told you everything I know!",
     ];
-    this.toastrService.show(
-      facts[this.clippyCount],
-      `Hi there! I'm Clippy!`,
-      {},
-      "copy",
-    );
+    this.toastrService.show(ToastComponent, {
+      data: {
+        toastType: "toast-copy",
+        title: "Hi there! I'm Clippy!",
+        message: `${facts[this.clippyCount]}`,
+      },
+      autoClose: false,
+      dismissible: true,
+    });
     this.clippyCount += 1;
+    if (this.clippyCount >= facts.length) {
+      this.clippyCount = 0;
+    }
     this.clippyCount = Math.min(this.clippyCount, facts.length - 1);
   }
 }
