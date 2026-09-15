@@ -12,15 +12,16 @@ import {
   HostListener,
   inject,
   OnDestroy,
+  Signal,
   signal,
   ViewChild,
   WritableSignal,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { components } from "@app/core/api/openapi";
 import { IconService } from "@app/core/icon.service";
-import { Nav } from "@app/core/services";
+import { Entity, Nav } from "@app/core/services";
 import {
   faCompress,
   faExpand,
@@ -28,6 +29,7 @@ import {
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
   faSpinner,
+  faFileCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import * as d3 from "d3";
 import * as dd3 from "dagre-d3-es";
@@ -36,6 +38,7 @@ import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { RelationalGraphLevel } from "@app/core/signal-store/global-state.types";
+import { EntityFindWithPurgeExtras } from "@app/core/api/state";
 
 /**a single node on the graph*/
 type Node = {
@@ -115,6 +118,11 @@ export class RelationGraphComponent extends BaseCard implements OnDestroy {
   private nav = inject(Nav);
   private iconService = inject(IconService);
   private store = inject(GlobalSettingStore);
+  private entityService = inject(Entity);
+
+  selectedSha256: WritableSignal<string> = signal<string>("");
+  currentWindowSha256: Signal<string> = signal<string>("");
+  protected findSelectedSha256$: Observable<EntityFindWithPurgeExtras>;
 
   dbg = (...d) => console.debug("RelationGraphComponent:", ...d);
   err = (...d) => console.error("RelationGraphComponent:", ...d);
@@ -141,6 +149,8 @@ not be shown on the graph.
   protected faExpand = faExpand;
   protected faCompress = faCompress;
   protected faSpinner = faSpinner;
+  protected faFileCircleXmark = faFileCircleXmark;
+
   protected isGraphLoading: WritableSignal<boolean> = signal(true);
 
   // Slider settings
@@ -314,6 +324,25 @@ not be shown on the graph.
   private zoomer: d3.ZoomBehavior<Element, unknown>;
   constructor() {
     super();
+    // Find the information about the selected sha256.
+    this.findSelectedSha256$ = toObservable(this.selectedSha256).pipe(
+      ops.filter((sha256) => sha256?.length > 0),
+      ops.switchMap((sha256) =>
+        this.entityService.find({ term: "sha256:" + sha256 }),
+      ),
+      ops.shareReplay(1),
+    );
+    this.currentWindowSha256 = toSignal(
+      this.findSelectedSha256$.pipe(
+        ops.map((e) => {
+          if (e?.items?.length > 0) {
+            return e.items[0].sha256;
+          }
+          return "";
+        }),
+        ops.shareReplay(1),
+      ),
+    );
 
     this.relationalGraphDetailSignal.set(
       this.store.relationalGraphShowCousinsByDefault(),
@@ -510,12 +539,15 @@ not be shown on the graph.
       const iconHeight = iconDef.icon[0] * iconScaleFactor;
       const iconWidth = iconDef.icon[1] * iconScaleFactor;
       label += `<div class="pt-2">
+        <button class="node-action icon-hover-fill" title="show summary" data-sha256="${data.sha256}">
           <svg
+            style="cursor: pointer;"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 ${iconHeight} ${iconWidth}"
             height="${iconHeight}"
             width="${iconWidth}"
-          ><g transform="scale(0.1)"><path d="${svgPathData}" fill="white"/></g></svg>
+          ><g class="icon-hover-fill" transform="scale(0.1)"><path d="${svgPathData}" fill="white"/></g></svg>
+        </button>
       </div>`;
       label += '<div class="mx-1">';
       const tmp = [];
@@ -723,6 +755,18 @@ not be shown on the graph.
         d3.select(this).style("stroke-width", HIGHLIGHT_GRAPH_STROKE_WIDTH);
         d3.select(this).style("stroke", HIGHTLIGHT_GRAPH_COLOR);
       }
+    });
+
+    const relationalGraph = this;
+
+    // Allow selecting of nodes to bubble up.
+    svg.selectAll(".node-action").on("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const sha256 = (this as HTMLButtonElement).dataset.sha256;
+      relationalGraph.selectedSha256.set(sha256);
+      relationalGraph.dbg(`Selected node with sha256 ${sha256}`);
     });
   }
 }

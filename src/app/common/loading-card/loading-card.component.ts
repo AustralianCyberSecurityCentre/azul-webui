@@ -45,6 +45,7 @@ export class LoadingCardComponent<T> {
   tplTopRight = input<TemplateRef<unknown> | undefined>(undefined);
   /**help text to display in second header*/
   help = input<string>();
+  stylingLiftUpHelp = input<boolean>(false);
   trimmedHelp = computed(() => this.help()?.trim());
 
   isScrollable = input<boolean>(false);

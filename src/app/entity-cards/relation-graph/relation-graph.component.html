@@ -1,8 +1,7 @@
 <div
   class="h-full w-full"
   [ngClass]="{
-    'dark:bg-azul-800 fixed top-0 right-0 bottom-0 left-0 z-30 block bg-white':
-      isFullScreenSignal(),
+    'dark:bg-azul-800 canvas-max-sizing block bg-white': isFullScreenSignal(),
   }"
 >
   <az-loading-card
@@ -10,7 +9,15 @@
     [obs$]="graphData$"
     [help]="help"
     [tplTopRight]="tplControls"
+    [stylingLiftUpHelp]="isFullScreenSignal()"
   >
+    @if (selectedSha256() === currentWindowSha256()) {
+      <az-entity-table
+        [find$]="findSelectedSha256$"
+        [tableScroll]="false"
+        [externalPagination]="true"
+      ></az-entity-table>
+    }
     <div #relationDIV class="h-full w-full">
       <svg
         #relationSVG
@@ -31,6 +38,17 @@
 </div>
 
 <ng-template #tplControls>
+  @if (selectedSha256() === currentWindowSha256()) {
+    <flow-tooltip message="De-select sha256">
+      <flow-button
+        [size]="ButtonSize.Icon"
+        [type]="ButtonType.Danger"
+        (click)="selectedSha256.set('')"
+      >
+        <fa-icon [icon]="faFileCircleXmark" />
+      </flow-button>
+    </flow-tooltip>
+  }
   @if (isFullScreenSignal()) {
     <flow-tooltip message="Minimize">
       <flow-button

@@ -289,3 +289,20 @@ th {
   top: 66px;
   z-index: 10;
 }
+
+.canvas-max-sizing {
+  position: fixed;
+  top: 66px;
+  bottom: 0;
+  z-index: 30;
+  right: 0;
+  left: 0;
+}
+
+.raise-bottom-card {
+  bottom: 66px;
+}
+
+.icon-hover-fill:hover path {
+  fill: var(--color-blue-600) !important;
+}
