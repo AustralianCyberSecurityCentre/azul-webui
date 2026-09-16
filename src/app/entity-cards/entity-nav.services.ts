@@ -16,8 +16,7 @@ export enum RelationsTabs {
   SimilarSsdeep = "Similar ssdeep",
   SimilarTLSH = "Similar TLSH",
   SimilarEntropy = "Similar Entropy",
-  Parents = "Parents",
-  Children = "Children",
+  Family = "Family",
   Sources = "Sources",
 }
 

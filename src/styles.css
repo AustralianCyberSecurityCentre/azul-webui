@@ -232,6 +232,17 @@ a.fragment-link {
   }
 }
 
+:not(.dark) {
+  .collapse-button-bg {
+    background-color: lightgrey;
+  }
+}
+.dark {
+  .collapse-button-bg {
+    background-color: grey;
+  }
+}
+
 /* Needed so if there is trailing or leading white space on a feature value it still renders the full string.*/
 .feature-value-render {
   white-space: pre;
@@ -297,4 +308,21 @@ th {
     padding-right: 0.5em;
     cursor: pointer;
   }
+}
+
+.canvas-max-sizing {
+  position: fixed;
+  top: 66px;
+  bottom: 0;
+  z-index: 30;
+  right: 0;
+  left: 0;
+}
+
+.raise-bottom-card {
+  bottom: 66px;
+}
+
+.icon-hover-fill:hover path {
+  fill: var(--color-blue-600) !important;
 }

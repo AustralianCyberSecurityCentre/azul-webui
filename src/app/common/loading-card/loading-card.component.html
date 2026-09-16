@@ -3,6 +3,7 @@
   @if (showHelp) {
     <div
       class="absolute right-0 bottom-0 z-10 m-4 flex items-center gap-1 transition-opacity group-hover/card:opacity-40 hover:group-hover/card:opacity-100"
+      [ngClass]="{ 'raise-bottom-card': stylingLiftUpHelp() }"
     >
       @if ((obs$ | async) !== null) {
         @if (tplTopRight()) {
