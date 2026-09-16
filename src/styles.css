@@ -324,5 +324,5 @@ th {
 }
 
 .icon-hover-fill:hover path {
-  fill: var(--color-blue-600) !important;
+  fill: black !important;
 }
