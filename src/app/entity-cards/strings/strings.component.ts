@@ -167,45 +167,51 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       toObservable(this.store.enableHexStringSync),
     ])
       .pipe(
-        ops.map(([hexOffset, currentStringList, enableHexStringSync]) => {
+        ops.filter(([hexOffset, currentStringList, enableHexStringSync]) => {
           // If the syncing is disabled do nothing
           if (enableHexStringSync === false) {
-            return -1;
+            return false;
           }
           if (hexOffset === -1) {
-            return -1;
+            return false;
           }
           // Binary search for string with the correct offset in the list of strings.
-          const stringVal = currentStringList;
-          if (stringVal === undefined) {
-            return -1;
+          if (currentStringList === undefined) {
+            return false;
           }
-          if (stringVal.length > 0) {
-            if (
-              hexOffset < stringVal[0].offset - this.SCROLL_UP_JUMP_AMOUNT ||
-              hexOffset >
-                stringVal[stringVal.length - 1].offset +
-                  this.SCROLL_UP_JUMP_AMOUNT
-            ) {
-              this.jumpToFileOffset(hexOffset);
-              return -1;
-            }
-          }
-
-          let min_index = 0;
-          let max_index = stringVal.length;
-          let mid_index;
-          while (min_index < max_index) {
-            mid_index = min_index + Math.floor((max_index - min_index) / 2);
-            if (stringVal[mid_index].offset < hexOffset) {
-              min_index = mid_index + 1;
-            } else {
-              max_index = mid_index;
-            }
-          }
-          // Math max to avoid min_index being -1 when before the first string.
-          return Math.max(0, min_index - 1);
+          return true;
         }),
+        // exahust map is to ensure only one scroll event is processed at a time.
+        ops.exhaustMap(
+          ([hexOffset, currentStringList, _enableHexStringSync]) => {
+            const stringVal = currentStringList;
+            if (stringVal.length > 0) {
+              if (
+                hexOffset < stringVal[0].offset - this.SCROLL_UP_JUMP_AMOUNT ||
+                hexOffset >
+                  stringVal[stringVal.length - 1].offset +
+                    this.SCROLL_UP_JUMP_AMOUNT
+              ) {
+                this.jumpToFileOffset(hexOffset);
+                return of(-1);
+              }
+            }
+
+            let min_index = 0;
+            let max_index = stringVal.length;
+            let mid_index;
+            while (min_index < max_index) {
+              mid_index = min_index + Math.floor((max_index - min_index) / 2);
+              if (stringVal[mid_index].offset < hexOffset) {
+                min_index = mid_index + 1;
+              } else {
+                max_index = mid_index;
+              }
+            }
+            // Math max to avoid min_index being -1 when before the first string.
+            return of(Math.max(0, min_index - 1));
+          },
+        ),
       )
       .subscribe((indexToJumpTo) => {
         if (indexToJumpTo > -1 && this.viewport) {
@@ -219,6 +225,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
       // There is many signals inside this function so don't allow them changing to trigger the effect.
       untracked(() => {
         if (this.stringsFilterForm().valid()) {
+          this.reset();
           this.jumpToFileOffset(0);
         }
       });
@@ -257,6 +264,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
         file_type: file_format,
       });
       //get first set of data
+      this.reset();
       this.jumpToFileOffset(0);
     });
   }
@@ -599,17 +607,27 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     ) {
       return false;
     }
+
+    // Already reached end of the file can't scroll down anymore, so stop
+    if (this.reachedEndOfFile === true && offset > this.currentMinByteOffset) {
+      console.warn("EXIT!");
+      return false;
+    }
     // If it's within the scroll up windows, just do a scroll down from the top.
     if (offset < this.SCROLL_UP_JUMP_AMOUNT) {
-      this.reset();
-      this.currentMinByteOffset = 0;
+      // reset back to the top unless already at the top of the page.
+      // Can't always reset or it'll continually reset when the first scroll doesn't load enough strings.
+      if (this.currentMinByteOffset !== 0) {
+        this.reset();
+        this.currentMinByteOffset = 0;
+      }
       this._scrollDownFile();
     } else if (
       offset < this.currentMaxByteOffset &&
       offset > this.currentMinByteOffset
     ) {
       console.error(
-        "Trying to jump to an offset within the loaded file this shouldn't happen.",
+        `Trying to jump to an offset within the loaded file this shouldn't happen. ${offset}(offset) (min)${this.currentMinByteOffset} to ${this.currentMaxByteOffset}(max)`,
       );
       return false;
     } else {
