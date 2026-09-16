@@ -26,7 +26,6 @@ import {
   Subscription,
   combineLatest,
   of,
-  timer,
 } from "rxjs";
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
