@@ -757,7 +757,7 @@ not be shown on the graph.
       }
     });
 
-    const relationalGraph = this;
+    const relationalGraph = this; // eslint-disable-line
 
     // Allow selecting of nodes to bubble up.
     svg.selectAll(".node-action").on("click", function (event) {
