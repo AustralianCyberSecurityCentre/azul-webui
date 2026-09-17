@@ -1,10 +1,13 @@
 <div>
   <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
-  @if (!noSearch()) {
-    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
-  }
-  @if (pageEstimateBinariesSignal() > 50) {
-    <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
+  <!--If hidden collapse to one card-->
+  @if (!isEntityResultsHidden()) {
+    @if (!noSearch()) {
+      <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+    }
+    @if (pageEstimateBinariesSignal() > 50) {
+      <ng-container *ngTemplateOutlet="tplPaginate"></ng-container>
+    }
   }
 </div>
 <ng-template #tplResult>
@@ -15,6 +18,7 @@
         [externalPagination]="true"
         [originalSha256]="originalSha256()"
         [eType]="eType()"
+        [noResults]="noResults()"
         [tableXScroll]="true"
         class="w-full"
       ></az-entity-table>
@@ -26,71 +30,90 @@
   @if (pageEstimateBinariesSignal() > 0) {
     <flow-card class="w-full">
       <flow-card-body>
-        <ng-container>
-          @if (pageEstimateBinariesSignal() > 50) {
-            <div class="flex justify-center gap-2">
-              <p class="py-2">
-                Showing
-                {{ pageCurrentPageSignal() * pageDisplayBinariesSignal() + 1 }}
-                to
-                {{
-                  pageCurrentPageSignal() * pageDisplayBinariesSignal() +
-                    pageCurrentBinariesSignal()
-                }}
-                of {{ pageEstimateBinariesSignal() }}
-                @if (eType() !== undefined) {
-                  @if (eType() === "parents") {
-                    parent
-                  }
-                  @if (eType() === "children") {
-                    child
-                  }
-                }
-                binaries<br />
-              </p>
-            </div>
-            <div class="flex justify-center gap-2">
-              <flow-button
-                [type]="
-                  pageCurrentPageSignal() === 0 || pageLoadingSignal() === true
-                    ? ButtonType.Disabled
-                    : ButtonType.Light
-                "
-                (click)="switchPage(pageCurrentPageSignal() - 1)"
-              >
-                <fa-icon [icon]="faBackwardStep" size="lg" />
-              </flow-button>
-              <flow-button
-                [type]="
-                  pageLoadingSignal() === true ||
-                  pageCurrentPageSignal() === pageMaxSignal()
-                    ? ButtonType.Disabled
-                    : ButtonType.Light
-                "
-                (click)="switchPage(pageCurrentPageSignal() + 1)"
-              >
-                <fa-icon [icon]="faForwardStep" size="lg" />
-              </flow-button>
-            </div>
-          } @else {
-            Showing {{ pageCurrentBinariesSignal() }}
-            @if (eType() !== undefined) {
-              @if (eType() === "parents") {
-                parent
+        <div class="flex w-full items-center">
+          @if (allowHidingResults()) {
+            <button
+              [aria-label]="
+                isEntityResultsHidden() ? 'Hide results' : 'Show results'
+              "
+              class="cursor-pointer pr-1 hover:text-gray-200"
+              (click)="isEntityResultsHidden.set(!isEntityResultsHidden())"
+            >
+              @if (isEntityResultsHidden()) {
+                <fa-icon [icon]="faChevronRight" size="xl" />
+              } @else {
+                <fa-icon [icon]="faChevronDown" size="xl" />
               }
-              @if (eType() === "children") {
-                child
-              }
-            }
-
-            @if (pageCurrentBinariesSignal() === 1) {
-              binary
-            } @else {
-              binaries
-            }
-            <br />
+            </button>
           }
-        </ng-container>
+          <div class="w-full">
+            @if (pageEstimateBinariesSignal() > 50) {
+              <div class="flex justify-center gap-2">
+                <p class="py-2">
+                  Showing
+                  {{
+                    pageCurrentPageSignal() * pageDisplayBinariesSignal() + 1
+                  }}
+                  to
+                  {{
+                    pageCurrentPageSignal() * pageDisplayBinariesSignal() +
+                      pageCurrentBinariesSignal()
+                  }}
+                  of {{ pageEstimateBinariesSignal() }}
+                  @if (eType() !== undefined) {
+                    @if (eType() === "parents") {
+                      parent
+                    }
+                    @if (eType() === "children") {
+                      child
+                    }
+                  }
+                  binaries<br />
+                </p>
+              </div>
+              <div class="flex justify-center gap-2">
+                <flow-button
+                  [type]="
+                    pageCurrentPageSignal() === 0 ||
+                    pageLoadingSignal() === true
+                      ? ButtonType.Disabled
+                      : ButtonType.Light
+                  "
+                  (click)="switchPage(pageCurrentPageSignal() - 1)"
+                >
+                  <fa-icon [icon]="faBackwardStep" size="lg" />
+                </flow-button>
+                <flow-button
+                  [type]="
+                    pageLoadingSignal() === true ||
+                    pageCurrentPageSignal() === pageMaxSignal()
+                      ? ButtonType.Disabled
+                      : ButtonType.Light
+                  "
+                  (click)="switchPage(pageCurrentPageSignal() + 1)"
+                >
+                  <fa-icon [icon]="faForwardStep" size="lg" />
+                </flow-button>
+              </div>
+            } @else {
+              Showing {{ pageCurrentBinariesSignal() }}
+              @if (eType() !== undefined) {
+                @if (eType() === "parents") {
+                  parent
+                }
+                @if (eType() === "children") {
+                  child
+                }
+              }
+              @if (pageCurrentBinariesSignal() === 1) {
+                binary
+              } @else {
+                binaries
+              }
+              <br />
+            }
+          </div>
+        </div>
       </flow-card-body>
     </flow-card>
   }

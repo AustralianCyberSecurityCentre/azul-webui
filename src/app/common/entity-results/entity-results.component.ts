@@ -17,6 +17,8 @@ import { Router } from "@angular/router";
 import { EntitySearchComponent } from "@app/common/entity-search/entity-search.component";
 import {
   faBackwardStep,
+  faChevronDown,
+  faChevronRight,
   faForwardStep,
 } from "@fortawesome/free-solid-svg-icons";
 import { AxiosError } from "axios";
@@ -54,6 +56,10 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
 
   protected faBackwardStep = faBackwardStep;
   protected faForwardStep = faForwardStep;
+  protected faChevronRight = faChevronRight;
+  protected faChevronDown = faChevronDown;
+
+  noResults = input<string>("No binaries match the search criteria");
 
   @ViewChild("entitySearch", { read: EntitySearchComponent })
   protected entitySearch: EntitySearchComponent;
@@ -103,6 +109,9 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   countOption = input<string | "50">("50");
   termOption = input<string | "">("");
   forceEmptySearchOption = input<boolean>(true);
+  allowHidingResults = input<boolean>(false);
+
+  protected isEntityResultsHidden: WritableSignal<boolean> = signal(false);
 
   constructor() {
     // On searchtrigger changing perform a search operation.

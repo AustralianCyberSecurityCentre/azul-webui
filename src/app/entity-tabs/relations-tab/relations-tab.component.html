@@ -13,11 +13,8 @@
       @case (RelationsTabs.SimilarEntropy) {
         <azec-similar-entropy [entity]="entity()" />
       }
-      @case (RelationsTabs.Parents) {
-        <azec-family [entity]="entity()" [isParent]="true" />
-      }
-      @case (RelationsTabs.Children) {
-        <azec-family [entity]="entity()" [isParent]="false" />
+      @case (RelationsTabs.Family) {
+        <azec-family-combined [entity]="entity()" />
       }
       @case (RelationsTabs.Sources) {
         <azec-source-table [entity]="entity()" />

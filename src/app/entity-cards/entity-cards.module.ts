@@ -14,7 +14,7 @@ import { FlowModule } from "@lib/flow/flow.module";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { EntitySummaryComponent } from "./entity-summary/entity-summary.component";
 import { EntropyGraphComponent } from "./entropy-graph/entropy-graph.component";
-import { FamilyComponent } from "./family/family.component";
+import { FamilyCombinedComponent } from "./family-combined/family-combined.component";
 import { FeatureTableComponent } from "./feature-table/feature-table.component";
 import { HexviewComponent } from "./hexview/hexview.component";
 import { ImagePreviewComponent } from "./image-preview/image-preview.component";
@@ -35,7 +35,7 @@ import { StringsComponent } from "./strings/strings.component";
     FeatureTableComponent,
     RelationGraphComponent,
     EntropyGraphComponent,
-    FamilyComponent,
+    FamilyCombinedComponent,
     PdfPreviewComponent,
     StreamTextTabMonacoComponent,
     StreamMergedTextTabMonacoComponent,
@@ -67,7 +67,7 @@ import { StringsComponent } from "./strings/strings.component";
     FeatureTableComponent,
     RelationGraphComponent,
     EntropyGraphComponent,
-    FamilyComponent,
+    FamilyCombinedComponent,
     PdfPreviewComponent,
     StreamTextTabMonacoComponent,
     StreamMergedTextTabMonacoComponent,

@@ -259,8 +259,6 @@ export class EntityWrap {
     );
   }
 
-  private store = inject(GlobalSettingStore);
-
   constructor(
     private api: ApiService,
     private featureService: FeatureService,
@@ -278,8 +276,8 @@ export class EntityWrap {
     // this prevents errors from causing the data to be re-requested constantly
     // under certain circumstances when shareReplay is used, while still caching data.
     const main$ = combineLatest([
-      toObservable(this.store.bucketSize),
-      toObservable(this.store.showDebugInfo),
+      entityService.bucketSize$,
+      entityService.showDebugInfo$,
     ]).pipe(
       ops.switchMap(([bucketSize, getDebugInfo]) =>
         this.api.entityReadMain(this.sha256, {
@@ -708,10 +706,21 @@ export class EntityWrap {
 export class EntityService {
   private api = inject(ApiService);
   private featureService = inject(FeatureService);
+  private settingStore = inject(GlobalSettingStore);
+
+  bucketSize$: Observable<number>;
+  showDebugInfo$: Observable<boolean>;
+
   // Just needs to toggle between true and false to trigger searches, value is not important.
   searchTrigger: WritableSignal<boolean> = signal(false);
   dbg = (...d) => console.debug("EntityService:", ...d);
   err = (...d) => console.error("EntityService:", ...d);
+
+  constructor() {
+    this.bucketSize$ = toObservable(this.settingStore.bucketSize);
+    this.showDebugInfo$ = toObservable(this.settingStore.showDebugInfo);
+  }
+
   requestBulkEntitySummary(
     ents: BulkEntitySummarySubmit[],
   ): Subscription | null {

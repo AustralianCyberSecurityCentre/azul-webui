@@ -1,0 +1,81 @@
+<az-loading-card
+  [cardTitle]="'Family'"
+  [obs$]="autoLoad$"
+  [help]="help"
+  [show]="(entity.children$ | async) !== null"
+>
+  <div class="max-h-card-height flex h-full flex-row">
+    @if (isGraphHidden()) {
+      <div class="mt-2 content-center">
+        <button
+          aria-label="Show Graph"
+          class="collapse-button-bg h-full w-6 max-w-6 min-w-6 cursor-pointer pr-1"
+          (click)="showGraph()"
+          [type]="collapseButtonType"
+        >
+          <fa-icon [icon]="faAnglesRight" size="xl" />
+        </button>
+      </div>
+    } @else {
+      <div class="relation-size mt-2 h-full">
+        <azec-relation-graph [entity]="entity" />
+      </div>
+      <div class="mt-2 h-full content-center">
+        <button
+          aria-label="Hide Graph"
+          class="collapse-button-bg h-full w-6 max-w-6 min-w-6 cursor-pointer pr-1"
+          (click)="hideGraph()"
+          [type]="collapseButtonType"
+        >
+          <fa-icon [icon]="faAnglesLeft" size="xl" />
+        </button>
+      </div>
+    }
+    <div class="min-h-0 w-full overflow-y-auto">
+      <div
+        *ngTemplateOutlet="
+          familyTemplate;
+          context: {
+            data$: entity.parents$,
+            etype: 'parents',
+            isParent: true,
+          }
+        "
+      ></div>
+      <div
+        *ngTemplateOutlet="
+          familyTemplate;
+          context: {
+            data$: entity.children$,
+            etype: 'children',
+            isParent: false,
+          }
+        "
+      ></div>
+    </div>
+  </div>
+</az-loading-card>
+
+<ng-template
+  #familyTemplate
+  [typedTemplate]="familyTemplateInputType"
+  let-data$="data$"
+  let-etype="etype"
+  let-isParent="isParent"
+>
+  <az-loading-content [obs$]="data$">
+    @if (data$ | async; as data) {
+      <azco-entity-results
+        [allowHidingResults]="true"
+        [familyFind]="true"
+        [isParent]="isParent"
+        [originalSha256]="entity.sha256"
+        [eType]="etype"
+        [noResults]="
+          isParent ? 'No parent binaries found.' : 'No Child binaries found.'
+        "
+        [countOption]="'all'"
+      ></azco-entity-results>
+    }
+  </az-loading-content>
+</ng-template>

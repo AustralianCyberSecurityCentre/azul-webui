@@ -107,6 +107,23 @@ a.fragment-link {
   @apply fill-yellow-600;
 }
 
+.canvas-max-sizing {
+  position: fixed;
+  top: 66px;
+  bottom: 0;
+  z-index: 30;
+  right: 0;
+  left: 0;
+}
+
+.raise-bottom-card {
+  bottom: 66px;
+}
+
+.icon-hover-fill:hover path {
+  fill: black !important;
+}
+
 /**
  * relation graph formatting end
  * has to be applied globally!
@@ -229,6 +246,17 @@ a.fragment-link {
   .border-highlight {
     /* Fake the border to allow it to work with sticky */
     box-shadow: inset -2px 0 0 white;
+  }
+}
+
+:not(.dark) {
+  .collapse-button-bg {
+    background-color: lightgrey;
+  }
+}
+.dark {
+  .collapse-button-bg {
+    background-color: grey;
   }
 }
 

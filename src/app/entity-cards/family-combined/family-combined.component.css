@@ -4,3 +4,7 @@
 .limit-hash {
   max-width: 20em;
 }
+
+.relation-size {
+  min-width: 50vw;
+}
