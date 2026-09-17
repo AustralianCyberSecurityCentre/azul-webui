@@ -592,15 +592,26 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     futureRowShowFeatureName: boolean,
     partsLength: number,
   ): boolean {
+    /* Determine if the table should show strong borders or not at the row level.
+    
+    This is complicated by the fact strong borders are shown below the row.
+    And if extra parts are showing the strong borders need to show below the parts.
+    So the border should only show if parts aren't showing.
+    */
+    // Strong border should be shown either on this row or the parts table.
     if (futureRowShowFeatureName) {
-      // If parts aren't showing return the value of futureRowShowFeatureName
+      // Parts aren't being shown so show strong border
       if (!this.showParts()) {
-        return futureRowShowFeatureName;
+        return true;
       }
+      // Parts are being shown but this row has less than two parts so no parts get displayed
+      // Show the strong border on this row then.
       if (partsLength < 2) {
-        return futureRowShowFeatureName;
+        return true;
       }
     }
+    // Don't show the strong border on the row, either parts are going to display it
+    // Or it's not needed because the feature values have different names.
     return false;
   }
 }
