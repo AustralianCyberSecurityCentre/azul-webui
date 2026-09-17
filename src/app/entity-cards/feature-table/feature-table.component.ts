@@ -18,7 +18,15 @@ import { components } from "@app/core/api/openapi";
 import { FeatureWithDecodedValue } from "@app/core/api/state";
 import { PivotService } from "@app/core/pivot.service";
 import { escapeValue } from "@app/core/util";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCalculator,
+  faCalendar,
+  faCircleInfo,
+  faFolderOpen,
+  faLink,
+  faPencil,
+  faSquareBinary,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   BehaviorSubject,
   Observable,
@@ -92,7 +100,13 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   dbg = (...d) => console.debug("FeatureTableComponent:", ...d);
   err = (...d) => console.error("FeatureTableComponent:", ...d);
 
-  protected faPlus = faPlus;
+  protected faCircleInfo = faCircleInfo;
+  protected faCalculator = faCalculator;
+  protected faLink = faLink;
+  protected faFolderOpen = faFolderOpen;
+  protected faCalendar = faCalendar;
+  protected faPencil = faPencil;
+  protected faSquareBinary = faSquareBinary;
 
   currentSelectedFeatures: WritableSignal<FeatureValue[]> = signal([]);
 
@@ -114,7 +128,7 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   private dialog: DialogRef;
 
   protected featureDetailShow(tpl, row: ShowFeature) {
-    this.currentRowDetail = row;
+    this.currentRowDetail.set(row);
     this.dialogClose();
     this.dialog = this.dialogService.open(tpl);
   }
@@ -126,15 +140,17 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.dialog = null;
   }
 
-  currentRowDetail: ShowFeature = null;
-  showDetail: WritableSignal<ShowFeature> = signal(null);
-  filterFormControl: FormControl<string>;
-  filterSub: Subscription;
-  currentFilter$: BehaviorSubject<string> = new BehaviorSubject<string>("");
-  currentPluginFilter$: BehaviorSubject<string[]> = new BehaviorSubject<
-    string[]
-  >([]);
-  caseSensitivity$ = new BehaviorSubject<boolean>(false);
+  protected showParts: WritableSignal<boolean> = signal(false);
+
+  protected currentRowDetail: WritableSignal<ShowFeature> = signal(null);
+  protected showDetail: WritableSignal<ShowFeature> = signal(null);
+  protected filterFormControl: FormControl<string>;
+  protected filterSub: Subscription;
+  protected currentFilter$: BehaviorSubject<string> =
+    new BehaviorSubject<string>("");
+  protected currentPluginFilter$: BehaviorSubject<string[]> =
+    new BehaviorSubject<string[]>([]);
+  protected caseSensitivity$ = new BehaviorSubject<boolean>(false);
 
   protected boundedFeatures$: Observable<ShowFeature[]>;
   protected visibleExtent$: BehaviorSubject<Boundary> = new BehaviorSubject({
