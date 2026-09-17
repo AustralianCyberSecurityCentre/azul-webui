@@ -195,8 +195,10 @@
                   <tr
                     flowTableBodyRow
                     [strongBorder]="
-                      reducedFeatures[i + 1]?.showFeatureName &&
-                      row?.XPartsBinaries?.length < 2
+                      showStrongBorderCheck(
+                        reducedFeatures[i + 1]?.showFeatureName,
+                        row?.XPartsBinaries?.length
+                      )
                     "
                     class="group"
                   >

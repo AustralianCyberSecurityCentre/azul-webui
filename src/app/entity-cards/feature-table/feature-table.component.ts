@@ -587,4 +587,20 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     this.pivotService.backupCurrentSelection();
     this.router.navigate(["/pages/features/pivot"]);
   }
+
+  showStrongBorderCheck(
+    futureRowShowFeatureName: boolean,
+    partsLength: number,
+  ): boolean {
+    if (futureRowShowFeatureName) {
+      // If parts aren't showing return the value of futureRowShowFeatureName
+      if (!this.showParts()) {
+        return futureRowShowFeatureName;
+      }
+      if (partsLength < 2) {
+        return futureRowShowFeatureName;
+      }
+    }
+    return false;
+  }
 }
