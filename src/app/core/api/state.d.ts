@@ -211,6 +211,7 @@ export type MutableSettings = components["schemas"]["Settings"] & {
  */
 export type FeatureWithParsedProperties = components["schemas"]["Feature"] & {
   XDescriptions: string[];
+  XTypes: string[];
   XAuthors: string[];
   XTags: string;
   XNumBinaries$: ReplaySubject<number>;

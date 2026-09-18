@@ -60,6 +60,7 @@
               <thead flowTableHeader class="sticky top-0">
                 <tr flowTableHeaderRow>
                   <th flowTableHeaderCell>Feature</th>
+                  <th flowTableHeaderCell class="text-center">Type</th>
                   <th flowTableHeaderCell class="w-20 text-center">Binaries</th>
                   <th flowTableHeaderCell class="w-20 text-center">Values</th>
                   <th flowTableHeaderCell>Description</th>
@@ -74,6 +75,48 @@
                       <flow-tooltip message="{{ row.name }}" [copyText]="true">
                         {{ row.name }}
                       </flow-tooltip>
+                    </td>
+                    <td flowTableBodyCell class="text-center">
+                      @switch (row.XTypes[0]) {
+                        @case ("uri") {
+                          <fa-icon title="uri" flowLink [icon]="faLink" />
+                        }
+                        @case ("filepath") {
+                          <fa-icon
+                            title="path"
+                            flowLink
+                            [icon]="faFolderOpen"
+                          />
+                        }
+                        @case ("datetime") {
+                          <fa-icon title="date" flowLink [icon]="faCalendar" />
+                        }
+                        @case ("string") {
+                          <fa-icon title="string" flowLink [icon]="faPencil" />
+                        }
+                        @case ("binary") {
+                          <fa-icon
+                            title="binary"
+                            flowLink
+                            [icon]="faSquareBinary"
+                          />
+                        }
+                        @case ("integer")
+                        @case ("float") {
+                          <fa-icon
+                            title="numeric"
+                            flowLink
+                            [icon]="faCalculator"
+                          />
+                        }
+                        @default {
+                          <fa-icon
+                            title="other"
+                            flowLink
+                            [icon]="faCircleInfo"
+                          />
+                        }
+                      }
                     </td>
                     <td flowTableBodyCell class="text-center">
                       <flow-tooltip message="View binaries with this feature">

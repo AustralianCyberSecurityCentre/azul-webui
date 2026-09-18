@@ -15,8 +15,16 @@ import * as ops from "rxjs/operators";
 import { components } from "@app/core/api/openapi";
 import { FeatureWithParsedProperties } from "@app/core/api/state";
 import { Api, Feature } from "@app/core/services";
+import {
+  faCalculator,
+  faCalendar,
+  faCircleInfo,
+  faFolderOpen,
+  faLink,
+  faPencil,
+  faSquareBinary,
+} from "@fortawesome/free-solid-svg-icons";
 import { escapeValue } from "../../core/util";
-
 type SearchFilter = {
   term?: string;
   author?: string;
@@ -77,6 +85,14 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
   private binaryCountSub: Subscription;
   private valueCountSub: Subscription;
 
+  protected faCircleInfo = faCircleInfo;
+  protected faCalculator = faCalculator;
+  protected faLink = faLink;
+  protected faFolderOpen = faFolderOpen;
+  protected faCalendar = faCalendar;
+  protected faPencil = faPencil;
+  protected faSquareBinary = faSquareBinary;
+
   ngOnInit(): void {
     this.plugins$ = this.api.pluginGetAll();
     this.authors$ = this.plugins$.pipe(
@@ -98,6 +114,7 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
 
         for (const feat of fs) {
           feat.XDescriptions = this.getDescriptions(feat.descriptions);
+          feat.XTypes = this.getTypes(feat.descriptions);
           feat.XAuthors = this.getAuthors(feat.descriptions);
           feat.XTags = feat.tags?.join(" | ");
           feat.XNumBinaries$ = new ReplaySubject<number>(1);
@@ -284,6 +301,20 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
         continue;
       }
       ret.push(desc.desc);
+    }
+    ret.sort();
+    return ret;
+  }
+
+  private getTypes(
+    descs: readonly components["schemas"]["FeatureDescription"][],
+  ): string[] {
+    const ret = [];
+    for (const desc of descs || []) {
+      if (ret.indexOf(desc.type) >= 0) {
+        continue;
+      }
+      ret.push(desc.type);
     }
     ret.sort();
     return ret;
