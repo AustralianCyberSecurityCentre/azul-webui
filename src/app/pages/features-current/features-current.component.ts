@@ -313,6 +313,7 @@ export class FeaturesCurrentComponent implements OnInit, OnDestroy {
       this.triggerLoadPreviousPage$.next(!this.triggerLoadPreviousPage$.value);
     }
   }
+
   decrementPage() {
     this.currentPageSignal.update((value) => value - 1);
     this.triggerLoadPreviousPage$.next(!this.triggerLoadPreviousPage$.value);
