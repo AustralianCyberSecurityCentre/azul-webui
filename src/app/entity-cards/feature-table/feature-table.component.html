@@ -58,6 +58,15 @@
           >
             Pivot on Selected
           </flow-button>
+          <flow-button
+            (click)="showParts.set(!showParts())"
+            [title]="
+              showParts() ? 'Hide part information' : 'Show part information'
+            "
+            [type]="showParts() ? ButtonType.Light : ButtonType.Dark"
+          >
+            Toggle Parts
+          </flow-button>
           <azec-offset-picker
             [entity]="entity"
             (extent)="visibleExtent$.next($event)"
@@ -144,7 +153,7 @@
       </div>
       <div class="min-h-0 w-full overflow-y-auto">
         <table flowTable #ftable class="w-full table-auto">
-          <thead flowTableHeader class="sticky top-0">
+          <thead flowTableHeader class="sticky top-0 z-1">
             <tr flowTableHeaderRow>
               <th flowTableHeaderCell class="s-expand text-wrap break-words">
                 &nbsp;
@@ -185,7 +194,12 @@
                 ) {
                   <tr
                     flowTableBodyRow
-                    [strongBorder]="reducedFeatures[i + 1]?.showFeatureName"
+                    [strongBorder]="
+                      showStrongBorderCheck(
+                        reducedFeatures[i + 1]?.showFeatureName,
+                        row?.XPartsBinaries?.length
+                      )
+                    "
                     class="group"
                   >
                     <td flowTableBodyCell class="px-1! align-top">
@@ -197,6 +211,7 @@
                           updateSelectedFeatures($event, row.name, row.value)
                         "
                         class="bg-azul-50 dark:bg-azul-700 rounded-sm border border-gray-300 checked:border-blue-600 checked:bg-blue-600 checked:ring-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                        style="cursor: copy"
                       />
                     </td>
                     <!-- button to toggle visibility of detailed info for current row -->
@@ -209,7 +224,58 @@
                         [blockCentered]="true"
                         [noPadding]="true"
                       >
-                        <fa-icon flowLink [icon]="faPlus" />
+                        @switch (row.type) {
+                          @case ("uri") {
+                            <fa-icon
+                              title="uri info"
+                              flowLink
+                              [icon]="faLink"
+                            />
+                          }
+                          @case ("filepath") {
+                            <fa-icon
+                              title="path info"
+                              flowLink
+                              [icon]="faFolderOpen"
+                            />
+                          }
+                          @case ("datetime") {
+                            <fa-icon
+                              title="date info"
+                              flowLink
+                              [icon]="faCalendar"
+                            />
+                          }
+                          @case ("string") {
+                            <fa-icon
+                              title="string info"
+                              flowLink
+                              [icon]="faPencil"
+                            />
+                          }
+                          @case ("binary") {
+                            <fa-icon
+                              title="binary info"
+                              flowLink
+                              [icon]="faSquareBinary"
+                            />
+                          }
+                          @case ("integer")
+                          @case ("float") {
+                            <fa-icon
+                              title="numeric info"
+                              flowLink
+                              [icon]="faCalculator"
+                            />
+                          }
+                          @default {
+                            <fa-icon
+                              title="other info"
+                              flowLink
+                              [icon]="faCircleInfo"
+                            />
+                          }
+                        }
                       </flow-button>
                     </td>
                     <!-- feature name column -->
@@ -311,6 +377,24 @@
                       </span>
                     </td>
                   </tr>
+                  @if (showParts() && row?.XPartsBinaries?.length > 1) {
+                    <tr
+                      flowTableBodyRow
+                      [strongBorder]="reducedFeatures[i + 1]?.showFeatureName"
+                    >
+                      <td class="bg-azul-50 dark:bg-azul-500"></td>
+                      <td class="bg-azul-50 dark:bg-azul-500"></td>
+                      <td class="bg-azul-50 dark:bg-azul-500"></td>
+                      <td colspan="100">
+                        <ng-container
+                          *ngTemplateOutlet="
+                            tplPartsTable;
+                            context: { row: row, highlight: true }
+                          "
+                        />
+                      </td>
+                    </tr>
+                  }
                 }
                 <!--Compress lots of rows into an expandable-->
                 @if (row.distance === 4 && row.shared.max > 10) {
@@ -356,9 +440,9 @@
 
 <ng-template #tplFeatureDetail>
   <flow-card>
-    <flow-card-header [title]="currentRowDetail.name" />
+    <flow-card-header [title]="currentRowDetail()?.name" />
     <flow-card-body class="block h-[75vh] w-[80vw] overflow-auto">
-      @if (currentRowDetail; as row) {
+      @if (currentRowDetail(); as row) {
         <div class="py-2">
           <flow-tablist
             [tabs]="[
@@ -420,43 +504,12 @@
               </tbody>
             </table>
             <!-- parsed information from feature value properties -->
-            <table flowTable class="w-full">
-              <thead flowTableBody>
-                <tr flowTableBodyRow>
-                  <th flowTableBodyCell class="pl-2">Part</th>
-                  <th flowTableBodyCell class="pl-2">Value</th>
-                  <th flowTableBodyCell class="pl-2">Binaries</th>
-                </tr>
-              </thead>
-              <tbody flowTableBody class="pt-2">
-                @for (part of row.XPartsBinaries; track part) {
-                  <tr flowTableBodyRow>
-                    <td flowTableBodyCell>
-                      {{ part.part }}
-                    </td>
-                    <td
-                      flowTableBodyCell
-                      class="large-value line-clamp-8 pl-2 text-wrap break-words"
-                      [title]="part.value"
-                    >
-                      {{ part.value }}
-                    </td>
-                    <td flowTableBodyCell class="pl-2">
-                      <a
-                        class="table-link"
-                        title="View binaries with this subvalue"
-                        [routerLink]="['/pages/binaries/explore']"
-                        [queryParams]="{
-                          term: encodePartToTerm(part),
-                        }"
-                      >
-                        {{ (part.cb | async | number) || "?" }}
-                      </a>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+            <ng-container
+              *ngTemplateOutlet="
+                tplPartsTable;
+                context: { row: row, highlight: false }
+              "
+            />
             <!-- author information -->
             @if (entity.instancesKv$ | async; as instancesKv) {
               <table flowTable class="w-full">
@@ -525,4 +578,71 @@
       }
     </flow-card-body>
   </flow-card>
+</ng-template>
+
+<ng-template #tplPartsTable let-row="row" let-highlight="highlight">
+  <table flowTable class="w-full">
+    <thead flowTableBody>
+      <tr flowTableBodyRow>
+        <th
+          flowTableBodyCell
+          class="pl-2"
+          [ngClass]="{
+            'bg-azul-50': highlight,
+            'dark:bg-azul-500': highlight,
+          }"
+        >
+          Part
+        </th>
+        <th
+          flowTableBodyCell
+          class="pl-2"
+          [ngClass]="{
+            'bg-azul-50': highlight,
+            'dark:bg-azul-500': highlight,
+          }"
+        >
+          Value
+        </th>
+        <th
+          flowTableBodyCell
+          class="pl-2"
+          [ngClass]="{
+            'bg-azul-50': highlight,
+            'dark:bg-azul-500': highlight,
+          }"
+        >
+          Binaries
+        </th>
+      </tr>
+    </thead>
+    <tbody flowTableBody class="pt-2">
+      @for (part of row.XPartsBinaries; track part) {
+        <tr flowTableBodyRow>
+          <td flowTableBodyCell>
+            {{ part.part }}
+          </td>
+          <td
+            flowTableBodyCell
+            class="large-value line-clamp-8 pl-2 text-wrap break-words"
+            [title]="part.value"
+          >
+            {{ part.value }}
+          </td>
+          <td flowTableBodyCell class="pl-2">
+            <a
+              class="table-link"
+              title="View binaries with this subvalue"
+              [routerLink]="['/pages/binaries/explore']"
+              [queryParams]="{
+                term: encodePartToTerm(part),
+              }"
+            >
+              {{ (part.cb | async | number) || "?" }}
+            </a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </ng-template>
