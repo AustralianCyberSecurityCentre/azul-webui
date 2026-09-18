@@ -99,7 +99,7 @@
           <flow-button
             [type]="
               isDoneLoadingSignal() === false ||
-              currentPageSignal() === totalNumberOfPages() ||
+              currentPageSignal() >= totalNumberOfPages() ||
               totalNumberOfPages() === 0
                 ? ButtonType.Disabled
                 : ButtonType.Light
