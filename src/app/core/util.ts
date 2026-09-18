@@ -274,6 +274,7 @@ export function getDefaultMonacoSettings(): editor.IEditorOptions &
     fontFamily: "JetBrains Mono Variable",
     codeLensFontFamily: "Inter Variable",
     automaticLayout: true,
+    links: false, // Don't provide an option to open hyperlinks through the editor (there are a large number that could be malicious.)
   };
 }
 
