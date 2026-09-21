@@ -77,6 +77,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     "executable/windows/pe64",
     "executable/pe32",
     "executable/dll32",
+    "executable/linux/so32",
+    "executable/linux/so64",
+    "executable/linux/elf64",
+    "executable/linux/elf32",
   ];
 
   protected override onEntityChange() {
