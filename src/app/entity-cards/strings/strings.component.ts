@@ -31,7 +31,6 @@ import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
-import { convertProcessSignalToExitCode } from "node:util";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
