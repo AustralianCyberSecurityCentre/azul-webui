@@ -76,14 +76,12 @@ test("Test File Download", async ({ page, binary: _binary }) => {
   // See what we downloaded
   const fileData = fs.readFileSync(downloadedPath);
   // 'CART'
-  if (
-    !(
-      fileData[0] == 0x43 &&
-      fileData[1] == 0x41 &&
-      fileData[2] == 0x52 &&
-      fileData[3] == 0x54
-    )
-  ) {
+  if (!(
+    fileData[0] == 0x43 &&
+    fileData[1] == 0x41 &&
+    fileData[2] == 0x52 &&
+    fileData[3] == 0x54
+  )) {
     throw "Downloaded something that wasn't a CaRT!";
   }
 
