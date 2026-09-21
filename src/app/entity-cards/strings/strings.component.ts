@@ -275,7 +275,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
 
   //check to disable ai toggle for unsupported file_format
   private isAISupportedType(file_format: string): boolean {
-    console.log("File type is: ", file_format)
+    console.log("File type is: ", file_format);
     return this.SUPPORTED_AI_FILTER_TYPES.some((type) =>
       file_format.startsWith(type),
     );

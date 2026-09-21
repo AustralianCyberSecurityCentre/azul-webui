@@ -1511,7 +1511,11 @@ export interface components {
       readonly prefix: string;
       /** Prefix Type */
       readonly prefix_type:
-        "empty" | "case-sensitive" | "case-insensitive" | "numeric" | "range";
+        | "empty"
+        | "case-sensitive"
+        | "case-insensitive"
+        | "numeric"
+        | "range";
       /** Has Value */
       readonly has_value: boolean;
     };
@@ -1531,7 +1535,11 @@ export interface components {
       readonly prefix: string;
       /** Prefix Type */
       readonly prefix_type:
-        "empty" | "case-sensitive" | "case-insensitive" | "numeric" | "range";
+        | "empty"
+        | "case-sensitive"
+        | "case-insensitive"
+        | "numeric"
+        | "range";
     };
     /**
      * AutocompleteInitial
@@ -1605,7 +1613,11 @@ export interface components {
      * @enum {string}
      */
     readonly BinaryAction:
-      "sourced" | "extracted" | "augmented" | "mapped" | "enriched";
+      | "sourced"
+      | "extracted"
+      | "augmented"
+      | "mapped"
+      | "enriched";
     /**
      * BinaryData
      * @description Bedrock FileInfo with further enrichment.
@@ -2418,7 +2430,8 @@ export interface components {
       readonly is_duplicate_find?: boolean | null;
       /** Sources */
       readonly sources?:
-        readonly components["schemas"]["EntityFindItemSource"][] | null;
+        | readonly components["schemas"]["EntityFindItemSource"][]
+        | null;
       /** File Size */
       readonly file_size?: number | null;
       /** File Format */
@@ -2871,7 +2884,8 @@ export interface components {
       readonly name: string;
       /** Descriptions */
       readonly descriptions?:
-        readonly components["schemas"]["FeatureDescription"][] | null;
+        | readonly components["schemas"]["FeatureDescription"][]
+        | null;
       /** Tags */
       readonly tags?: readonly string[] | null;
       /** Security */
@@ -3424,7 +3438,8 @@ export interface components {
       readonly description?: string | null;
       /** Features */
       readonly features?:
-        readonly components["schemas"]["PluginFeature"][] | null;
+        | readonly components["schemas"]["PluginFeature"][]
+        | null;
       /** Config */
       readonly config?: {
         readonly [key: string]: unknown;

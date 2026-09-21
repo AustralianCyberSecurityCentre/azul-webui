@@ -182,7 +182,8 @@ export class EntityWrap {
         ops.map(
           (
             similarFeatures:
-              components["schemas"]["SimilarFeatureMatch"] | undefined,
+              | components["schemas"]["SimilarFeatureMatch"]
+              | undefined,
           ): SimilarFeatureMatchWithSummary | null => {
             const allEntities: BulkEntitySummarySubmit[] = [];
             const output: SimilarFeatureMatchWithSummary = {
@@ -505,7 +506,9 @@ export class EntityWrap {
 
     const parseFuzzyHashResult = (
       similar_fuzzy:
-        components["schemas"]["SimilarFuzzyMatch"] | undefined | null,
+        | components["schemas"]["SimilarFuzzyMatch"]
+        | undefined
+        | null,
     ): FuzzyMatchWithSummary | null => {
       if (!similar_fuzzy?.matches) {
         return null;

@@ -17,7 +17,11 @@ import { HostControlDirective } from "@lib/host-control/host-control.directive";
 // https://flowbite.com/docs/forms/input-field/
 
 export type FieldType =
-  "text" | "email" | "password" | "number" | "datetime-local";
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "datetime-local";
 
 @Component({
   selector: "flow-input",

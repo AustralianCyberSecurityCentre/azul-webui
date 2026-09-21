@@ -19,7 +19,11 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 // https://flowbite.com/docs/forms/input-field/
 
 export type FieldType =
-  "text" | "email" | "password" | "number" | "datetime-local";
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "datetime-local";
 
 @Component({
   selector: "flow-signal-input",
