@@ -77,6 +77,10 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
     "executable/windows/pe64",
     "executable/pe32",
     "executable/dll32",
+    "executable/linux/so32",
+    "executable/linux/so64",
+    "executable/linux/elf64",
+    "executable/linux/elf32",
   ];
 
   protected override onEntityChange() {
@@ -272,6 +276,7 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   //check to disable ai toggle for unsupported file_format
   private isAISupportedType(file_format: string): boolean {
     return this.SUPPORTED_AI_FILTER_TYPES.some((type) =>
+      console.log("File type is: ", type)
       file_format.startsWith(type),
     );
   }
