@@ -66,7 +66,7 @@
     "@schematics/angular": "22.1.8",
     "@tailwindcss/forms": "0.5.11",
     "@types/d3": "7.4.3",
-    "@types/node": "26.6.1",
+    "@types/node": "26.6.2",
     "@types/showdown": "2.0.6",
     "@types/upng-js": "2.1.5",
     "@zip.js/zip.js": "2.15.0",
