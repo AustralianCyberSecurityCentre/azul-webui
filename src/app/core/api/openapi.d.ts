@@ -4,6 +4,150 @@
  */
 
 export interface paths {
+  readonly "/api/v0/alerter/rule/create": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Create New Rule
+     * @description Create a new alert rule and add it to the existing configuration.
+     */
+    readonly post: operations["create_new_rule_api_v0_alerter_rule_create_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/rule/update": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    /**
+     * Update Rule
+     * @description Update an existing rule with the provided additional details.
+     */
+    readonly put: operations["update_rule_api_v0_alerter_rule_update_put"];
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/rule/list": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * List Rules
+     * @description List all current alert rules in the database.
+     */
+    readonly get: operations["list_rules_api_v0_alerter_rule_list_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/rule/delete/{rule_id}": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    /**
+     * Delete Rule
+     * @description Delete a rule with the speicified ID, from the database.
+     */
+    readonly delete: operations["delete_rule_api_v0_alerter_rule_delete__rule_id__delete"];
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/rule/list/invalid": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get All Invalid
+     * @description List all the invalid rules currently stored in the alert configuration.
+     */
+    readonly get: operations["get_all_invalid_api_v0_alerter_rule_list_invalid_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/alerts": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * List Alert Hits
+     * @description List all of the current alerts in redis that haven't yet been forwarded to the appropriate endpoint.
+     */
+    readonly get: operations["list_alert_hits_api_v0_alerter_alerts_get"];
+    readonly put?: never;
+    readonly post?: never;
+    /**
+     * Delete Alerts
+     * @description Delete all of the alerts currently in redis.
+     */
+    readonly delete: operations["delete_alerts_api_v0_alerter_alerts_delete"];
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/alerter/valid/webhook_ids": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Valid Webhooks
+     * @description List out all of the available webhook ids with their descriptions.
+     */
+    readonly get: operations["get_valid_webhooks_api_v0_alerter_valid_webhook_ids_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/binaries/tags": {
     readonly parameters: {
       readonly query?: never;
@@ -1402,26 +1546,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me/opensearch": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return Opensearch access for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me": {
     readonly parameters: {
       readonly query?: never;
@@ -1442,10 +1566,146 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/users/me/opensearch": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return Opensearch access for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * AlertHit
+     * @description Alert hit that can be stored in redis.
+     */
+    readonly AlertHit: {
+      /** Rule Id */
+      readonly rule_id: string;
+      /** Webhook Id */
+      readonly webhook_id: string;
+      /**
+       * Alert Message
+       * @default
+       */
+      readonly alert_message: string;
+      /**
+       * Alert Attempt
+       * @default 0
+       */
+      readonly alert_attempt: number;
+      /** Sha256 */
+      readonly sha256: string;
+    };
+    /**
+     * AlertRule
+     * @description Alert rule.
+     */
+    readonly AlertRule: {
+      /**
+       * Alert Message
+       * @default
+       */
+      readonly alert_message: string;
+      readonly status?: components["schemas"]["StatusEnum"] | null;
+      readonly event_type?: components["schemas"]["BinaryAction"] | null;
+      /** Plugin Name */
+      readonly plugin_name?: string | null;
+      /** Plugin Version */
+      readonly plugin_version?: string | null;
+      /** Source Name */
+      readonly source_name?: string | null;
+      /** Source Reference Key Values */
+      readonly source_reference_key_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Feature Name Values */
+      readonly feature_name_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Webhook Id */
+      readonly webhook_id: string;
+      /** Id */
+      readonly id: string;
+    };
+    /**
+     * AlertRuleCreate
+     * @description Alert rule creation.
+     *
+     *     NOTE that most fields are optional but if they aren't set the alert will trigger on everything.
+     *     The trigger conditions work  like an AND filter, so all conditions must be met for the alert to fire.
+     */
+    readonly AlertRuleCreate: {
+      /**
+       * Alert Message
+       * @default
+       */
+      readonly alert_message: string;
+      readonly status?: components["schemas"]["StatusEnum"] | null;
+      readonly event_type?: components["schemas"]["BinaryAction"] | null;
+      /** Plugin Name */
+      readonly plugin_name?: string | null;
+      /** Plugin Version */
+      readonly plugin_version?: string | null;
+      /** Source Name */
+      readonly source_name?: string | null;
+      /** Source Reference Key Values */
+      readonly source_reference_key_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Feature Name Values */
+      readonly feature_name_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Webhook Id */
+      readonly webhook_id: string;
+    };
+    /**
+     * AlertRulePatch
+     * @description Alert rule.
+     */
+    readonly AlertRulePatch: {
+      /**
+       * Alert Message
+       * @default
+       */
+      readonly alert_message: string;
+      readonly status?: components["schemas"]["StatusEnum"] | null;
+      readonly event_type?: components["schemas"]["BinaryAction"] | null;
+      /** Plugin Name */
+      readonly plugin_name?: string | null;
+      /** Plugin Version */
+      readonly plugin_version?: string | null;
+      /** Source Name */
+      readonly source_name?: string | null;
+      /** Source Reference Key Values */
+      readonly source_reference_key_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Feature Name Values */
+      readonly feature_name_values?: {
+        readonly [key: string]: string;
+      } | null;
+      /** Id */
+      readonly id: string;
+      /** Webhook Id */
+      readonly webhook_id?: string | null;
+    };
     /**
      * AnnotationUpdated
      * @description Useful key value pairs derived from an Opensearch update (using painless script) on the annotation index.
@@ -2861,7 +3121,10 @@ export interface components {
       | "RestapiFailedToCreateSecurityIndex"
       | "ErrorStringEnumUnset"
       | "ErrorStringEnumAllEventsAgedOffImmediately"
-      | "ErrorStringEnumAllEventsFiltered";
+      | "ErrorStringEnumAllEventsFiltered"
+      | "FailedToCreateRuleAsInvalidWebhook"
+      | "FailedToUpdateRuleAsInvalidWebhook"
+      | "UnexpectedAlertTypeList";
     /**
      * Feature
      * @description Compilation of information for a specific feature.
@@ -4272,6 +4535,12 @@ export interface components {
       readonly meta: components["schemas"]["Meta"];
     };
     /**
+     * SupportedWebhookType
+     * @description Enums that can be used and are supported by alerter.
+     * @enum {string}
+     */
+    readonly SupportedWebhookType: "msteams" | "mattermost";
+    /**
      * UserAccess
      * @description Opensearch information for user.
      */
@@ -4437,6 +4706,26 @@ export interface components {
       readonly part: string;
       /** Entities */
       readonly entities: number;
+    };
+    /**
+     * WebhookMappingApi
+     * @description Mapping for wheat webhook should be used when sending out alerts, for displaying in the restapi.
+     */
+    readonly WebhookMappingApi: {
+      /** Id */
+      readonly id: string;
+      /**
+       * Description
+       * @default
+       */
+      readonly description: string;
+      /** @default mattermost */
+      readonly webhook_type: components["schemas"]["SupportedWebhookType"];
+      /**
+       * Message Field
+       * @default text
+       */
+      readonly message_field: string;
     };
     /**
      * Author
@@ -4754,6 +5043,10 @@ export interface components {
   headers: never;
   pathItems: never;
 }
+export type AlertHit = components["schemas"]["AlertHit"];
+export type AlertRule = components["schemas"]["AlertRule"];
+export type AlertRuleCreate = components["schemas"]["AlertRuleCreate"];
+export type AlertRulePatch = components["schemas"]["AlertRulePatch"];
 export type AnnotationUpdated = components["schemas"]["AnnotationUpdated__"];
 export type ApiAccessEnum = components["schemas"]["ApiAccessEnum"];
 export type AutocompleteError = components["schemas"]["AutocompleteError"];
@@ -4961,6 +5254,8 @@ export type StatusEnum = components["schemas"]["StatusEnum"];
 export type StatusGroup = components["schemas"]["StatusGroup"];
 export type StatusInput = components["schemas"]["StatusInput"];
 export type StatusInputEntity = components["schemas"]["StatusInputEntity"];
+export type SupportedWebhookType =
+  components["schemas"]["SupportedWebhookType"];
 export type UserAccess = components["schemas"]["UserAccess"];
 export type UserInfo = components["schemas"]["UserInfo"];
 export type UserSecurity = components["schemas"]["UserSecurity"];
@@ -4969,6 +5264,7 @@ export type ValueCountItem = components["schemas"]["ValueCountItem"];
 export type ValueCountRet = components["schemas"]["ValueCountRet"];
 export type ValuePartCountItem = components["schemas"]["ValuePartCountItem"];
 export type ValuePartCountRet = components["schemas"]["ValuePartCountRet"];
+export type WebhookMappingApi = components["schemas"]["WebhookMappingApi"];
 export type AzulBedrockModelsNetworkAuthor =
   components["schemas"]["azul_bedrock__models_network__Author"];
 export type AzulBedrockModelsNetworkBinaryEventEntity =
@@ -4997,6 +5293,331 @@ export type AzulMetastoreRestapiQuickResponseAzulBedrockModelsRestapiPurgePurgeS
   components["schemas"]["azul_metastore__restapi__quick__Response_azul_bedrock__models_restapi__purge__PurgeSimulation___azul_bedrock__models_restapi__purge__PurgeResults"];
 export type $defs = Record<string, never>;
 export interface operations {
+  readonly create_new_rule_api_v0_alerter_rule_create_post: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["AlertRuleCreate"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": boolean;
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly update_rule_api_v0_alerter_rule_update_put: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["AlertRulePatch"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": boolean;
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly list_rules_api_v0_alerter_rule_list_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["AlertRule"][];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly delete_rule_api_v0_alerter_rule_delete__rule_id__delete: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path: {
+        readonly rule_id: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": boolean;
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_all_invalid_api_v0_alerter_rule_list_invalid_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["AlertRule"][];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly list_alert_hits_api_v0_alerter_alerts_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["AlertHit"][];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly delete_alerts_api_v0_alerter_alerts_delete: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": boolean;
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_valid_webhooks_api_v0_alerter_valid_webhook_ids_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["WebhookMappingApi"][];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
   readonly get_all_tags_on_binaries_api_v0_binaries_tags_get: {
     readonly parameters: {
       readonly query?: {
@@ -9040,7 +9661,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_opensearch_get: {
+  readonly read_users_me_api_v0_users_me_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9055,7 +9676,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserAccess"];
+          readonly "application/json": components["schemas"]["UserInfo"];
         };
       };
       /** @description Not found */
@@ -9076,7 +9697,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
+  readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9091,7 +9712,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
+          readonly "application/json": components["schemas"]["UserAccess"];
         };
       };
       /** @description Not found */

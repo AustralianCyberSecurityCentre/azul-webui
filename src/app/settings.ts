@@ -63,6 +63,8 @@ export type DynamicConfig = {
   highlight_features?: string[];
 
   retrohunt_enabled: boolean;
+  alerter_enabled: boolean;
+  pat_enabled: boolean;
 };
 
 export let config: DynamicConfig | null = null;

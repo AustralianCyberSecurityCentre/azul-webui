@@ -3,9 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  Signal,
   TemplateRef,
   ViewChild,
   WritableSignal,
+  computed,
   inject,
   signal,
 } from "@angular/core";
@@ -65,6 +67,10 @@ export class PagesComponent implements AfterViewInit, OnDestroy {
   protected faBars = faBars;
   protected faRightFromBracket = faRightFromBracket;
   protected readonly largeSizeIcon: SizeProp = "lg";
+
+  protected isUserAdmin: Signal<boolean> = computed(() => {
+    return this.user.isUserAdminSignal();
+  });
 
   hasMargin: WritableSignal<boolean> = signal<boolean>(false);
   hasScroll: WritableSignal<boolean> = signal<boolean>(false);

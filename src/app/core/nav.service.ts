@@ -59,6 +59,27 @@ export class NavService {
   /**menu entries for topbar features*/
   topbarFeature$: Observable<MenuItem[]> = null;
   topbarPlugin$: Observable<MenuItem[]> = null;
+  // Only get the enabled admin menuItems
+  topbarAdmin(isAdmin): MenuItem[] {
+    const items: MenuItem[] = [];
+    // If alerter is enabled
+    if (config.alerter_enabled) {
+      items.push({
+        title: "Alerts",
+        external: false,
+        link: "/pages/alerts",
+      });
+    }
+    // API tokens can be used if they are enabled and the user is an admin.
+    if (config.pat_enabled && isAdmin) {
+      items.push({
+        title: "API Token",
+        external: false,
+        link: "/pages/api-token",
+      });
+    }
+    return items;
+  }
   topbarExternal: MenuItem[] = [
     { title: "API", icon: faCode, external: true, link: "/api" },
     { title: "Docs", icon: faBook, external: true, link: "/docs" },
@@ -338,4 +359,7 @@ export class NavService {
       this.title.setTitle(title);
     });
   }
+}
+function Signal<T>(arg0: boolean) {
+  throw new Error("Function not implemented.");
 }

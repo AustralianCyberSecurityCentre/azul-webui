@@ -217,6 +217,20 @@
               "
             >
             </ng-container>
+            @let adminMenuItems = nav.topbarAdmin(isUserAdmin());
+            @if (adminMenuItems.length > 0) {
+              <ng-container
+                *ngTemplateOutlet="
+                  menuDropdown;
+                  context: {
+                    title: 'Admin',
+                    content: nav.topbarAdmin(isUserAdmin()),
+                    icon: faAngleDown,
+                  }
+                "
+              >
+              </ng-container>
+            }
           </div>
         </div>
         <div class="flex items-center">
