@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { AlertManagerComponent } from "./alert-manager/alert-manager.component";
+import { ApiTokenComponent } from "./api-token/api-token.component";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
@@ -111,7 +113,7 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: PluginsExploreComponent,
+            component: AlertManagerComponent,
             data: { noScroll: true },
           },
         ],
@@ -121,7 +123,7 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: PluginsExploreComponent,
+            component: ApiTokenComponent,
             data: { noScroll: true },
           },
         ],

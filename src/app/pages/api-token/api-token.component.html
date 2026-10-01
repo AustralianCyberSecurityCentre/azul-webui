@@ -1,0 +1,381 @@
+<div class="flex min-h-0 shrink grow flex-col">
+  <div>
+    <flow-card style="width: 100%">
+      <flow-card-header title="API Tokens"> </flow-card-header>
+      @if (allTokens$ | async; as allTokens) {
+        <flow-card-body class="w-full">
+          <div class="flex w-full justify-between">
+            <div class="flex gap-x-2">
+              Viewing {{ allTokens?.pats?.length || 0 | number }} api tokens
+            </div>
+            <div class="flex items-center gap-x-10">
+              @if (lastCreatedPAT()) {
+                <div>
+                  View Last Created Token
+                  <flow-button
+                    [size]="ButtonSize.Icon"
+                    [type]="ButtonType.Yellow"
+                    (click)="openNewTokenDialog()"
+                  >
+                    <fa-icon [icon]="faEye" />
+                  </flow-button>
+                </div>
+              }
+              <div>
+                <flow-button
+                  [size]="ButtonSize.Icon"
+                  [type]="ButtonType.Green"
+                  (click)="openCreateApiDialog(tplCreatedApiToken)"
+                  >Create New Token
+                  <fa-icon [icon]="faPlus" />
+                </flow-button>
+              </div>
+            </div>
+          </div>
+        </flow-card-body>
+      }
+    </flow-card>
+  </div>
+  <div class="flex min-h-0 shrink grow">
+    <ng-container *ngTemplateOutlet="tplResult"></ng-container>
+  </div>
+</div>
+
+<ng-template #tplResult>
+  <flow-card class="flex min-h-0 w-full shrink grow" [isFlex]="true">
+    <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
+      <az-loading-card [obs$]="allTokens$" class="flex min-h-0 w-full">
+        @if (allTokens$ | async; as allTokens) {
+          @if (allTokens?.pats.length > 0) {
+            <div class="min-h-0 shrink grow overflow-auto">
+              <table flowTable class="w-full">
+                <thead flowTableHeader class="sticky top-0 z-1">
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell>Delete</th>
+                    <th flowTableHeaderCell>Name</th>
+                    <th flowTableHeaderCell>Id</th>
+                    <th flowTableHeaderCell>Description</th>
+                    <th flowTableHeaderCell>Api Access</th>
+                    <th flowTableHeaderCell>Roles</th>
+                    <th flowTableHeaderCell>
+                      <az-hover-textable message="Creator of the API key.">
+                        Creator
+                      </az-hover-textable>
+                    </th>
+                    <th flowTableHeaderCell>
+                      <az-hover-textable
+                        message="Date that the API key was created."
+                      >
+                        Creation Date
+                      </az-hover-textable>
+                    </th>
+                    <th flowTableHeaderCell>
+                      <az-hover-textable
+                        message="Last time the API key was used."
+                      >
+                        Last Used
+                      </az-hover-textable>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  @for (
+                    currentToken of allTokens.pats;
+                    track currentToken;
+                    let i = $index
+                  ) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell>
+                        <flow-button
+                          [size]="ButtonSize.Icon"
+                          [type]="ButtonType.Danger"
+                          (click)="
+                            deletePatConfirmation(
+                              tplDeleteApiToken,
+                              currentToken
+                            )
+                          "
+                        >
+                          <fa-icon [icon]="faTrash" />
+                        </flow-button>
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ currentToken.pat_name }}
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ currentToken.id }}
+                      </td>
+                      <td flowTableBodyCell class="wrap-break-word">
+                        {{ currentToken.description }}
+                      </td>
+                      <td flowTableBodyCell>
+                        @for (access of currentToken.api_access; track access) {
+                          {{ access }}<br />
+                        }
+                      </td>
+                      <td flowTableBodyCell>
+                        @for (r of currentToken.roles; track r) {
+                          {{ r }}<br />
+                        }
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ currentToken.owner_username }}
+                      </td>
+                      <td flowTableBodyCell>
+                        {{
+                          currentToken.creation_date | date: "d/M/yy, h:mm a"
+                        }}
+                      </td>
+                      <td flowTableBodyCell>
+                        {{
+                          currentToken.last_used_date | date: "d/M/yy, h:mm a"
+                        }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p>
+              No Tokens present in Azul with warning {{ allTokens?.warnings }}
+            </p>
+          }
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
+
+<ng-template #tplDeleteApiToken let-token>
+  <form (ngSubmit)="deletePAT(token.id)">
+    <flow-card>
+      <flow-card-header>Confirm Deletion</flow-card-header>
+      <flow-card-body>
+        <div class="flex flex-col gap-2">
+          Confirm deleting token "{{ token?.pat_name }}"
+        </div>
+        <div>Note this can take a whole minute to show in the table</div>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button [submit]="true" [type]="ButtonType.Danger">
+          Delete <fa-icon [icon]="faTrash" />
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </form>
+</ng-template>
+
+<ng-template #tplCreatedApiToken>
+  <form>
+    <flow-card>
+      <flow-card-body>
+        <div class="flex w-[50vw] flex-col gap-2">
+          <div
+            class="text-md grid place-content-center font-semibold tracking-tight text-gray-900 dark:text-white"
+          >
+            Create New Token
+          </div>
+          <flow-label
+            class="flex pr-2"
+            fieldSize="medium"
+            [noPadding]="true"
+            for="create-api-name"
+          >
+            Name
+          </flow-label>
+          <flow-signal-input
+            id="create-api-name"
+            [formField]="createApiTokenForm.name"
+          />
+          @if (createApiTokenForm.name().invalid()) {
+            <div class="text-sm text-red-600">Name is required</div>
+          }
+          <flow-label
+            class="flex pr-2"
+            fieldSize="medium"
+            [noPadding]="true"
+            for="create-api-description"
+          >
+            Description
+          </flow-label>
+          <flow-signal-input
+            id="create-api-description"
+            [formField]="createApiTokenForm.description"
+          />
+          @if (createApiTokenForm.description().invalid()) {
+            <div class="text-sm text-red-600">Description is required</div>
+          }
+          <hr />
+          <flow-label
+            class="flex pr-2"
+            fieldSize="medium"
+            [noPadding]="true"
+            for="create-api-accesses"
+          >
+            Api Accesses
+          </flow-label>
+          <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            @for (access of API_ACCESS_VALUES; track access) {
+              <div>
+                <flow-toggle
+                  [checked]="createApiTokenModel().api_access.includes(access)"
+                  (checkedChange)="toggleAccess(access)"
+                >
+                  {{ access }}
+                </flow-toggle>
+              </div>
+            }
+          </div>
+          @if (createApiTokenForm.api_access().invalid()) {
+            <div class="text-sm text-red-600">
+              At least one access must be selected
+            </div>
+          }
+          <hr />
+          <flow-label
+            class="flex pr-2"
+            fieldSize="medium"
+            [noPadding]="true"
+            for="allocate-roles"
+          >
+            Allocated Roles
+          </flow-label>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            @for (curRole of availableRoles(); track curRole) {
+              <div>
+                <flow-toggle
+                  [checked]="createApiTokenModel().roles.includes(curRole)"
+                  (checkedChange)="toggleRole(curRole)"
+                >
+                  {{ curRole }}
+                </flow-toggle>
+              </div>
+            }
+          </div>
+          @if (createApiTokenForm.roles().invalid()) {
+            <div class="text-sm text-red-600">
+              At least one role must be selected
+            </div>
+          }
+          <div></div>
+          <div class="flex items-center gap-2">
+            @if (tokenCreationInProgress()) {
+              <flow-button [submit]="true" [type]="ButtonType.Disabled">
+                <fa-icon [icon]="faSpinner" animation="spin" />
+              </flow-button>
+            } @else {
+              <flow-button
+                [submit]="true"
+                [type]="
+                  createApiTokenForm().invalid()
+                    ? ButtonType.Disabled
+                    : ButtonType.Green
+                "
+                (click)="createToken()"
+              >
+                <fa-icon [icon]="faPlus" />Create Token
+              </flow-button>
+            }
+            <flow-button
+              [type]="ButtonType.Yellow"
+              (click)="resetTokenCreationForm()"
+            >
+              <fa-icon [icon]="faTriangleExclamation" />Clear
+            </flow-button>
+            <flow-button
+              [type]="ButtonType.Danger"
+              (click)="cancelTokenCreation()"
+            >
+              <fa-icon [icon]="faCircleXmark" />Cancel
+            </flow-button>
+          </div>
+          @if (lastTokenCreationError().length > 0) {
+            <div class="text-lg font-bold text-red-600">
+              Last Token creation failed with error:<br />
+              {{ lastTokenCreationError() }}
+            </div>
+          }
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </form>
+</ng-template>
+
+<ng-template #tplIssuedApiToken>
+  <form>
+    <flow-card>
+      <flow-card-header>
+        API Token details (Ensure you copy the PAT value or Ready API Key)
+      </flow-card-header>
+      <flow-card-body>
+        <div class="flex w-[50vw]">
+          <table flowTable class="w-full">
+            <tbody flowTableBody>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>ID</td>
+                <td flowTableBodyCell>
+                  <flow-tooltip
+                    message="{{ lastCreatedPAT().id }}"
+                    direction="top-start"
+                    [copyText]="true"
+                    >{{ lastCreatedPAT().id }}</flow-tooltip
+                  >
+                </td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Name</td>
+                <td flowTableBodyCell>{{ lastCreatedPAT().pat_name }}</td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Description</td>
+                <td flowTableBodyCell>{{ lastCreatedPAT().description }}</td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Api Access</td>
+                <td flowTableBodyCell>{{ lastCreatedPAT().api_access }}</td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Roles</td>
+                <td flowTableBodyCell>{{ lastCreatedPAT().roles }}</td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Creator</td>
+                <td flowTableBodyCell>{{ lastCreatedPAT().owner_username }}</td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>Pat Value</td>
+
+                <td flowTableBodyCell>
+                  <flow-tooltip
+                    message="{{ lastCreatedPAT().pat }}"
+                    direction="top-start"
+                    [copyText]="true"
+                    >{{ lastCreatedPAT().pat }}</flow-tooltip
+                  >
+                </td>
+              </tr>
+              <tr flowTableBodyRow>
+                <td flowTableBodyCell>
+                  <flow-tooltip
+                    message="This value is the base64 encoded '{id}:{PAT}' ready for using in headers to Azul e.g the header {'X-API-Key': '<ready-api-key>'}"
+                    >Ready API key
+                  </flow-tooltip>
+                </td>
+                <td flowTableBodyCell>
+                  <flow-tooltip
+                    message="{{ lastCreatedPAT().ready_api_key }}"
+                    direction="top-start"
+                    [copyText]="true"
+                  >
+                    {{ lastCreatedPAT().ready_api_key }}
+                  </flow-tooltip>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </form>
+</ng-template>

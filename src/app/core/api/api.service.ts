@@ -18,15 +18,16 @@ import {
   ValidHEADPaths,
   ValidPOSTPaths,
   ValidPOSTUploadPaths,
+  ValidPUTPaths,
 } from "@app/core/api/methods";
 import { components, paths } from "@app/core/api/openapi";
 import { DownloadType, FileUpload } from "@app/core/api/state";
 import { config } from "@app/settings";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";
 import { OidcSecurityService } from "angular-auth-oidc-client";
 import Axios, { AxiosError } from "axios";
 import { CacheRequestConfig, setupCache } from "axios-cache-interceptor";
-import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 /**
  * RxJS wrapper for Axios.
@@ -181,6 +182,19 @@ class AxiosClient {
       url: url,
       data: data,
       method: "POST",
+    });
+  }
+
+  put<T>(
+    url: string,
+    data: unknown,
+    settings: CacheRequestConfig = {},
+  ): Observable<T> {
+    return this.request({
+      ...settings,
+      url: url,
+      data: data,
+      method: "PUT",
     });
   }
 }
@@ -510,6 +524,34 @@ export class ApiService {
     this.addExcl(params);
     return this.http.post<
       ValidPOSTPaths[T]["post"]["responses"][200]["content"]["application/json"]
+    >(this.formatURL(url, path), body, {
+      params: params,
+    });
+  }
+
+  /**
+   * Performs a PUT operation with the OpenAPI spec corresponding to the given URL (which must be static).
+   *
+   * Parameters will automatically match the given OpenAPI spec.
+   *
+   * Path parameters should be given to a path of format "/xyz/{param1}/abc/{param2}" and will be swapped
+   * in at runtime.
+   *
+   * @param params query parameters for the URL
+   * @param body JSON body to put
+   * @param path optional arguments for the URL
+   */
+  private putOperation<T extends keyof ValidPUTPaths>(
+    url: T,
+    body?: ValidPUTPaths[T]["put"]["requestBody"]["content"]["application/json"],
+    params?: ValidPUTPaths[T]["put"]["parameters"]["query"],
+    path?: ValidPUTPaths[T]["put"]["parameters"]["path"],
+  ): Observable<
+    ValidPUTPaths[T]["put"]["responses"][200]["content"]["application/json"]
+  > {
+    this.addExcl(params);
+    return this.http.put<
+      ValidPUTPaths[T]["put"]["responses"][200]["content"]["application/json"]
     >(this.formatURL(url, path), body, {
       params: params,
     });
@@ -1686,6 +1728,132 @@ export class ApiService {
       undefined as never,
     ).pipe(
       ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
+
+  /* List PATs */
+  listPATs() {
+    return this.getOperation(
+      "/api/v0/authenticate/pat/list",
+      undefined as never,
+      undefined as never,
+      { cache: false },
+    );
+    // ).pipe(ops.catchError((e) => this.handle(e, undefined, null)));
+  }
+
+  /* Create PAT */
+  createPAT(
+    body: paths["/api/v0/authenticate/pat"]["post"]["requestBody"]["content"]["application/json"],
+  ): Observable<components["schemas"]["PATIssue"] | string> {
+    return this.postOperation("/api/v0/authenticate/pat", body).pipe(
+      ops.catchError((e) => {
+        // console.error(Object.keys(e));
+        const errorMessage = e?.response?.data?.message;
+        return this.handle(
+          e,
+          errorMessage !== undefined ? errorMessage : e?.message,
+          [422, 400],
+        );
+      }),
+    );
+  }
+
+  /* Delete PAT */
+  deletePAT(
+    params: paths["/api/v0/authenticate/pat"]["delete"]["parameters"]["query"],
+  ) {
+    return this.deleteOperation("/api/v0/authenticate/pat", params).pipe(
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
+
+  /* Alerter create rule */
+  alerterCreateRule(
+    body: paths["/api/v0/alerter/rule/create"]["post"]["requestBody"]["content"]["application/json"],
+  ): Observable<boolean | string> {
+    return this.postOperation("/api/v0/alerter/rule/create", body).pipe(
+      ops.catchError((e) => {
+        const errorMessage = e?.response?.data?.message;
+        return this.handle(
+          e,
+          errorMessage !== undefined ? errorMessage : e?.message,
+          [422, 400],
+        );
+      }),
+    );
+  }
+
+  /* Alerter update rule */
+  alerterUpdateRule(
+    body: paths["/api/v0/alerter/rule/update"]["put"]["requestBody"]["content"]["application/json"],
+  ): Observable<boolean | string> {
+    return this.putOperation("/api/v0/alerter/rule/update", body).pipe(
+      ops.catchError((e) => {
+        // console.error(Object.keys(e));
+        const errorMessage = e?.response?.data?.message;
+        return this.handle(
+          e,
+          errorMessage !== undefined ? errorMessage : e?.message,
+          [422, 400],
+        );
+      }),
+    );
+  }
+
+  /* Alerter list rules */
+  alerterListAllRules(forceRefresh: boolean = false) {
+    let cacheProps = {};
+    if (forceRefresh) {
+      cacheProps = { cache: false };
+    }
+    return this.getOperation(
+      "/api/v0/alerter/rule/list",
+      undefined as never,
+      undefined as never,
+      cacheProps,
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, null)));
+  }
+
+  /* Alerter delete rule. */
+  alerterDeleteRule(ruleId: string) {
+    return this.deleteOperation(
+      "/api/v0/alerter/rule/delete/{rule_id}",
+      undefined as never,
+      { rule_id: ruleId },
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, null)));
+  }
+
+  /* Alerter list invalid rules */
+  alerterListAllInvalidRules() {
+    return this.getOperation("/api/v0/alerter/rule/list/invalid").pipe(
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
+
+  /* Alerter list alerts */
+  alerterListAllPendingAlerts() {
+    return this.getOperation(
+      "/api/v0/alerter/alerts",
+      undefined as never,
+      undefined as never,
+      {
+        cache: false,
+      },
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, null)));
+  }
+
+  /* Clear all pending alerts */
+  alerterDeleteAllPendingAlerts() {
+    return this.deleteOperation("/api/v0/alerter/alerts").pipe(
+      ops.catchError((e) => this.handle(e, undefined, null)),
+    );
+  }
+
+  /* List valid webhooks */
+  alerterListValidWebhooks() {
+    return this.getOperation("/api/v0/alerter/valid/webhook_ids").pipe(
       ops.catchError((e) => this.handle(e, undefined, null)),
     );
   }

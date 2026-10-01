@@ -360,6 +360,3 @@ export class NavService {
     });
   }
 }
-function Signal<T>(arg0: boolean) {
-  throw new Error("Function not implemented.");
-}

@@ -1,0 +1,742 @@
+<div class="flex min-h-0 shrink grow flex-col">
+  <div>
+    <flow-card class="w-full">
+      <flow-card-header title="Alerts"> </flow-card-header>
+      @if (allAlertRules()?.length > 0) {
+        <flow-card-body class="w-full">
+          <div class="flex w-full justify-between">
+            <div class="flex gap-x-2">
+              Viewing {{ allAlertRules()?.length || 0 | number }} Alert Rules
+            </div>
+          </div>
+        </flow-card-body>
+      }
+    </flow-card>
+  </div>
+  <div>
+    <ng-container
+      *ngTemplateOutlet="
+        tplResult;
+        context: {
+          rulesObservable$: allAlertRulesObservable$,
+          allAlertsSignal: allAlertRules,
+          resultTitle: 'Alert Rules',
+          resultsInvalid: false,
+        }
+      "
+    ></ng-container>
+  </div>
+  @if (allInvalidAlertRules()?.length > 0) {
+    <div>
+      <ng-container
+        *ngTemplateOutlet="
+          tplResult;
+          context: {
+            rulesObservable$: allInvalidAlertRulesObservable$,
+            allAlertsSignal: allInvalidAlertRules,
+            resultTitle: 'Invalid Alert Rules (Need to be fixed)',
+            resultsInvalid: true,
+          }
+        "
+      ></ng-container>
+    </div>
+  }
+  @if (allPendingAlerts()?.length > 0) {
+    <div>
+      <ng-container *ngTemplateOutlet="tplPendingAlerts"></ng-container>
+    </div>
+  }
+</div>
+
+<ng-template
+  #tplResult
+  let-rulesObservable$="rulesObservable$"
+  let-allAlertsSignal="allAlertsSignal"
+  let-resultTitle="resultTitle"
+  let-resultsInvalid="resultsInvalid"
+>
+  <flow-card class="min-h-0 w-full shrink grow">
+    <flow-card-header [title]="resultTitle" class="w-full">
+      @if (!resultsInvalid) {
+        <div class="flex items-center gap-x-10">
+          <div>
+            <flow-button
+              [size]="ButtonSize.Icon"
+              [type]="ButtonType.Green"
+              (click)="openCreateRuleDialog()"
+              >Create New Rule
+              <fa-icon [icon]="faPlus" />
+            </flow-button>
+          </div>
+        </div>
+      }
+    </flow-card-header>
+    <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
+      <az-loading-card [obs$]="rulesObservable$" class="flex min-h-0 w-full">
+        @if (rulesObservable$ | async) {
+          @if (allAlertsSignal()?.length > 0) {
+            <div class="min-h-0 shrink grow overflow-auto">
+              <table flowTable class="w-full">
+                <thead flowTableHeader class="sticky top-0 z-1">
+                  <tr flowTableHeaderRow>
+                    <th flowTableHeaderCell></th>
+                    <th flowTableHeaderCell></th>
+                    <th flowTableHeaderCell>Id</th>
+                    <th flowTableHeaderCell>Webhook Id</th>
+                    <th flowTableHeaderCell>Message</th>
+                  </tr>
+                </thead>
+                <tbody flowTableBody>
+                  @for (
+                    currentAlertRule of allAlertsSignal();
+                    track currentAlertRule;
+                    let i = $index
+                  ) {
+                    <tr flowTableBodyRow>
+                      <td flowTableBodyCell class="w-12">
+                        <button
+                          class="cursor-pointer pr-1 hover:text-gray-200"
+                          (click)="toggleRule(currentAlertRule?.id)"
+                        >
+                          @if (
+                            expandAlertRuleId().includes(currentAlertRule?.id)
+                          ) {
+                            <fa-icon [icon]="faChevronDown" size="lg" />
+                          } @else {
+                            <fa-icon [icon]="faChevronRight" size="lg" />
+                          }
+                        </button>
+                      </td>
+                      <td flowTableBodyCell class="w-20">
+                        <div class="flex">
+                          <button
+                            class="cursor-pointer px-2 pr-1 hover:text-gray-200"
+                            (click)="openEditRuleDialog(currentAlertRule)"
+                          >
+                            <fa-icon
+                              class="fa-icon-amber"
+                              title="edit"
+                              flowLink
+                              [icon]="faPencil"
+                            />
+                          </button>
+                          <button
+                            class="cursor-pointer px-2 pr-1 hover:text-gray-200"
+                            (click)="
+                              openDeleteRuleDialog(
+                                tplDeleteRuleConfirmation,
+                                currentAlertRule?.id
+                              )
+                            "
+                          >
+                            <fa-icon
+                              class="fa-icon-red"
+                              title="delete"
+                              flowLink
+                              [icon]="faTrash"
+                            />
+                          </button>
+                        </div>
+                      </td>
+                      <td flowTableBodyCell>
+                        {{ currentAlertRule?.id }}
+                      </td>
+                      @if (expandAlertRuleId().includes(currentAlertRule?.id)) {
+                        <td flowTableBodyCell></td>
+                        <td flowTableBodyCell></td>
+                      } @else {
+                        <td flowTableBodyCell>
+                          {{ currentAlertRule?.webhook_id }}
+                        </td>
+                        <td flowTableBodyCell>
+                          {{ currentAlertRule?.alert_message }}
+                        </td>
+                      }
+                    </tr>
+                    @if (expandAlertRuleId().includes(currentAlertRule?.id)) {
+                      <tr class="flowTableBodyRow [&>td]:py-1">
+                        <td></td>
+                        <td></td>
+                        <td colspan="100">
+                          <table flowTable class="w-full">
+                            <tbody flowTableBody>
+                              <tr flowTableBodyRow>
+                                <td flowTableBodyCell class="w-50">
+                                  Webhook ID
+                                </td>
+                                <td flowTableBodyCell>
+                                  {{ currentAlertRule?.webhook_id }}
+                                </td>
+                              </tr>
+                              <tr flowTableBodyRow>
+                                <td flowTableBodyCell>Message</td>
+                                <td flowTableBodyCell>
+                                  {{ currentAlertRule?.alert_message }}
+                                </td>
+                              </tr>
+                              @if (currentAlertRule?.status?.length > 0) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Status</td>
+                                  <td flowTableBodyCell>
+                                    {{ currentAlertRule?.status }}
+                                  </td>
+                                </tr>
+                              }
+                              @if (currentAlertRule?.event_type?.length > 0) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Event Type</td>
+                                  <td flowTableBodyCell>
+                                    {{ currentAlertRule?.event_type }}
+                                  </td>
+                                </tr>
+                              }
+                              @if (currentAlertRule?.plugin_name?.length > 0) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Plugin Name</td>
+                                  <td flowTableBodyCell>
+                                    {{ currentAlertRule?.plugin_name }}
+                                  </td>
+                                </tr>
+                              }
+                              @if (
+                                currentAlertRule?.plugin_version?.length > 0
+                              ) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Plugin Version</td>
+                                  <td flowTableBodyCell>
+                                    {{ currentAlertRule?.plugin_version }}
+                                  </td>
+                                </tr>
+                              }
+                              @if (currentAlertRule?.source_name?.length > 0) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Source Name</td>
+                                  <td flowTableBodyCell>
+                                    {{ currentAlertRule?.source_name }}
+                                  </td>
+                                </tr>
+                              }
+                              @if (
+                                currentAlertRule?.source_reference_key_values !==
+                                  null &&
+                                Object.keys(
+                                  currentAlertRule?.source_reference_key_values
+                                )?.length > 0
+                              ) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Source References</td>
+                                  <td flowTableBodyCell>
+                                    <div class="grid grid-cols-2">
+                                      @for (
+                                        sourceRefKey of Object.keys(
+                                          currentAlertRule?.source_reference_key_values
+                                        );
+                                        track sourceRefKey
+                                      ) {
+                                        <div>{{ sourceRefKey }}</div>
+                                        <div>
+                                          {{
+                                            currentAlertRule
+                                              ?.source_reference_key_values[
+                                              sourceRefKey
+                                            ]
+                                          }}
+                                        </div>
+                                      }
+                                    </div>
+                                  </td>
+                                </tr>
+                              }
+                              @if (
+                                currentAlertRule?.feature_name_values !==
+                                  null &&
+                                Object.keys(
+                                  currentAlertRule?.feature_name_values
+                                )?.length > 0
+                              ) {
+                                <tr flowTableBodyRow>
+                                  <td flowTableBodyCell>Feature Name/Values</td>
+                                  <td flowTableBodyCell>
+                                    <div class="grid grid-cols-2">
+                                      @for (
+                                        featureName of Object.keys(
+                                          currentAlertRule?.feature_name_values
+                                        );
+                                        track featureName
+                                      ) {
+                                        <div>{{ featureName }}</div>
+                                        <div>
+                                          {{
+                                            currentAlertRule
+                                              ?.feature_name_values[featureName]
+                                          }}
+                                        </div>
+                                      }
+                                    </div>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p>No Rules Found</p>
+          }
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
+
+<ng-template #tplCreateOrUpdateRule>
+  <form class="max-h-[90vh] overflow-auto">
+    <flow-card>
+      <flow-card-body>
+        <div class="flex w-[50vw] flex-col gap-2">
+          <div
+            class="text-md grid place-content-center font-semibold tracking-tight text-gray-900 dark:text-white"
+          >
+            @if (editRuleId()?.length > 0) {
+              Update the rule with Id {{ editRuleId() }}
+            } @else {
+              Create New Rule
+            }
+          </div>
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="webhook-id"
+          >
+            Webhook ID
+          </flow-label>
+          <select
+            flowSelect
+            [formField]="createAlertRuleForm.webhook_id"
+            id="webhook-id"
+          >
+            @for (opt of validWebhooks(); track opt.id) {
+              <option [value]="opt.id" title="opt.description">
+                {{ opt.id }}
+              </option>
+            }
+          </select>
+          @if (createAlertRuleForm.webhook_id().invalid()) {
+            <div class="text-sm text-red-600">webhook id is required</div>
+          }
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="create-alert-message"
+          >
+            Alert Message
+          </flow-label>
+          <flow-signal-input
+            id="create-alert-message"
+            [formField]="createAlertRuleForm.alert_message"
+          />
+          @if (createAlertRuleForm.alert_message().invalid()) {
+            <div class="text-sm text-red-600">An alert message is required</div>
+          }
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="status-id"
+          >
+            Status Type
+          </flow-label>
+          <select
+            flowSelect
+            [formField]="createAlertRuleForm.status"
+            id="status-id"
+          >
+            <option [value]=""></option>
+            @for (opt of ALL_STATUS_ENUMS; track opt) {
+              <option [value]="opt">
+                {{ opt }}
+              </option>
+            }
+          </select>
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="event-type-id"
+          >
+            Event Type
+          </flow-label>
+          <select
+            flowSelect
+            [formField]="createAlertRuleForm.event_type"
+            id="event-type-id"
+          >
+            <option [value]=""></option>
+            @for (opt of ALL_BINARY_ACTIONS; track opt) {
+              <option [value]="opt">
+                {{ opt }}
+              </option>
+            }
+          </select>
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="create-plugin-name"
+          >
+            Plugin Name
+          </flow-label>
+          <select
+            flowSelect
+            [formField]="createAlertRuleForm.plugin_name"
+            id="create-plugin-name"
+          >
+            <option [value]=""></option>
+            @for (curPN of pluginNames(); track curPN) {
+              <option [value]="curPN">
+                {{ curPN }}
+              </option>
+            }
+          </select>
+          @if (createAlertRuleForm.plugin_name().controlValue() !== "") {
+            <flow-label
+              class="flex pr-2"
+              fieldSize="small-nopadding"
+              [noPadding]="true"
+              for="create-plugin-version"
+            >
+              Plugin Version
+            </flow-label>
+            <select
+              flowSelect
+              [formField]="createAlertRuleForm.plugin_version"
+              id="create-plugin-version"
+            >
+              <option [value]=""></option>
+              @for (curPV of currentPluginVersions(); track curPV) {
+                <option [value]="curPV">
+                  {{ curPV }}
+                </option>
+              }
+            </select>
+          }
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+            for="create-source-name"
+          >
+            Source Name
+          </flow-label>
+          <select
+            flowSelect
+            [formField]="createAlertRuleForm.source_name"
+            id="create-source-name"
+          >
+            <option [value]=""></option>
+            @for (curSN of sourceNames(); track curSN) {
+              <option [value]="curSN">
+                {{ curSN }}
+              </option>
+            }
+          </select>
+          <hr />
+          <!-- Source reference values -->
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+          >
+            Source References Key=Value
+          </flow-label>
+          <div class="grid grid-cols-[repeat(2,minmax(0,1fr))_70px] gap-2">
+            @for (
+              kv of createAlertRuleForm.source_reference_key_values;
+              track $index
+            ) {
+              <select flowSelect [formField]="kv.key">
+                <option [value]=""></option>
+                @for (
+                  curSourceRef of currentSourceReferences();
+                  track curSourceRef
+                ) {
+                  <option [value]="curSourceRef">
+                    {{ curSourceRef }}
+                  </option>
+                }
+              </select>
+              <flow-signal-input
+                [formField]="kv.value"
+                placeholder="source value"
+              />
+              <flow-button
+                [type]="ButtonType.Danger"
+                (click)="removeSourceValueByIndex($index)"
+              >
+                <fa-icon title="delete" [icon]="faTrash" />
+              </flow-button>
+            }
+            <div class="col-span-3 flex w-full justify-end">
+              <flow-tooltip
+                message="Existing source/key values must have at least one value before a new one can be added"
+              >
+                <flow-button
+                  [submit]="true"
+                  [type]="
+                    createAlertRuleModel().source_reference_key_values.find(
+                      (e) => e.key === '' && e.value === ''
+                    )
+                      ? ButtonType.Disabled
+                      : ButtonType.Primary
+                  "
+                  (click)="addNewSourceRef()"
+                >
+                  <fa-icon [icon]="faPlus" />Add New Source Ref
+                </flow-button>
+              </flow-tooltip>
+            </div>
+          </div>
+          @if (createAlertRuleForm.source_reference_key_values().invalid()) {
+            <div class="text-sm text-red-600">
+              Source References are not valid with error
+              @if (
+                createAlertRuleForm.source_reference_key_values().errors()
+                  ?.length > 0
+              ) {
+                {{
+                  createAlertRuleForm.source_reference_key_values().errors()[0]
+                    ?.message
+                }}
+              }
+            </div>
+          }
+          <hr />
+          <!-- Feature name values -->
+          <flow-label
+            class="flex pr-2"
+            fieldSize="small-nopadding"
+            [noPadding]="true"
+          >
+            Feature Name and Value
+          </flow-label>
+          <div class="grid grid-cols-[repeat(2,minmax(0,1fr))_70px] gap-2">
+            @for (kv of createAlertRuleForm.feature_name_values; track $index) {
+              <flow-signal-input
+                [formField]="kv.key"
+                placeholder="feature name"
+              />
+              <flow-signal-input
+                [formField]="kv.value"
+                placeholder="feature value"
+              />
+              <flow-button
+                [type]="ButtonType.Danger"
+                (click)="removeFeatureValueByIndex($index)"
+              >
+                <fa-icon title="delete" [icon]="faTrash" />
+              </flow-button>
+            }
+            <div class="col-span-3 flex w-full justify-end">
+              <flow-tooltip
+                message="Existing name/value must have at least some text before a new one can be added"
+              >
+                <flow-button
+                  [submit]="true"
+                  [type]="
+                    createAlertRuleModel().feature_name_values.find(
+                      (e) => e.key === '' && e.value === ''
+                    )
+                      ? ButtonType.Disabled
+                      : ButtonType.Primary
+                  "
+                  (click)="addNewFeatureValue()"
+                >
+                  <fa-icon [icon]="faPlus" />Add New Feature Value
+                </flow-button>
+              </flow-tooltip>
+            </div>
+          </div>
+          @if (createAlertRuleForm.feature_name_values().invalid()) {
+            <div class="text-sm text-red-600">
+              Feature Name values are invalid
+              @if (
+                createAlertRuleForm.feature_name_values().errors()?.length > 0
+              ) {
+                {{
+                  createAlertRuleForm.feature_name_values().errors()[0]?.message
+                }}
+              }
+            </div>
+          }
+          <div></div>
+          <div class="col-span-2 flex items-center gap-2">
+            @if (ruleCreationInProgress()) {
+              <flow-button [submit]="true" [type]="ButtonType.Disabled">
+                <fa-icon [icon]="faSpinner" animation="spin" />
+              </flow-button>
+            } @else {
+              @if (editRuleId()?.length > 0) {
+                <flow-button
+                  [submit]="true"
+                  [type]="
+                    createAlertRuleForm().invalid()
+                      ? ButtonType.Disabled
+                      : ButtonType.Green
+                  "
+                  (click)="updateRule()"
+                >
+                  <fa-icon [icon]="faPencil" />Update Rule
+                </flow-button>
+              } @else {
+                <flow-button
+                  [submit]="true"
+                  [type]="
+                    createAlertRuleForm().invalid()
+                      ? ButtonType.Disabled
+                      : ButtonType.Green
+                  "
+                  (click)="createRule()"
+                >
+                  <fa-icon [icon]="faPlus" />Create Rule
+                </flow-button>
+              }
+            }
+            <flow-button
+              [type]="ButtonType.Yellow"
+              (click)="resetRuleCreation()"
+            >
+              <fa-icon [icon]="faTriangleExclamation" />Reset
+            </flow-button>
+            <flow-button
+              [type]="ButtonType.Danger"
+              (click)="cancelRuleCreation()"
+            >
+              <fa-icon [icon]="faCircleXmark" />Cancel
+            </flow-button>
+          </div>
+          @if (lastRuleCreationError()?.length > 0) {
+            <div class="text-lg font-bold text-red-600">
+              Last rule creation failed with error:<br />
+              {{ lastRuleCreationError() }}
+            </div>
+          }
+        </div>
+      </flow-card-body>
+    </flow-card>
+  </form>
+</ng-template>
+
+<ng-template #tplDeleteRuleConfirmation let-ruleId>
+  <form (ngSubmit)="deleteRule(ruleId)">
+    <flow-card>
+      <flow-card-header>Confirm Deletion</flow-card-header>
+      <flow-card-body>
+        <div class="flex flex-col gap-2">
+          Confirm deleting Rule "{{ ruleId }}"
+        </div>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button [submit]="true" [type]="ButtonType.Danger">
+          Delete <fa-icon [icon]="faTrash" />
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </form>
+</ng-template>
+
+<!-- Alert display ------------------------------------------------------------->
+
+<ng-template #tplDeleteAllPendingAlerts>
+  <form (ngSubmit)="clearPendingAlerts()">
+    <flow-card>
+      <flow-card-header>Confirm Deletion</flow-card-header>
+      <flow-card-body>
+        <div class="flex flex-col gap-2">
+          Confirm deleting all pending alerts.
+        </div>
+      </flow-card-body>
+      <flow-card-footer>
+        <flow-button [submit]="true" [type]="ButtonType.Danger">
+          Delete <fa-icon [icon]="faTrash" />
+        </flow-button>
+      </flow-card-footer>
+    </flow-card>
+  </form>
+</ng-template>
+
+<ng-template #tplPendingAlerts>
+  <flow-card class="min-h-0 w-full shrink grow">
+    <flow-card-header title="Pending Alerts" class="w-full">
+      <div class="flex items-center gap-x-10">
+        <div>
+          <flow-button
+            [size]="ButtonSize.Icon"
+            [type]="ButtonType.Danger"
+            (click)="openDeleteAlertsDialog(tplDeleteAllPendingAlerts)"
+            >Delete All Pending Alerts
+            <fa-icon [icon]="faTrash" />
+          </flow-button>
+        </div>
+      </div>
+    </flow-card-header>
+    <flow-card-body class="flex min-h-0 w-full" [isFlex]="true">
+      <az-loading-card [obs$]="reloadAlerts" class="flex min-h-0 w-full">
+        @if (allPendingAlerts()?.length > 0) {
+          <div class="min-h-0 shrink grow overflow-auto">
+            <div>
+              Alerts that are in the process of being sent to their
+              corresponding webhooks.
+              <br />
+              If there are lots with multiple attempts there is likely something
+              wrong with the webhook destination.<br />
+              The alerts can be cleared and the webhook or broken rule should be
+              fixed.
+            </div>
+            <table flowTable class="w-full">
+              <thead flowTableHeader class="sticky top-0 z-1">
+                <tr flowTableHeaderRow>
+                  <th flowTableHeaderCell>Rule Id</th>
+                  <th flowTableHeaderCell>Webhook Id</th>
+                  <th flowTableHeaderCell>Message</th>
+                  <th flowTableHeaderCell>Attempt</th>
+                  <th flowTableHeaderCell>Sha256</th>
+                </tr>
+              </thead>
+              <tbody flowTableBody>
+                @for (
+                  currentAlert of allPendingAlerts();
+                  track currentAlert.sha256
+                ) {
+                  <tr flowTableBodyRow>
+                    <td flowTableBodyCell>
+                      {{ currentAlert?.rule_id }}
+                    </td>
+                    <td flowTableBodyCell>
+                      {{ currentAlert?.webhook_id }}
+                    </td>
+                    <td flowTableBodyCell>
+                      {{ currentAlert?.alert_message }}
+                    </td>
+                    <td flowTableBodyCell>
+                      {{ currentAlert?.alert_attempt }}
+                    </td>
+                    <td flowTableBodyCell>
+                      {{ currentAlert?.sha256 }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </az-loading-card>
+    </flow-card-body>
+  </flow-card>
+</ng-template>
