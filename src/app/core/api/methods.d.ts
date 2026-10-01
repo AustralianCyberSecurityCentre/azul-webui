@@ -105,6 +105,13 @@ export type ValidPOSTPaths = {
 };
 
 /**
+ * All the valid PUT paths in a URL:spec format.
+ */
+export type ValidPUTPaths = {
+  [P in ValidPathKeys<PUTPath>]: paths[P];
+};
+
+/**
  * An OpenAPI operation that supports file uploads.
  */
 type POSTUploadPath = {

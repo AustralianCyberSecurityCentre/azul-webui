@@ -12,6 +12,8 @@ import { FlowModule } from "@lib/flow/flow.module";
 import { AngularSplitModule } from "angular-split";
 import { TextIconComponent } from "../common/text-icon/text-icon.component";
 import { EntityTabsModule } from "../entity-tabs/entity-tabs";
+import { AlertManagerComponent } from "./alert-manager/alert-manager.component";
+import { ApiTokenComponent } from "./api-token/api-token.component";
 import { CallbackComponent } from "./callback/callback.component";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
@@ -20,6 +22,7 @@ import { BinariesHashDownloadComponent } from "./entities-hash-download/entities
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
+import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
@@ -38,7 +41,6 @@ import { SourcesExploreComponent } from "./sources-explore/sources-explore.compo
 import { TestbedComponent } from "./testbed/testbed.component";
 import { UnauthorizedComponent } from "./unauthorized/unauthorized.component";
 import { UnavailableComponent } from "./unavailable/unavailable.component";
-import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 
 @NgModule({
   declarations: [
@@ -57,6 +59,8 @@ import { SourceReferenceBinariesExploreComponent } from "./entities-source/entit
     BinariesCompareComponent,
     BinariesPurgeComponent,
     PluginsExploreComponent,
+    ApiTokenComponent,
+    AlertManagerComponent,
     PluginsCurrentComponent,
     TestbedComponent,
     FeaturesTagsExploreComponent,

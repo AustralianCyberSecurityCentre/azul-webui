@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { AlertManagerComponent } from "./alert-manager/alert-manager.component";
+import { ApiTokenComponent } from "./api-token/api-token.component";
 import { BinariesCompareComponent } from "./entities-compare/entities-compare.component";
 import { BinariesCurrentComponent } from "./entities-current/entities-current.component";
 import { BinariesExploreComponent } from "./entities-explore/entities-explore.component";
@@ -8,6 +10,7 @@ import { BinariesHashDownloadComponent } from "./entities-hash-download/entities
 import { BinariesHashLookupComponent } from "./entities-hash-lookup/entities-hash-lookup.component";
 import { BinariesPurgeComponent } from "./entities-purge/entities-purge.component";
 import { BinariesRetrohuntComponent } from "./entities-retrohunt/entities-retrohunt.component";
+import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 import { BinariesTagsExploreComponent } from "./entities-tags-explore/entities-tags-explore.component";
 import { BinariesUploadComponent } from "./entities-upload/entities-upload.component";
 import { FeaturesCurrentComponent } from "./features-current/features-current.component";
@@ -22,7 +25,6 @@ import { PluginsExploreComponent } from "./plugins-explore/plugins-explore.compo
 import { SourcesCurrentComponent } from "./sources-current/sources-current.component";
 import { SourcesExploreComponent } from "./sources-explore/sources-explore.component";
 import { TestbedComponent } from "./testbed/testbed.component";
-import { SourceReferenceBinariesExploreComponent } from "./entities-source/entities-source.component";
 
 const routes: Routes = [
   {
@@ -91,7 +93,6 @@ const routes: Routes = [
           { path: "current/:feature", component: FeaturesCurrentComponent },
         ],
       },
-
       {
         path: "plugins",
         children: [
@@ -107,7 +108,26 @@ const routes: Routes = [
           },
         ],
       },
-
+      {
+        path: "alerts",
+        children: [
+          {
+            path: "",
+            component: AlertManagerComponent,
+            data: { noScroll: true },
+          },
+        ],
+      },
+      {
+        path: "api-token",
+        children: [
+          {
+            path: "",
+            component: ApiTokenComponent,
+            data: { noScroll: true },
+          },
+        ],
+      },
       { path: "test", component: TestbedComponent },
       { path: "", redirectTo: "home", pathMatch: "full" },
       { path: "**", redirectTo: "home", pathMatch: "full" },

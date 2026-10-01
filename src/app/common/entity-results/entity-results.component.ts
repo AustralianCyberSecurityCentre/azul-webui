@@ -51,7 +51,7 @@ export class EntityResultsComponent implements OnInit, OnChanges, OnDestroy {
   private router = inject(Router);
   private entityService = inject(Entity);
 
-  dbg = (...d) => console.info("EntityResultsComponent:", ...d);
+  dbg = (...d) => console.debug("EntityResultsComponent:", ...d);
   err = (...d) => console.error("EntityResultsComponent:", ...d);
 
   protected faBackwardStep = faBackwardStep;
