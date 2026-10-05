@@ -47,6 +47,7 @@ export class SettingsOverlayComponent {
       this.store.BinaryExploreShowSourceReferences(),
     bucketSize: this.store.bucketSize(),
     isLargeBucketSize: this.store.bucketSize() === this.largeBucketSize,
+    maxSimilaritySize: this.store.maxSimilaritySize(),
     relationalGraphShowCousinsByDefault:
       this.store.relationalGraphShowCousinsByDefault(),
     showDebugInfo: this.store.showDebugInfo(),
@@ -59,6 +60,8 @@ export class SettingsOverlayComponent {
   });
 
   protected settingsForm = form(this.settingsFormModel, (f) => {
+    max(f.maxSimilaritySize, 100);
+    min(f.maxSimilaritySize, 5);
     max(f.debugQueryEditorHeightPx, 5000);
     min(f.debugQueryEditorHeightPx, 10);
   });
@@ -120,6 +123,13 @@ export class SettingsOverlayComponent {
     effect(() => {
       this.settingsForm();
       const formState = this.settingsFormModel();
+
+      // Ensure similarity query sizes are never out of bounds.
+      if (formState.maxSimilaritySize < 5) {
+        formState.maxSimilaritySize = 5;
+      } else if (formState.maxSimilaritySize > 100) {
+        formState.maxSimilaritySize = 100;
+      }
 
       // Ensure pixel heigh is never invalid
       if (formState.debugQueryEditorHeightPx > 5000) {

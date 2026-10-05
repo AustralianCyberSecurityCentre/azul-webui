@@ -25,6 +25,7 @@ export interface GlobalSettingState {
   BinaryExploreShowSources: boolean;
   BinaryExploreShowSourceReferences: boolean;
   bucketSize: number;
+  maxSimilaritySize: number;
   relationalGraphShowCousinsByDefault: RelationalGraphLevel;
   showDebugInfo: boolean;
   debugQueryEditorHeightPx: number;
@@ -43,6 +44,7 @@ export const InitialGlobalSettingState: GlobalSettingState = {
   BinaryExploreShowSources: true,
   BinaryExploreShowSourceReferences: true,
   bucketSize: 100,
+  maxSimilaritySize: 20,
   relationalGraphShowCousinsByDefault: RelationalGraphLevel.YES,
   showDebugInfo: false,
   debugQueryEditorHeightPx: 300,
@@ -138,6 +140,11 @@ export const GlobalSettingStore = signalStore(
     updateBucketSize(bucketSize: number) {
       patchState(store, () => ({
         bucketSize: bucketSize,
+      }));
+    },
+    updateMaxSimilaritySize(maxSimilaritySize: number) {
+      patchState(store, () => ({
+        maxSimilaritySize: maxSimilaritySize,
       }));
     },
     updateRelationalGraphShowCousinsByDefault(
