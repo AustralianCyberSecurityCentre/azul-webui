@@ -115,7 +115,7 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
         for (const feat of fs) {
           feat.XDescriptions = this.getDescriptions(feat.descriptions);
           feat.XTypes = this.getTypes(feat.descriptions);
-          feat.XAuthors = this.getAuthors(feat.descriptions);
+          feat.XAuthors = this.getAuthors(feat.descriptions, true);
           feat.XTags = feat.tags?.join(" | ");
           feat.XNumBinaries$ = new ReplaySubject<number>(1);
           feat.XNumValues$ = new ReplaySubject<number>(1);
@@ -320,8 +320,10 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
     return ret;
   }
 
+  // Get the authors relevant to the current feature and deduplicate multi-plugins.
   private getAuthors(
     descs: readonly components["schemas"]["FeatureDescription"][],
+    simple: boolean = false,
   ): string[] {
     const ret = [];
     for (const desc of descs || []) {
@@ -335,6 +337,18 @@ export class FeaturesExploreComponent implements OnInit, OnDestroy {
       ret.push(uniq);
     }
     ret.sort();
+    if (simple && ret.length > 1) {
+      const simpleReturn = [];
+      let currentMultiPlugin = `${ret[0]}-`;
+      ret.forEach((pluginName: string) => {
+        // If it's not a multi-plugin add it to the simple list.
+        if (!pluginName.startsWith(currentMultiPlugin)) {
+          currentMultiPlugin = `${pluginName}-`;
+          simpleReturn.push(pluginName);
+        }
+      });
+      return simpleReturn;
+    }
     return ret;
   }
 
