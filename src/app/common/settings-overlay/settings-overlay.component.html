@@ -33,16 +33,20 @@
         </div>
       </div>
     }
-    <div class="flex">
-      <div class="custom-slider w-20">
-        <ngx-slider
-          [(value)]="sliderValue"
-          [options]="complexitySliderOptions"
-        ></ngx-slider>
-      </div>
-      <flow-label [noPadding]="true" class="pt-1" class="text-wrap"
-        >Relations Graph Complexity(default)</flow-label
+    <div>
+      <flow-tooltip
+        message="Change the maximum number of return values on the Relational Similarity (ssdeep/tlsh/entropy) pages"
       >
+        <flow-label [noPadding]="true" class="pt-1"
+          >Similarity Query Size</flow-label
+        >
+        <flow-signal-input
+          fieldType="number"
+          [step]="5"
+          [formField]="settingsForm.maxSimilaritySize"
+          [size]="5"
+        />
+      </flow-tooltip>
     </div>
     <flow-toggle [formField]="settingsForm.showDebugInfo"
       >Show Debug Tab</flow-toggle
@@ -83,6 +87,17 @@
         </select>
       </div>
     </flow-tooltip>
+    <div class="flex">
+      <div class="custom-slider w-20">
+        <ngx-slider
+          [(value)]="sliderValue"
+          [options]="complexitySliderOptions"
+        ></ngx-slider>
+      </div>
+      <flow-label [noPadding]="true" class="pt-1" class="text-wrap"
+        >Relations Graph Complexity(default)</flow-label
+      >
+    </div>
   </div>
 </ng-container>
 

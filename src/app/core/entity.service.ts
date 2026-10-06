@@ -529,11 +529,12 @@ export class EntityWrap {
     };
 
     this.similar_ssdeep$ = this.summary$.pipe(
-      ops.mergeMap((d) =>
+      ops.combineLatestWith(this.entityService.maxSimilaritySize$),
+      ops.mergeMap(([d, maxSimilarSize]) =>
         d?.ssdeep
           ? this.api.entityReadSimilarSsdeep({
               ssdeep: d.ssdeep,
-              max_matches: 20,
+              max_matches: maxSimilarSize,
             })
           : of(null),
       ),
@@ -543,9 +544,13 @@ export class EntityWrap {
     );
 
     this.similar_tlsh$ = this.summary$.pipe(
-      ops.mergeMap((d) =>
+      ops.combineLatestWith(this.entityService.maxSimilaritySize$),
+      ops.mergeMap(([d, maxSimilarSize]) =>
         d?.tlsh
-          ? this.api.entityReadSimilarTLSH({ tlsh: d.tlsh, max_matches: 20 })
+          ? this.api.entityReadSimilarTLSH({
+              tlsh: d.tlsh,
+              max_matches: maxSimilarSize,
+            })
           : of(null),
       ),
       // Optimize loading of related entities
@@ -648,11 +653,12 @@ export class EntityWrap {
     };
 
     this.similar_entropy$ = this.entropy$.pipe(
-      ops.mergeMap((d) => {
+      ops.combineLatestWith(this.entityService.maxSimilaritySize$),
+      ops.mergeMap(([d, maxSimilarSize]) => {
         if (d?.blocks !== null && d?.blocks.length >= 40) {
           return this.api.entityReadSimilarEntropy(
             this.sha256,
-            { max_matches: 20 },
+            { max_matches: maxSimilarSize },
             d.blocks,
           );
         } else {
@@ -710,6 +716,7 @@ export class EntityService {
 
   bucketSize$: Observable<number>;
   showDebugInfo$: Observable<boolean>;
+  maxSimilaritySize$: Observable<number>;
 
   // Just needs to toggle between true and false to trigger searches, value is not important.
   searchTrigger: WritableSignal<boolean> = signal(false);
@@ -719,6 +726,7 @@ export class EntityService {
   constructor() {
     this.bucketSize$ = toObservable(this.settingStore.bucketSize);
     this.showDebugInfo$ = toObservable(this.settingStore.showDebugInfo);
+    this.maxSimilaritySize$ = toObservable(this.settingStore.maxSimilaritySize);
   }
 
   requestBulkEntitySummary(
