@@ -24,18 +24,18 @@
 </div>
 
 <ng-template #tplTagsCreate>
-  <form [formGroup]="formCreateTag" (ngSubmit)="onCreateEntityTagSubmit()">
+  <form (ngSubmit)="onCreateEntityTagSubmit()">
     <flow-card>
       <flow-card-body>
         <div class="flex flex-col gap-2">
           <az-tag-picker
-            [tagName]="tagFormControl"
+            [tagFieldTree]="createTagForm.tag"
             [refreshTags$]="refreshTags$"
             [isEntityTag]="true"
           />
           <azco-security-picker
             style="width: 100%"
-            (security)="formCreateTag.get('security').patchValue($event)"
+            (security)="formCreateTagSecurityUpdate($event)"
           ></azco-security-picker>
         </div>
       </flow-card-body>
@@ -43,7 +43,7 @@
         <flow-button
           [submit]="true"
           [type]="
-            formCreateTag.valid ? ButtonType.Primary : ButtonType.Disabled
+            createTagForm().valid() ? ButtonType.Primary : ButtonType.Disabled
           "
         >
           Create

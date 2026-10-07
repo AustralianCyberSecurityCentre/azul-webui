@@ -44,7 +44,6 @@ export class TooltipComponent {
   tplContext = input<unknown>(null);
   direction = input<"top" | "top-start" | "top-end" | "bottom">("top");
 
-  constructor() {}
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
   protected hoveringRawSignal: WritableSignal<boolean> = signal(false);

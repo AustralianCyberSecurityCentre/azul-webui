@@ -49,6 +49,4 @@ export class PivotService {
   clearPivot() {
     this.SelectedFeatureSignal.set([]);
   }
-
-  constructor() {}
 }

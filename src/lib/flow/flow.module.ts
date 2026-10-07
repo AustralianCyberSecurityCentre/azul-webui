@@ -35,9 +35,11 @@ import { TablistComponent } from "./tablist/tablist.component";
 import { TextareaComponent } from "./textarea/textarea.component";
 import { ToggleComponent } from "./toggle/toggle.component";
 import { TooltipComponent } from "./tooltip/tooltip.component";
+import { FormField } from "@angular/forms/signals";
 
 @NgModule({
   imports: [
+    FormField,
     FormsModule,
     ReactiveFormsModule,
     AccordionComponent,
@@ -77,6 +79,7 @@ import { TooltipComponent } from "./tooltip/tooltip.component";
     TypedTemplateDirective,
   ],
   exports: [
+    FormField,
     FormsModule,
     AccordionComponent,
     AccordionContentComponent,
