@@ -36,9 +36,6 @@ export class ContinuousScroll {
   private _backOff: boolean = false; //wait before next http call
   private _has_more: boolean = true; //more data on server
 
-  /** init scrolling on element with id: elementId */
-  constructor() {}
-
   /** Check if we should load next values */
   // loadMore(event: number) {
   //   if (!this._backOff && this._has_more) {

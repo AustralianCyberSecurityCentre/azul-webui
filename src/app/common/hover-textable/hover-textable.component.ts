@@ -13,6 +13,4 @@ export class HoverTextableComponent {
   message = input<string | undefined>(undefined);
   protected questionIcon = faQuestionCircle;
   protected faCircleQuestion = faCircleQuestion;
-
-  constructor() {}
 }

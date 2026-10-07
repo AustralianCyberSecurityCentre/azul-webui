@@ -1,17 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  WritableSignal,
   inject,
   input,
   output,
+  signal,
 } from "@angular/core";
-import {
-  FormControl,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  Validators,
-} from "@angular/forms";
 import * as ops from "rxjs/operators";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
@@ -22,6 +17,13 @@ import { getStatusColour } from "@app/core/util";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
+import { form, required } from "@angular/forms/signals";
+import { configureTagValidation } from "../tag-picker/tag-picker.component";
+
+interface CreateFeatureTag {
+  tag: string;
+  security: string;
+}
 
 /**Displays a group of tags for the current feature value.
 
@@ -33,9 +35,8 @@ Enables creation of new tags and deletion of existing tags.
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class FeatureValueTagsComponent implements OnInit {
+export class FeatureValueTagsComponent {
   private dialogService = inject(Dialog);
-  private fb = inject(UntypedFormBuilder);
   securityService = inject(SecurityService);
   featureService = inject(FeatureService);
 
@@ -50,8 +51,19 @@ export class FeatureValueTagsComponent implements OnInit {
   changed = output<components["schemas"]["FeatureValueTag"]>();
 
   public getStatusColour = getStatusColour;
-  formCreateTag: UntypedFormGroup;
-  tagFormControl: FormControl<string>;
+
+  // Form
+  protected createTagModel: WritableSignal<CreateFeatureTag> = signal({
+    tag: "",
+    security: "",
+  });
+
+  // Picker form
+  protected createTagForm = form(this.createTagModel, (f) => {
+    configureTagValidation(f.tag);
+    required(f.security);
+  });
+
   refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   private dialog?: DialogRef;
@@ -60,38 +72,40 @@ export class FeatureValueTagsComponent implements OnInit {
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
 
-  ngOnInit(): void {
-    this.formCreateTag = this.fb.group({
-      tag: ["", Validators.required],
-      security: [null, Validators.required],
-    });
-    this.tagFormControl = this.formCreateTag.get("tag") as FormControl<string>;
-  }
-
   protected openDialog(dialog, extra?) {
     this.dialog = this.dialogService.open(dialog, extra);
     // Clear old tag value
-    this.tagFormControl.setValue("");
+    this.createTagForm.tag().controlValue.set("");
     // Trigger tag refresh to occur, to load the new tag.
     this.refreshTags$.next(true);
   }
 
   onCreateFVTagSubmit(feature: string, value: string) {
-    const f = this.formCreateTag;
+    const f = this.createTagForm().controlValue();
     this.featureService
-      .createTag(feature, value, f.get("tag").value, f.get("security").value)
+      .createTag(feature, value, f.tag, f.security)
       .pipe(ops.first())
       .subscribe((_d) => {
         this.dialog.close();
+        // Note this is emitting the value that should appear on the server but isn't actually getting the value back from opensearch.
         this.changed.emit({
           feature_name: feature,
           feature_value: value,
-          type: f.get("type")?.value,
-          tag: f.get("tag").value,
+          type: "fv_tag", // This isn't in sync with metastore and could change in the future.
+          tag: f.tag,
           owner: null,
           timestamp: null,
-          security: null,
+          security: f.security,
         });
       });
+  }
+
+  formCreateTagSecurityUpdate(event) {
+    if (event == null) {
+      return;
+    }
+    this.createTagModel.update((v) => {
+      return { ...v, security: event };
+    });
   }
 }

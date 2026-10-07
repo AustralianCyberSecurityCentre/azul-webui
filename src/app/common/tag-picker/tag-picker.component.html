@@ -1,15 +1,14 @@
 <div class="relative z-10 w-full break-words text-ellipsis">
   Tags are limited to 25 lowercase alphanumeric and '-' only.
-  <flow-input
+  <flow-signal-input
     #tagInput
     [id]="'tagInput'"
     placeholder="my-tag-45"
-    [formControl]="tagName"
-    pattern="[a-z0-9\-]*$"
-    maxlength="25"
+    [formField]="tagFieldTree()"
     (inputFocus)="showExistingTagsSignal.set(true)"
     (inputFocusOut)="handleFocusOut($event)"
     (keydown)="closeOnEnter($event)"
+    [updateValueOnInput]="true"
   />
   @if (isEntityTag()) {
     @if (allEntityTagsFiltered$ | async; as allEntityTagsFilteredList) {

@@ -2,35 +2,49 @@ import { AsyncPipe, CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   Input,
+  model,
   OnInit,
   signal,
   WritableSignal,
 } from "@angular/core";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { toObservable } from "@angular/core/rxjs-interop";
+import {
+  FieldTree,
+  maxLength,
+  pattern,
+  required,
+  SchemaPath,
+} from "@angular/forms/signals";
 import { ApiService } from "@app/core/api/api.service";
 import { FlowModule } from "@lib/flow/flow.module";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
+export function configureTagValidation(tagNamePath: SchemaPath<string>) {
+  required(tagNamePath);
+  pattern(tagNamePath, /^[a-z0-9-]*$/);
+  maxLength(tagNamePath, 25);
+}
+
+export interface tagPickerModel {
+  tag: string;
+}
+
 @Component({
   selector: "az-tag-picker",
-  imports: [
-    FlowModule,
-    FormsModule,
-    ReactiveFormsModule,
-    AsyncPipe,
-    CommonModule,
-  ],
+  imports: [FlowModule, AsyncPipe, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./tag-picker.component.html",
 })
 export class TagPickerComponent implements OnInit {
   private api = inject(ApiService);
 
-  @Input() tagName: FormControl<string>;
+  tagFieldTree = model.required<FieldTree<string>>();
+
   @Input() refreshTags$: BehaviorSubject<boolean>;
 
   isEntityTag = input<boolean>(true);
@@ -44,6 +58,12 @@ export class TagPickerComponent implements OnInit {
   allFeatureTagsFiltered$: Observable<string[]>;
 
   showExistingTagsSignal: WritableSignal<boolean> = signal(false);
+
+  tagName$: Observable<string>;
+
+  constructor() {
+    this.tagName$ = toObservable(computed(() => this.tagFieldTree()().value()));
+  }
 
   ngOnInit(): void {
     this.allEntityTags$ = this.refreshTags$.pipe(
@@ -61,7 +81,7 @@ export class TagPickerComponent implements OnInit {
       }),
       ops.shareReplay(1),
     );
-    this.allEntityTagsFiltered$ = this.tagName.valueChanges.pipe(
+    this.allEntityTagsFiltered$ = this.tagName$.pipe(
       ops.startWith(""),
       ops.combineLatestWith(this.allEntityTags$),
       ops.map(([newTagValue, tagList]) => {
@@ -98,7 +118,7 @@ export class TagPickerComponent implements OnInit {
       ops.shareReplay(1),
     );
 
-    this.allFeatureTagsFiltered$ = this.tagName.valueChanges.pipe(
+    this.allFeatureTagsFiltered$ = this.tagName$.pipe(
       ops.startWith(""),
       ops.combineLatestWith(this.allFeatureTags$),
       ops.map(([newTagValue, tagList]) => {
@@ -122,7 +142,7 @@ export class TagPickerComponent implements OnInit {
   }
 
   setTagValue(tagValue: string) {
-    this.tagName.setValue(tagValue);
+    this.tagFieldTree()().controlValue.set(tagValue);
     this.showExistingTagsSignal.set(false);
   }
 

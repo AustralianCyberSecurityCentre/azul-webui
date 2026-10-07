@@ -2,23 +2,25 @@ import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  WritableSignal,
   inject,
   input,
   output,
+  signal,
 } from "@angular/core";
-import {
-  FormControl,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  Validators,
-} from "@angular/forms";
+import { form, required } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity, Security } from "@app/core/services";
 import { escapeValue, getStatusColour } from "@app/core/util";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
+import { configureTagValidation } from "../tag-picker/tag-picker.component";
+
+interface CreateEntityTag {
+  tag: string;
+  security: string;
+}
 
 /**Displays a group of tags for the current entity.
 
@@ -30,10 +32,9 @@ Enables creation of new tags and deletion of existing tags.
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class EntityTagsComponent implements OnInit {
+export class EntityTagsComponent {
   entityService = inject(Entity);
   private dialogService = inject(Dialog);
-  private fb = inject(UntypedFormBuilder);
   securityService = inject(Security);
 
   help = `
@@ -43,25 +44,26 @@ export class EntityTagsComponent implements OnInit {
   sha256 = input.required<string>();
   tags = input<readonly components["schemas"]["EntityTag"][]>([]);
   addTag = input<boolean>(true);
-
   changed = output<null>();
+
+  // Form
+  protected createTagModel: WritableSignal<CreateEntityTag> = signal({
+    tag: "",
+    security: "",
+  });
+
+  // Picker form
+  protected createTagForm = form(this.createTagModel, (f) => {
+    configureTagValidation(f.tag);
+    required(f.security);
+  });
 
   protected dialog?: DialogRef;
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
 
-  formCreateTag: UntypedFormGroup;
-  tagFormControl: FormControl<string>;
   refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   getColour = getStatusColour;
-
-  ngOnInit(): void {
-    this.formCreateTag = this.fb.group({
-      tag: ["", Validators.required],
-      security: [null, Validators.required],
-    });
-    this.tagFormControl = this.formCreateTag.get("tag") as FormControl<string>;
-  }
 
   protected openDialog(dialog, extra?) {
     this.dialog = this.dialogService.open(dialog, extra);
@@ -71,15 +73,17 @@ export class EntityTagsComponent implements OnInit {
     this.entityService
       .createTag(
         this.sha256(),
-        this.formCreateTag.get("tag").value,
-        this.formCreateTag.get("security").value,
+        this.createTagModel().tag,
+        this.createTagModel().security,
       )
       .pipe(ops.first())
       .subscribe((_d) => {
         this.dialog.close();
         this.changed.emit(null);
         // Clear old tag value
-        this.formCreateTag.get("tag").setValue("");
+        this.createTagModel.update((v) => {
+          return { ...v, tag: v.tag };
+        });
         // Trigger tag refresh to occur, to load the new tag.
         this.refreshTags$.next(true);
       });
@@ -101,4 +105,13 @@ export class EntityTagsComponent implements OnInit {
   }
 
   protected readonly escapeValue = escapeValue;
+
+  formCreateTagSecurityUpdate(event: string) {
+    if (event == null) {
+      return;
+    }
+    this.createTagModel.update((v) => {
+      return { ...v, security: event };
+    });
+  }
 }
