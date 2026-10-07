@@ -15,6 +15,8 @@ export const STATUS_DESCRIPTIONS = {
   "opt-out": "Plugin decided the binary was not suitable for analysis.",
   heartbeat: "Plugin is currently analysing file.",
   dequeued: "Plugin has recently received file for analysis.",
+  "download-requested":
+    "Plugin has made a request to the available download plugins to download a binary.",
   "error-exception": "Plugin encountered a fatal exception during processing.",
   "error-network":
     "Plugin encountered a fatal network issue during processing.",
