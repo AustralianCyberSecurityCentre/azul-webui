@@ -16,7 +16,7 @@ export const STATUS_DESCRIPTIONS = {
   heartbeat: "Plugin is currently analysing file.",
   dequeued: "Plugin has recently received file for analysis.",
   "download-requested":
-    "A request to download the binary has been made to the available download plugins.",
+    "Plugin has made a request to the available download plugins to download a binary.",
   "error-exception": "Plugin encountered a fatal exception during processing.",
   "error-network":
     "Plugin encountered a fatal network issue during processing.",
