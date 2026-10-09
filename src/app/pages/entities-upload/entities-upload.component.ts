@@ -208,7 +208,11 @@ export class BinariesUploadComponent {
   parentSha256Signal: Signal<string | null> = signal(null);
   isParentSha256: Signal<boolean> = computed(() => {
     const parentSha256 = this.parentSha256Signal();
-    return parentSha256 !== null && parentSha256.length > 0;
+    return (
+      parentSha256 !== null &&
+      parentSha256 !== undefined &&
+      parentSha256.length > 0
+    );
   });
   extractConfirmSub: Subscription;
 
