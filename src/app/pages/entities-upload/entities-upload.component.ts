@@ -278,21 +278,25 @@ export class BinariesUploadComponent {
       for (const key of qpm.keys) {
         if (key.startsWith("ref_")) {
           routeHasRefs = true;
-          const ref = key.slice(4);
+          const refKey = key.slice(4);
           const val = qpm.get(key);
           // if field is one that is expected for the current source, set value
-          if (refs?.[ref]) {
-            refs[ref].val = val;
+          for (const curRef of refs) {
+            if (curRef.key === refKey) {
+              curRef.val = val;
+              break;
+            }
           }
         }
       }
       // only autofill fields if nothing has been set in uri
       if (!routeHasRefs) {
-        if (refs?.["user"]) {
-          refs["user"].val = userDetails?.username;
-        }
-        if (refs?.["organisation"]) {
-          refs["organisation"].val = userDetails?.org;
+        for (const curRef of refs) {
+          if (curRef.key === "user") {
+            curRef.val = userDetails?.username;
+          } else if (curRef.key === "organisation") {
+            curRef.val = userDetails?.org;
+          }
         }
       }
 
