@@ -3,20 +3,25 @@ import { formatDate } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  OnDestroy,
-  OnInit,
+  Signal,
   TemplateRef,
   ViewChild,
   WritableSignal,
+  computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
-  UntypedFormArray,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  Validators,
-} from "@angular/forms";
+  applyEach,
+  form,
+  minLength,
+  required,
+  SchemaPathTree,
+  validate,
+} from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BannerService } from "@app/common/banner.service";
 import { ApiService } from "@app/core/api/api.service";
@@ -48,11 +53,6 @@ import {
 } from "rxjs";
 import * as ops from "rxjs/operators";
 
-interface FileWithNewName {
-  file: File;
-  newName: string;
-}
-
 interface CaughtHttpError {
   type: string;
 }
@@ -64,6 +64,73 @@ type SourceUpload = FileUpload<
   ValidPOSTUploadPaths["/api/v0/binaries/source"]["post"]["requestBody"]["content"]["multipart/form-data"]
 >;
 
+// Form Model interfaces
+interface FileWithNewName {
+  file: File;
+  newName: string;
+}
+interface ReferenceFormInterface {
+  ref: components["schemas"]["SourceReference"];
+  key: string;
+  val: string;
+}
+interface NameValueEntry {
+  key: string;
+  value: string;
+}
+interface entitiesUpload {
+  source: string;
+  refs: ReferenceFormInterface[];
+  relations: NameValueEntry[];
+  security: string;
+  security_confirm: boolean;
+  files: FileWithNewName[];
+  extract: boolean;
+  password: string;
+  timestamp: string;
+  settingsPasswords: string[];
+}
+
+function RelationsFieldValidation(item: SchemaPathTree<NameValueEntry>) {
+  validate(item.key, ({ value, valueOf }) => {
+    if (value() === "" && valueOf(item.value) !== "") {
+      return {
+        kind: "invalidRelationsValueSetWithNoKey",
+        message: "relations has a value set with no key value.",
+      };
+    }
+    return null;
+  });
+  validate(item.value, ({ value, valueOf }) => {
+    if (value() === "" && valueOf(item.key) !== "") {
+      return {
+        kind: "invalidRelationsKeySetWithNoValue",
+        message: "relations has a key set with no value set.",
+      };
+    }
+    return null;
+  });
+}
+
+function ReferenceSchemaValidation(
+  item: SchemaPathTree<ReferenceFormInterface>,
+) {
+  if (item.ref.required) {
+    required(item.key, {
+      message: (ctx) => {
+        return `${ctx.valueOf(item.key)}`;
+      },
+      when: (fieldCtx) => fieldCtx.valueOf(item.ref.required) === true,
+    });
+    required(item.val, {
+      message: (ctx) => {
+        return `${ctx.valueOf(item.val)}`;
+      },
+      when: (fieldCtx) => fieldCtx.valueOf(item.ref.required) === true,
+    });
+  }
+}
+
 /**page for uploading new entities for analysis*/
 @Component({
   selector: "app-entities-upload",
@@ -71,10 +138,9 @@ type SourceUpload = FileUpload<
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class BinariesUploadComponent implements OnInit, OnDestroy {
+export class BinariesUploadComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private fb = inject(UntypedFormBuilder);
   protected bannerService = inject(BannerService);
   user = inject(UserService);
   securityService = inject(SecurityService);
@@ -97,13 +163,57 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
 
-  form: UntypedFormGroup;
+  readonly defaultSource = "samples";
+  readonly extensionsToRemoveOnUpload = [".cart", ".malpz"];
+  readonly extensionsThatCanBeExtracted = ["zip", "gzip", "tar"];
+  readonly largeFileSize = 50 * 1024 * 1024;
+
+  uploadModel: WritableSignal<entitiesUpload> = signal({
+    source: this.defaultSource,
+    refs: [],
+    relations: [],
+    security: "",
+    security_confirm: false,
+    files: [],
+    extract: false,
+    password: "",
+    // Since browser is non-specific (we don't know when the file was actually sourced), we clear the time part to 00:00:00
+    // Format date, for compatibility with datetime-local input type
+    timestamp: formatDate(new Date(), "yyyy-MM-ddTHH:mm", "en"),
+    settingsPasswords: [""],
+  });
+  uploadForm = form(this.uploadModel, (schemaPath) => {
+    required(schemaPath.source);
+    required(schemaPath.security);
+    required(schemaPath.files);
+    minLength(schemaPath.files, 1);
+    required(schemaPath.timestamp);
+    applyEach(schemaPath.refs, ReferenceSchemaValidation);
+    applyEach(schemaPath.relations, RelationsFieldValidation);
+    validate(schemaPath.security_confirm, ({ value }) => {
+      if (value() === false) {
+        return {
+          kind: "securityNotConfirmed",
+          message: "Must confirm security for validation to be complete.",
+        };
+      }
+      return null;
+    });
+  });
 
   sources$: Observable<components["schemas"]["Response_str_Source_"]["data"]>;
-  paramsSub: Subscription;
-  sourceSelectChangeSub: Subscription;
-  parentSub: Subscription;
-  parent$: BehaviorSubject<string | null> = new BehaviorSubject<string>(null);
+  sourcesSignal: Signal<
+    components["schemas"]["Response_str_Source_"]["data"] | undefined
+  >;
+  parentSha256Signal: Signal<string | null> = signal(null);
+  isParentSha256: Signal<boolean> = computed(() => {
+    const parentSha256 = this.parentSha256Signal();
+    return (
+      parentSha256 !== null &&
+      parentSha256 !== undefined &&
+      parentSha256.length > 0
+    );
+  });
   extractConfirmSub: Subscription;
 
   @ViewChild("tplExtractWarning") tplExtractWarning: TemplateRef<Element>;
@@ -113,165 +223,136 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   uploads = new Map<number, BehaviorSubject<[number, string, boolean]>>();
   allUploadsData: Map<number, readonly components["schemas"]["BinaryData"][]>;
 
-  readonly extensionsToRemoveOnUpload = [".cart", ".malpz"];
-  readonly extensionsThatCanBeExtracted = ["zip", "gzip", "tar"];
-  readonly defaultSource = "samples";
-  readonly largeFileSize = 50 * 1024 * 1024;
-
-  protected selectedSecurity$: Observable<string | undefined>;
-  protected confirmedSecurity$: Observable<boolean>;
   protected largeFileSignal: WritableSignal<boolean> = signal(false);
 
+  protected sourceReferenceField: Signal<ReferenceFormInterface[]> = computed(
+    () => {
+      const newRefs: ReferenceFormInterface[] = [];
+      // Update source references when required.
+      const sourceName = this.uploadForm.source().controlValue();
+      const sources = this.sourcesSignal();
+      // Exit early if sourceInfo couldn't be loaded
+      if (sources === undefined) {
+        return newRefs;
+      }
+      const sourceInfo = this.sourcesSignal()[sourceName];
+
+      if (sourceInfo?.references !== null) {
+        sourceInfo.references.forEach((ref) => {
+          newRefs.push({ ref: ref, key: ref.name, val: "" });
+        });
+      }
+      return newRefs;
+    },
+  );
+
   constructor() {
-    this.form = this.fb.group({
-      source: [this.defaultSource, [Validators.required]],
-      refs: this.fb.array([]),
-      relations: this.fb.array([]),
-      parent_sha256: [""],
-      security: ["", Validators.required],
-      security_confirm: [false, Validators.requiredTrue],
-      files: [[], Validators.required],
-      extract: [false],
-      password: [""],
-      // Since browser is non-specific (we don't know when the file was actually sourced), we clear the time part to 00:00:00
-      // Format date, for compatibility with datetime-local input type
-      timestamp: [
-        formatDate(new Date(), "yyyy-MM-ddTHH:mm", "en"),
-        [Validators.required],
-      ],
-      // Submission settings
-      settingsPasswords: this.fb.array([]),
-    });
-    // Initalise password settings
-    this.addSettingsPassword();
-
-    // this.user.userDetails$.subscribe(d => console.log('udetails', d))
     // when the source changes, populate the reference fields
+    const queryParamsSignal = toSignal(this.route.queryParamMap);
     this.sources$ = this.api.sourceReadAll();
-    this.sourceSelectChangeSub = combineLatest([
-      this.form.get("source").valueChanges,
-      this.sources$,
-      this.parent$, // Parent included here because if there is a parent formRefs needs an update
-    ])
-      .pipe(
-        ops.map(([src, srcs, _parentRef]) => {
-          return { src: srcs?.[src as string] };
-        }),
-        ops.map((data) => {
-          // add required refs
-          const refs = {};
-          for (const ref of data.src?.references || []) {
-            refs[ref.name] = { ref: ref, key: ref.name, val: "" };
-          }
-          return refs;
-        }),
-        ops.combineLatestWith(this.route.queryParamMap, this.user.userDetails$),
-        ops.map(([refs, qpm, user]) => {
-          // extract references from query string
-          let has_refs = false;
-          for (const key of qpm.keys) {
-            if (key.startsWith("ref_")) {
-              has_refs = true;
-              const ref = key.slice(4);
-              const val = qpm.get(key);
-              // if field is one that is expected for the current source, set value
-              if (refs?.[ref]) {
-                refs[ref].val = val;
-              }
-            }
-          }
-          // only autofill fields if nothing has been set in uri
-          if (!has_refs) {
-            if (refs?.["user"]) {
-              refs["user"].val = user?.username;
-            }
-            if (refs?.["organisation"]) {
-              refs["organisation"].val = user?.org;
-            }
-          }
-          return refs;
-        }),
-        ops.tap((refs) => {
-          const formRefs = this.form.get("refs") as UntypedFormArray;
-          // remove existing refs
-          while (formRefs.length !== 0) {
-            formRefs.removeAt(0);
-          }
-          // if we are adding to a source, require source reference fields to be set
-          // Updating the formsRef here is why Parent is one of the sources of the subscription.
-          if (!this.form.get("parent_sha256").value) {
-            for (const refk in refs) {
-              const row = refs[refk];
-              formRefs.push(
-                this.fb.group({
-                  ref: [row.ref],
-                  key: [row.key, Validators.required],
-                  val: [
-                    row.val,
-                    !row.ref.required
-                      ? Validators.nullValidator
-                      : Validators.required,
-                  ],
-                  optional: [!row.ref.required],
-                }),
-              );
-            }
-          }
-        }),
-      )
-      .subscribe();
+    this.sourcesSignal = toSignal(this.sources$);
 
-    this.selectedSecurity$ = this.form.valueChanges.pipe(
-      ops.map((values) => values.security || undefined),
-      ops.shareReplay(1),
+    this.parentSha256Signal = toSignal(
+      this.route.params.pipe(
+        ops.map((params) => {
+          return params.sha256;
+        }),
+      ),
     );
-    this.confirmedSecurity$ = this.form.valueChanges.pipe(
-      ops.map((values) => values.security_confirm),
-      ops.shareReplay(1),
-    );
-  }
-  ngOnDestroy(): void {
-    this.paramsSub?.unsubscribe();
-    this.sourceSelectChangeSub?.unsubscribe();
-    this.parentSub?.unsubscribe();
-  }
 
-  ngOnInit(): void {
-    this.parentSub = this.route.params
-      .pipe(
-        ops.map((p) => {
-          return p.sha256 as string;
-        }),
-        ops.tap((d) => this.form.get("parent_sha256").setValue(d || "")),
-        ops.tap((d) => (d ? this.addRelation("action", "") : null)),
-        ops.tap((d) => {
-          if (d) {
-            this.parent$.next(d);
+    const userDetailsSignal = toSignal(this.user.userDetails$);
+
+    // Update reference values based on the route.
+    effect(() => {
+      // Take a copy of the refs within ref to ensure they aren't mutated and remain a stable copy for future changes
+      const refs: ReferenceFormInterface[] = this.sourceReferenceField().map(
+        (ref) => ({ ...ref }),
+      );
+      const qpm = queryParamsSignal();
+      const userDetails = userDetailsSignal();
+      // Trigger re-calculation if parent value changes.
+      const parentHash = this.parentSha256Signal();
+
+      // Prefill references with parameters from the route if available.
+      let routeHasRefs = false;
+      for (const key of qpm.keys) {
+        if (key.startsWith("ref_")) {
+          routeHasRefs = true;
+          const refKey = key.slice(4);
+          const val = qpm.get(key);
+          // if field is one that is expected for the current source, set value
+          for (const curRef of refs) {
+            if (curRef.key === refKey) {
+              curRef.val = val;
+              break;
+            }
           }
-        }),
-      )
-      .subscribe();
+        }
+      }
+      // only autofill fields if nothing has been set in uri
+      if (!routeHasRefs) {
+        for (const curRef of refs) {
+          if (curRef.key === "user") {
+            curRef.val = userDetails?.username;
+          } else if (curRef.key === "organisation") {
+            curRef.val = userDetails?.org;
+          }
+        }
+      }
 
-    this.paramsSub = this.route.queryParamMap.subscribe((d) => {
-      this.form.get("source").setValue(d.get("source") || this.defaultSource);
+      if (parentHash !== null && parentHash?.length > 0) {
+        // Using parent refs so no refs required.
+        this.uploadModel.update((orig) => {
+          return {
+            ...orig,
+            refs: [],
+            relations: [{ key: "action", value: "" }],
+          };
+        });
+      } else {
+        // Using refs because there is no parent so they need to definied.
+        this.uploadModel.update((orig) => {
+          return { ...orig, refs: [...refs] };
+        });
+      }
     });
 
-    this.extractConfirmSub = this.form.valueChanges
-      .pipe(
-        ops.map((d) => d.extract),
-        ops.distinctUntilChanged(),
-      )
-      .subscribe((extract) => {
-        if (extract) {
-          // The extract button was pushed; display a warning
-          if (this.dialog) {
-            this.dialogClose();
-          }
-          this.dialog = this.dialogService.open(this.tplExtractWarning, {
-            disableClose: true,
+    effect(() => {
+      const curSourceValue = queryParamsSignal().get("source");
+      // Update the source only if a source is present in the route.
+      if (curSourceValue !== null && curSourceValue?.length > 0) {
+        this.uploadModel.update((f) => {
+          return { ...f, source: curSourceValue };
+        });
+      }
+    });
+
+    // If security is set mark all fields as touched so errors appear.
+    effect(() => {
+      const securityVale = this.uploadForm.security().controlValue();
+      untracked(() => {
+        // Confirm security has a value for if the constructor has been called and returning to the upload page with no security selected.
+        if (securityVale != null && securityVale?.length > 0) {
+          // Mark all form fields as touched so form errors will show up.
+          Object.entries(this.uploadForm).forEach(([fieldName]) => {
+            this.uploadForm[fieldName]()?.markAsTouched();
           });
         }
       });
+    });
+  }
+
+  extractToggled() {
+    // The extract button was pushed; display a warning
+    if (this.dialog) {
+      this.dialogClose();
+    }
+    // Only display if extract has just been set to true
+    if (!this.uploadModel().extract) {
+      this.dialog = this.dialogService.open(this.tplExtractWarning, {
+        disableClose: true,
+      });
+    }
   }
 
   /**
@@ -286,34 +367,35 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
    * If a user cancels the extract warning box, revert their change to the form.
    */
   protected cancelBatch() {
-    this.form.controls["extract"].setValue(false);
+    this.uploadModel.update((f) => {
+      return { ...f, extract: false };
+    });
     this.dialogClose();
   }
 
-  get formRefs() {
-    return this.form.get("refs") as UntypedFormArray;
-  }
-
-  get formRelations() {
-    return this.form.get("relations") as UntypedFormArray;
-  }
-
-  addRelation(k: string = "", v: string = "") {
-    const control = this.fb.group({
-      key: [k, Validators.required],
-      val: [v, Validators.required],
+  addRelation() {
+    this.uploadModel.update((f) => {
+      return { ...f, relations: [...f.relations, { key: "", value: "" }] };
     });
-    this.formRelations.push(control);
   }
 
   rmRelation(i: number) {
-    this.formRelations.removeAt(i);
+    this.uploadModel.update((f) => {
+      const newRelations = [...f.relations];
+      newRelations.splice(i, 1);
+      return { ...f, relations: newRelations };
+    });
   }
 
   securityEmit(sec: string) {
-    this.form.get("security").patchValue(sec);
-    // reset security confirmation
-    this.form.get("security_confirm").setValue(false);
+    this.uploadModel.update((f) => {
+      return {
+        ...f,
+        security: sec,
+        // reset security confirmation because security value has changed
+        security_confirm: false,
+      };
+    });
   }
 
   /** Aggregates common form elements shared by children and source uploads. */
@@ -323,7 +405,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     ChildUpload & SourceUpload,
     Extract<keyof ChildUpload, keyof SourceUpload>
   > {
-    const fv = this.form.value;
+    const fv = this.uploadModel();
     const binary = file.file;
     let filename: string;
     if (fv.extract) {
@@ -341,11 +423,9 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
     // Additional passwords
     const settingsPasswords: string[] = [];
-    for (const passwordForm of fv.settingsPasswords as {
-      passwordValue: string;
-    }[]) {
-      if (passwordForm.passwordValue.length > 0) {
-        settingsPasswords.push(passwordForm.passwordValue);
+    for (const currentPassword of fv.settingsPasswords) {
+      if (currentPassword.length > 0) {
+        settingsPasswords.push(currentPassword);
       }
     }
     if (settingsPasswords.length > 0) {
@@ -363,25 +443,25 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   }
 
   private getFormDataForChildSubmission(file: FileWithNewName): ChildUpload {
-    const fv = this.form.value;
+    const fv = this.uploadModel();
     const relations = {};
-    for (const kv of fv.relations as { key: string; val: string }[]) {
-      relations[kv.key] = kv.val;
+    for (const curRelation of fv.relations) {
+      relations[curRelation.key] = curRelation.value;
     }
 
     const common = this.getCommonFormData(file);
 
     return {
       ...common,
-      parent_sha256: fv.parent_sha256,
+      parent_sha256: this.parentSha256Signal(),
       relationship: JSON.stringify(relations),
     };
   }
 
   private getFormDataForSourceSubmission(file: FileWithNewName): SourceUpload {
-    const fv = this.form.value;
+    const fv = this.uploadModel();
     const refs = {};
-    for (const kv of fv.refs as { key: string; val: string }[]) {
+    for (const kv of fv.refs) {
       if (!kv.val) {
         continue;
       }
@@ -400,7 +480,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    const fv = this.form.value;
+    const fv = this.uploadModel();
     const files: FileWithNewName[] = fv.files;
     const allUploads: Observable<
       [
@@ -418,7 +498,7 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
     >();
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const isChild = !!fv.parent_sha256;
+      const isChild = !!this.parentSha256Signal();
 
       this.uploads.set(
         i,
@@ -435,14 +515,20 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
                   fv.extract,
                   fv.password,
                 )
-                .pipe(ops.catchError((_e) => of({ type: "error" })))
+                .pipe(
+                  ops.catchError((_e) => of({ type: "error" })),
+                  ops.take(1),
+                )
             : this.api
                 .binaryUploadSource(
                   this.getFormDataForSourceSubmission(file),
                   fv.extract,
                   fv.password,
                 )
-                .pipe(ops.catchError((_e) => of({ type: "error" }))),
+                .pipe(
+                  ops.catchError((_e) => of({ type: "error" })),
+                  ops.take(1),
+                ),
         ]),
       );
     }
@@ -478,7 +564,9 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
       .subscribe();
 
     // reset security confirmation
-    this.form.get("security_confirm").setValue(false);
+    this.uploadModel.update((f) => {
+      return { ...f, security_confirm: false };
+    });
   }
 
   private removeUnwantedExtensions(value: string, extensions: string[]) {
@@ -493,12 +581,9 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
   checkIfFileIsGreaterThan50Mb() {
     let resultantSignalValue = false;
-    if (
-      this.form.value?.files != undefined &&
-      this.form.value?.files != null &&
-      this.form.value?.files.length > 0
-    ) {
-      this.form.value.files.forEach((fvf: FileWithNewName) => {
+    const allFiles = this.uploadModel().files;
+    if (allFiles.length > 0) {
+      allFiles.forEach((fvf: FileWithNewName) => {
         if (fvf.file.size > this.largeFileSize) {
           // At least one file is large so add warning.
           resultantSignalValue = true;
@@ -511,9 +596,8 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
 
   onAddFiles(eventFiles: Event) {
     const eventTarget = eventFiles.target as HTMLInputElement;
-
     this.uploads.clear();
-    const files = this.form.get("files").value;
+    const files = [...this.uploadModel().files];
     for (const curFile of eventTarget.files) {
       const newName = this.removeUnwantedExtensions(
         curFile.name,
@@ -521,28 +605,43 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
       );
       files.push({ file: curFile, newName: newName });
     }
-    this.form.get("files").patchValue(files);
+    this.uploadModel.update((f) => {
+      return {
+        ...f,
+        files: files,
+        // reset security confirmation
+        security_confirm: false,
+      };
+    });
     this.checkIfFileIsGreaterThan50Mb();
-    // reset security confirmation
-    this.form.get("security_confirm").setValue(false);
+
     eventTarget.value = null;
   }
 
   renameFile(index: number, event: Event) {
-    const files: FileWithNewName[] = this.form.get("files").value;
+    const files: FileWithNewName[] = this.uploadModel().files.map((f) => ({
+      ...f,
+    }));
     files[index].newName = (event.target as HTMLInputElement).value;
-    this.form.get("files").patchValue(files);
+    this.uploadModel.update((f) => {
+      return { ...f, files: files };
+    });
   }
 
   rmFile(index: number) {
-    const files: FileWithNewName[] = this.form.get("files").value;
+    const files: FileWithNewName[] = [...this.uploadModel().files];
     files.splice(index, 1);
-    this.form.get("files").patchValue(files);
+    this.uploadModel.update((f) => {
+      return { ...f, files: files };
+    });
     this.checkIfFileIsGreaterThan50Mb();
   }
 
   confirmSecurity() {
-    this.form.get("security_confirm").setValue(true);
+    // Confirm security
+    this.uploadModel.update((f) => {
+      return { ...f, security_confirm: true };
+    });
   }
 
   toTitleCase(str: string, separator = " ") {
@@ -555,29 +654,33 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
       .join(" ");
   }
 
-  getRequiredFields(): string[] {
+  // Computed so it triggers only when the form fields change
+  getRequiredFields: Signal<string[]> = computed(() => {
     const invalid = [];
     // Only run this section if the form is invalid
-    if (this.form.invalid) {
-      const controlRefs = this.formRefs.controls;
+    if (this.uploadForm().invalid()) {
+      const controlRefs = this.uploadForm.refs;
       for (const ref of controlRefs) {
-        if (ref.invalid) {
-          invalid.push(ref.value.key);
+        if (ref().invalid()) {
+          invalid.push(ref().controlValue().key);
         }
       }
 
-      const controls = this.form.controls;
-      for (const name in controls) {
-        if (controls[name].invalid) {
-          invalid.push(name);
+      // Get all the names of the fields that are invalid
+      Object.entries(this.uploadForm).forEach(([fieldName]) => {
+        if (this.uploadForm[fieldName]()?.invalid()) {
+          invalid.push(fieldName);
         }
-      }
+      });
     }
 
-    if (this.form.value?.extract === true) {
-      const files: FileWithNewName[] =
-        this.form.value?.files == null ? [] : this.form.value?.files;
-      files.forEach((f) => {
+    const extract = this.uploadForm.extract().controlValue();
+    if (extract === true) {
+      let existingFiles = this.uploadForm.files().controlValue();
+      if (existingFiles == null) {
+        existingFiles = [];
+      }
+      existingFiles.forEach((f) => {
         const filename = f.file.name;
         const extension = filename.split(".").pop();
         if (!this.extensionsThatCanBeExtracted.includes(extension)) {
@@ -589,21 +692,21 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
         }
       });
     }
-    // Filter out refs and security_confirm before presentation
+    // Filter out refs and security_confirm before presentation (they are handled in other ways)
     return invalid
       .filter((i) => i != "refs" && i != "security_confirm")
       .map((val) => this.toTitleCase(val, "_"));
-  }
+  });
 
   protected openSubmissionView(i) {
     const currentSubmission = this.allUploadsData?.get(i);
 
-    const fv = this.form.value;
+    const uploadModel = this.uploadModel();
 
     // Get current submission probably.
-    const timestamp = new Date(fv.timestamp);
+    const timestamp = new Date(uploadModel.timestamp);
     const timestampString = timestamp.toISOString();
-    const source = this.form.get("source").value;
+    const source = uploadModel.source;
 
     // Even more information making it better at getting current submission.
     const track_sub = currentSubmission[0]?.track_source_references;
@@ -616,20 +719,23 @@ export class BinariesUploadComponent implements OnInit, OnDestroy {
   }
 
   /* Submission setting configuration. */
-
-  // Password settings.
-  get formSettingsPasswords() {
-    return this.form.get("settingsPasswords") as UntypedFormArray;
-  }
-
   addSettingsPassword(password: string = "") {
-    const control = this.fb.group({
-      passwordValue: [password],
+    this.uploadModel.update((f) => {
+      return {
+        ...f,
+        settingsPasswords: [...f.settingsPasswords, password],
+      };
     });
-    this.formSettingsPasswords.push(control);
   }
 
-  rmSettingsPassword(i: number) {
-    this.formSettingsPasswords.removeAt(i);
+  rmSettingsPassword(index: number) {
+    this.uploadModel.update((f) => {
+      const newPasswords = [...f.settingsPasswords];
+      newPasswords.splice(index, 1);
+      return {
+        ...f,
+        settingsPasswords: newPasswords,
+      };
+    });
   }
 }

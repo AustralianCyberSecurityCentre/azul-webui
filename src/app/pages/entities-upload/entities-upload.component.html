@@ -1,4 +1,4 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<form (ngSubmit)="onSubmit()">
   <div id="Top">
     <div class="container mx-auto">
       <ng-container *ngTemplateOutlet="tplHeader"></ng-container>
@@ -18,18 +18,20 @@
   </ng-template>
 
   <ng-template #tplRelationship>
-    @if (parent$ | async; as parent) {
+    @if (isParentSha256()) {
       <flow-card style="width: 100%">
         <flow-card-header title="Relationship" />
         <flow-card-body>
           <div class="mb-5 p-1 text-sm">
-            Uploaded samples will be placed as children under "{{ parent }}".
+            Uploaded samples will be placed as children under "{{
+              parentSha256Signal()
+            }}".
             <br />
             Relationship information that will appear on the link from the
             parent entity to children added here.
             <br /><br />
           </div>
-          <table flowTable class="w-full" formArrayName="relations">
+          <table flowTable class="w-full">
             <thead flowTableHeader>
               <tr>
                 <th flowTableHeaderCell>Key</th>
@@ -38,37 +40,39 @@
               </tr>
             </thead>
             <tbody flowTableBody>
-              @for (ref of formRelations.controls; track ref; let i = $index) {
-                <ng-container [formGroupName]="i">
-                  <tr>
-                    <td flowTableBodyCell>
-                      <flow-input
-                        [attr.list]="'keylist' + i"
-                        [id]="'key' + i"
-                        formControlName="key"
-                        placeholder="Field Key"
-                      />
-                    </td>
-                    <td flowTableBodyCell>
-                      <flow-input
-                        [attr.list]="'vallist' + i"
-                        [id]="'val' + i"
-                        formControlName="val"
-                        placeholder="Field Value"
-                      />
-                    </td>
-                    <td flowTableBodyCell>
-                      <flow-button
-                        [size]="ButtonSize.Icon"
-                        [type]="ButtonType.Dark"
-                        title="X"
-                        (click)="rmRelation(i)"
-                      >
-                        <fa-icon [icon]="faTrashCan" />
-                      </flow-button>
-                    </td>
-                  </tr>
-                </ng-container>
+              @for (
+                relation of uploadForm.relations;
+                track relation;
+                let i = $index
+              ) {
+                <tr>
+                  <td flowTableBodyCell>
+                    <flow-signal-input
+                      [attr.list]="'keylist' + i"
+                      [id]="'key' + i"
+                      [formField]="relation.key"
+                      placeholder="Field Key"
+                    />
+                  </td>
+                  <td flowTableBodyCell>
+                    <flow-signal-input
+                      [attr.list]="'vallist' + i"
+                      [id]="'val' + i"
+                      [formField]="relation.value"
+                      placeholder="Field Value"
+                    />
+                  </td>
+                  <td flowTableBodyCell>
+                    <flow-button
+                      [size]="ButtonSize.Icon"
+                      [type]="ButtonType.Dark"
+                      title="X"
+                      (click)="rmRelation(i)"
+                    >
+                      <fa-icon [icon]="faTrashCan" />
+                    </flow-button>
+                  </td>
+                </tr>
               }
               <tr>
                 <td flowTableBodyCell></td>
@@ -92,7 +96,7 @@
   </ng-template>
 
   <ng-template #tplSource>
-    @if ((parent$ | async) === null) {
+    @if (!isParentSha256()) {
       <flow-card>
         <flow-card-header title="Source" />
         <flow-card-body>
@@ -116,7 +120,7 @@
               <!--Source select drop downs.-->
               @if (sources$ | async; as sf) {
                 <div class="col-span-3">
-                  <select flowSelect formControlName="source">
+                  <select flowSelect [formField]="uploadForm.source">
                     @for (row of sf | keyvalue; track row) {
                       <option [value]="row.key">
                         {{ toTitleCase(row.key) }}
@@ -124,71 +128,61 @@
                     }
                   </select>
                 </div>
-                <!--Source related disclamers if source info exists.-->
-                <ng-container>
-                  @if (sf[form.get("source").value]; as sourceInfo) {
+                <!--Source related disclaimers if source info exists.-->
+                @if (sf[uploadModel().source]; as sourceInfo) {
+                  <div class="col-span-3">
+                    <div class="ml-2">
+                      <flow-label>
+                        {{ sourceInfo.description }}
+                      </flow-label>
+                      @if (
+                        sourceInfo?.expire_events_after?.length > 0 &&
+                        sourceInfo?.expire_events_after !== "0"
+                      ) {
+                        <flow-alert
+                          alertType="warning"
+                          [withinCard]="true"
+                          title="Age Off Warning"
+                        >
+                          <span class="font-medium">
+                            Files submitted to this source will age off after
+                            {{ sourceInfo.expire_events_after }}</span
+                          >
+                        </flow-alert>
+                      } @else {
+                        <flow-alert
+                          alertType="info"
+                          [withinCard]="true"
+                          title="No Age Off"
+                        >
+                          <span class="font-medium">
+                            Files submitted to this source never expire
+                          </span>
+                        </flow-alert>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (sf | keyvalue; as d) {
+                  @for (ref of uploadForm.refs; track ref; let i = $index) {
                     <div class="col-span-3">
-                      <div class="ml-2">
-                        <flow-label>
-                          {{ sourceInfo.description }}
+                      <flow-signal-input
+                        [id]="ref.key().controlValue() + '.val'"
+                        [formField]="ref.val"
+                        placeholder="{{
+                          toTitleCase(ref.ref().controlValue().name, '_')
+                        }}{{
+                          ref.ref().controlValue().required ? ' (required)' : ''
+                        }}"
+                      />
+                      <div class="mt-2 mb-4 ml-4 grow">
+                        <flow-label [for]="ref.key().controlValue() + '.val'">
+                          {{ ref.ref().controlValue().description }}
                         </flow-label>
-                        @if (
-                          sourceInfo?.expire_events_after?.length > 0 &&
-                          sourceInfo?.expire_events_after !== "0"
-                        ) {
-                          <flow-alert
-                            alertType="warning"
-                            [withinCard]="true"
-                            title="Age Off Warning"
-                          >
-                            <span class="font-medium">
-                              Files submitted to this source will age off after
-                              {{ sourceInfo.expire_events_after }}</span
-                            >
-                          </flow-alert>
-                        } @else {
-                          <flow-alert
-                            alertType="info"
-                            [withinCard]="true"
-                            title="No Age Off"
-                          >
-                            <span class="font-medium">
-                              Files submitted to this source never expire
-                            </span>
-                          </flow-alert>
-                        }
                       </div>
                     </div>
                   }
-                  @if (sf | keyvalue; as d) {
-                    <ng-container formArrayName="refs">
-                      @for (
-                        ref of formRefs.controls;
-                        track ref;
-                        let i = $index
-                      ) {
-                        <div class="col-span-3" [formGroupName]="i">
-                          <flow-input
-                            [id]="ref.value.key + '.val'"
-                            formControlName="val"
-                            placeholder="{{
-                              toTitleCase(ref.value.ref.name, '_')
-                            }}{{ ref.value.ref.required ? ' (required)' : '' }}"
-                            [invalid]="
-                              (ref.touched || form.get('security').value) &&
-                              !ref.valid
-                            "
-                          />
-                          <div class="mt-2 mb-4 ml-4 grow">
-                            <flow-label [for]="ref.value.key + '.val'">
-                              {{ ref.value.ref.description }}
-                            </flow-label>
-                          </div>
-                        </div>
-                      }
-                    </ng-container>
-                  }
-                </ng-container>
+                }
               }
             </div>
           </az-loading-card>
@@ -235,8 +229,8 @@
                     <flow-button
                       id="upload-button"
                       [type]="
-                        form.get('security').value &&
-                        form.get('files').value.length === 0
+                        uploadModel().security &&
+                        uploadModel().files?.length === 0
                           ? ButtonType.Danger
                           : ButtonType.Primary
                       "
@@ -263,13 +257,14 @@
                   </flow-label>
                 </td>
                 <td flowTableBodyCell class="text-center align-middle">
-                  <flow-checkbox
+                  <flow-checkbox-signal
                     id="extract"
-                    formControlName="extract"
-                  ></flow-checkbox>
+                    [formField]="uploadForm.extract"
+                    (click)="extractToggled()"
+                  ></flow-checkbox-signal>
                 </td>
               </tr>
-              @if (form.value.extract) {
+              @if (uploadModel().extract) {
                 <tr>
                   <td flowTableBodyCell class="align-middle">
                     <flow-label [noPadding]="true" for="password">
@@ -277,7 +272,10 @@
                     </flow-label>
                   </td>
                   <td flowTableBodyCell>
-                    <flow-input id="password" formControlName="password" />
+                    <flow-signal-input
+                      id="password"
+                      [formField]="uploadForm.password"
+                    />
                   </td>
                 </tr>
               }
@@ -288,26 +286,22 @@
                   >
                 </td>
                 <td flowTableBodyCell>
-                  <flow-input
+                  <flow-signal-input
                     id="collectionTime"
                     [fieldType]="'datetime-local'"
-                    formControlName="timestamp"
-                    [invalid]="
-                      form.get('timestamp').invalid &&
-                      form.get('timestamp').touched
-                    "
+                    [formField]="uploadForm.timestamp"
                   />
                 </td>
               </tr>
             </tbody>
           </table>
 
-          @if (form.value.files.length > 0) {
+          @if (uploadModel().files.length > 0) {
             <flow-hr />
           }
 
           <div class="grid grid-cols-3 gap-1">
-            @for (f of form.value.files; track f; let i = $index) {
+            @for (f of uploadModel().files; track f; let i = $index) {
               <div
                 class="hover:bg-azul-100 dark:hover:bg-azul-600 flex gap-4 p-4"
               >
@@ -440,7 +434,7 @@
             NOTE that this only works at the top level file and does not apply
             to subsequent nested files.
           </div>
-          <table flowTable class="w-full" formArrayName="settingsPasswords">
+          <table flowTable class="w-full">
             <thead flowTableHeader>
               <tr>
                 <th flowTableHeaderCell>password</th>
@@ -449,32 +443,30 @@
             </thead>
             <tbody flowTableBody>
               @for (
-                ref of formSettingsPasswords.controls;
-                track ref;
+                curPassword of uploadForm.settingsPasswords;
+                track curPassword;
                 let i = $index
               ) {
-                <ng-container [formGroupName]="i">
-                  <tr>
-                    <td flowTableBodyCell>
-                      <flow-input
-                        [attr.list]="'passwordList' + i"
-                        [id]="'password' + i"
-                        formControlName="passwordValue"
-                        placeholder="Password"
-                      />
-                    </td>
-                    <td flowTableBodyCell>
-                      <flow-button
-                        [size]="ButtonSize.Icon"
-                        [type]="ButtonType.Dark"
-                        title="X"
-                        (click)="rmSettingsPassword(i)"
-                      >
-                        <fa-icon [icon]="faTrashCan" />
-                      </flow-button>
-                    </td>
-                  </tr>
-                </ng-container>
+                <tr>
+                  <td flowTableBodyCell>
+                    <flow-signal-input
+                      [attr.list]="'passwordList' + i"
+                      [id]="'password' + i"
+                      [formField]="curPassword"
+                      placeholder="Password"
+                    />
+                  </td>
+                  <td flowTableBodyCell>
+                    <flow-button
+                      [size]="ButtonSize.Icon"
+                      [type]="ButtonType.Dark"
+                      title="X"
+                      (click)="rmSettingsPassword(i)"
+                    >
+                      <fa-icon [icon]="faTrashCan" />
+                    </flow-button>
+                  </td>
+                </tr>
               }
               <tr>
                 <td flowTableBodyCell></td>
@@ -503,7 +495,7 @@
             [fullWidth]="true"
             (security)="securityEmit($event)"
           ></azco-security-picker>
-          @if (form.get("security").value && getRequiredFields().length > 0) {
+          @if (uploadModel().security && getRequiredFields().length > 0) {
             <div class="mt-4">
               <flow-alert
                 alertType="warning"
@@ -527,14 +519,16 @@
             [fullWidth]="true"
             (click)="confirmSecurity()"
             [type]="
-              (selectedSecurity$ | async) === undefined ||
-              (confirmedSecurity$ | async)
+              uploadModel().security === null || uploadModel().security_confirm
                 ? ButtonType.Disabled
                 : ButtonType.Primary
             "
           >
-            @if ((selectedSecurity$ | async) !== undefined) {
-              I confirm that all files are "{{ selectedSecurity$ | async }}"
+            @if (
+              uploadModel().security !== null &&
+              uploadModel().security.length > 0
+            ) {
+              I confirm that all files are "{{ uploadModel().security }}"
             } @else {
               Select security first
             }
@@ -546,15 +540,17 @@
             [fullWidth]="true"
             [submit]="true"
             [type]="
-              !form.valid || getRequiredFields().length > 0 || uploads.size > 0
+              uploadForm().invalid() ||
+              getRequiredFields().length > 0 ||
+              uploads.size > 0
                 ? ButtonType.Disabled
                 : ButtonType.Primary
             "
             status="primary"
           >
             Upload all files
-            @if ((selectedSecurity$ | async) !== undefined) {
-              at "{{ selectedSecurity$ | async }}"
+            @if (uploadModel().security !== undefined) {
+              at "{{ uploadModel().security }}"
             }
           </flow-button>
         </div>
