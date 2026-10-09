@@ -541,14 +541,20 @@ export class BinariesUploadComponent {
                   fv.extract,
                   fv.password,
                 )
-                .pipe(ops.catchError((_e) => of({ type: "error" })))
+                .pipe(
+                  ops.catchError((_e) => of({ type: "error" })),
+                  ops.take(1),
+                )
             : this.api
                 .binaryUploadSource(
                   this.getFormDataForSourceSubmission(file),
                   fv.extract,
                   fv.password,
                 )
-                .pipe(ops.catchError((_e) => of({ type: "error" }))),
+                .pipe(
+                  ops.catchError((_e) => of({ type: "error" })),
+                  ops.take(1),
+                ),
         ]),
       );
     }
@@ -573,14 +579,14 @@ export class BinariesUploadComponent {
             progress = -1;
           } else {
             sha = d[0].sha256;
-            this.allUploadsData.set(i, d); // TODO
+            this.allUploadsData.set(i, d);
             multi = d.length > 1;
           }
 
           this.uploads.get(i).next([progress, sha, multi]);
           return null;
         }, 2),
-      ) // TODO - verify this get's cleaned up somehow.
+      )
       .subscribe();
 
     // reset security confirmation
@@ -759,5 +765,3 @@ export class BinariesUploadComponent {
     });
   }
 }
-
-// TODO once security is selected and confirm highlight errors of all ref fields.
