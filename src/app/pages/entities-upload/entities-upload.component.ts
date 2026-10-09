@@ -199,39 +199,6 @@ export class BinariesUploadComponent {
       }
       return null;
     });
-    // If a reference is set it must have a key, if the field is required it must also have a value.
-    // validate(schemaPath.refs, ({ value }) => {
-    //   for (const curRef of value()) {
-    //     // Ensure the key is a valid string
-    //     if (curRef?.key === undefined || curRef.key.length === 0) {
-    //       return {
-    //         kind: "refKeyRequired",
-    //         message: "All reference value keys must be set to a value.",
-    //       };
-    //     }
-    //     if (curRef.ref.required) {
-    //       if (curRef?.val === undefined || curRef?.val?.length === 0) {
-    //         return {
-    //           kind: "refValueNotSet",
-    //           message: `The reference value '${curRef.key}' isn't set and is required to be set.`,
-    //         };
-    //       }
-    //     }
-    //   }
-    //   return null;
-    // });
-    // // Ensure if there are any relations both their key and value are set.
-    // validate(schemaPath.relations, ({ value }) => {
-    //   for (const kv of value()) {
-    //     if (kv.key === "" || kv.value === "") {
-    //       return {
-    //         kind: "unsetRelation",
-    //         message: `Their is an unset relation value the key and value must both be set.`,
-    //       };
-    //     }
-    //   }
-    //   return null;
-    // });
   });
 
   sources$: Observable<components["schemas"]["Response_str_Source_"]["data"]>;
