@@ -525,7 +525,7 @@
             "
           >
             @if (
-              uploadModel().security != null &&
+              uploadModel().security !== null &&
               uploadModel().security.length > 0
             ) {
               I confirm that all files are "{{ uploadModel().security }}"

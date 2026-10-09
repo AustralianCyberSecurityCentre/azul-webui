@@ -239,7 +239,7 @@ export class BinariesUploadComponent {
     components["schemas"]["Response_str_Source_"]["data"] | undefined
   >;
   parentSha256Signal: Signal<string | null> = signal(null);
-  isParentSha256: Signal<Boolean> = computed(() => {
+  isParentSha256: Signal<boolean> = computed(() => {
     const parentSha256 = this.parentSha256Signal();
     return parentSha256 !== null && parentSha256.length > 0;
   });
@@ -268,7 +268,6 @@ export class BinariesUploadComponent {
 
       if (sourceInfo?.references !== null) {
         sourceInfo.references.forEach((ref) => {
-          ref.name;
           newRefs.push({ ref: ref, key: ref.name, val: "" });
         });
       }
