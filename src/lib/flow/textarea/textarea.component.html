@@ -1,10 +1,10 @@
 <textarea
-  id="message"
   [attr.rows]="rows()"
   [attr.spellcheck]="spellcheck()"
-  [formControl]="hcd.control"
   [value]="value()"
-  (input)="valueChanged.emit($event)"
+  [disabled]="disabled()"
+  (input)="onInput($event)"
+  (blur)="onTouched()"
   [ngClass]="{
     'border-red-500 dark:border-red-500': invalid(),
     'focus:border-red-500 focus:dark:border-red-500': invalid(),

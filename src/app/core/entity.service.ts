@@ -298,7 +298,7 @@ export class EntityWrap {
       .pipe(ops.shareReplay(1));
 
     const mainData$ = main$.pipe(
-      ops.map((d) => d.data),
+      ops.map((d) => d?.data),
       ops.shareReplay(1),
     );
     // set up the easy observables

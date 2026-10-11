@@ -3,7 +3,7 @@
     <div
       class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
     >
-      <flow-checkbox
+      <flow-checkbox-signal
         [ngModel]="_row.checked"
         (ngModelChange)="onCheckboxChange($event)"
         class="mt-2"
@@ -237,7 +237,7 @@
     <tr class="border-t">
       <!--select checkbox-->
       <td class="px-1 pbe-1">
-        <flow-checkbox
+        <flow-checkbox-signal
           [ngModel]="_row.checked"
           (ngModelChange)="onCheckboxChange($event)"
           class="mt-2"

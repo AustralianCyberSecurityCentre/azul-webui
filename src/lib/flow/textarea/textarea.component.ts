@@ -2,28 +2,56 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  inject,
+  forwardRef,
   input,
+  model,
   output,
 } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { HostControlDirective } from "@lib/host-control/host-control.directive";
-
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 // https://flowbite.com/docs/forms/textarea/
 
 @Component({
   selector: "flow-textarea",
   templateUrl: "./textarea.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, CommonModule],
-  hostDirectives: [HostControlDirective],
+  imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TextareaComponent),
+      multi: true,
+    },
+  ],
 })
-export class TextareaComponent {
+export class TextareaComponent implements ControlValueAccessor {
   rows = input<number>(4);
   spellcheck = input<boolean | null>(null);
-  value = input<string>();
   invalid = input<boolean>(false);
-  valueChanged = output<Event>();
+  valueChanged = output<string>();
 
-  hcd = inject(HostControlDirective);
+  value = model("");
+  disabled = input(false);
+
+  private onChange = (value: string) => {
+    this.valueChanged.emit(value);
+  };
+  private onTouched = () => {};
+
+  writeValue(newValue: string): void {
+    this.value.set(newValue ?? "");
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  onInput(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.value.set(value);
+    this.onChange(value);
+  }
 }

@@ -16,7 +16,7 @@ import {
   faSquareUpRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { FieldType } from "@lib/flow/input/input.component";
+import { FieldType } from "@lib/flow/input-signal/input-signal.component";
 import { LinkColour } from "@lib/flow/link/link.directive";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";

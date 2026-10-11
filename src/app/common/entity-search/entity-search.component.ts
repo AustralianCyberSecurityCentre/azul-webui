@@ -16,7 +16,7 @@ import { form } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { InputComponent } from "@lib/flow/input/input.component";
+import { InputSignalComponent } from "@lib/flow/input-signal/input-signal.component";
 import createFuzzySearch, { FuzzySearcher } from "@nozbe/microfuzz";
 import {
   BehaviorSubject,
@@ -57,7 +57,7 @@ export class EntitySearchComponent implements OnInit, OnDestroy {
   /**
    * If the AST is currently fresh and valid.
    */
-  @ViewChild("termInput") private textInputElement: InputComponent;
+  @ViewChild("termInput") private textInputElement: InputSignalComponent;
 
   protected faMagnifyingGlass = faMagnifyingGlass;
 
