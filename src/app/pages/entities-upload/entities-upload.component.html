@@ -301,7 +301,7 @@
           }
 
           <div class="grid grid-cols-3 gap-1">
-            @for (f of uploadModel().files; track f; let i = $index) {
+            @for (f of uploadForm.files; track f; let i = $index) {
               <div
                 class="hover:bg-azul-100 dark:hover:bg-azul-600 flex gap-4 p-4"
               >
@@ -310,10 +310,9 @@
                 </div>
                 <div class="flex grow flex-col">
                   <div class="grow">
-                    <flow-input
-                      [ngModel]="f.newName"
-                      (input)="renameFile(i, $event)"
-                      [ngModelOptions]="{ standalone: true }"
+                    <flow-signal-input
+                      [id]="'file-' + i"
+                      [formField]="f.newName"
                     />
                     @if (uploads.get(i) | async; as row) {
                       <div class="py-2">
@@ -332,9 +331,11 @@
                     }
                   </div>
                   <div class="pl-1">
-                    {{ f.file.size | filesize }}
+                    {{ f.file().controlValue().size | filesize }}
                     <br />
-                    <span>{{ f.file.lastModified | since }}</span>
+                    <span>{{
+                      f.file().controlValue().lastModified | since
+                    }}</span>
                   </div>
                 </div>
                 <div>

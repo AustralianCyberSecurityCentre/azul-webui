@@ -15,11 +15,11 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
+  SchemaPathTree,
   applyEach,
   form,
   minLength,
   required,
-  SchemaPathTree,
   validate,
 } from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -515,20 +515,14 @@ export class BinariesUploadComponent {
                   fv.extract,
                   fv.password,
                 )
-                .pipe(
-                  ops.catchError((_e) => of({ type: "error" })),
-                  ops.take(1),
-                )
+                .pipe(ops.catchError((_e) => of({ type: "error" })))
             : this.api
                 .binaryUploadSource(
                   this.getFormDataForSourceSubmission(file),
                   fv.extract,
                   fv.password,
                 )
-                .pipe(
-                  ops.catchError((_e) => of({ type: "error" })),
-                  ops.take(1),
-                ),
+                .pipe(ops.catchError((_e) => of({ type: "error" }))),
         ]),
       );
     }
