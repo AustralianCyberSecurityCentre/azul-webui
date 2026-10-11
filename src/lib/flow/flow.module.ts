@@ -36,6 +36,7 @@ import { TextareaComponent } from "./textarea/textarea.component";
 import { ToggleComponent } from "./toggle/toggle.component";
 import { TooltipComponent } from "./tooltip/tooltip.component";
 import { FormField } from "@angular/forms/signals";
+import { CheckboxSignalComponent } from "./checkbox-signal/checkbox-signal.component";
 
 @NgModule({
   imports: [
@@ -53,6 +54,7 @@ import { FormField } from "@angular/forms/signals";
     CardHeaderComponent,
     CardFooterComponent,
     CheckboxComponent,
+    CheckboxSignalComponent,
     CheckboxLabelComponent,
     HRComponent,
     IndicatorComponent,
@@ -92,6 +94,7 @@ import { FormField } from "@angular/forms/signals";
     CardHeaderComponent,
     CardFooterComponent,
     CheckboxComponent,
+    CheckboxSignalComponent,
     CheckboxLabelComponent,
     HRComponent,
     IndicatorComponent,
