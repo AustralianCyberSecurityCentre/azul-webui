@@ -617,16 +617,6 @@ export class BinariesUploadComponent implements OnDestroy {
     eventTarget.value = null;
   }
 
-  renameFile(index: number, event: Event) {
-    const files: FileWithNewName[] = this.uploadModel().files.map((f) => ({
-      ...f,
-    }));
-    files[index].newName = (event.target as HTMLInputElement).value;
-    this.uploadModel.update((f) => {
-      return { ...f, files: files };
-    });
-  }
-
   rmFile(index: number) {
     const files: FileWithNewName[] = [...this.uploadModel().files];
     files.splice(index, 1);
