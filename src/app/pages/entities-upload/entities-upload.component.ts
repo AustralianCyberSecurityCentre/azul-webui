@@ -3,6 +3,7 @@ import { formatDate } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   Signal,
   TemplateRef,
   ViewChild,
@@ -138,7 +139,7 @@ function ReferenceSchemaValidation(
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class BinariesUploadComponent {
+export class BinariesUploadComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected bannerService = inject(BannerService);
@@ -214,7 +215,7 @@ export class BinariesUploadComponent {
       parentSha256.length > 0
     );
   });
-  extractConfirmSub: Subscription;
+  progressSubscription: Subscription;
 
   @ViewChild("tplExtractWarning") tplExtractWarning: TemplateRef<Element>;
   protected dialog: DialogRef | DialogRef<unknown, Element> | null = null;
@@ -340,6 +341,9 @@ export class BinariesUploadComponent {
         }
       });
     });
+  }
+  ngOnDestroy(): void {
+    this.progressSubscription?.unsubscribe();
   }
 
   extractToggled() {
@@ -528,7 +532,8 @@ export class BinariesUploadComponent {
     }
 
     // execute all upload observables
-    from(allUploads)
+    this.progressSubscription?.unsubscribe();
+    this.progressSubscription = from(allUploads)
       .pipe(
         // limit concurrency
         ops.mergeMap((x) => x, 2),
