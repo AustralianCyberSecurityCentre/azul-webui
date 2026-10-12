@@ -78,7 +78,7 @@ export class PluginsExploreComponent implements OnInit {
 
   private processPlugins<T extends PluginSummaryFast>(pluginList: T[]): T[] {
     if (pluginList.length === 0) {
-      return [];
+      return pluginList;
     }
 
     pluginList.sort((a, b) => a.name.localeCompare(b.name));
@@ -88,6 +88,27 @@ export class PluginsExploreComponent implements OnInit {
 
     pluginList.forEach((currentPlugin, index) => {
       const currentPluginName = currentPlugin.name;
+
+      // Calculating on clientside because its just easier and more consistent
+      if (
+        currentPlugin.completion_count !== undefined &&
+        currentPlugin.completion_count !== 0
+      ) {
+        currentPlugin.completion_percent =
+          Math.round(
+            1000 *
+              (currentPlugin.completion_count /
+                (currentPlugin.completion_count + currentPlugin.error_count)),
+          ) / 10;
+      }
+
+      // ensure it doesn't show 100% if there is a single error
+      if (currentPlugin.error_count > 0) {
+        currentPlugin.completion_percent = Math.min(
+          currentPlugin.completion_percent,
+          99.9,
+        );
+      }
 
       if (currentPluginName.startsWith(lastSeenMultiPlugin)) {
         currentPlugin.multiPluginKey = lastSeenMultiPlugin;
