@@ -10,7 +10,7 @@ import {
 import { components } from "@app/core/api/openapi";
 import { Api } from "@app/core/services";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { Observable } from "rxjs";
+import { concat, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
 import {
@@ -22,13 +22,21 @@ import { form } from "@angular/forms/signals";
 import { PluginExploreShowColumnModel } from "@app/core/signal-store/global-state.types";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 
-type PluginSummaryWithMultiPluginIndicator =
-  components["schemas"]["PluginStatusSummary"] & {
-    multiPluginKey?: string;
-    isRootPlugin?: boolean;
-    shortName?: string;
-    successPercentage?: number;
-  };
+type PluginSummaryFast = components["schemas"]["PluginSummary"] & {
+  last_completion?: string;
+  completion_count?: number;
+  error_count?: number;
+  completion_percent?: number;
+  multiPluginKey?: string;
+  isRootPlugin?: boolean;
+  shortName?: string;
+};
+
+type PluginSummaryComplete = components["schemas"]["PluginSummaryStats"] & {
+  multiPluginKey?: string;
+  isRootPlugin?: boolean;
+  shortName?: string;
+};
 
 @Component({
   selector: "app-plugins-explore",
@@ -60,7 +68,7 @@ export class PluginsExploreComponent implements OnInit {
   });
   showColumnsForm = form(this.showColumns);
 
-  plugins$: Observable<PluginSummaryWithMultiPluginIndicator[]>;
+  plugins$: Observable<PluginSummaryFast[]>;
 
   constructor() {
     effect(() => {
@@ -68,59 +76,65 @@ export class PluginsExploreComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.plugins$ = this.api.pluginGetAllStatuses().pipe(
-      ops.map((pluginList) => {
-        const mpUpdatedList =
-          pluginList as PluginSummaryWithMultiPluginIndicator[];
-        if (pluginList.length === 0) {
-          return mpUpdatedList;
-        }
-        // Ensure plugins are alphabetically ordered (although they should be)
-        mpUpdatedList.sort((a, b) =>
-          a?.newest_version?.name?.localeCompare(b?.newest_version?.name),
-        );
-        let lastSeenMultiPlugin = `${mpUpdatedList[0]?.newest_version?.name}-`;
-        let lastSeenMultiPluginIndex = 0;
-        mpUpdatedList.forEach((currentPlugin, index) => {
-          const success_count = currentPlugin?.success_count;
-          let error_count = currentPlugin?.error_count;
-          if (error_count === undefined) {
-            error_count = 0;
-          }
-          if (success_count === undefined || success_count === 0) {
-            currentPlugin.successPercentage = 0;
-          } else {
-            currentPlugin.successPercentage =
-              Math.round(
-                1000 * (success_count / (success_count + error_count)),
-              ) / 10;
-            if (error_count > 0) {
-              currentPlugin.successPercentage = Math.min(
-                currentPlugin.successPercentage,
-                99.9,
-              );
-            }
-          }
+  private processPlugins<T extends PluginSummaryFast>(pluginList: T[]): T[] {
+    if (pluginList.length === 0) {
+      return [];
+    }
 
-          // Determine multi-plugin status.
-          const currentPluginName = currentPlugin?.newest_version?.name;
-          if (currentPluginName.startsWith(lastSeenMultiPlugin)) {
-            currentPlugin.multiPluginKey = lastSeenMultiPlugin;
-            currentPlugin.shortName = currentPluginName.slice(
-              lastSeenMultiPlugin.length,
-            );
-            mpUpdatedList[lastSeenMultiPluginIndex].isRootPlugin = true;
-            mpUpdatedList[lastSeenMultiPluginIndex].multiPluginKey =
-              lastSeenMultiPlugin;
-          } else {
-            lastSeenMultiPlugin = `${currentPluginName}-`;
-            lastSeenMultiPluginIndex = index;
-          }
-        });
-        return mpUpdatedList;
-      }),
-      ops.shareReplay(1),
+    pluginList.sort((a, b) => a.name.localeCompare(b.name));
+
+    let lastSeenMultiPlugin = `${pluginList[0].name}-`;
+    let lastSeenMultiPluginIndex = 0;
+
+    pluginList.forEach((currentPlugin, index) => {
+      const currentPluginName = currentPlugin.name;
+
+      if (currentPluginName.startsWith(lastSeenMultiPlugin)) {
+        currentPlugin.multiPluginKey = lastSeenMultiPlugin;
+        currentPlugin.shortName = currentPluginName.slice(
+          lastSeenMultiPlugin.length,
+        );
+
+        pluginList[lastSeenMultiPluginIndex].isRootPlugin = true;
+        pluginList[lastSeenMultiPluginIndex].multiPluginKey =
+          lastSeenMultiPlugin;
+      } else {
+        lastSeenMultiPlugin = `${currentPluginName}-`;
+        lastSeenMultiPluginIndex = index;
+      }
+    });
+
+    return pluginList;
+  }
+
+  private clearStats(plugins: PluginSummaryFast[]): void {
+    plugins.forEach((plugin) => {
+      plugin.last_completion = null;
+      plugin.completion_count = null;
+      plugin.error_count = null;
+      plugin.completion_percent = null;
+    });
+  }
+
+  ngOnInit(): void {
+    this.plugins$ = concat(
+      this.api.pluginSummaryGetAllFast().pipe(
+        ops.map((plugins) => {
+          const pluginList = plugins as PluginSummaryFast[];
+
+          this.clearStats(pluginList);
+
+          return this.processPlugins(pluginList);
+        }),
+      ),
+
+      this.api
+        .pluginSummaryGetAllComplete()
+        .pipe(
+          ops.map((plugins) =>
+            this.processPlugins(plugins as unknown as PluginSummaryComplete[]),
+          ),
+        ),
     );
   }
 
