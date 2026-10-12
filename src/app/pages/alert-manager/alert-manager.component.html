@@ -461,7 +461,11 @@
               kv of createAlertRuleForm.source_reference_key_values;
               track $index
             ) {
-              <select flowSelect [formField]="kv.key">
+              <select
+                flowSelect
+                [formField]="kv.key"
+                (focusout)="markKeyAndValueTouchedOnOutput(kv)"
+              >
                 <option [value]=""></option>
                 @for (
                   curSourceRef of currentSourceReferences();
@@ -475,6 +479,7 @@
               <flow-signal-input
                 [formField]="kv.value"
                 placeholder="source value"
+                (inputFocusOut)="markKeyAndValueTouchedOnOutput(kv)"
               />
               <flow-button
                 [type]="ButtonType.Danger"
@@ -503,18 +508,16 @@
               </flow-tooltip>
             </div>
           </div>
-          @if (createAlertRuleForm.source_reference_key_values().invalid()) {
+          @if (
+            createAlertRuleForm.source_reference_key_values().errors()?.length >
+            0
+          ) {
             <div class="text-sm text-red-600">
               Source References are not valid with error
-              @if (
-                createAlertRuleForm.source_reference_key_values().errors()
-                  ?.length > 0
-              ) {
-                {{
-                  createAlertRuleForm.source_reference_key_values().errors()[0]
-                    ?.message
-                }}
-              }
+              {{
+                createAlertRuleForm.source_reference_key_values().errors()[0]
+                  ?.message
+              }}
             </div>
           }
           <hr />
@@ -531,10 +534,12 @@
               <flow-signal-input
                 [formField]="kv.key"
                 placeholder="feature name"
+                (inputFocusOut)="markKeyAndValueTouchedOnOutput(kv)"
               />
               <flow-signal-input
                 [formField]="kv.value"
                 placeholder="feature value"
+                (inputFocusOut)="markKeyAndValueTouchedOnOutput(kv)"
               />
               <flow-button
                 [type]="ButtonType.Danger"

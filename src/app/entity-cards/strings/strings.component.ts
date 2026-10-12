@@ -18,6 +18,7 @@ import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";
 import {
   BehaviorSubject,
@@ -30,7 +31,6 @@ import {
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 import { HexStringSyncService } from "../hex-string-sync.service";
-import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 type AggregatedStrings = components["schemas"]["BinaryStrings"];
 
@@ -295,8 +295,8 @@ NOTE - only the first 10MB of a file is checked for strings by default toggle 'A
   private _take_n_strings = 1000;
   private SCROLL_UP_JUMP_AMOUNT = 1024 * 20; // 20kB jump - arbitrary and may need adjusting in the future
 
-  sha256Subject: ReplaySubject<string> = new ReplaySubject();
-  fileInfoSubject = new ReplaySubject<FileInfo>();
+  sha256Subject: ReplaySubject<string> = new ReplaySubject(1);
+  fileInfoSubject = new ReplaySubject<FileInfo>(1);
 
   currentStringsSignal: WritableSignal<
     components["schemas"]["SearchResult"][]

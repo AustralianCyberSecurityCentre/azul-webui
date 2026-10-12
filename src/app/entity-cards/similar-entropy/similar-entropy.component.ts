@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { components } from "@app/core/api/openapi";
 import { Entity } from "@app/core/services";
 import { Observable, combineLatest, of } from "rxjs";
-import { map, shareReplay, switchMap } from "rxjs/operators";
+import * as ops from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
 
 @Component({
@@ -53,7 +54,7 @@ And they must have a sufficiently large entropy. (at least 10% (40 out of the ma
           })),
         );
       }),
-      shareReplay(1),
+      ops.shareReplay(1),
     );
   }
 }

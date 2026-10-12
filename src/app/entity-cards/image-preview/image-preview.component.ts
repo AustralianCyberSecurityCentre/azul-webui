@@ -49,7 +49,7 @@ export class ImagePreviewComponent
   private TIME_BETWEEN_FRAMES_MS = 100;
   private ANIMATED_IMAGE_TYPES = ["image/gif", "image/webp"];
 
-  displayImage$: ReplaySubject<boolean> = new ReplaySubject();
+  displayImage$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   streamData = input<StreamMetadataWithAuthor>();
   fileFormat = input.required<string>();
@@ -167,7 +167,7 @@ export class ImagePreviewComponent
           this.displayImage$?.next(true);
           return this.imgDecoder;
         }),
-        ops.shareReplay(),
+        ops.shareReplay(1),
         ops.combineLatestWith(this.desiredFrameIndexSubject),
         ops.switchMap(([imgDecoder, imgIndex]) => {
           return from(imgDecoder.decode({ frameIndex: imgIndex })).pipe(
@@ -220,7 +220,7 @@ export class ImagePreviewComponent
           this.displayImage$?.next(true);
         }
       }),
-      ops.shareReplay(),
+      ops.shareReplay(1),
     );
   }
 

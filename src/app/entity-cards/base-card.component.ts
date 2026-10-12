@@ -9,7 +9,7 @@ export abstract class BaseCard {
   abstract help: string;
 
   // observable that returns the currently active entity
-  protected currentEntity$ = new ReplaySubject<EntityWrap>();
+  protected currentEntity$ = new ReplaySubject<EntityWrap>(1);
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
 
