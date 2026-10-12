@@ -164,8 +164,6 @@ export class EntityWrap {
           }
           const complete = new Subject<boolean>();
           return timer(5000, 5000).pipe(
-            // Re-check ReadSimilar every 5seconds until it's ready
-            ops.takeUntil(complete),
             ops.mergeMap(() =>
               this.api.entityReadSimilar(this.sha256, { recalculate: false }),
             ),
@@ -173,6 +171,8 @@ export class EntityWrap {
             ops.tap((d) =>
               d.status == "complete" ? complete.next(true) : null,
             ),
+            // Re-check ReadSimilar every 5seconds until it's ready
+            ops.takeUntil(complete),
           );
         }),
         ops.shareReplay(1),
@@ -298,7 +298,7 @@ export class EntityWrap {
       .pipe(ops.shareReplay(1));
 
     const mainData$ = main$.pipe(
-      ops.map((d) => d.data),
+      ops.map((d) => d?.data),
       ops.shareReplay(1),
     );
     // set up the easy observables
@@ -384,45 +384,20 @@ export class EntityWrap {
       }),
       // look for uncounted feature values and recount
       ops.tap((features) => {
-        of(null)
-          .pipe(
-            ops.mergeMap(() =>
-              chunkify(
-                features.filter((x) => !x?.XBinaries),
-                1000,
-              ),
+        of(null).pipe(
+          ops.mergeMap(() =>
+            chunkify(
+              features.filter((x) => !x?.XBinaries),
+              1000,
             ),
-            ops.map((chunk_fv) => {
-              const query_fvs = chunk_fv.map((f) => {
-                return { name: f.name, value: f.value };
-              });
-              return this.api
-                .featureValuesCountBinaries(query_fvs, { skip_count: true })
-                .pipe(
-                  ops.tap((d) => {
-                    for (const fv of chunk_fv) {
-                      const counted = d?.[fv.name]?.[fv.value.toString()];
-                      if (!counted) {
-                        continue;
-                      }
-                      fv.XBinaries = counted?.entities;
-                    }
-                  }),
-                  ops.tap(() => featuresChanged$.next(true)),
-                );
-            }, 1),
-            ops.concatAll(),
-            ops.mergeMap(() =>
-              chunkify(
-                features.filter((x) => !x?.XBinaries),
-                1000,
-              ),
-            ),
-            ops.map((chunk_fv) => {
-              const query_fvs = chunk_fv.map((f) => {
-                return { name: f.name, value: f.value };
-              });
-              return this.api.featureValuesCountBinaries(query_fvs, {}).pipe(
+          ),
+          ops.map((chunk_fv) => {
+            const query_fvs = chunk_fv.map((f) => {
+              return { name: f.name, value: f.value };
+            });
+            return this.api
+              .featureValuesCountBinaries(query_fvs, { skip_count: true })
+              .pipe(
                 ops.tap((d) => {
                   for (const fv of chunk_fv) {
                     const counted = d?.[fv.name]?.[fv.value.toString()];
@@ -434,10 +409,34 @@ export class EntityWrap {
                 }),
                 ops.tap(() => featuresChanged$.next(true)),
               );
-            }, 1),
-            ops.concatAll(),
-          )
-          .subscribe();
+          }, 1),
+          ops.concatAll(),
+          ops.mergeMap(() =>
+            chunkify(
+              features.filter((x) => !x?.XBinaries),
+              1000,
+            ),
+          ),
+          ops.map((chunk_fv) => {
+            const query_fvs = chunk_fv.map((f) => {
+              return { name: f.name, value: f.value };
+            });
+            return this.api.featureValuesCountBinaries(query_fvs, {}).pipe(
+              ops.tap((d) => {
+                for (const fv of chunk_fv) {
+                  const counted = d?.[fv.name]?.[fv.value.toString()];
+                  if (!counted) {
+                    continue;
+                  }
+                  fv.XBinaries = counted?.entities;
+                }
+              }),
+              ops.tap(() => featuresChanged$.next(true)),
+            );
+          }, 1),
+          ops.concatAll(),
+        );
+        // .subscribe(); // TODO - is this needed?
       }),
       ops.shareReplay(1),
     );

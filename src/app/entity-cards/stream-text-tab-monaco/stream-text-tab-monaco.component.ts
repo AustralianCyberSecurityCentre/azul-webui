@@ -110,7 +110,7 @@ Quick Shortcuts can be found in the F1 menu.
 
     this.text$ = this.api
       .textStream(this.textData.binary_sha256, this.textData.datastream_sha256)
-      .pipe(ops.shareReplay());
+      .pipe(ops.shareReplay(1));
   }
 
   protected onMonacoInit(editor: editor.IEditor) {

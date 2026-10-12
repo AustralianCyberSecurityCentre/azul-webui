@@ -83,13 +83,13 @@ export class SourcesExploreComponent implements OnInit {
             ops.map((row) =>
               row?.num_entities != undefined ? row.num_entities : 0,
             ),
-            ops.shareReplay(),
+            ops.shareReplay(1),
           );
           const newest$ = this.api.sourceRead(source_key).pipe(
             ops.map((row) =>
               row?.newest != undefined ? `${row.newest}` : null,
             ),
-            ops.shareReplay(),
+            ops.shareReplay(1),
           );
 
           // Lookup the icon for this source

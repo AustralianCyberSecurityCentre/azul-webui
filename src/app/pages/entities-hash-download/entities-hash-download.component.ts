@@ -98,9 +98,8 @@ export class BinariesHashDownloadComponent {
     Map<string, Observable<boolean>> | undefined
   > = signal(undefined);
 
-  setArea(event: Event) {
-    const textAreaRef = event.target as HTMLTextAreaElement;
-    this.hashTextAreaSignal.set(textAreaRef.value);
+  setArea(newValue: string) {
+    this.hashTextAreaSignal.set(newValue);
   }
 
   protected downloadModel: WritableSignal<DownloadHashForm> = linkedSignal({

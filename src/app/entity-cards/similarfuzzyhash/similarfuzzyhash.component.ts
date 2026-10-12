@@ -9,10 +9,10 @@ import {
 import { components } from "@app/core/api/openapi";
 import { FuzzyMatchWithSummary } from "@app/core/api/state";
 import { Entity } from "@app/core/services";
-import { Observable, combineLatest, of } from "rxjs";
-import { map, shareReplay, switchMap } from "rxjs/operators";
-import { BaseCard } from "../base-card.component";
+import { combineLatest, Observable, of } from "rxjs";
 import * as ops from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
+import { BaseCard } from "../base-card.component";
 
 type HashType = "ssdeep" | "tlsh";
 
@@ -84,7 +84,7 @@ Note that files can only be compared this way if they are somewhat similar in si
           })),
         );
       }),
-      shareReplay(1),
+      ops.shareReplay(1),
     );
   }
 }

@@ -48,7 +48,7 @@ This is rendered using your browser's PDF viewer.
           // URL is safe to use as it is directly created by the browser
           return this.sanitizer.bypassSecurityTrustResourceUrl(this.objectUrl);
         }),
-        ops.shareReplay(),
+        ops.shareReplay(1),
       );
   }
 

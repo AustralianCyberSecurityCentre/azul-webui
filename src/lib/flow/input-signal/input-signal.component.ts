@@ -27,7 +27,7 @@ export type FieldType =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule],
 })
-export class SignalInputComponent implements FormValueControl<string | number> {
+export class InputSignalComponent implements FormValueControl<string | number> {
   @ViewChild("inputElement") inputElement: ElementRef<HTMLInputElement>;
 
   id = input<string | null>(null);

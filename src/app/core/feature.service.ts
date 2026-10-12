@@ -92,7 +92,7 @@ export class FeatureService {
         }
         return tmp;
       }),
-      ops.shareReplay(),
+      ops.shareReplay(1),
     );
   }
 

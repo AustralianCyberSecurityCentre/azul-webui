@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormField } from "@angular/forms/signals";
 import { TypedTemplateDirective } from "../template-type/template-type.directive";
 import { AccordionContentComponent } from "./accordion/accordion-content.component";
 import { AccordionPanelComponent } from "./accordion/accordion-panel.component";
@@ -13,11 +14,10 @@ import { CardFooterComponent } from "./card-footer/card-footer.component";
 import { CardHeaderComponent } from "./card-header/card-header.component";
 import { CardComponent } from "./card/card.component";
 import { CheckboxLabelComponent } from "./checkbox-label/checkbox-label.component";
-import { CheckboxComponent } from "./checkbox/checkbox.component";
+import { CheckboxSignalComponent } from "./checkbox-signal/checkbox-signal.component";
 import { HRComponent } from "./hr/hr.component";
 import { IndicatorComponent } from "./indicator/indicator.component";
-import { SignalInputComponent } from "./input-signal/input-signal.component";
-import { InputComponent } from "./input/input.component";
+import { InputSignalComponent } from "./input-signal/input-signal.component";
 import { LabelComponent } from "./label/label.component";
 import { LinkDirective } from "./link/link.directive";
 import { MarkdownComponent } from "./markdown/markdown.component";
@@ -35,8 +35,6 @@ import { TablistComponent } from "./tablist/tablist.component";
 import { TextareaComponent } from "./textarea/textarea.component";
 import { ToggleComponent } from "./toggle/toggle.component";
 import { TooltipComponent } from "./tooltip/tooltip.component";
-import { FormField } from "@angular/forms/signals";
-import { CheckboxSignalComponent } from "./checkbox-signal/checkbox-signal.component";
 
 @NgModule({
   imports: [
@@ -53,15 +51,13 @@ import { CheckboxSignalComponent } from "./checkbox-signal/checkbox-signal.compo
     CardBodyComponent,
     CardHeaderComponent,
     CardFooterComponent,
-    CheckboxComponent,
     CheckboxSignalComponent,
     CheckboxLabelComponent,
     HRComponent,
     IndicatorComponent,
-    InputComponent,
     MarkdownComponent,
     ProgressComponent,
-    SignalInputComponent,
+    InputSignalComponent,
     SelectDirective,
     TableDirective,
     TableBodyDirective,
@@ -93,15 +89,13 @@ import { CheckboxSignalComponent } from "./checkbox-signal/checkbox-signal.compo
     CardBodyComponent,
     CardHeaderComponent,
     CardFooterComponent,
-    CheckboxComponent,
     CheckboxSignalComponent,
     CheckboxLabelComponent,
     HRComponent,
     IndicatorComponent,
-    InputComponent,
     MarkdownComponent,
     ProgressComponent,
-    SignalInputComponent,
+    InputSignalComponent,
     SelectDirective,
     TableDirective,
     TableBodyDirective,

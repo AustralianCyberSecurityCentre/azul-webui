@@ -148,7 +148,7 @@
 </ng-template>
 
 <ng-template #tplDeleteApiToken let-token>
-  <form (ngSubmit)="deletePAT(token.id)">
+  <form (ngSubmit)="deletePAT(token.id)" class="max-h-[90vh] overflow-auto">
     <flow-card>
       <flow-card-header>Confirm Deletion</flow-card-header>
       <flow-card-body>
@@ -167,7 +167,7 @@
 </ng-template>
 
 <ng-template #tplCreatedApiToken>
-  <form>
+  <form class="max-h-[90vh] overflow-auto">
     <flow-card>
       <flow-card-body>
         <div class="flex w-[50vw] flex-col gap-2">
@@ -303,7 +303,7 @@
 </ng-template>
 
 <ng-template #tplIssuedApiToken>
-  <form>
+  <form class="max-h-[90vh] overflow-auto">
     <flow-card>
       <flow-card-header>
         API Token details (Ensure you copy the PAT value or Ready API Key)

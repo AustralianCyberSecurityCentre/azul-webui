@@ -254,7 +254,7 @@ Ctrl-C will copy selected hexadecimal.`;
   protected checkIcon = faCheck;
   private store = inject(GlobalSettingStore);
 
-  hexViewReady$ = new ReplaySubject<boolean>();
+  hexViewReady$ = new ReplaySubject<boolean>(1);
 
   sha256: string;
   summarySub: Subscription;

@@ -14,7 +14,13 @@ import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 
 import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { form, required, validate } from "@angular/forms/signals";
+import {
+  applyEach,
+  form,
+  required,
+  SchemaPathTree,
+  validate,
+} from "@angular/forms/signals";
 import { components, paths } from "@app/core/api/openapi";
 import {
   faAngleDown,
@@ -75,6 +81,27 @@ interface CreateAlertRuleInterface {
   source_reference_key_values: NameValueEntry[];
   /** Feature Name Values */
   feature_name_values: NameValueEntry[];
+}
+
+function NameValueEntryValidator(item: SchemaPathTree<NameValueEntry>) {
+  validate(item.key, ({ value, valueOf }) => {
+    if (value() === "" && valueOf(item.value) !== "") {
+      return {
+        kind: "invalidValueSetWithNoKey",
+        message: "relations has a value set with no key value.",
+      };
+    }
+    return null;
+  });
+  validate(item.value, ({ value, valueOf }) => {
+    if (value() === "" && valueOf(item.key) !== "") {
+      return {
+        kind: "invalidKeySetWithNoValue",
+        message: "relations has a key set with no value set.",
+      };
+    }
+    return null;
+  });
 }
 
 @Component({
@@ -147,22 +174,13 @@ export class AlertManagerComponent {
   protected createAlertRuleForm = form(this.createAlertRuleModel, (f) => {
     required(f.webhook_id);
     required(f.alert_message);
+    // Apply each give field level highlighting.
+    applyEach(f.source_reference_key_values, NameValueEntryValidator);
+    applyEach(f.feature_name_values, NameValueEntryValidator);
+
     validate(f.source_reference_key_values, ({ value }) => {
       for (const kv of value()) {
-        if (kv.key !== "" && kv.value === "") {
-          return {
-            kind: "unsetSourceValue",
-            message: `The source key is set to '${kv.key}' but the value is unset, the value must be set.`,
-          };
-        } else if (kv.value !== "" && kv.key === "") {
-          return {
-            kind: "unsetSourceKey",
-            message: `The source has a value '${kv.value}' but has no key value set., the key value must be set.`,
-          };
-        } else if (
-          kv.key !== "" &&
-          !this.currentSourceReferences().includes(kv.key)
-        ) {
+        if (kv.key !== "" && !this.currentSourceReferences().includes(kv.key)) {
           return {
             kind: "invalidSourceKeySet",
             message: `The current source does not hold the key '${kv.key}' but the key is currently set (value is '${kv.value}').`,
@@ -612,6 +630,11 @@ export class AlertManagerComponent {
         feature_name_values: newValues,
       };
     });
+  }
+
+  protected markKeyAndValueTouchedOnOutput(kv) {
+    kv.key().markAsTouched();
+    kv.value().markAsTouched();
   }
 
   clearPendingAlerts() {

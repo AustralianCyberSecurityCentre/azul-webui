@@ -177,7 +177,7 @@ export class DataTabComponent
         }
         return renderStreams;
       }),
-      ops.shareReplay(),
+      ops.shareReplay(1),
     );
 
     this.streamsRender$ = this.contentStreams$.pipe(

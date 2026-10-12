@@ -155,7 +155,7 @@
             <flow-label [for]="'input-' + inputType"
               >Input type: {{ inputType }} = {{ data[i] }}</flow-label
             >
-            <flow-input
+            <flow-signal-input
               [id]="'input-' + inputType"
               [fieldType]="inputType"
               [(ngModel)]="data[i]"
@@ -164,10 +164,9 @@
         }
         <div>
           <flow-label for="test-error"> Invalid input demo</flow-label>
-          <flow-input
+          <flow-signal-input
             [id]="'test-error'"
             [fieldType]="'text'"
-            [invalid]="true"
             [placeholder]="'Invalid input demo'"
             [helpText]="'Example of an invalid input'"
           />
@@ -176,7 +175,10 @@
           <flow-label for="input-checkbox"
             >Checkbox: {{ checkboxValue }}</flow-label
           >
-          <flow-checkbox id="input-checkbox" [(ngModel)]="checkboxValue" />
+          <flow-checkbox-signal
+            id="input-checkbox"
+            [(ngModel)]="checkboxValue"
+          />
           <flow-checkbox-label
             >I acknowledge that looking at malware is Azul's
             purpose.</flow-checkbox-label
@@ -186,7 +188,10 @@
           <flow-label for="input-checkbox2"
             >Checkbox: {{ checkbox2Value }}</flow-label
           >
-          <flow-checkbox id="input-checkbox2" [(ngModel)]="checkbox2Value" />
+          <flow-checkbox-signal
+            id="input-checkbox2"
+            [(ngModel)]="checkbox2Value"
+          />
           <flow-checkbox-label
             >I further acknowledge that performing analysis is strictly
             prohibited.</flow-checkbox-label

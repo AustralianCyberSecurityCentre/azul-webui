@@ -70,7 +70,7 @@
                     {{ row.score_sum }} ({{ row.score_percent }}%)
                   </td>
                   <td flowTableBodyCell class="limit truncate">
-                    <flow-checkbox
+                    <flow-checkbox-signal
                       class="checked:bg-slate-700 checked:dark:text-blue-300"
                       (change)="clickRow(row)"
                       [ngModel]="selected.includes(row)"
