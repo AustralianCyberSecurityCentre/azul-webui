@@ -149,17 +149,15 @@
                               class="table-link text-wrap break-words"
                               [routerLink]="[
                                 '/pages/plugins/current',
-                                currentPlugin.newest_version.name,
+                                currentPlugin.name,
                                 'versions',
-                                currentPlugin.newest_version.version,
+                                currentPlugin.version,
                               ]"
                             >
                               @if (currentPlugin?.shortName) {
                                 <strong>{{ currentPlugin?.shortName }}</strong>
                               } @else {
-                                <strong>{{
-                                  currentPlugin.newest_version.name
-                                }}</strong>
+                                <strong>{{ currentPlugin.name }}</strong>
                               }
                             </a>
                           </span>
@@ -167,27 +165,25 @@
                         @if (showColumns().version) {
                           <td flowTableBodyCell class="truncate">
                             <span class="line-clamp-2 text-wrap break-words">
-                              {{ currentPlugin.newest_version.version }}
+                              {{ currentPlugin.version }}
                             </span>
                           </td>
                         }
                         @if (showColumns().security) {
                           <td flowTableBodyCell class="truncate">
                             <span class="line-clamp-2 text-wrap break-words">
-                              {{ currentPlugin.newest_version.security }}
+                              {{ currentPlugin.security }}
                             </span>
                           </td>
                         }
                         @if (showColumns().description) {
                           <td flowTableBodyCell class="limit-description">
                             <flow-tooltip
-                              message="{{
-                                currentPlugin.newest_version.description
-                              }}"
+                              message="{{ currentPlugin.description }}"
                               [copyText]="true"
                             >
                               <span class="line-clamp-2 text-wrap break-words">
-                                {{ currentPlugin.newest_version.description }}
+                                {{ currentPlugin.description }}
                               </span>
                             </flow-tooltip>
                           </td>
@@ -201,15 +197,14 @@
                         }
                         @if (showColumns().features) {
                           <td flowTableBodyCell>
-                            {{
-                              (currentPlugin.newest_version.features?.length
-                                | number) || "0"
-                            }}
+                            {{ (currentPlugin.feature_count | number) || "0" }}
                           </td>
                         }
                         @if (showColumns().completed) {
                           <td flowTableBodyCell>
-                            {{ (currentPlugin?.success_count | number) || "" }}
+                            {{
+                              (currentPlugin?.completion_count | number) || ""
+                            }}
                           </td>
                         }
                         @if (showColumns().errors) {
@@ -219,7 +214,12 @@
                         }
                         @if (showColumns().completed_percent) {
                           <td flowTableBodyCell>
-                            {{ currentPlugin?.successPercentage + "%" || "" }}
+                            {{
+                              currentPlugin?.completion_percent !==
+                              currentPlugin?.completion_percent
+                                ? ""
+                                : currentPlugin?.completion_percent + "%"
+                            }}
                           </td>
                         }
                       </tr>

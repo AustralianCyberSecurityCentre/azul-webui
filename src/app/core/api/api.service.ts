@@ -1614,6 +1614,30 @@ export class ApiService {
     );
   }
 
+  pluginSummaryGetAllFast(): Observable<
+    readonly components["schemas"]["PluginSummary"][]
+  > {
+    return this.getOperation("/api/v0/plugins/summary/fast").pipe(
+      ops.tap((d) => {
+        this.addReceivedSecurity(d.meta);
+      }),
+      ops.map((d) => d.data ?? []),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
+  pluginSummaryGetAllComplete(): Observable<
+    components["schemas"]["PluginSummaryStats"]
+  > {
+    return this.getOperation("/api/v0/plugins/summary/complete").pipe(
+      ops.tap((d) => {
+        this.addReceivedSecurity(d.meta);
+      }),
+      ops.map((d) => d.data),
+      ops.catchError((e) => this.handle(e, undefined, [])),
+    );
+  }
+
   purgeSubmission<Purge extends boolean = false>(
     track_source_references: string,
     timestamp: string,

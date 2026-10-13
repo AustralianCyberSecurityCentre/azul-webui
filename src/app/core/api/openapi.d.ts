@@ -1193,6 +1193,50 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/plugins/summary/fast": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Plugin Summary Fast
+     * @description Returns values of all plugins with a single query, significantly more performant.
+     *
+     *     Returns name, version, security, description, and features (count).
+     */
+    readonly get: operations["get_plugin_summary_fast_api_v0_plugins_summary_fast_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/plugins/summary/complete": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Get Plugin Summary Complete
+     * @description Returns values of all plugins with multiple queries, includes Last completion, Completion count, Error count, and Completion percent.
+     *
+     *     Returns name, version, security, description, features (count), last_completion, completion_count, error_count, and completion_percent.
+     */
+    readonly get: operations["get_plugin_summary_complete_api_v0_plugins_summary_complete_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/purge/submission/{track_source_references}": {
     readonly parameters: {
       readonly query?: never;
@@ -3750,6 +3794,46 @@ export interface components {
       readonly error_count: number;
     };
     /**
+     * PluginSummary
+     * @description Info for plugin summary page.
+     */
+    readonly PluginSummary: {
+      /** Name */
+      readonly name: string;
+      /** Version */
+      readonly version: string;
+      /** Security */
+      readonly security: string;
+      /** Description */
+      readonly description: string;
+      /** Feature Count */
+      readonly feature_count: number;
+    };
+    /**
+     * PluginSummaryStats
+     * @description PluginSummary with added stats.
+     */
+    readonly PluginSummaryStats: {
+      /** Name */
+      readonly name: string;
+      /** Version */
+      readonly version: string;
+      /** Security */
+      readonly security: string;
+      /** Description */
+      readonly description: string;
+      /** Feature Count */
+      readonly feature_count: number;
+      /** Last Completion */
+      readonly last_completion: string | null;
+      /** Completion Count */
+      readonly completion_count: number;
+      /** Error Count */
+      readonly error_count: number;
+      /** Completion Percent */
+      readonly completion_percent: number;
+    };
+    /**
      * PurgeSimulation
      * @description Info about what will be purged.
      *
@@ -4017,6 +4101,18 @@ export interface components {
     readonly Response_PluginStatusSummary_: {
       /** Data */
       readonly data?: readonly components["schemas"]["PluginStatusSummary"][];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /** Response:list[azul_bedrock.models_restapi.plugins.PluginSummaryStats] */
+    readonly Response_PluginSummaryStats_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["PluginSummaryStats"][];
+      readonly meta: components["schemas"]["Meta"];
+    };
+    /** Response:list[azul_bedrock.models_restapi.plugins.PluginSummary] */
+    readonly Response_PluginSummary_: {
+      /** Data */
+      readonly data?: readonly components["schemas"]["PluginSummary"][];
       readonly meta: components["schemas"]["Meta"];
     };
     /** Response:list[azul_bedrock.models_restapi.binaries.StatusEvent] */
@@ -5188,6 +5284,8 @@ export type PluginEntity = components["schemas"]["PluginEntity"];
 export type PluginFeature = components["schemas"]["PluginFeature"];
 export type PluginInfo = components["schemas"]["PluginInfo__"];
 export type PluginStatusSummary = components["schemas"]["PluginStatusSummary"];
+export type PluginSummary = components["schemas"]["PluginSummary"];
+export type PluginSummaryStats = components["schemas"]["PluginSummaryStats"];
 export type PurgeSimulation = components["schemas"]["PurgeSimulation"];
 export type QueryInfo = components["schemas"]["QueryInfo"];
 export type ReadAllEntityTags = components["schemas"]["ReadAllEntityTags__"];
@@ -5212,6 +5310,10 @@ export type ResponseLatestPluginWithVersions =
   components["schemas"]["Response_LatestPluginWithVersions_"];
 export type ResponsePluginStatusSummary =
   components["schemas"]["Response_PluginStatusSummary_"];
+export type ResponsePluginSummaryStats =
+  components["schemas"]["Response_PluginSummaryStats_"];
+export type ResponsePluginSummary =
+  components["schemas"]["Response_PluginSummary_"];
 export type ResponseStatusEvent =
   components["schemas"]["Response_StatusEvent_"];
 export type ResponseUnionAutocompleteNoneAutocompleteInitialAutocompleteFieldNameAutocompleteFieldValueAutocompleteErrorFieldInfoAnnotationNoneTypeRequiredTrueDiscriminatorType =
@@ -8710,6 +8812,110 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["Response_Author_"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_plugin_summary_fast_api_v0_plugins_summary_fast_get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["Response_PluginSummary_"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly get_plugin_summary_complete_api_v0_plugins_summary_complete_get: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["Response_PluginSummaryStats_"];
         };
       };
       /** @description Not found */
