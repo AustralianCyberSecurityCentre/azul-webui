@@ -54,6 +54,8 @@
         File too small to calculate entropy.
       }
     }
+  } @else if ((hasContent$ | async) === false) {
+    No entropy available for contentless files.
   } @else {
     No entropy data currently available.
   }

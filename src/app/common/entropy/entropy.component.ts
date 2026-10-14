@@ -135,6 +135,8 @@ export class EntropyComponent {
     );
   }
 
+  @Input() hasContent$: Observable<boolean | null>;
+
   entropy$: Observable<Entropy>;
 
   protected dataHover(index: number, element: HTMLElement, data: Dataset) {

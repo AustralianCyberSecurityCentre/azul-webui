@@ -35,7 +35,7 @@ export class TextareaComponent implements ControlValueAccessor {
   private onChange = (value: string) => {
     this.valueChanged.emit(value);
   };
-  private onTouched = () => {};
+  protected onTouched = () => {};
 
   writeValue(newValue: string): void {
     this.value.set(newValue ?? "");
