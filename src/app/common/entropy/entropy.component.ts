@@ -135,7 +135,7 @@ export class EntropyComponent {
     );
   }
 
-  hasContent = input<boolean | null>(null);
+  @Input() hasContent$: Observable<boolean | null>;
 
   entropy$: Observable<Entropy>;
 

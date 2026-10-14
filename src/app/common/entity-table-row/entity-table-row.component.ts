@@ -86,7 +86,7 @@ export class EntityTableRowComponent {
   protected faEyeSlash = faEyeSlash;
 
   protected entropy$: Observable<Entropy>;
-  protected hasContent = signal<boolean | null>(null);
+  protected hasContent$: Observable<boolean | null>;
   protected _row: EntityFindRowWithUpdatedTags;
 
   protected user = inject(UserService);
@@ -108,9 +108,7 @@ export class EntityTableRowComponent {
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
     };
-    this.api
-      .entityHasContent(data.sha256)
-      .subscribe((value) => this.hasContent.set(value));
+    this.hasContent$ = this.api.entityHasContent(data.sha256);
     this.entropy$ = this.api
       .entityReadMain(data.sha256, {
         detail: ["info"],
