@@ -9,6 +9,7 @@ import { components } from "@app/core/api/openapi";
 import { combineLatest, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
+import { escapeValue } from "@app/core/util";
 import { EntityWrap } from "@app/core/services";
 import { formatLink, FormattedLink } from "@app/core/user-url";
 import { getStatusColour } from "@app/core/util";
@@ -42,6 +43,7 @@ export class EntitySummaryComponent implements OnChanges {
   protected ButtonSize = ButtonSize;
   protected ButtonType = ButtonType;
   protected faCircleExclamation = faCircleExclamation;
+  protected escapeValue = escapeValue;
 
   ngOnChanges() {
     this.entityLinks$ = combineLatest([
