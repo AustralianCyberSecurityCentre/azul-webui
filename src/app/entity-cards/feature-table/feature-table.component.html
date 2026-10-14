@@ -29,6 +29,7 @@
               </flow-button>
             </flow-tooltip>
           </ng-template>
+
           <flow-button
             (click)="searchForSelectedFeatures()"
             title="Search for binaries with all the selected features"
@@ -40,6 +41,7 @@
           >
             Search Selected
           </flow-button>
+
           <flow-button
             (click)="pivotOnSelectedFeatures()"
             title="Search for all the features on binaries that have the selected features"
@@ -51,6 +53,7 @@
           >
             Pivot on Selected
           </flow-button>
+
           <flow-button
             (click)="showParts.set(!showParts())"
             [title]="
@@ -60,10 +63,12 @@
           >
             Toggle Parts
           </flow-button>
+
           <azec-offset-picker
             [entity]="entity"
             (extent)="visibleExtent$.next($event)"
           />
+
           <flow-signal-input
             class="max-w-lg grow"
             id="filter"
@@ -72,9 +77,11 @@
             [suffixTpl]="filterButton"
           />
         </div>
+
         <div class="ml-auto flex flex-col">
           <div class="flex grow flex-wrap gap-2">
             <div class="py-1">Plugins:</div>
+
             @for (
               pluginFVCount of pluginFVCounts() | keyvalue;
               track pluginFVCount
@@ -103,12 +110,14 @@
               </flow-tooltip>
             }
           </div>
+
           @if (
             pluginGroupings().size > 0 ||
             (currentPluginFilter$ | async).length !== pluginFVCounts().size
           ) {
             <div class="flex grow flex-wrap gap-2 pt-2">
               <div class="py-1">Groups:</div>
+
               @if (pluginGroupings().size > 0) {
                 @for (kv of pluginGroupings() | keyvalue; track kv.key) {
                   <flow-tooltip
@@ -126,6 +135,7 @@
                   </flow-tooltip>
                 }
               }
+
               @if (
                 (currentPluginFilter$ | async).length !== pluginFVCounts().size
               ) {
@@ -147,10 +157,12 @@
           }
         </div>
       </div>
+
       <div class="py-2">
         Viewing {{ (displayFeatures$ | async)?.length || 0 | number }} of
         {{ (boundedFeatures$ | async)?.length || 0 | number }} feature values
       </div>
+
       <div class="min-h-0 w-full overflow-y-auto">
         <table flowTable #ftable class="w-full table-auto">
           <thead flowTableHeader class="sticky top-0 z-1">
@@ -181,6 +193,7 @@
               </th>
             </tr>
           </thead>
+
           <tbody flowTableBody>
             @if (reduceFeatures$ | async; as reducedFeatures) {
               @for (
@@ -214,6 +227,7 @@
                         style="cursor: copy"
                       />
                     </td>
+
                     <!-- button to toggle visibility of detailed info for current row -->
                     <td flowTableBodyCell class="s-expand px-1! align-top">
                       <flow-button
@@ -232,6 +246,7 @@
                               [icon]="faLink"
                             />
                           }
+
                           @case ("filepath") {
                             <fa-icon
                               title="path info"
@@ -239,6 +254,7 @@
                               [icon]="faFolderOpen"
                             />
                           }
+
                           @case ("datetime") {
                             <fa-icon
                               title="date info"
@@ -246,6 +262,7 @@
                               [icon]="faCalendar"
                             />
                           }
+
                           @case ("string") {
                             <fa-icon
                               title="string info"
@@ -253,6 +270,7 @@
                               [icon]="faPencil"
                             />
                           }
+
                           @case ("binary") {
                             <fa-icon
                               title="binary info"
@@ -260,6 +278,7 @@
                               [icon]="faSquareBinary"
                             />
                           }
+
                           @case ("integer")
                           @case ("float") {
                             <fa-icon
@@ -268,6 +287,7 @@
                               [icon]="faCalculator"
                             />
                           }
+
                           @default {
                             <fa-icon
                               title="other info"
@@ -278,6 +298,7 @@
                         }
                       </flow-button>
                     </td>
+
                     <!-- feature name column -->
                     <td flowTableBodyCell class="s-feature align-top">
                       <span
@@ -292,6 +313,7 @@
                         ></span
                       >
                     </td>
+
                     <!-- entity count for feature value -->
                     <td flowTableBodyCell class="s-entities align-top">
                       <span class="line-clamp-8 text-wrap break-words">
@@ -316,6 +338,7 @@
                         </a>
                       </span>
                     </td>
+
                     <!-- value for current feature -->
                     <td flowTableBodyCell class="s-values align-top">
                       <span class="line-clamp-8 text-wrap break-words">
@@ -332,6 +355,7 @@
                         </flow-tooltip>
                       </span>
                     </td>
+
                     <!-- label for feature value -->
                     <td flowTableBodyCell class="s-label align-top">
                       @for (lab of row.label | slice: 0 : 5; track lab) {
@@ -341,12 +365,14 @@
                           >
                         </span>
                       }
+
                       @if (row.label.length > 5) {
                         <span class="line-clamp-8 text-wrap break-words">
                           + {{ row.label.length - 5 }} extra labels
                         </span>
                       }
                     </td>
+
                     <!-- tags attached to the feature value-->
                     <td flowTableBodyCell class="s-tags">
                       <span class="line-clamp-8 text-wrap break-words">
@@ -356,6 +382,7 @@
                         ></az-feature-value-tags
                       ></span>
                     </td>
+
                     <!-- the first offset in file that feature value was extracted -->
                     <td flowTableBodyCell class="s-location1 align-top">
                       <span class="line-clamp-8 text-wrap break-words">
@@ -366,6 +393,7 @@
                           ) {
                             {{ row.parts?.location[0][0] | hex }}
                           }
+
                           @if (
                             row.parts?.location[0][0] !==
                             row.parts?.location[0][1]
@@ -377,6 +405,7 @@
                       </span>
                     </td>
                   </tr>
+
                   @if (showParts() && row?.XPartsBinaries?.length > 1) {
                     <tr
                       flowTableBodyRow
@@ -396,6 +425,7 @@
                     </tr>
                   }
                 }
+
                 <!--Compress lots of rows into an expandable-->
                 @if (row.distance === 4 && row.shared.max > 10) {
                   <!--+2 is because there is a fifth row that doesn't get rendered and it makes formatting easier-->
@@ -454,6 +484,7 @@
               },
             ]"
           />
+
           <ng-template #tlpFeatureDetailMain>
             <!-- display info vertically as width is limited -->
             <table flowTable class="w-full">
@@ -464,6 +495,7 @@
                     {{ row.name }}
                   </td>
                 </tr>
+
                 <tr flowTableBodyRow>
                   <th flowTableBodyCell>Value</th>
                   <td
@@ -473,12 +505,14 @@
                     {{ row.value }}
                   </td>
                 </tr>
+
                 <tr flowTableBodyRow>
                   <th flowTableBodyCell>Type</th>
                   <td class="pl-2">
                     {{ row.type }}
                   </td>
                 </tr>
+
                 <tr flowTableBodyRow>
                   <th flowTableBodyCell>Description</th>
                   <td class="pl-2">
@@ -489,6 +523,7 @@
                     }
                   </td>
                 </tr>
+
                 @if (row.type === "binary") {
                   <tr flowTableBodyRow>
                     <th flowTableBodyCell>Base64 Value</th>
@@ -503,6 +538,7 @@
                 }
               </tbody>
             </table>
+
             <!-- parsed information from feature value properties -->
             <ng-container
               *ngTemplateOutlet="
@@ -510,6 +546,7 @@
                 context: { row: row, highlight: false }
               "
             />
+
             <!-- author information -->
             @if (entity.instancesKv$ | async; as instancesKv) {
               <table flowTable class="w-full">
@@ -540,6 +577,7 @@
                 </tbody>
               </table>
             }
+
             <!-- offsets for feature value -->
             @if (row.parts?.location?.length > 0) {
               <table flowTable class="w-full">
@@ -555,6 +593,7 @@
                         @if (a[0] === a[1]) {
                           {{ a[0] | hex }}
                         }
+
                         @if (a[0] !== a[1]) {
                           {{ a[0] | hex }} to {{ a[1] | hex }}
                         }
@@ -565,6 +604,7 @@
               </table>
             }
           </ng-template>
+
           <ng-template #tlpFeatureDetailLabels>
             @for (lab of row.label; track lab) {
               <span class="line-clamp-8 text-wrap break-words" [title]="lab">
@@ -616,6 +656,7 @@
         </th>
       </tr>
     </thead>
+
     <tbody flowTableBody class="pt-2">
       @for (part of row.XPartsBinaries; track part) {
         <tr flowTableBodyRow>
