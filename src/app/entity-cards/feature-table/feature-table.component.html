@@ -5,7 +5,7 @@
 >
   <ng-container>
     <div class="flex h-full flex-col">
-      <div class="flex flex-row-reverse flex-wrap place-content-between gap-2">
+      <div class="flex flex-wrap justify-between gap-2">
         <div class="mb-2 flex gap-2">
           <ng-template #filterButton>
             <flow-tooltip
@@ -29,13 +29,6 @@
               </flow-button>
             </flow-tooltip>
           </ng-template>
-          <flow-signal-input
-            class="max-w-lg grow"
-            id="filter"
-            [formControl]="filterFormControl"
-            placeholder="Filter"
-            [suffixTpl]="filterButton"
-          />
           <flow-button
             (click)="searchForSelectedFeatures()"
             title="Search for binaries with all the selected features"
@@ -71,8 +64,15 @@
             [entity]="entity"
             (extent)="visibleExtent$.next($event)"
           />
+          <flow-signal-input
+            class="max-w-lg grow"
+            id="filter"
+            [formControl]="filterFormControl"
+            placeholder="Filter"
+            [suffixTpl]="filterButton"
+          />
         </div>
-        <div class="grow flex-col">
+        <div class="ml-auto flex flex-col">
           <div class="flex grow flex-wrap gap-2">
             <div class="py-1">Plugins:</div>
             @for (
