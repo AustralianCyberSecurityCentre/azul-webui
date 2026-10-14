@@ -37,20 +37,20 @@
       <tr>
         <th flowTableBodyCell [rowHeader]="true">Type</th>
         <td class="limit truncate">
-           <a
-            class = "table-link"
+          <a
+            class="table-link"
             [routerLink]="['/pages/binaries/explore']"
             [queryParams]="{
-              term: 'features_map.file_format:' + escapeValue(d.file_format)
+              term: 'features_map.file_format:' + escapeValue(d.file_format),
             }"
           >
-          <flow-tooltip
-            message="{{ d.file_format }}"
-            [copyText]="true"
-            direction="top-start"
-          >
-            {{ d.file_format }}</flow-tooltip
-          >
+            <flow-tooltip
+              message="{{ d.file_format }}"
+              [copyText]="true"
+              direction="top-start"
+            >
+              {{ d.file_format }}</flow-tooltip
+            >
           </a>
         </td>
       </tr>
@@ -76,31 +76,31 @@
         </th>
         <td class="limit truncate">
           <a
-            class = "table-link"
+            class="table-link"
             [routerLink]="['/pages/binaries/explore']"
             [queryParams]="{
-              term: 'features_map.magic:' + escapeValue(d.magic)
+              term: 'features_map.magic:' + escapeValue(d.magic),
             }"
           >
-          <flow-tooltip message="{{ d.magic }}" [copyText]="true">
-            {{ d.magic }}</flow-tooltip
-          >
+            <flow-tooltip message="{{ d.magic }}" [copyText]="true">
+              {{ d.magic }}</flow-tooltip
+            >
           </a>
         </td>
       </tr>
       <tr>
         <th flowTableBodyCell [rowHeader]="true" direction="top-start">Mime</th>
         <td class="limit truncate">
-           <a
-            class = "table-link"
+          <a
+            class="table-link"
             [routerLink]="['/pages/binaries/explore']"
             [queryParams]="{
-              term: 'features_map.mime:' + escapeValue(d.mime)
+              term: 'features_map.mime:' + escapeValue(d.mime),
             }"
           >
-          <flow-tooltip message="{{ d.mime }}" [copyText]="true">
-            {{ d.mime }}</flow-tooltip
-          >
+            <flow-tooltip message="{{ d.mime }}" [copyText]="true">
+              {{ d.mime }}</flow-tooltip
+            >
           </a>
         </td>
       </tr>
