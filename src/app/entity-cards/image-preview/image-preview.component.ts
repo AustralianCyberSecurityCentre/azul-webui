@@ -225,10 +225,10 @@ export class ImagePreviewComponent
   }
 
   ngOnInit(): void {
-    this.imageBlob$ = this.entityService.streamBlob(
-      this._entity.sha256,
-      this.streamData().datastream_sha256,
-    );
+    this.imageBlob$ = this.entityService
+      .streamBlob(this._entity.sha256, this.streamData().datastream_sha256)
+      // Share replay to prevent re-subscribing multiple times to the stream
+      .pipe(ops.shareReplay(1));
 
     if (this.ANIMATED_IMAGE_TYPES.includes(this.fileFormat())) {
       this.setupCanvasBasedRendering();
