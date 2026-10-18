@@ -1446,26 +1446,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return parsed info for for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me/opensearch": {
     readonly parameters: {
       readonly query?: never;
@@ -1478,6 +1458,26 @@ export interface paths {
      * @description Return Opensearch access for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return parsed info for for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -9254,7 +9254,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
+  readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9269,7 +9269,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
+          readonly "application/json": components["schemas"]["UserAccess"];
         };
       };
       /** @description Not found */
@@ -9290,7 +9290,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_opensearch_get: {
+  readonly read_users_me_api_v0_users_me_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9305,7 +9305,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserAccess"];
+          readonly "application/json": components["schemas"]["UserInfo"];
         };
       };
       /** @description Not found */
