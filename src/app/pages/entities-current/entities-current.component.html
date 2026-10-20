@@ -73,92 +73,97 @@
               <div class="truncate text-xl font-bold break-all">
                 {{ entity.sha256 }}
               </div>
-              <div>
-                <azco-entity-tags
-                  entityType="binary"
-                  [sha256]="entity.sha256"
-                  [tags]="entity.tags$ | async"
-                  (changed)="entity.refreshTags()"
-                ></azco-entity-tags>
-              </div>
             </div>
           </div>
-          <div class="flex gap-2">
-            @if (entity.summary$ | async; as d) {
-              <flow-tooltip
-                [message]="
-                  (entity.hasContent$ | async) === true
-                    ? 'Download File'
-                    : 'No Content Available'
-                "
-              >
-                <flow-button
-                  [type]="
-                    (entity.hasContent$ | async) === false ||
-                    downloading() !== null
-                      ? ButtonType.Disabled
-                      : ButtonType.Light
+
+          <div class="flex flex-col items-end gap-2">
+            <azco-entity-tags
+              entityType="binary"
+              [sha256]="entity.sha256"
+              [tags]="entity.tags$ | async"
+              (changed)="entity.refreshTags()"
+            ></azco-entity-tags>
+
+            <div class="flex gap-2">
+              @if (entity.summary$ | async; as d) {
+                <flow-tooltip
+                  [message]="
+                    (entity.hasContent$ | async) === true
+                      ? 'Download File'
+                      : 'No Content Available'
                   "
-                  [size]="ButtonSize.Icon"
-                  (click)="doDownload(d.sha256, d.file_size)"
                 >
-                  <fa-icon [icon]="faDownload" />
-                  @if (downloading() !== null) {
-                    {{ downloading() }}%
-                  }
-                </flow-button>
-              </flow-tooltip>
-              <flow-tooltip
-                [message]="
-                  (entity.hasContent$ | async) === true
-                    ? 'Add Child'
-                    : 'Can\'t add child to contentless parent'
-                "
-              >
-                <flow-button
-                  [type]="
-                    (entity.hasContent$ | async) === false ||
-                    downloading() !== null
-                      ? ButtonType.Disabled
-                      : ButtonType.Light
-                  "
-                  [size]="ButtonSize.Icon"
-                  [routerLink]="['/pages/binaries/upload/child', entity.sha256]"
-                >
-                  <fa-icon [icon]="faFileCirclePlus" />
-                </flow-button>
-              </flow-tooltip>
-              @if ((expedite$ | async) < 100) {
-                <flow-tooltip message="Run Latest Plugins (takes 60 seconds)">
                   <flow-button
                     [type]="
-                      isExpeditedSignal()
+                      (entity.hasContent$ | async) === false ||
+                      downloading() !== null
                         ? ButtonType.Disabled
                         : ButtonType.Light
                     "
                     [size]="ButtonSize.Icon"
-                    (click)="doExpedite(d.sha256)"
+                    (click)="doDownload(d.sha256, d.file_size)"
                   >
-                    @if (isExpeditedSignal() !== true) {
-                      <fa-icon [icon]="faRotate" />
-                    } @else {
-                      <fa-icon [icon]="faSpinner" animation="spin" />
+                    <fa-icon [icon]="faDownload" />
+                    @if (downloading() !== null) {
+                      {{ downloading() }}%
                     }
                   </flow-button>
                 </flow-tooltip>
-              }
-              @if ((expedite$ | async) === 100) {
-                <flow-tooltip message="Load Latest Results">
+                <flow-tooltip
+                  [message]="
+                    (entity.hasContent$ | async) === true
+                      ? 'Add Child'
+                      : 'Can\'t add child to contentless parent'
+                  "
+                >
                   <flow-button
-                    [type]="ButtonType.Light"
+                    [type]="
+                      (entity.hasContent$ | async) === false ||
+                      downloading() !== null
+                        ? ButtonType.Disabled
+                        : ButtonType.Light
+                    "
                     [size]="ButtonSize.Icon"
-                    (click)="doRefresh()"
+                    [routerLink]="[
+                      '/pages/binaries/upload/child',
+                      entity.sha256,
+                    ]"
                   >
-                    <fa-icon [icon]="faBolt" />
+                    <fa-icon [icon]="faFileCirclePlus" />
                   </flow-button>
                 </flow-tooltip>
+                @if ((expedite$ | async) < 100) {
+                  <flow-tooltip message="Run Latest Plugins (takes 60 seconds)">
+                    <flow-button
+                      [type]="
+                        isExpeditedSignal()
+                          ? ButtonType.Disabled
+                          : ButtonType.Light
+                      "
+                      [size]="ButtonSize.Icon"
+                      (click)="doExpedite(d.sha256)"
+                    >
+                      @if (isExpeditedSignal() !== true) {
+                        <fa-icon [icon]="faRotate" />
+                      } @else {
+                        <fa-icon [icon]="faSpinner" animation="spin" />
+                      }
+                    </flow-button>
+                  </flow-tooltip>
+                }
+                @if ((expedite$ | async) === 100) {
+                  <flow-tooltip message="Load Latest Results">
+                    <flow-button
+                      [type]="ButtonType.Light"
+                      [size]="ButtonSize.Icon"
+                      (click)="doRefresh()"
+                    >
+                      <fa-icon [icon]="faBolt" />
+                    </flow-button>
+                  </flow-tooltip>
+                }
               }
-            }
+            </div>
           </div>
         </div>
       </div>
