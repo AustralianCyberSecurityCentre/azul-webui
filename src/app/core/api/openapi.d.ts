@@ -2389,13 +2389,13 @@ export interface components {
       readonly source_id: string;
       /**
        * Stream Data
-       * @description alternate streams for main binary
+       * @description alternate streams for main binary (Note this isn't usable through the swagger UI)
        * @default []
        */
       readonly stream_data: readonly string[];
       /**
        * Stream Labels
-       * @description labels for alternate streams
+       * @description labels for alternate streams (Note this isn't usable through the swagger UI)
        * @default []
        */
       readonly stream_labels: readonly components["schemas"]["DataLabel"][];
@@ -2440,13 +2440,13 @@ export interface components {
       readonly source_id?: string | null;
       /**
        * Stream Data
-       * @description alternate streams for main binary
+       * @description alternate streams for main binary  (Note this isn't usable through the swagger UI)
        * @default []
        */
       readonly stream_data: readonly string[];
       /**
        * Stream Labels
-       * @description labels for alternate streams
+       * @description labels for alternate streams  (Note this isn't usable through the swagger UI)
        * @default []
        */
       readonly stream_labels: readonly components["schemas"]["DataLabel"][];
@@ -4194,6 +4194,11 @@ export interface components {
       readonly security?: string | null;
       /** @default submitted */
       readonly status: components["schemas"]["HuntState"];
+      /**
+       * Retries
+       * @default 0
+       */
+      readonly retries: number;
       /**
        * Submitter
        * @default unknown
