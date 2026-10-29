@@ -11,6 +11,7 @@ import { form } from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ApiService } from "@app/core/api/api.service";
 import { components, paths } from "@app/core/api/openapi";
+import { FeatureWithDecodedValue } from "@app/core/api/state";
 import { Entity, EntityWrap, Nav, Security } from "@app/core/services";
 import {
   faCheck,
@@ -83,6 +84,16 @@ interface StringSearchSize {
   searchSize: string;
 }
 
+interface CommonFeatureFilter {
+  enabled: boolean;
+  numberOfEntitiesWithFeatures: string;
+}
+
+interface FeatData {
+  values: Map<string, Set<string>>;
+  entities: Map<string, Set<string>>;
+}
+
 @Component({
   selector: "app-entities-compare",
   templateUrl: "./entities-compare.component.html",
@@ -123,6 +134,14 @@ export class BinariesCompareComponent implements OnInit {
   protected stringFilterForm = form(this.stringFormSignal);
   protected stringSearchSizeForm = form(this.stringSearchSizeFormSignal);
 
+  protected commonFeatureFilterSignal = signal<CommonFeatureFilter>({
+    enabled: false,
+    // Note this is changed to the total number of entities when the entities are loaded
+    numberOfEntitiesWithFeatures: "1",
+  });
+  protected commonFeatureFilterForm = form(this.commonFeatureFilterSignal);
+  protected commonFeatureFilter$: Observable<CommonFeatureFilter>;
+
   protected stringFilterObservable$ = toObservable(this.stringFormSignal);
   protected stringSearchSizeObservable$ = toObservable(
     this.stringSearchSizeFormSignal,
@@ -135,11 +154,14 @@ export class BinariesCompareComponent implements OnInit {
 
   rawBinaries: WritableSignal<string[]> = signal([]);
   rawBinaries$: Observable<string[]>;
-
   // Only get common strings when there is exactly 2 binaries being compared.
   numberOfBinariesForCommonStrings: number = 2;
   commonStrings$: Observable<components["schemas"]["CommonBinaryStrings"]>;
   loadingCommonStringsSignal: WritableSignal<boolean> = signal(true);
+
+  constructor() {
+    this.commonFeatureFilter$ = toObservable(this.commonFeatureFilterSignal);
+  }
 
   ngOnInit(): void {
     this.rawBinaries$ = this.route.queryParamMap.pipe(
@@ -167,9 +189,16 @@ export class BinariesCompareComponent implements OnInit {
         return ret;
       }),
       // redraw entropy graphs
-      ops.tap(() =>
-        setTimeout(() => this.nav.windowSizeChange$.next(null), 200),
-      ),
+      ops.tap((curEntities) => {
+        setTimeout(() => this.nav.windowSizeChange$.next(null), 200);
+        // Set the number of entities when filtering features to the max value initially
+        this.commonFeatureFilterSignal.update((v) => {
+          return {
+            ...v,
+            numberOfEntitiesWithFeatures: curEntities.length.toString(),
+          };
+        });
+      }),
       ops.shareReplay(1),
     );
 
@@ -182,42 +211,80 @@ export class BinariesCompareComponent implements OnInit {
       ops.shareReplay(1),
     );
 
-    let features: Set<string>;
-    let values: Map<string, Set<string>>;
-    let entities: Map<string, Set<string>>;
     this.featureData$ = this.entities$.pipe(
-      ops.tap(() => {
-        features = new Set<string>();
-        values = new Map<string, Set<string>>();
-        entities = new Map<string, Set<string>>();
-      }),
       ops.mergeAll(),
-      // as const fixes tuple
       ops.mergeMap((d) =>
         d.rawFeatures$.pipe(ops.map((f) => [f, d.sha256] as const)),
       ),
-      ops.tap(([f, id]) => {
-        for (const row of f) {
-          features.add(row.name);
-          if (!values.has(row.name)) {
-            values.set(row.name, new Set());
+      ops.scan<readonly [FeatureWithDecodedValue[], string], FeatData>(
+        (acc, [features, id]) => {
+          for (const row of features) {
+            if (!acc.values.has(row.name)) {
+              acc.values.set(row.name, new Set());
+            }
+            acc.values.get(row.name).add(String(row.value));
+
+            const fv = `${row.name}${row.value}`;
+            if (!acc.entities.has(fv)) {
+              acc.entities.set(fv, new Set());
+            }
+            acc.entities.get(fv).add(id);
           }
-          values.get(row.name).add(row.value.toString());
-          const fv = row.name + row.value;
-          if (!entities.has(fv)) {
-            entities.set(fv, new Set());
+          return acc;
+        },
+        {
+          // A Map where the key is feature_name and the value is the set of feature_value's within the feature_name
+          values: new Map<string, Set<string>>(),
+          // A Map where the key is feature_name.feature_value and the value is a set of entities that match it.
+          entities: new Map<string, Set<string>>(),
+        },
+      ),
+      ops.combineLatestWith(this.commonFeatureFilter$),
+      ops.map(([{ values, entities }, commonFeatures]) => {
+        const sortedVals = new Map(
+          [...values].map(([k, v]) => [k, [...v].sort()]),
+        );
+
+        // Filter out features and values that don't have enough common matches and are no longer needed.
+        if (commonFeatures.enabled) {
+          const numberOfEntitiesRequired = parseInt(
+            commonFeatures.numberOfEntitiesWithFeatures,
+            10,
+          );
+          // If int parsing fails return an unfiltered list.
+          if (Number.isNaN(numberOfEntitiesRequired)) {
+            console.error(
+              "Number of entities that must be common to feature is un-expectedly NaN",
+            );
+            return {
+              features: [...sortedVals.keys()].sort(),
+              values: sortedVals,
+              entities: entities,
+            };
           }
-          entities.get(fv).add(id);
-        }
-      }),
-      ops.map((_d) => {
-        const tValues = new Map<string, string[]>();
-        for (const [k, v] of values) {
-          tValues.set(k, Array.from(v).sort());
+          for (const featKey of sortedVals.keys()) {
+            const newVals: string[] = [];
+            for (const featVal of sortedVals.get(featKey)) {
+              const setOfEntities = entities.get(`${featKey}${featVal}`);
+              if (
+                setOfEntities !== undefined &&
+                setOfEntities.size >= numberOfEntitiesRequired
+              ) {
+                newVals.push(featVal);
+              }
+            }
+
+            // Assign remaining values or remove feature all together if there is none left after filtering
+            if (newVals.length === 0) {
+              sortedVals.delete(featKey);
+            } else {
+              sortedVals.set(featKey, newVals);
+            }
+          }
         }
         return {
-          features: Array.from(features).sort(),
-          values: tValues,
+          features: [...sortedVals.keys()].sort(),
+          values: sortedVals,
           entities: entities,
         };
       }),
