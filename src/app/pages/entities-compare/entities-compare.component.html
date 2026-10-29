@@ -177,7 +177,32 @@
   }
   <div>
     <flow-card>
-      <flow-card-header title="Features" />
+      <flow-card-header title="Features">
+        @if (entities$ | async; as entities) {
+          <flow-label for="common-feat-toggle">Only Common Features</flow-label>
+          <flow-toggle
+            id="common-feat-toggle"
+            class="pt-2"
+            flow-toggle
+            [formField]="commonFeatureFilterForm.enabled"
+          >
+          </flow-toggle>
+          @if (commonFeatureFilterSignal().enabled) {
+            <flow-label for="common-feat-count">Min Entity per Feat</flow-label>
+            <select
+              id="common-feat-count"
+              flowSelect
+              [formField]="commonFeatureFilterForm.numberOfEntitiesWithFeatures"
+            >
+              @for (ent of entities; track $index; let i = $index) {
+                <option [value]="i + 1">
+                  {{ i + 1 }}
+                </option>
+              }
+            </select>
+          }
+        }
+      </flow-card-header>
       <flow-card-body>
         @if (entities$ | async; as entities) {
           @if (featureData$ | async; as fdata) {
