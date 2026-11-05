@@ -22,6 +22,7 @@
               fieldSize="small"
               [formField]="offsetForm.offsetGoto"
               placeholder="Jump to offset (e.g. A1B2, 0x1234)"
+              [updateValueOnInput]="true"
               (input)="hexValidator($event)"
               (keyup.enter)="jumpToOffset()"
             />
