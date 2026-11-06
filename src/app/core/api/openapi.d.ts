@@ -507,6 +507,26 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/api/v0/binaries/tags/bulk_add/{tag}": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /**
+     * Create Tag On Binary Bulk
+     * @description Attach a tag to multiple entities.
+     */
+    readonly post: operations["create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/api/v0/binaries/{sha256}/statuses": {
     readonly parameters: {
       readonly query?: never;
@@ -1590,26 +1610,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/api/v0/users/me/opensearch": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /**
-     * Read Users Me
-     * @description Return Opensearch access for current user.
-     */
-    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/api/v0/users/me": {
     readonly parameters: {
       readonly query?: never;
@@ -1622,6 +1622,26 @@ export interface paths {
      * @description Return parsed info for for current user.
      */
     readonly get: operations["read_users_me_api_v0_users_me_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/api/v0/users/me/opensearch": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /**
+     * Read Users Me
+     * @description Return Opensearch access for current user.
+     */
+    readonly get: operations["read_users_me_api_v0_users_me_opensearch_get"];
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
@@ -2277,6 +2297,16 @@ export interface components {
     };
     /** Body_create_tag_on_binary_api_v0_binaries__sha256__tags__tag__post */
     readonly Body_create_tag_on_binary_api_v0_binaries__sha256__tags__tag__post: {
+      /** Security */
+      readonly security?: string;
+    };
+    /** Body_create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post */
+    readonly Body_create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post: {
+      /**
+       * Sha256
+       * @default []
+       */
+      readonly sha256: readonly string[];
       /** Security */
       readonly security?: string;
     };
@@ -5187,6 +5217,8 @@ export type BodyCreateFeatureValueTagApiV0FeaturesTagsTagPost =
   components["schemas"]["Body_create_feature_value_tag_api_v0_features_tags__tag__post"];
 export type BodyCreateTagOnBinaryApiV0BinariesSha256TagsTagPost =
   components["schemas"]["Body_create_tag_on_binary_api_v0_binaries__sha256__tags__tag__post"];
+export type BodyCreateTagOnBinaryBulkApiV0BinariesTagsBulkAddTagPost =
+  components["schemas"]["Body_create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post"];
 export type BodyDownloadBinariesApiV0BinariesContentBulkPost =
   components["schemas"]["Body_download_binaries_api_v0_binaries_content_bulk_post"];
 export type BodyFeaturePivotSearchApiV0FeaturesPivotPost =
@@ -6778,6 +6810,64 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["AnnotationUpdated__"];
+        };
+      };
+      /** @description Not found */
+      readonly 404: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Something went wrong */
+      readonly 500: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["BaseError"];
+        };
+      };
+    };
+  };
+  readonly create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post: {
+    readonly parameters: {
+      readonly query?: {
+        /** @description Exclude these security labels during queries */
+        readonly x?: readonly string[];
+        /** @description Include these RELs for AND search in opensearch during queries */
+        readonly i?: readonly string[];
+        /** @description Include all Opensearch queries run during request. */
+        readonly include_queries?: boolean;
+      };
+      readonly header?: never;
+      readonly path: {
+        readonly tag: string;
+      };
+      readonly cookie?: never;
+    };
+    readonly requestBody?: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["Body_create_tag_on_binary_bulk_api_v0_binaries_tags_bulk_add__tag__post"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": unknown;
         };
       };
       /** @description Not found */
@@ -9872,7 +9962,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_opensearch_get: {
+  readonly read_users_me_api_v0_users_me_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9887,7 +9977,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserAccess"];
+          readonly "application/json": components["schemas"]["UserInfo"];
         };
       };
       /** @description Not found */
@@ -9908,7 +9998,7 @@ export interface operations {
       };
     };
   };
-  readonly read_users_me_api_v0_users_me_get: {
+  readonly read_users_me_api_v0_users_me_opensearch_get: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -9923,7 +10013,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["UserInfo"];
+          readonly "application/json": components["schemas"]["UserAccess"];
         };
       };
       /** @description Not found */
