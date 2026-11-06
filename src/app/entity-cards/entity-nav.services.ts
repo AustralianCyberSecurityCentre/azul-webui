@@ -1,4 +1,11 @@
-import { computed, inject, Injectable, Signal } from "@angular/core";
+import {
+  computed,
+  inject,
+  Injectable,
+  signal,
+  Signal,
+  WritableSignal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -20,6 +27,12 @@ export enum RelationsTabs {
   Sources = "Sources",
 }
 
+export interface JumpToHexOffset {
+  tabId: string;
+  startLocation?: number;
+  endLocation?: number;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -33,6 +46,8 @@ export class EntityNavService {
   private fragmentSignal: Signal<string> = toSignal(this.route.fragment, {
     initialValue: binaryTabsEnum.Overview,
   });
+
+  selectedDataTab: WritableSignal<JumpToHexOffset> = signal({ tabId: "hex" });
 
   activeBinaryTab: Signal<binaryTabsEnum> = computed(() => {
     const activeTab = this.fragmentSignal()?.split("-")[0];

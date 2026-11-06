@@ -9,10 +9,9 @@ import { components } from "@app/core/api/openapi";
 import { combineLatest, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 
-import { escapeValue } from "@app/core/util";
 import { EntityWrap } from "@app/core/services";
 import { formatLink, FormattedLink } from "@app/core/user-url";
-import { getStatusColour } from "@app/core/util";
+import { escapeValue, getStatusColour } from "@app/core/util";
 import { config } from "@app/settings";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
