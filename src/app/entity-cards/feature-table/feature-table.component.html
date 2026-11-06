@@ -364,14 +364,35 @@
                             row.parts?.location[0][0] ===
                             row.parts?.location[0][1]
                           ) {
-                            {{ row.parts?.location[0][0] | hex }}
+                            <a
+                              class="cursor-pointer"
+                              [routerLink]=""
+                              (click)="
+                                clickNavToDataPage(
+                                  row.parts?.location[0][0],
+                                  row.parts?.location[0][0]
+                                )
+                              "
+                              >{{ row.parts?.location[0][0] | hex }}</a
+                            >
                           }
                           @if (
                             row.parts?.location[0][0] !==
                             row.parts?.location[0][1]
                           ) {
-                            {{ row.parts?.location[0][0] | hex }} to
-                            {{ row.parts?.location[0][1] | hex }}
+                            <a
+                              class="cursor-pointer"
+                              [routerLink]=""
+                              (click)="
+                                clickNavToDataPage(
+                                  row.parts?.location[0][0],
+                                  row.parts?.location[0][1]
+                                )
+                              "
+                            >
+                              {{ row.parts?.location[0][0] | hex }} to
+                              {{ row.parts?.location[0][1] | hex }}
+                            </a>
                           }
                         }
                       </span>
@@ -552,10 +573,20 @@
                     <tr flowTableBodyRow>
                       <td flowTableBodyCell>
                         @if (a[0] === a[1]) {
-                          {{ a[0] | hex }}
+                          <a
+                            class="cursor-pointer"
+                            [routerLink]=""
+                            (click)="clickNavToDataPage(a[0], 0)"
+                            >{{ a[0] | hex }}</a
+                          >
                         }
                         @if (a[0] !== a[1]) {
-                          {{ a[0] | hex }} to {{ a[1] | hex }}
+                          <a
+                            class="cursor-pointer"
+                            [routerLink]=""
+                            (click)="clickNavToDataPage(a[0], a[1])"
+                            >{{ a[0] | hex }} to {{ a[1] | hex }}</a
+                          >
                         }
                       </td>
                     </tr>

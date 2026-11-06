@@ -36,6 +36,7 @@ import {
 } from "rxjs";
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
+import { EntityNavService, binaryTabsEnum } from "../entity-nav.services";
 
 const sortString = (a: string, b: string) => (b == a ? 0 : b < a ? 1 : -1);
 const sortNumber = (a: number, b: number) => a - b;
@@ -107,6 +108,8 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
   protected faCalendar = faCalendar;
   protected faPencil = faPencil;
   protected faSquareBinary = faSquareBinary;
+
+  protected entityNavService = inject(EntityNavService);
 
   currentSelectedFeatures: WritableSignal<FeatureValue[]> = signal([]);
 
@@ -613,5 +616,18 @@ In this detailed view you may view and pivot over parts of uris and filepaths, a
     // Don't show the strong border on the row, either parts are going to display it
     // Or it's not needed because the feature values have different names.
     return false;
+  }
+
+  clickNavToDataPage(locationAddress: number, endLocation: number) {
+    // Using an object to garuntee it re-selects the tab each time it's picked.
+    this.entityNavService.selectedDataTab.update(() => {
+      return {
+        tabId: "hex",
+        startLocation: locationAddress,
+        endLocation: endLocation,
+      };
+    });
+    // Offset address - locationAddress
+    this.entityNavService.navigateToEntityTab(binaryTabsEnum.Data);
   }
 }

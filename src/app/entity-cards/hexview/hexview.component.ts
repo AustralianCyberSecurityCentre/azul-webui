@@ -11,7 +11,9 @@ import {
   ViewChild,
   WritableSignal,
   computed,
+  effect,
   inject,
+  untracked,
 } from "@angular/core";
 import { Entity } from "@app/core/services";
 import {
@@ -21,6 +23,7 @@ import {
   Subject,
   Subscription,
   combineLatest,
+  of,
 } from "rxjs";
 import * as ops from "rxjs/operators";
 import { BaseCard } from "../base-card.component";
@@ -32,6 +35,7 @@ import { hexValidator } from "@app/core/validation";
 import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";
+import { EntityNavService } from "../entity-nav.services";
 import { HexStringSyncService } from "../hex-string-sync.service";
 
 /** Data for a row of a 16-byte wide hexdump */
@@ -314,6 +318,39 @@ Ctrl-C will copy selected hexadecimal.`;
   protected totalBytesSignal: WritableSignal<number> = signal(0);
 
   private resizeObs?: ResizeObserver;
+  protected entityNavService = inject(EntityNavService);
+
+  constructor() {
+    super();
+
+    // Jump and highlight selected bytes from feature page select.
+    effect(() => {
+      const selectedDataStreamId = this.entityNavService.selectedDataTab();
+      untracked(() => {
+        // Select and jump to appropriate offset.
+        let offsetLocation = -1;
+        let lengthOfSelect = -1;
+        if (
+          selectedDataStreamId?.startLocation !== undefined &&
+          selectedDataStreamId?.startLocation !== null
+        ) {
+          offsetLocation = selectedDataStreamId?.startLocation;
+          if (
+            selectedDataStreamId?.endLocation !== undefined &&
+            selectedDataStreamId?.endLocation !== null
+          ) {
+            lengthOfSelect = selectedDataStreamId?.endLocation - offsetLocation;
+            if (lengthOfSelect < 0) {
+              lengthOfSelect = 1;
+            }
+          }
+        }
+        if (offsetLocation >= 0) {
+          this.jumpAndSelectBytes([offsetLocation, lengthOfSelect]);
+        }
+      });
+    });
+  }
 
   ngOnInit(): void {
     // Force the hexview to automatically resize when the height of the element
@@ -335,7 +372,11 @@ Ctrl-C will copy selected hexadecimal.`;
 
   /** Scrolls to the specified row in the current chunk. */
   private scrollToRow(row: number): Observable<(HexRow | undefined)[]> {
-    this.viewport.scrollToIndex(row);
+    if (this.viewport === undefined || this.viewport === null) {
+      // Viewport isn't ready can't scroll down to it.
+      return of(undefined);
+    }
+    this.viewport?.scrollToIndex(row);
 
     // Allow observing the loading of this row
     return this.ds.dataStream$.pipe(
