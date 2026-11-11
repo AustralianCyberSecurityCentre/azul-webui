@@ -21,7 +21,7 @@ import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
 import { Entity } from "@app/core/services";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, forkJoin, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { configureTagValidation } from "../tag-picker/tag-picker.component";
 import { EntityTableRowComponent } from "../entity-table-row/entity-table-row.component";
@@ -40,6 +40,13 @@ Includes highlighting data from elasticsearch.
     `
       table {
         word-break: break-word;
+      }
+
+      :host ::ng-deep .bulk-action-button button.bg-blue-700,
+      :host ::ng-deep .bulk-action-button button.bg-red-700 {
+        border-style: solod;
+        border-width: 1px;
+        border-color: transparent;
       }
     `,
   ],
@@ -72,6 +79,15 @@ export class EntityTableComponent implements OnChanges {
     configureTagValidation(f.tag);
     required(f.security);
   });
+
+  // Bulk tag removal
+  protected showBulkRemoveForm: WritableSignal<boolean> = signal(false);
+  protected availableRemovableTags: WritableSignal<
+    { tag: string; count: number }[]
+  > = signal([]);
+  protected selectedTagsToRemove: WritableSignal<Set<string>> = signal(
+    new Set(),
+  );
 
   displayText = input<string>("matching the search parameters.");
   useTableViewOverride = input<boolean | undefined>(undefined);
@@ -119,6 +135,13 @@ export class EntityTableComponent implements OnChanges {
     }
   }
 
+  protected canCompareBinaries(): boolean {
+    return (
+      this.selectedRowMap.size > 1 ||
+      (this.selectedRowMap.size >= 1 && this.originalSha256() !== undefined)
+    );
+  }
+
   protected onCompareClick(): void {
     const selectedRows = Array.from(this.selectedRowMap.values());
     const selectedHashes = selectedRows
@@ -143,6 +166,7 @@ export class EntityTableComponent implements OnChanges {
       this.selectedRowMap.delete(row.sha256);
       if (this.selectedRowMap.size === 0) {
         this.showBulkTagForm.set(false);
+        this.showBulkRemoveForm.set(false);
       }
     }
   }
@@ -162,6 +186,15 @@ export class EntityTableComponent implements OnChanges {
 
   protected cancelBulkTagForm(): void {
     this.showBulkTagForm.set(false);
+  }
+
+  protected hasAnyRemovableTags(): boolean {
+    for (const row of this.selectedRowMap.values()) {
+      if ((row.tags ?? []).length > 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   protected formBulkTagSecurityUpdate(event: string): void {
@@ -190,6 +223,89 @@ export class EntityTableComponent implements OnChanges {
         }
         this.cdr.markForCheck();
 
+        this.rowComponents
+          .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
+          .forEach((rowComponent) => {
+            rowComponent.refreshRowTags(rowComponent.row);
+          });
+      });
+  }
+
+  protected openBulkRemoveForm(): void {
+    const tagCounts = new Map<string, number>();
+    for (const row of this.selectedRowMap.values()) {
+      const tagsOnThisRow = new Set((row.tags ?? []).map((t) => t.tag));
+      for (const tag of tagsOnThisRow) {
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      }
+    }
+
+    const sortedTags = Array.from(tagCounts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count);
+
+    this.availableRemovableTags.set(sortedTags);
+    this.selectedTagsToRemove.set(new Set());
+    this.showBulkRemoveForm.set(true);
+  }
+
+  protected cancelBulkRemoveForm(): void {
+    this.showBulkRemoveForm.set(false);
+  }
+
+  protected onRemoveTagToggle(tag: string, checked: boolean): void {
+    this.selectedTagsToRemove.update((current) => {
+      const next = new Set(current);
+      if (checked) {
+        next.add(tag);
+      } else {
+        next.delete(tag);
+      }
+      return next;
+    });
+  }
+
+  protected onBulkRemoveSubmit(): void {
+    const tagsToRemove = Array.from(this.selectedTagsToRemove());
+    if (tagsToRemove.length === 0) {
+      return;
+    }
+
+    let confirmText: string;
+    if (tagsToRemove.length == 1) {
+      confirmText = `Are you sure you want to remove 1 tag from selected binary?`;
+    } else {
+      confirmText = `Are you sure you want to remove ${tagsToRemove.length} tags from selected binaries?`;
+    }
+    const confirmed = window.confirm(confirmText);
+    if (!confirmed) {
+      return;
+    }
+
+    const hashes = new Set(this.selectedRowMap.keys());
+    const deleteCalls = [];
+    for (const row of this.selectedRowMap.values()) {
+      const tagsOnThisRow = new Set((row.tags ?? []).map((t) => t.tag));
+      for (const tag of tagsOnThisRow) {
+        if (tagsOnThisRow.has(tag)) {
+          deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
+        }
+      }
+    }
+
+    if (deleteCalls.length === 0) {
+      this.showBulkRemoveForm.set(false);
+      return;
+    }
+
+    forkJoin(deleteCalls)
+      .pipe(ops.first())
+      .subscribe(() => {
+        this.showBulkRemoveForm.set(false);
+        if (this.store.bulkTagDeselectAllOnSubmit()) {
+          this.selectedRowMap.clear();
+        }
+        this.cdr.markForCheck();
         this.rowComponents
           .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
           .forEach((rowComponent) => {

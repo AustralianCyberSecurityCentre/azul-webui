@@ -31,26 +31,83 @@
                     [fullWidth]="true"
                     (security)="formBulkTagSecurityUpdate($event)"
                   ></azco-security-picker>
-                  <div class="flex gap-2">
+                  <div class="flex justify-center gap-2">
                     <flow-button
-                      class="mx-auto! block! w-32"
+                      class="block! w-32"
                       [type]="ButtonType.Light"
                       [blockCentered]="true"
+                      [fullWidth]="true"
                       (click)="cancelBulkTagForm()"
                     >
                       Cancel
                     </flow-button>
                     <flow-button
-                      class="mx-auto! block! w-32"
+                      class="bulk-action-button block! w-32"
                       [submit]="true"
                       [blockCentered]="true"
+                      [fullWidth]="true"
                       [type]="
                         bulkTagForm().valid()
                           ? ButtonType.Primary
                           : ButtonType.Disabled
                       "
-                      >Create</flow-button
+                      >Create
+                    </flow-button>
+                  </div>
+                </div>
+              </form>
+            } @else if (showBulkRemoveForm()) {
+              <form (ngSubmit)="onBulkRemoveSubmit()">
+                <div class="flex flex-col gap-2">
+                  <div class="self-center">
+                    Remove tags from {{ selectedRowMap.size }}
+                    <ng-container [ngPlural]="selectedRowMap.size">
+                      <ng-template ngPluralCase="-1">binary</ng-template>
+                      <ng-template ngPluralCase="other">binaries</ng-template>
+                    </ng-container>
+                  </div>
+                  @if (availableRemovableTags().length > 0) {
+                    <div class="flex max-h-48 flex-col gap-1 overflow-y-auto">
+                      @for (item of availableRemovableTags(); track item.tag) {
+                        <div class="flex items-center gap-2">
+                          <flow-checkbox-signal
+                            [checked]="selectedTagsToRemove().has(item.tag)"
+                            (checkedChange)="
+                              onRemoveTagToggle(item.tag, $event)
+                            "
+                          />
+                          <span>{{ item.tag }} ({{ item.count }})</span>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="self-center">
+                      None of the selected binaries have any tags.
+                    </div>
+                  }
+                  <div class="flex justify-center gap-2">
+                    <flow-button
+                      class="block! w-32"
+                      [type]="ButtonType.Light"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      (click)="cancelBulkRemoveForm()"
                     >
+                      Cancel
+                    </flow-button>
+                    <flow-button
+                      class="bulk-action-button block! w-32"
+                      [submit]="true"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      (click)="
+                        selectedTagsToRemove().size > 0
+                          ? ButtonType.Danger
+                          : ButtonType.Disabled
+                      "
+                    >
+                      Remove
+                    </flow-button>
                   </div>
                 </div>
               </form>
@@ -90,23 +147,24 @@
                     >?
                   </div>
                 }
-                <div class="flex gap-2">
-                  @if (
-                    selectedRowMap.size > 1 ||
-                    (selectedRowMap.size >= 1 && originalSha256() !== undefined)
-                  ) {
-                    <flow-button
-                      class="mx-auto! block! w-32"
-                      [type]="ButtonType.Danger"
-                      [blockCentered]="true"
-                      (click)="onCompareClick()"
-                      >Compare</flow-button
-                    >
-                  }
+                <div class="flex justify-center gap-2">
                   <flow-button
-                    class="mx-auto! block! w-32"
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    [type]="
+                      canCompareBinaries()
+                        ? ButtonType.Danger
+                        : ButtonType.Disabled
+                    "
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    (click)="onCompareClick()"
+                    >Compare</flow-button
+                  >
+                  <flow-button
+                    class="block! w-40 whitespace-nowrap"
                     [type]="ButtonType.Primary"
                     [blockCentered]="true"
+                    [fullWidth]="true"
                     (click)="openBulkTagForm()"
                   >
                     <ng-container [ngPlural]="selectedRowMap.size">
@@ -115,6 +173,19 @@
                         >Tag binaries</ng-template
                       >
                     </ng-container>
+                  </flow-button>
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    [type]="
+                      hasAnyRemovableTags()
+                        ? ButtonType.Danger
+                        : ButtonType.Disabled
+                    "
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    (click)="openBulkRemoveForm()"
+                  >
+                    Remove tags
                   </flow-button>
                 </div>
               </div>
