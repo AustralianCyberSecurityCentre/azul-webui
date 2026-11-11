@@ -1,62 +1,124 @@
 <az-loading-card [cardTitle]="tablename()" [obs$]="filteredFind$">
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
-      @if (selectedRowMap?.size === 1 && originalSha256() === undefined) {
+      @if (selectedRowMap.size >= 1) {
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
-            <div class="flex flex-col gap-2">
-              Select 2 or more binaries to compare.
-            </div>
-          </flow-card-body>
-        </flow-card>
-      }
-      @if (
-        selectedRowMap.size > 1 ||
-        (selectedRowMap.size >= 1 && originalSha256() !== undefined)
-      ) {
-        <flow-card darkBackgroundColour="dark:bg-azul-500">
-          <flow-card-body>
-            <div class="items-centre flex gap-2">
-              @if (originalSha256()) {
-                <div class="self-center">
-                  Do you want to compare
-                  {{
-                    originalSha256()?.length > 10
-                      ? (originalSha256() | slice: 0 : 10) + "..."
-                      : originalSha256()
-                  }}
-                  @if (originalSha256()) {
+            @if (showBulkTagForm()) {
+              <form (ngSubmit)="onBulkTagSubmit()">
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      Tag {{ selectedRowMap.size }}
+                      <ng-container [ngPlural]="selectedRowMap.size">
+                        <ng-template ngPluralCase="=1">binary</ng-template>
+                        <ng-template ngPluralCase="other">binaries</ng-template>
+                      </ng-container>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <flow-checkbox-signal
+                        [checked]="store.bulkTagDeselectAllOnSubmit()"
+                        (checkedChange)="onDeselectAllToggle($event)"
+                      /><span>Deselect all</span>
+                    </div>
+                  </div>
+                  <az-tag-picker
+                    [tagFieldTree]="bulkTagForm.tag"
+                    [refreshTags$]="refreshTags$"
+                    [isEntityTag]="true"
+                  />
+                  <azco-security-picker
+                    [fullWidth]="true"
+                    (security)="formBulkTagSecurityUpdate($event)"
+                  ></azco-security-picker>
+                  <div class="flex gap-2">
+                    <flow-button
+                      class="mx-auto! block! w-32"
+                      [type]="ButtonType.Light"
+                      [blockCentered]="true"
+                      (click)="cancelBulkTagForm()"
+                    >
+                      Cancel
+                    </flow-button>
+                    <flow-button
+                      class="mx-auto! block! w-32"
+                      [submit]="true"
+                      [blockCentered]="true"
+                      [type]="
+                        bulkTagForm().valid()
+                          ? ButtonType.Primary
+                          : ButtonType.Disabled
+                      "
+                      >Create</flow-button
+                    >
+                  </div>
+                </div>
+              </form>
+            } @else {
+              <div class="flex flex-col items-center gap-2">
+                @if (
+                  selectedRowMap.size === 1 && originalSha256() === undefined
+                ) {
+                  <div class="self-center">
+                    Select 2 or more binaries to compare.
+                  </div>
+                } @else if (originalSha256()) {
+                  <div class="self-center">
+                    Do you want to compare
+                    {{
+                      originalSha256()?.length > 10
+                        ? (originalSha256() | slice: 0 : 10) + "..."
+                        : originalSha256()
+                    }}
                     with
+                    {{ selectedRowMap.size }}
+                    <ng-container [ngPlural]="selectedRowMap.size">
+                      <ng-template ngPluralCase="=1">binary</ng-template>
+                      <ng-template ngPluralCase="other"
+                        >binaries</ng-template
+                      > </ng-container
+                    >?
+                  </div>
+                } @else {
+                  <div class="self-center">
+                    Do you want to compare {{ selectedRowMap.size }}
+                    <ng-container [ngPlural]="selectedRowMap.size">
+                      <ng-template ngPluralCase="=1">binary</ng-template>
+                      <ng-template ngPluralCase="other"
+                        >binaries</ng-template
+                      > </ng-container
+                    >?
+                  </div>
+                }
+                <div class="flex gap-2">
+                  @if (
+                    selectedRowMap.size > 1 ||
+                    (selectedRowMap.size >= 1 && originalSha256() !== undefined)
+                  ) {
+                    <flow-button
+                      class="mx-auto! block! w-32"
+                      [type]="ButtonType.Danger"
+                      [blockCentered]="true"
+                      (click)="onCompareClick()"
+                      >Compare</flow-button
+                    >
                   }
-                  {{ selectedRowMap.size }}
-                  <ng-container [ngPlural]="selectedRowMap.size">
-                    <ng-template ngPluralCase="=1">binary</ng-template>
-                    <ng-template ngPluralCase="other"
-                      >binaries</ng-template
-                    > </ng-container
-                  >?
+                  <flow-button
+                    class="mx-auto! block! w-32"
+                    [type]="ButtonType.Primary"
+                    [blockCentered]="true"
+                    (click)="openBulkTagForm()"
+                  >
+                    <ng-container [ngPlural]="selectedRowMap.size">
+                      <ng-template ngPluralCase="=1">Tag binary</ng-template>
+                      <ng-template ngPluralCase="other"
+                        >Tag binaries</ng-template
+                      >
+                    </ng-container>
+                  </flow-button>
                 </div>
-              } @else {
-                <div class="self-center">
-                  Do you want to compare
-                  {{ selectedRowMap.size }}
-                  <ng-container [ngPlural]="selectedRowMap.size">
-                    <ng-template ngPluralCase="=1">binary</ng-template>
-                    <ng-template ngPluralCase="other"
-                      >binaries</ng-template
-                    > </ng-container
-                  >?
-                </div>
-              }
-              <flow-button
-                class="mx-auto! block! w-32"
-                [type]="ButtonType.Danger"
-                [blockCentered]="true"
-                (click)="onCompareClick()"
-              >
-                Compare
-              </flow-button>
-            </div>
+              </div>
+            }
           </flow-card-body>
         </flow-card>
       }
@@ -132,6 +194,7 @@
   @for (overrow of filteredFind$ | async; track overrow) {
     <az-entity-table-row
       [row]="overrow"
+      [checked]="isChecked(overrow.sha256)"
       [externalPagination]="externalPagination()"
       [eType]="eType()"
       [originalSha256]="originalSha256()"

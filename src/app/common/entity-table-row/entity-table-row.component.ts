@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   HostBinding,
   Input,
@@ -76,7 +75,6 @@ export class EntityTableRowComponent {
   featureService = inject(FeatureService);
   apiService = inject(ApiService);
   private api = inject(ApiService);
-  private cdr = inject(ChangeDetectorRef);
 
   @HostBinding("hidden") isHidden = false;
 
@@ -99,6 +97,7 @@ export class EntityTableRowComponent {
   showMimetype = input<boolean>(true);
   showMagic = input<boolean>(true);
   asTableRows = input<boolean>(true);
+  checked = input<boolean>(false);
 
   @Input()
   get row(): EntityFindRowWithUpdatedTags {
@@ -107,6 +106,9 @@ export class EntityTableRowComponent {
   set row(data: EntityFindRow) {
     this._row = {
       ...(data as EntityFindRowWithUpdatedTags),
+      tags$: new BehaviorSubject<readonly components["schemas"]["EntityTag"][]>(
+        data.tags ?? [],
+      ),
     };
     this.hasContent$ = this.api.entityHasContent(data.sha256);
     this.entropy$ = this.api
@@ -141,8 +143,6 @@ export class EntityTableRowComponent {
 
   protected onCheckboxChange(checked: boolean) {
     this.checkChanged.emit(checked ?? false);
-    this._row.checked = checked;
-    this.cdr.markForCheck();
   }
 
   genSourceText(sources: string[]): string {
@@ -163,11 +163,6 @@ export class EntityTableRowComponent {
   }
 
   refreshRowTags(ref: EntityFindRowWithUpdatedTags) {
-    if (ref?.tags$ == null) {
-      ref.tags$ = new BehaviorSubject<
-        readonly components["schemas"]["EntityTag"][]
-      >(ref.tags);
-    }
     this.entityService.refreshTags(ref.tags$, ref.sha256);
   }
 

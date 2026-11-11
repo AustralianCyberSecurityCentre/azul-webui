@@ -954,6 +954,11 @@ export class EntityService {
     return this.api.entityCreateTags(sha256, tag, security);
   }
 
+  /**add a tag to multiple entities */
+  createTagBulk(sha256: string[], tag: string, security: string) {
+    return this.api.entityCreateTagBulk(sha256, tag, security);
+  }
+
   /**remove a tag from an entity*/
   deleteTag(sha256: string, tag: string) {
     return this.api.entityDeleteTag(sha256, tag);

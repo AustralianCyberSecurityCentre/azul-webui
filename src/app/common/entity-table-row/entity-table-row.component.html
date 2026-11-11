@@ -4,8 +4,8 @@
       class="hover:bg-azul-100 dark:hover:bg-azul-500 flex gap-4 rounded-md p-2"
     >
       <flow-checkbox-signal
-        [ngModel]="_row.checked"
-        (ngModelChange)="onCheckboxChange($event)"
+        [checked]="checked()"
+        (checkedChange)="onCheckboxChange($event)"
         class="mt-2"
       />
       <!-- icon -->
@@ -88,16 +88,18 @@
         }
 
         <!-- entity tags -->
-        @if (innerRow.tags && innerRow.tags.length > 0) {
-          <div>
-            <azco-entity-tags
-              [addTag]="false"
-              [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
-              [tags]="innerRow.tags"
-              (changed)="refreshRowTags(innerRow)"
-            >
-            </azco-entity-tags>
-          </div>
+        @if (innerRow.sha256 && (innerRow.tags$ | async); as rowTags) {
+          @if (rowTags.length > 0) {
+            <div>
+              <azco-entity-tags
+                [addTag]="false"
+                [sha256]="innerRow.sha256"
+                [tags]="innerRow.tags$ | async"
+                (changed)="refreshRowTags(innerRow)"
+              >
+              </azco-entity-tags>
+            </div>
+          }
         }
         <!-- filenames -->
         @if (innerRow.filenames && innerRow.filenames.length > 0) {
@@ -239,8 +241,8 @@
       <!--select checkbox-->
       <td class="px-1 pbe-1">
         <flow-checkbox-signal
-          [ngModel]="_row.checked"
-          (ngModelChange)="onCheckboxChange($event)"
+          [checked]="checked()"
+          (checkedChange)="onCheckboxChange($event)"
           class="mt-2"
         />
       </td>
@@ -393,18 +395,20 @@
         }
       }
     </tr>
-    @if (innerRow.tags && innerRow.tags.length > 0) {
-      <tr>
-        <td class="px-1 pbe-1" colspan="10">
-          <azco-entity-tags
-            [addTag]="false"
-            [sha256]="innerRow.sha256 ? innerRow.sha256 : innerRow.key"
-            [tags]="innerRow.tags"
-            (changed)="refreshRowTags(innerRow)"
-          >
-          </azco-entity-tags>
-        </td>
-      </tr>
+    @if (innerRow.sha256 && (innerRow.tags$ | async); as rowTags) {
+      @if (rowTags.length > 0) {
+        <tr>
+          <td class="px-1 pbe-1" colspan="10">
+            <azco-entity-tags
+              [addTag]="false"
+              [sha256]="innerRow.sha256"
+              [tags]="innerRow.tags$ | async"
+              (changed)="refreshRowTags(innerRow)"
+            >
+            </azco-entity-tags>
+          </td>
+        </tr>
+      }
     }
 
     @if (showSsdeep()) {
