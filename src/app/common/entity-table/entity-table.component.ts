@@ -273,6 +273,9 @@ export class EntityTableComponent implements OnChanges {
 
   protected onBulkRemoveSubmit(): void {
     const tagsToRemove = Array.from(this.selectedTagsToRemove());
+    const selectedBinaries = this.selectedRowMap;
+
+    console.log ( "SELECTED BINARIES - ",selectedBinaries );
 
     // No tags, not interested
     if (tagsToRemove.length === 0) {
@@ -280,12 +283,10 @@ export class EntityTableComponent implements OnChanges {
     }
 
     // Confirmation dialog
-    let confirmText: string;
-    if (tagsToRemove.length == 1) {
-      confirmText = `Are you sure you want to remove 1 tag from selected binary?`;
-    } else {
-      confirmText = `Are you sure you want to remove ${tagsToRemove.length} tags from selected binaries?`;
-    }
+    const tagTense = tagsToRemove.length == 1 ? "1 tag" : `${tagsToRemove.length} tags`;
+    const binaryTense = selectedBinaries.size == 1 ? "1 selected binary" : `${selectedBinaries.size} selected binaries`;
+    const confirmText = `Are you sure you want to remove ${tagTense} from the ${binaryTense}?`;
+
     const confirmed = window.confirm(confirmText);
     if (!confirmed) {
       return;
@@ -293,7 +294,7 @@ export class EntityTableComponent implements OnChanges {
 
     // Map the hashes and tags which need to be deleted
     const deleteCalls = [];
-    for (const row of this.selectedRowMap.values ()) {
+    for (const row of selectedBinaries.values ()) {
       const tagsOnThisRow = (row.tags??[]).map((t)=>t.tag);
 
       for (const tag of tagsToRemove) {
@@ -309,7 +310,7 @@ export class EntityTableComponent implements OnChanges {
       return;
     }
 
-    const hashes = new Set(this.selectedRowMap.keys());
+    const hashes = new Set(selectedBinaries.keys());
     forkJoin(deleteCalls)
       .pipe(ops.first())
       .subscribe(() => this.finishBulkAction(hashes, this.showBulkRemoveForm));
