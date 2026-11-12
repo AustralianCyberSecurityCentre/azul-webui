@@ -2,6 +2,13 @@
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
       @if (selectedRowMap.size >= 1) {
+        <ng-template #binaryPlural>
+          <ng-container [ngPlural]="selectedRowMap.size">
+            <ng-template ngPluralCase="=1">binary</ng-template>
+            <ng-template ngPluralCase="other">binaries</ng-template>
+          </ng-container>
+        </ng-template>
+
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
             @if (showBulkTagForm()) {
@@ -10,10 +17,7 @@
                   <div class="flex items-center justify-between gap-4">
                     <div>
                       Tag {{ selectedRowMap.size }}
-                      <ng-container [ngPlural]="selectedRowMap.size">
-                        <ng-template ngPluralCase="=1">binary</ng-template>
-                        <ng-template ngPluralCase="other">binaries</ng-template>
-                      </ng-container>
+                      <ng-container *ngTemplateOutlet="binaryPlural" />
                     </div>
                     <div class="flex items-center gap-2">
                       <flow-checkbox-signal
@@ -129,22 +133,13 @@
                     }}
                     with
                     {{ selectedRowMap.size }}
-                    <ng-container [ngPlural]="selectedRowMap.size">
-                      <ng-template ngPluralCase="=1">binary</ng-template>
-                      <ng-template ngPluralCase="other"
-                        >binaries</ng-template
-                      > </ng-container
-                    >?
+                    <ng-container *ngTemplateOutlet="binaryPlural" />
+                    ?
                   </div>
                 } @else {
                   <div class="self-center">
                     Do you want to compare {{ selectedRowMap.size }}
-                    <ng-container [ngPlural]="selectedRowMap.size">
-                      <ng-template ngPluralCase="=1">binary</ng-template>
-                      <ng-template ngPluralCase="other"
-                        >binaries</ng-template
-                      > </ng-container
-                    >?
+                    <ng-container *ngTemplateOutlet="binaryPlural" />?
                   </div>
                 }
                 <div class="flex justify-center gap-2">
@@ -152,7 +147,7 @@
                     class="bulk-action-button block! w-40 whitespace-nowrap"
                     [type]="
                       canCompareBinaries()
-                        ? ButtonType.Danger
+                        ? ButtonType.Primary
                         : ButtonType.Disabled
                     "
                     [blockCentered]="true"
@@ -162,17 +157,12 @@
                   >
                   <flow-button
                     class="block! w-40 whitespace-nowrap"
-                    [type]="ButtonType.Primary"
+                    [type]="ButtonType.Green"
                     [blockCentered]="true"
                     [fullWidth]="true"
                     (click)="openBulkTagForm()"
                   >
-                    <ng-container [ngPlural]="selectedRowMap.size">
-                      <ng-template ngPluralCase="=1">Tag binary</ng-template>
-                      <ng-template ngPluralCase="other"
-                        >Tag binaries</ng-template
-                      >
-                    </ng-container>
+                    Add tag(s)
                   </flow-button>
                   <flow-button
                     class="bulk-action-button block! w-40 whitespace-nowrap"
@@ -185,7 +175,7 @@
                     [fullWidth]="true"
                     (click)="openBulkRemoveForm()"
                   >
-                    Remove tags
+                    Remove tag(s)
                   </flow-button>
                 </div>
               </div>

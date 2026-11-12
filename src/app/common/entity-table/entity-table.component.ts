@@ -216,18 +216,22 @@ export class EntityTableComponent implements OnChanges {
         this.bulkTagModel().security,
       )
       .pipe(ops.first())
-      .subscribe(() => {
-        this.showBulkTagForm.set(false);
-        if (this.store.bulkTagDeselectAllOnSubmit()) {
-          this.selectedRowMap.clear();
-        }
-        this.cdr.markForCheck();
+      .subscribe(() => this.finishBulkAction(hashes, this.showBulkTagForm));
+  }
 
-        this.rowComponents
-          .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
-          .forEach((rowComponent) => {
-            rowComponent.refreshRowTags(rowComponent.row);
-          });
+  private finishBulkAction(
+    hashes: Set<string>,
+    formSignal: WritableSignal<boolean>,
+  ): void {
+    formSignal.set(false);
+    if (this.store.bulkTagDeselectAllOnSubmit()) {
+      this.selectedRowMap.clear();
+    }
+    this.cdr.markForCheck();
+    this.rowComponents
+      .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
+      .forEach((rowComponent) => {
+        rowComponent.refreshRowTags(rowComponent.row);
       });
   }
 
@@ -300,17 +304,6 @@ export class EntityTableComponent implements OnChanges {
 
     forkJoin(deleteCalls)
       .pipe(ops.first())
-      .subscribe(() => {
-        this.showBulkRemoveForm.set(false);
-        if (this.store.bulkTagDeselectAllOnSubmit()) {
-          this.selectedRowMap.clear();
-        }
-        this.cdr.markForCheck();
-        this.rowComponents
-          .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
-          .forEach((rowComponent) => {
-            rowComponent.refreshRowTags(rowComponent.row);
-          });
-      });
+      .subscribe(() => this.finishBulkAction(hashes, this.showBulkRemoveForm));
   }
 }
