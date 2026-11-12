@@ -248,8 +248,6 @@ export class EntityTableComponent implements OnChanges {
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count);
 
-    console.log(sortedTags);
-
     this.availableRemovableTags.set(sortedTags);
     this.selectedTagsToRemove.set(new Set());
     this.showBulkRemoveForm.set(true);
@@ -274,8 +272,6 @@ export class EntityTableComponent implements OnChanges {
   protected onBulkRemoveSubmit(): void {
     const tagsToRemove = Array.from(this.selectedTagsToRemove());
     const selectedBinaries = this.selectedRowMap;
-
-    console.log ( "SELECTED BINARIES - ",selectedBinaries );
 
     // No tags, not interested
     if (tagsToRemove.length === 0) {
