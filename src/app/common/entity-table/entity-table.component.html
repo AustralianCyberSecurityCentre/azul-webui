@@ -65,10 +65,7 @@
                 <div class="flex flex-col gap-2">
                   <div class="self-center">
                     Remove tags from {{ selectedRowMap.size }}
-                    <ng-container [ngPlural]="selectedRowMap.size">
-                      <ng-template ngPluralCase="-1">binary</ng-template>
-                      <ng-template ngPluralCase="other">binaries</ng-template>
-                    </ng-container>
+                    <ng-container *ngTemplateOutlet="binaryPlural" />
                   </div>
                   @if (availableRemovableTags().length > 0) {
                     <div class="flex max-h-48 flex-col gap-1 overflow-y-auto">
