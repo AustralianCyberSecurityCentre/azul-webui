@@ -248,6 +248,8 @@ export class EntityTableComponent implements OnChanges {
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count);
 
+    console.log(sortedTags);
+
     this.availableRemovableTags.set(sortedTags);
     this.selectedTagsToRemove.set(new Set());
     this.showBulkRemoveForm.set(true);
@@ -271,10 +273,13 @@ export class EntityTableComponent implements OnChanges {
 
   protected onBulkRemoveSubmit(): void {
     const tagsToRemove = Array.from(this.selectedTagsToRemove());
+
+    // No tags, not interested
     if (tagsToRemove.length === 0) {
       return;
     }
 
+    // Confirmation dialog
     let confirmText: string;
     if (tagsToRemove.length == 1) {
       confirmText = `Are you sure you want to remove 1 tag from selected binary?`;
@@ -286,24 +291,28 @@ export class EntityTableComponent implements OnChanges {
       return;
     }
 
-    const hashes = new Set(this.selectedRowMap.keys());
+    // Map the hashes and tags which need to be deleted
     const deleteCalls = [];
-    for (const row of this.selectedRowMap.values()) {
-      const tagsOnThisRow = new Set((row.tags ?? []).map((t) => t.tag));
-      for (const tag of tagsOnThisRow) {
-        if (tagsOnThisRow.has(tag)) {
+    for (const row of this.selectedRowMap.values ()) {
+      const tagsOnThisRow = (row.tags??[]).map((t)=>t.tag);
+
+      for (const tag of tagsToRemove) {
+        if (tagsOnThisRow.includes(tag)) {
           deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
         }
       }
     }
 
-    if (deleteCalls.length === 0) {
+    // Nothing to delete, not interested
+    if ( deleteCalls.length === 0 ) {
       this.showBulkRemoveForm.set(false);
       return;
     }
 
+    const hashes = new Set(this.selectedRowMap.keys());
     forkJoin(deleteCalls)
       .pipe(ops.first())
       .subscribe(() => this.finishBulkAction(hashes, this.showBulkRemoveForm));
+
   }
 }
