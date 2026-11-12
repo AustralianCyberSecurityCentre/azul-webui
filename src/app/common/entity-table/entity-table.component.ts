@@ -42,9 +42,10 @@ Includes highlighting data from elasticsearch.
         word-break: break-word;
       }
 
-      :host ::ng-deep .bulk-action-button button.bg-blue-700,
-      :host ::ng-deep .bulk-action-button button.bg-red-700 {
-        border-style: solod;
+      :host ::ng-deep .bulk-action-button button.bg-red-700,
+      :host ::ng-deep .bulk-action-button button.bg-green-700,
+      :host ::ng-deep .bulk-action-button button.bg-blue-700 {
+        border-style: solid;
         border-width: 1px;
         border-color: transparent;
       }
@@ -279,8 +280,12 @@ export class EntityTableComponent implements OnChanges {
     }
 
     // Confirmation dialog
-    const tagTense = tagsToRemove.length == 1 ? "1 tag" : `${tagsToRemove.length} tags`;
-    const binaryTense = selectedBinaries.size == 1 ? "1 selected binary" : `${selectedBinaries.size} selected binaries`;
+    const tagTense =
+      tagsToRemove.length == 1 ? "1 tag" : `${tagsToRemove.length} tags`;
+    const binaryTense =
+      selectedBinaries.size == 1
+        ? "1 selected binary"
+        : `${selectedBinaries.size} selected binaries`;
     const confirmText = `Are you sure you want to remove ${tagTense} from the ${binaryTense}?`;
 
     const confirmed = window.confirm(confirmText);
@@ -290,8 +295,8 @@ export class EntityTableComponent implements OnChanges {
 
     // Map the hashes and tags which need to be deleted
     const deleteCalls = [];
-    for (const row of selectedBinaries.values ()) {
-      const tagsOnThisRow = (row.tags??[]).map((t)=>t.tag);
+    for (const row of selectedBinaries.values()) {
+      const tagsOnThisRow = (row.tags ?? []).map((t) => t.tag);
 
       for (const tag of tagsToRemove) {
         if (tagsOnThisRow.includes(tag)) {
@@ -301,7 +306,7 @@ export class EntityTableComponent implements OnChanges {
     }
 
     // Nothing to delete, not interested
-    if ( deleteCalls.length === 0 ) {
+    if (deleteCalls.length === 0) {
       this.showBulkRemoveForm.set(false);
       return;
     }
@@ -310,6 +315,5 @@ export class EntityTableComponent implements OnChanges {
     forkJoin(deleteCalls)
       .pipe(ops.first())
       .subscribe(() => this.finishBulkAction(hashes, this.showBulkRemoveForm));
-
   }
 }

@@ -23,7 +23,7 @@
                       <flow-checkbox-signal
                         [checked]="store.bulkTagDeselectAllOnSubmit()"
                         (checkedChange)="onDeselectAllToggle($event)"
-                      /><span>Deselect all</span>
+                      /><span>Deselect all binaries after creation</span>
                     </div>
                   </div>
                   <az-tag-picker
@@ -118,7 +118,8 @@
                   selectedRowMap.size === 1 && originalSha256() === undefined
                 ) {
                   <div class="self-center">
-                    Select 2 or more binaries to compare.
+                    Action <ng-container *ngTemplateOutlet="binaryPlural" />, or
+                    select more binaries to compare.
                   </div>
                 } @else if (originalSha256()) {
                   <div class="self-center">
@@ -135,7 +136,7 @@
                   </div>
                 } @else {
                   <div class="self-center">
-                    Do you want to compare {{ selectedRowMap.size }}
+                    How do you want to action {{ selectedRowMap.size }}
                     <ng-container *ngTemplateOutlet="binaryPlural" />?
                   </div>
                 }
@@ -149,11 +150,16 @@
                     "
                     [blockCentered]="true"
                     [fullWidth]="true"
+                    [title]="
+                      canCompareBinaries()
+                        ? ''
+                        : 'Select more binaries to compare'
+                    "
                     (click)="onCompareClick()"
-                    >Compare</flow-button
+                    >Compare Binaries</flow-button
                   >
                   <flow-button
-                    class="block! w-40 whitespace-nowrap"
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
                     [type]="ButtonType.Green"
                     [blockCentered]="true"
                     [fullWidth]="true"
@@ -170,6 +176,9 @@
                     "
                     [blockCentered]="true"
                     [fullWidth]="true"
+                    [title]="
+                      hasAnyRemovableTags() ? '' : 'There are no tags to remove'
+                    "
                     (click)="openBulkRemoveForm()"
                   >
                     Remove tag(s)
