@@ -63,24 +63,40 @@
             } @else if (showBulkRemoveForm()) {
               <form (ngSubmit)="onBulkRemoveSubmit()">
                 <div class="flex flex-col gap-2">
-                  <div class="self-center">
-                    Remove tags from {{ selectedRowMap.size }}
-                    <ng-container *ngTemplateOutlet="binaryPlural" />
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      Remove tags from {{ selectedRowMap.size }}
+                      <ng-container *ngTemplateOutlet="binaryPlural" />
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <flow-checkbox-signal
+                      [checked]="store.bulkTagDeselectAllOnSubmit()"
+                      (checkedChange)="onDeselectAllToggle($event)"
+                    /><span>Deselect all binaries after creation</span>
                   </div>
                   @if (availableRemovableTags().length > 0) {
-                    <div class="flex max-h-48 flex-col gap-1 overflow-y-auto">
+                    <select
+                      flowSelect
+                      class="w-full"
+                      (change)="onRemoveTagSelectionChange($event)"
+                    >
+                      <option
+                        value=""
+                        [selected]="selectedTagToRemove() === null"
+                        disabled
+                      >
+                        Select a tag to remove...
+                      </option>
                       @for (item of availableRemovableTags(); track item.tag) {
-                        <div class="flex items-center gap-2">
-                          <flow-checkbox-signal
-                            [checked]="selectedTagsToRemove().has(item.tag)"
-                            (checkedChange)="
-                              onRemoveTagToggle(item.tag, $event)
-                            "
-                          />
-                          <span>{{ item.tag }} ({{ item.count }})</span>
-                        </div>
+                        <option
+                          [value]="item.tag"
+                          [selected]="selectedTagToRemove() === item.tag"
+                        >
+                          {{ item.tag }} ({{ item.count }})
+                        </option>
                       }
-                    </div>
+                    </select>
                   } @else {
                     <div class="self-center">
                       None of the selected binaries have any tags.
@@ -102,7 +118,7 @@
                       [blockCentered]="true"
                       [fullWidth]="true"
                       (click)="
-                        selectedTagsToRemove().size > 0
+                        selectedTagToRemove()
                           ? ButtonType.Danger
                           : ButtonType.Disabled
                       "

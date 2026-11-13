@@ -86,9 +86,7 @@ export class EntityTableComponent implements OnChanges {
   protected availableRemovableTags: WritableSignal<
     { tag: string; count: number }[]
   > = signal([]);
-  protected selectedTagsToRemove: WritableSignal<Set<string>> = signal(
-    new Set(),
-  );
+  protected selectedTagToRemove: WritableSignal<string | null> = signal(null);
   private pendingTagDeltas = new Map<
     string,
     Map<string, "added" | "removed">
@@ -294,7 +292,7 @@ export class EntityTableComponent implements OnChanges {
       .sort((a, b) => b.count - a.count);
 
     this.availableRemovableTags.set(sortedTags);
-    this.selectedTagsToRemove.set(new Set());
+    this.selectedTagToRemove.set(null);
     this.showBulkRemoveForm.set(true);
   }
 
@@ -302,56 +300,43 @@ export class EntityTableComponent implements OnChanges {
     this.showBulkRemoveForm.set(false);
   }
 
-  protected onRemoveTagToggle(tag: string, checked: boolean): void {
-    this.selectedTagsToRemove.update((current) => {
-      const next = new Set(current);
-      if (checked) {
-        next.add(tag);
-      } else {
-        next.delete(tag);
-      }
-      return next;
-    });
+  protected onRemoveTagSelectionChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.selectedTagToRemove.set(select.value || null);
   }
 
   protected onBulkRemoveSubmit(): void {
-    const tagsToRemove = Array.from(this.selectedTagsToRemove());
+    const tag = this.selectedTagToRemove();
     const selectedBinaries = this.selectedRowMap;
 
-    // No tags, not interested
-    if (tagsToRemove.length === 0) {
+    if (!tag) {
       return;
     }
 
     // Confirmation dialog
-    const tagTense =
-      tagsToRemove.length == 1 ? "1 tag" : `${tagsToRemove.length} tags`;
     const binaryTense =
       selectedBinaries.size == 1
         ? "1 selected binary"
         : `${selectedBinaries.size} selected binaries`;
-    const confirmText = `Are you sure you want to remove ${tagTense} from the ${binaryTense}?`;
+    const confirmText = `Are you sure you want to remove the tag from the ${binaryTense}?`;
 
     const confirmed = window.confirm(confirmText);
     if (!confirmed) {
       return;
     }
 
-    // Map the hashes and tags which need to be deleted
+    // Map the hashes which actual have the tag
     const deleteCalls = [];
     const removedPairs: { sha256: string; tag: string }[] = [];
     for (const row of selectedBinaries.values()) {
       const tagsOnThisRow = this.getLiveRowTags(row.sha256);
 
-      for (const tag of tagsToRemove) {
-        if (tagsOnThisRow.includes(tag)) {
-          deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
-          removedPairs.push({ sha256: row.sha256, tag });
-        }
+      if (tagsOnThisRow.includes(tag)) {
+        deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
+        removedPairs.push({ sha256: row.sha256, tag });
       }
     }
 
-    // Nothing to delete, not interested
     if (deleteCalls.length === 0) {
       this.showBulkRemoveForm.set(false);
       return;
