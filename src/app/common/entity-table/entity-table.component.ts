@@ -89,6 +89,10 @@ export class EntityTableComponent implements OnChanges {
   protected selectedTagsToRemove: WritableSignal<Set<string>> = signal(
     new Set(),
   );
+  private pendingTagDeltas = new Map<
+    string,
+    Map<string, "added" | "removed">
+  >();
 
   displayText = input<string>("matching the search parameters.");
   useTableViewOverride = input<boolean | undefined>(undefined);
@@ -191,11 +195,49 @@ export class EntityTableComponent implements OnChanges {
 
   protected hasAnyRemovableTags(): boolean {
     for (const row of this.selectedRowMap.values()) {
-      if ((row.tags ?? []).length > 0) {
+      if (this.getLiveRowTags(row.sha256).length > 0) {
         return true;
       }
     }
     return false;
+  }
+
+  private getLiveRowTags(sha256: string): string[] {
+    const rowComponent = this.rowComponents?.find(
+      (rc) => rc.row?.sha256 === sha256,
+    );
+    const liveTags = new Set(
+      (rowComponent?.row?.tags$?.value ?? []).map((t) => t.tag),
+    );
+
+    const deltas = this.pendingTagDeltas.get(sha256);
+    for (const [tag, delta] of deltas ?? []) {
+      const confirmed =
+        delta === "added" ? liveTags.has(tag) : !liveTags.has(tag);
+      if (confirmed) {
+        deltas.delete(tag);
+      } else if (delta === "added") {
+        liveTags.add(tag);
+      } else {
+        liveTags.delete(tag);
+      }
+    }
+
+    if (deltas?.size === 0) {
+      this.pendingTagDeltas.delete(sha256);
+    }
+
+    return Array.from(liveTags);
+  }
+
+  private markTagPending(
+    sha256: string,
+    tag: string,
+    delta: "added" | "removed",
+  ): void {
+    const deltas = this.pendingTagDeltas.get(sha256) ?? new Map();
+    deltas.set(tag, delta);
+    this.pendingTagDeltas.set(sha256, deltas);
   }
 
   protected formBulkTagSecurityUpdate(event: string): void {
@@ -209,15 +251,17 @@ export class EntityTableComponent implements OnChanges {
 
   protected onBulkTagSubmit(): void {
     const hashes = new Set(this.selectedRowMap.keys());
+    const tag = this.bulkTagModel().tag;
 
     this.entityService
-      .createTagBulk(
-        Array.from(hashes),
-        this.bulkTagModel().tag,
-        this.bulkTagModel().security,
-      )
+      .createTagBulk(Array.from(hashes), tag, this.bulkTagModel().security)
       .pipe(ops.first())
-      .subscribe(() => this.finishBulkAction(hashes, this.showBulkTagForm));
+      .subscribe(() => {
+        for (const sha256 of hashes) {
+          this.markTagPending(sha256, tag, "added");
+        }
+        this.finishBulkAction(hashes, this.showBulkTagForm);
+      });
   }
 
   private finishBulkAction(
@@ -239,7 +283,7 @@ export class EntityTableComponent implements OnChanges {
   protected openBulkRemoveForm(): void {
     const tagCounts = new Map<string, number>();
     for (const row of this.selectedRowMap.values()) {
-      const tagsOnThisRow = new Set((row.tags ?? []).map((t) => t.tag));
+      const tagsOnThisRow = this.getLiveRowTags(row.sha256);
       for (const tag of tagsOnThisRow) {
         tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
       }
@@ -295,12 +339,14 @@ export class EntityTableComponent implements OnChanges {
 
     // Map the hashes and tags which need to be deleted
     const deleteCalls = [];
+    const removedPairs: { sha256: string; tag: string }[] = [];
     for (const row of selectedBinaries.values()) {
-      const tagsOnThisRow = (row.tags ?? []).map((t) => t.tag);
+      const tagsOnThisRow = this.getLiveRowTags(row.sha256);
 
       for (const tag of tagsToRemove) {
         if (tagsOnThisRow.includes(tag)) {
           deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
+          removedPairs.push({ sha256: row.sha256, tag });
         }
       }
     }
@@ -314,6 +360,11 @@ export class EntityTableComponent implements OnChanges {
     const hashes = new Set(selectedBinaries.keys());
     forkJoin(deleteCalls)
       .pipe(ops.first())
-      .subscribe(() => this.finishBulkAction(hashes, this.showBulkRemoveForm));
+      .subscribe(() => {
+        for (const { sha256, tag } of removedPairs) {
+          this.markTagPending(sha256, tag, "removed");
+        }
+        this.finishBulkAction(hashes, this.showBulkRemoveForm);
+      });
   }
 }
