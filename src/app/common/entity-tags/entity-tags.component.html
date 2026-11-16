@@ -14,10 +14,9 @@
         [size]="ButtonSize.Icon"
         [title]="row.owner + ' - ' + (row.timestamp | since)"
         [type]="getColour(row.tag)"
-        (click)="openDialog(tplTagsInspect, { data: row })"
+        (click)="openTagInspectDialog(tplTagsInspect, row)"
       >
-        {{ row.tag
-        }}{{ row.num_entities > 0 ? " (" + row.num_entities + ")" : "" }}
+        {{ row.tag }}
       </flow-button>
     }
   }
@@ -70,7 +69,11 @@
         }"
         (click)="dialog.close()"
       >
-        View {{ tag.num_entities }} binaries
+        View
+        {{
+          inspectedTagEntityCount() !== null ? inspectedTagEntityCount() : ""
+        }}
+        binaries
       </flow-button>
       <flow-button
         [type]="ButtonType.Danger"

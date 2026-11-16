@@ -65,8 +65,29 @@ export class EntityTagsComponent {
   refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   getColour = getStatusColour;
 
+  protected inspectedTagEntityCount: WritableSignal<number | null> =
+    signal(null);
+
   protected openDialog(dialog, extra?) {
     this.dialog = this.dialogService.open(dialog, extra);
+  }
+
+  protected openTagInspectDialog(
+    dialog,
+    tag: components["schemas"]["EntityTag"],
+  ) {
+    this.inspectedTagEntityCount.set(null);
+    this.openDialog(dialog, { data: tag });
+    this.entityService
+      .find({
+        term: `binary.tag:${escapeValue(tag.tag)}`,
+        max_entities: 0,
+        count_entities: true,
+      })
+      .pipe(ops.first())
+      .subscribe((d) => {
+        this.inspectedTagEntityCount.set(d?.items_count ?? null);
+      });
   }
 
   onCreateEntityTagSubmit() {
