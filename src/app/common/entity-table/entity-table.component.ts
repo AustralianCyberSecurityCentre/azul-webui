@@ -49,6 +49,10 @@ Includes highlighting data from elasticsearch.
         border-width: 1px;
         border-color: transparent;
       }
+
+      :host ::ng-deep azco-security-picker .flex-wrap.gap-8 {
+        min-width: max-content;
+      }
     `,
   ],
 })
