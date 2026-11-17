@@ -69,11 +69,12 @@
         }"
         (click)="dialog.close()"
       >
-        View
-        {{
-          inspectedTagEntityCount() !== null ? inspectedTagEntityCount() : ""
-        }}
-        binaries
+        @if (inspectedTagEntityCount() !== null) {
+          View {{ inspectedTagEntityCount() }}
+          {{ inspectedTagEntityCount() === 1 ? "binary" : "binaries" }}
+        } @else {
+          View binaries
+        }
       </flow-button>
       <flow-button
         [type]="ButtonType.Danger"
