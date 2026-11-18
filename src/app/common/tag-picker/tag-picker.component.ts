@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   input,
   Input,
@@ -42,6 +43,7 @@ export interface tagPickerModel {
 })
 export class TagPickerComponent implements OnInit {
   private api = inject(ApiService);
+  private elementRef = inject(ElementRef);
 
   tagFieldTree = model.required<FieldTree<string>>();
 
@@ -146,19 +148,59 @@ export class TagPickerComponent implements OnInit {
     this.showExistingTagsSignal.set(false);
   }
 
-  /* Only set the tag value on selection values like space or enter. */
+  private getSuggestionElements(): HTMLElement[] {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    return Array.from(
+      host.querySelectorAll<HTMLElement>("[id^='tag-suggestion-']"),
+    );
+  }
+
+  private focusSuggestionAt(index: number) {
+    const items = this.getSuggestionElements();
+    if (items.length === 0) {
+      return;
+    }
+    const index_suggestion = Math.max(0, Math.min(index, items.length - 1));
+    items[index_suggestion].focus();
+  }
+
+  private focusTagInput() {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    host.querySelector<HTMLInputElement>("#tagInput")?.focus();
+  }
+
+  /* Only set the tag value on selection values like space or enter, and allow
+  arrow keys to move focus between suggestions. */
   keyDownActionOnTagValue(event: KeyboardEvent, tagValue: string) {
     if (event.key === "Enter" || event.key === "Space") {
       this.setTagValue(tagValue);
     } else if (event.key === "Escape") {
       this.showExistingTagsSignal.set(false);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      const items = this.getSuggestionElements();
+      const index = items.indexOf(event.target as HTMLElement);
+      if (index <= 0) {
+        this.focusTagInput();
+      } else {
+        this.focusSuggestionAt(index - 1);
+      }
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      const items = this.getSuggestionElements();
+      const index = items.indexOf(event.target as HTMLElement);
+      this.focusSuggestionAt(index + 1);
     }
   }
 
-  /* Hide the available selection upon clicking enter or space */
+  /* Hide the available selection upon clicking enter or space.
+  Alternatively moves focus into suggestion box with down arrow */
   closeOnEnter(event: KeyboardEvent) {
     if (event.key === "Enter" || event.key === "Space") {
       this.showExistingTagsSignal.set(false);
+    } else if (event.key === "ArrowDown" && this.showExistingTagsSignal()) {
+      event.preventDefault();
+      this.focusSuggestionAt(0);
     }
   }
 
