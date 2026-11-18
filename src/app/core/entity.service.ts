@@ -1030,4 +1030,9 @@ export class EntityService {
   entityTriggerSearch(): void {
     this.searchTrigger.update((t) => !t);
   }
+
+  /**Force rerun binary plugins */
+  expediteBinary(sha256: string) {
+    return this.api.binaryExpedite(sha256);
+  }
 }

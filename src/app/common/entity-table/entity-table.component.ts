@@ -25,6 +25,8 @@ import { BehaviorSubject, forkJoin, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
 import { configureTagValidation } from "../tag-picker/tag-picker.component";
 import { EntityTableRowComponent } from "../entity-table-row/entity-table-row.component";
+import { HotToastService } from "@ngxpert/hot-toast";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
 
 /**Displays a set of binaries in a table, as the result of a entityFind call
 
@@ -61,6 +63,7 @@ export class EntityTableComponent implements OnChanges {
   protected store = inject(GlobalSettingStore);
   private entityService = inject(Entity);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(HotToastService);
 
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
@@ -142,6 +145,17 @@ export class EntityTableComponent implements OnChanges {
     }
   }
 
+  private toastEvent(title: string, body: string, type_ = "toast-success") {
+    this.toast.show(ToastComponent, {
+      data: {
+        toastType: type_,
+        title: title,
+        message: body,
+      },
+      duration: 5000,
+    });
+  }
+
   protected canCompareBinaries(): boolean {
     return (
       this.selectedRowMap.size > 1 ||
@@ -149,21 +163,38 @@ export class EntityTableComponent implements OnChanges {
     );
   }
 
-  protected onCompareClick(): void {
+  private allSelectedHashes(): string[] {
     const selectedRows = Array.from(this.selectedRowMap.values());
     const selectedHashes = selectedRows
       .map((row) => row.sha256)
       .filter((hash): hash is string => !!hash); // filter out null/undefined
 
-    const allHashes = this.originalSha256()
+    return this.originalSha256()
       ? [...selectedHashes, this.originalSha256()]
       : selectedHashes;
+  }
+
+  protected onCompareClick(): void {
+    const allHashes = this.allSelectedHashes();
 
     this.router.navigate(["/pages/binaries/compare"], {
       queryParams: {
         entity: allHashes,
       },
     });
+  }
+
+  protected onExpediteClick(): void {
+    const allHashes = this.allSelectedHashes();
+
+    forkJoin(allHashes.map((hash) => this.entityService.expediteBinary(hash)))
+      .pipe(ops.first())
+      .subscribe(() => {
+        this.toastEvent(
+          "Expedite Submitted",
+          `${allHashes.length} binaries hasve been expedited.`,
+        );
+      });
   }
 
   protected onRowCheckedChange(row: EntityFindRow, checked: boolean) {
@@ -251,6 +282,10 @@ export class EntityTableComponent implements OnChanges {
     });
   }
 
+  private binaryTense(count: number): string {
+    return count === 1 ? "binary" : "binaries";
+  }
+
   protected onBulkTagSubmit(): void {
     const hashes = new Set(this.selectedRowMap.keys());
     const tag = this.bulkTagModel().tag;
@@ -263,6 +298,10 @@ export class EntityTableComponent implements OnChanges {
           this.markTagPending(sha256, tag, "added");
         }
         this.finishBulkAction(hashes, this.showBulkTagForm);
+        this.toastEvent(
+          "Tag Created",
+          `Added tag to ${hashes.size} ${this.binaryTense(hashes.size)}`,
+        );
       });
   }
 
@@ -318,12 +357,7 @@ export class EntityTableComponent implements OnChanges {
     }
 
     // Confirmation dialog
-    const binaryTense =
-      selectedBinaries.size == 1
-        ? "1 selected binary"
-        : `${selectedBinaries.size} selected binaries`;
-    const confirmText = `Are you sure you want to remove the tag from the ${binaryTense}?`;
-
+    const confirmText = `Are you sure you want to remove the tag from the ${selectedBinaries.size} ${this.binaryTense(selectedBinaries.size)}?`;
     const confirmed = window.confirm(confirmText);
     if (!confirmed) {
       return;
@@ -354,6 +388,10 @@ export class EntityTableComponent implements OnChanges {
           this.markTagPending(sha256, tag, "removed");
         }
         this.finishBulkAction(hashes, this.showBulkRemoveForm);
+        this.toastEvent(
+          "Tag Removed",
+          `Removed tag from ${hashes.size} ${this.binaryTense(hashes.size)}`,
+        );
       });
   }
 }

@@ -156,7 +156,7 @@
                     <ng-container *ngTemplateOutlet="binaryPlural" />?
                   </div>
                 }
-                <div class="flex justify-center gap-2">
+                <div class="mx-auto grid w-fit grid-cols-2 gap-2">
                   <flow-button
                     class="bulk-action-button block! w-40 whitespace-nowrap"
                     [type]="
@@ -173,6 +173,15 @@
                     "
                     (click)="onCompareClick()"
                     >Compare Binaries</flow-button
+                  >
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    title="Run Latest Plugins"
+                    [type]="ButtonType.Light"
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    (click)="onExpediteClick()"
+                    >Expedite Binaries</flow-button
                   >
                   <flow-button
                     class="bulk-action-button block! w-40 whitespace-nowrap"
