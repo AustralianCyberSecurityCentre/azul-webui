@@ -195,7 +195,7 @@ export class EntityTableComponent implements OnChanges {
       .subscribe(() => {
         this.toastEvent(
           "Expedite Submitted",
-          `${allHashes.length} binaries hasve been expedited.`,
+          `${allHashes.length} binaries have been expedited.`,
         );
       });
   }
