@@ -2,13 +2,6 @@
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
       @if (selectedRowMap.size >= 1) {
-        <ng-template #binaryPlural>
-          <ng-container [ngPlural]="selectedRowMap.size">
-            <ng-template ngPluralCase="=1">binary</ng-template>
-            <ng-template ngPluralCase="other">binaries</ng-template>
-          </ng-container>
-        </ng-template>
-
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
             @if (showBulkTagForm()) {
@@ -17,7 +10,7 @@
                   <div class="flex items-center justify-between gap-4">
                     <div>
                       Tag {{ selectedRowMap.size }}
-                      <ng-container *ngTemplateOutlet="binaryPlural" />
+                      {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
                     </div>
                     <div class="flex items-center gap-2">
                       <flow-checkbox-signal
@@ -66,7 +59,7 @@
                   <div class="flex items-center justify-between gap-4">
                     <div>
                       Remove tags from {{ selectedRowMap.size }}
-                      <ng-container *ngTemplateOutlet="binaryPlural" />
+                      {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
@@ -134,8 +127,9 @@
                   selectedRowMap.size === 1 && originalSha256() === undefined
                 ) {
                   <div class="self-center">
-                    Action <ng-container *ngTemplateOutlet="binaryPlural" />, or
-                    select more binaries to compare.
+                    Action
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }},
+                    or select more binaries to compare.
                   </div>
                 } @else if (originalSha256()) {
                   <div class="self-center">
@@ -147,13 +141,13 @@
                     }}
                     with
                     {{ selectedRowMap.size }}
-                    <ng-container *ngTemplateOutlet="binaryPlural" />
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
                     ?
                   </div>
                 } @else {
                   <div class="self-center">
                     How do you want to action {{ selectedRowMap.size }}
-                    <ng-container *ngTemplateOutlet="binaryPlural" />?
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }}?
                   </div>
                 }
                 <div class="mx-auto grid w-fit grid-cols-2 gap-2">
@@ -181,7 +175,12 @@
                     [blockCentered]="true"
                     [fullWidth]="true"
                     (click)="onExpediteClick()"
-                    >Expedite Binaries</flow-button
+                    // not sure how i feel about the button changing TODO: get feedback
+                    >Expedite
+                    {{
+                      pluralise(selectedRowMap.size, "Binary", "Binaries")
+                    }}
+                    /></flow-button
                   >
                   <flow-button
                     class="bulk-action-button block! w-40 whitespace-nowrap"

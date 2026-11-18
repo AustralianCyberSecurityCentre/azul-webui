@@ -11,7 +11,7 @@ import {
 import { form, required } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity, Security } from "@app/core/services";
-import { escapeValue, getStatusColour } from "@app/core/util";
+import { escapeValue, getStatusColour, pluralise } from "@app/core/util";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -126,6 +126,7 @@ export class EntityTagsComponent {
   }
 
   protected readonly escapeValue = escapeValue;
+  protected readonly pluralise = pluralise;
 
   formCreateTagSecurityUpdate(event: string) {
     if (event == null) {

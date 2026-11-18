@@ -71,7 +71,7 @@
       >
         @if (inspectedTagEntityCount() !== null) {
           View {{ inspectedTagEntityCount() }}
-          {{ inspectedTagEntityCount() === 1 ? "binary" : "binaries" }}
+          {{ pluralise(inspectedTagEntityCount(), "binary", "binaries") }}
         } @else {
           View binaries
         }

@@ -27,6 +27,7 @@ import { configureTagValidation } from "../tag-picker/tag-picker.component";
 import { EntityTableRowComponent } from "../entity-table-row/entity-table-row.component";
 import { HotToastService } from "@ngxpert/hot-toast";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
+import { pluralise } from "@app/core/util";
 
 /**Displays a set of binaries in a table, as the result of a entityFind call
 
@@ -68,6 +69,8 @@ export class EntityTableComponent implements OnChanges {
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
+  protected readonly pluralise = pluralise;
+
   protected filteredFind$: Observable<EntityFindRow[]>;
   protected etype$ = new Observable<string | null>(null);
   protected itemsCount$: Observable<number>;
@@ -282,10 +285,6 @@ export class EntityTableComponent implements OnChanges {
     });
   }
 
-  private binaryTense(count: number): string {
-    return count === 1 ? "binary" : "binaries";
-  }
-
   protected onBulkTagSubmit(): void {
     const hashes = new Set(this.selectedRowMap.keys());
     const tag = this.bulkTagModel().tag;
@@ -300,7 +299,7 @@ export class EntityTableComponent implements OnChanges {
         this.finishBulkAction(hashes, this.showBulkTagForm);
         this.toastEvent(
           "Tag Created",
-          `Added tag to ${hashes.size} ${this.binaryTense(hashes.size)}`,
+          `Added tag to ${hashes.size} ${pluralise(hashes.size, "binary", "binaries")}`,
         );
       });
   }
@@ -357,7 +356,7 @@ export class EntityTableComponent implements OnChanges {
     }
 
     // Confirmation dialog
-    const confirmText = `Are you sure you want to remove the tag from the ${selectedBinaries.size} ${this.binaryTense(selectedBinaries.size)}?`;
+    const confirmText = `Are you sure you want to remove the tag from the ${selectedBinaries.size} ${pluralise(selectedBinaries.size, "binary", "binaries")}?`;
     const confirmed = window.confirm(confirmText);
     if (!confirmed) {
       return;
@@ -390,7 +389,7 @@ export class EntityTableComponent implements OnChanges {
         this.finishBulkAction(hashes, this.showBulkRemoveForm);
         this.toastEvent(
           "Tag Removed",
-          `Removed tag from ${hashes.size} ${this.binaryTense(hashes.size)}`,
+          `Removed tag from ${hashes.size} ${pluralise(hashes.size, "binary", "binaries")}`,
         );
       });
   }
