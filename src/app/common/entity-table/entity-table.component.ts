@@ -229,13 +229,20 @@ export class EntityTableComponent implements OnChanges {
     this.showBulkTagForm.set(false);
   }
 
-  protected hasAnyRemovableTags(): boolean {
+  // Prevents the UI saying remove tags when only 1 of the selected binaries has tags and only a single tag could possibly be removed.
+  protected countRemovableTags(): number {
+    let number_of_tags = 0;
     for (const row of this.selectedRowMap.values()) {
       if (this.getLiveRowTags(row.sha256).length > 0) {
-        return true;
+        number_of_tags += 1;
       }
     }
-    return false;
+
+    return number_of_tags;
+  }
+
+  protected hasAnyRemovableTags(): boolean {
+    return this.countRemovableTags() > 0;
   }
 
   private getLiveRowTags(sha256: string): string[] {

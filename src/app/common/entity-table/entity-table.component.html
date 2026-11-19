@@ -202,7 +202,14 @@
                     "
                     (click)="openBulkRemoveForm()"
                   >
-                    Remove {{ pluralise(selectedRowMap.size, "tag", "tags") }}
+                    Remove
+                    {{
+                      pluralise(
+                        selectedRowMap.size,
+                        "tag",
+                        countRemovableTags() === 1 ? "tag" : "tags"
+                      )
+                    }}
                   </flow-button>
                 </div>
               </div>
