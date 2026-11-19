@@ -186,7 +186,7 @@
                     [fullWidth]="true"
                     (click)="openBulkTagForm()"
                   >
-                    Add tag(s)
+                    Add {{ pluralise(selectedRowMap.size, "tag", "tags") }}
                   </flow-button>
                   <flow-button
                     class="bulk-action-button block! w-40 whitespace-nowrap"
@@ -202,7 +202,7 @@
                     "
                     (click)="openBulkRemoveForm()"
                   >
-                    Remove tag(s)
+                    Remove {{ pluralise(selectedRowMap.size, "tag", "tags") }}
                   </flow-button>
                 </div>
               </div>
