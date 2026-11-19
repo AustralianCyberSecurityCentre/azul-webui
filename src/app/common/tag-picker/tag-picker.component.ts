@@ -1,5 +1,6 @@
 import { AsyncPipe, CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -9,6 +10,7 @@ import {
   model,
   OnInit,
   signal,
+  ViewChild,
   WritableSignal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
@@ -21,6 +23,7 @@ import {
 } from "@angular/forms/signals";
 import { ApiService } from "@app/core/api/api.service";
 import { FlowModule } from "@lib/flow/flow.module";
+import { InputSignalComponent } from "@lib/flow/input-signal/input-signal.component";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import * as ops from "rxjs/operators";
 
@@ -40,14 +43,17 @@ export interface tagPickerModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./tag-picker.component.html",
 })
-export class TagPickerComponent implements OnInit {
+export class TagPickerComponent implements OnInit, AfterViewInit {
   private api = inject(ApiService);
+
+  @ViewChild("tagInput") tagInput: InputSignalComponent;
 
   tagFieldTree = model.required<FieldTree<string>>();
 
   @Input() refreshTags$: BehaviorSubject<boolean>;
 
   isEntityTag = input<boolean>(true);
+  autofocus = input<boolean>(false);
 
   protected allEntityTagsSub: Subscription;
 
@@ -139,6 +145,16 @@ export class TagPickerComponent implements OnInit {
       }),
       ops.shareReplay(1),
     );
+  }
+
+  ngAfterViewInit(): void {
+    if (this.autofocus()) {
+      this.focus();
+    }
+  }
+
+  focus() {
+    this.tagInput?.focus();
   }
 
   setTagValue(tagValue: string) {
