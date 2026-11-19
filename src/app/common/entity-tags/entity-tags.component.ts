@@ -11,7 +11,7 @@ import {
 import { form, required } from "@angular/forms/signals";
 import { components } from "@app/core/api/openapi";
 import { Entity, Security } from "@app/core/services";
-import { escapeValue, getStatusColour } from "@app/core/util";
+import { escapeValue, getStatusColour, pluralise } from "@app/core/util";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
 import { BehaviorSubject } from "rxjs";
 import * as ops from "rxjs/operators";
@@ -65,8 +65,29 @@ export class EntityTagsComponent {
   refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   getColour = getStatusColour;
 
+  protected inspectedTagEntityCount: WritableSignal<number | null> =
+    signal(null);
+
   protected openDialog(dialog, extra?) {
     this.dialog = this.dialogService.open(dialog, extra);
+  }
+
+  protected openTagInspectDialog(
+    dialog,
+    tag: components["schemas"]["EntityTag"],
+  ) {
+    this.inspectedTagEntityCount.set(null);
+    this.openDialog(dialog, { data: tag });
+    this.entityService
+      .find({
+        term: `binary.tag:${escapeValue(tag.tag)}`,
+        max_entities: 0,
+        count_entities: true,
+      })
+      .pipe(ops.first())
+      .subscribe((d) => {
+        this.inspectedTagEntityCount.set(d?.items_count ?? null);
+      });
   }
 
   onCreateEntityTagSubmit() {
@@ -105,6 +126,7 @@ export class EntityTagsComponent {
   }
 
   protected readonly escapeValue = escapeValue;
+  protected readonly pluralise = pluralise;
 
   formCreateTagSecurityUpdate(event: string) {
     if (event == null) {

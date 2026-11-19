@@ -291,6 +291,15 @@ export function recalculateFonts() {
   monaco.editor.remeasureFonts();
 }
 
+/**returns singular or plural based on count - binary/binaries comes up a lot */
+export function pluralise(
+  count: number,
+  singular: string,
+  plural: string,
+): string {
+  return count == 1 ? singular : plural;
+}
+
 /** Sets some common actions for use within the Monaco editor, that aren't included by default. */
 export function addCommonMonacoActions(editor: editor.IStandaloneCodeEditor) {
   // Word wrapping isn't an option by default:

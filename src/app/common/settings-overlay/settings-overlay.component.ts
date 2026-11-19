@@ -57,6 +57,7 @@ export class SettingsOverlayComponent {
     defaultSourceView: this.store.defaultSourceView(),
     hexViewGroupingSize: this.store.hexViewGroupingSize(),
     pluginPageColumns: this.store.pluginPageColumns(),
+    bulkTagDeselectAllOnSubmit: this.store.bulkTagDeselectAllOnSubmit(),
   });
 
   protected settingsForm = form(this.settingsFormModel, (f) => {

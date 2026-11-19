@@ -1,24 +1,33 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   HostBinding,
   Input,
   OnChanges,
+  QueryList,
   Signal,
   SimpleChanges,
+  ViewChildren,
   WritableSignal,
   computed,
   inject,
   input,
   signal,
 } from "@angular/core";
+import { form, required } from "@angular/forms/signals";
 import { Router } from "@angular/router";
-import { components } from "@app/core/api/openapi";
 import { EntityFindRow, EntityFindWithPurgeExtras } from "@app/core/api/state";
+import { Entity } from "@app/core/services";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { ButtonSize, ButtonType } from "@lib/flow/button/button.component";
-import { Observable } from "rxjs";
+import { BehaviorSubject, forkJoin, Observable } from "rxjs";
 import * as ops from "rxjs/operators";
+import { configureTagValidation } from "../tag-picker/tag-picker.component";
+import { EntityTableRowComponent } from "../entity-table-row/entity-table-row.component";
+import { HotToastService } from "@ngxpert/hot-toast";
+import { ToastComponent } from "@lib/flow/toast/toast.component";
+import { pluralise } from "@app/core/util";
 
 /**Displays a set of binaries in a table, as the result of a entityFind call
 
@@ -35,22 +44,63 @@ Includes highlighting data from elasticsearch.
       table {
         word-break: break-word;
       }
+
+      :host ::ng-deep .bulk-action-button button.bg-red-700,
+      :host ::ng-deep .bulk-action-button button.bg-green-700,
+      :host ::ng-deep .bulk-action-button button.bg-blue-700 {
+        border-style: solid;
+        border-width: 1px;
+        border-color: transparent;
+      }
+
+      :host ::ng-deep azco-security-picker .flex-wrap.gap-8 {
+        min-width: max-content;
+      }
     `,
   ],
 })
 export class EntityTableComponent implements OnChanges {
   private router = inject(Router);
   protected store = inject(GlobalSettingStore);
+  private entityService = inject(Entity);
+  private cdr = inject(ChangeDetectorRef);
+  private toast = inject(HotToastService);
 
   @HostBinding("hidden") isHidden = false;
   protected ButtonType = ButtonType;
   protected ButtonSize = ButtonSize;
+  protected readonly pluralise = pluralise;
+
   protected filteredFind$: Observable<EntityFindRow[]>;
   protected etype$ = new Observable<string | null>(null);
   protected itemsCount$: Observable<number>;
   protected selectedRowMap = new Map<string, EntityFindRow>();
 
+  @ViewChildren(EntityTableRowComponent)
+  protected rowComponents: QueryList<EntityTableRowComponent>;
+
   protected showSimilarityHeader: WritableSignal<boolean> = signal(false);
+
+  // Bulk tagging of selected rows
+  protected showBulkTagForm: WritableSignal<boolean> = signal(false);
+  protected refreshTags$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+  protected bulkTagModel: WritableSignal<{ tag: string; security: string }> =
+    signal({ tag: "", security: "" });
+  protected bulkTagForm = form(this.bulkTagModel, (f) => {
+    configureTagValidation(f.tag);
+    required(f.security);
+  });
+
+  // Bulk tag removal
+  protected showBulkRemoveForm: WritableSignal<boolean> = signal(false);
+  protected availableRemovableTags: WritableSignal<
+    { tag: string; count: number }[]
+  > = signal([]);
+  protected selectedTagToRemove: WritableSignal<string | null> = signal(null);
+  private pendingTagDeltas = new Map<
+    string,
+    Map<string, "added" | "removed">
+  >();
 
   displayText = input<string>("matching the search parameters.");
   useTableViewOverride = input<boolean | undefined>(undefined);
@@ -86,15 +136,11 @@ export class EntityTableComponent implements OnChanges {
           const items = d?.items ?? [];
           this.showSimilarityHeader.set(false);
           return items.map((val) => {
-            const selected = this.selectedRowMap.get(val.sha256);
             // check if similarity exists to know if the similarity table header should be displayed.
             if (val["similarity"]) {
               this.showSimilarityHeader.set(true);
             }
-            return {
-              ...val,
-              checked: selected ? true : false,
-            };
+            return val;
           });
         }),
         ops.shareReplay(1),
@@ -102,15 +148,37 @@ export class EntityTableComponent implements OnChanges {
     }
   }
 
-  protected onCompareClick(): void {
+  private toastEvent(title: string, body: string, type_ = "toast-success") {
+    this.toast.show(ToastComponent, {
+      data: {
+        toastType: type_,
+        title: title,
+        message: body,
+      },
+      duration: 5000,
+    });
+  }
+
+  protected canCompareBinaries(): boolean {
+    return (
+      this.selectedRowMap.size > 1 ||
+      (this.selectedRowMap.size >= 1 && this.originalSha256() !== undefined)
+    );
+  }
+
+  private allSelectedHashes(): string[] {
     const selectedRows = Array.from(this.selectedRowMap.values());
     const selectedHashes = selectedRows
       .map((row) => row.sha256)
       .filter((hash): hash is string => !!hash); // filter out null/undefined
 
-    const allHashes = this.originalSha256()
+    return this.originalSha256()
       ? [...selectedHashes, this.originalSha256()]
       : selectedHashes;
+  }
+
+  protected onCompareClick(): void {
+    const allHashes = this.allSelectedHashes();
 
     this.router.navigate(["/pages/binaries/compare"], {
       queryParams: {
@@ -119,25 +187,217 @@ export class EntityTableComponent implements OnChanges {
     });
   }
 
-  protected onRowCheckedChange(
-    row: components["schemas"]["EntityFindItem"] & {
-      checked?: boolean;
-    },
-    checked: boolean,
-  ) {
-    row.checked = checked;
-    this.trackChecked(row);
+  protected onExpediteClick(): void {
+    const allHashes = this.allSelectedHashes();
+
+    forkJoin(allHashes.map((hash) => this.entityService.expediteBinary(hash)))
+      .pipe(ops.first())
+      .subscribe(() => {
+        this.toastEvent(
+          "Expedite Submitted",
+          `${allHashes.length} binaries have been expedited.`,
+        );
+      });
   }
 
-  private trackChecked(
-    row: components["schemas"]["EntityFindItem"] & {
-      checked?: boolean;
-    },
-  ) {
-    if (row.checked) {
+  protected onRowCheckedChange(row: EntityFindRow, checked: boolean) {
+    if (checked) {
       this.selectedRowMap.set(row.sha256, row);
     } else {
       this.selectedRowMap.delete(row.sha256);
+      if (this.selectedRowMap.size === 0) {
+        this.showBulkTagForm.set(false);
+        this.showBulkRemoveForm.set(false);
+      }
     }
+  }
+
+  protected isChecked(sha256: string): boolean {
+    return this.selectedRowMap.has(sha256);
+  }
+
+  protected onDeselectAllToggle(checked: boolean): void {
+    this.store.updateBulkTagDeselectAllOnSubmit(checked ?? false);
+  }
+
+  protected openBulkTagForm(): void {
+    this.bulkTagModel.set({ tag: "", security: "" });
+    this.showBulkTagForm.set(true);
+  }
+
+  protected cancelBulkTagForm(): void {
+    this.showBulkTagForm.set(false);
+  }
+
+  // Prevents the UI saying remove tags when only 1 of the selected binaries has tags and only a single tag could possibly be removed.
+  protected countRemovableTags(): number {
+    let number_of_tags = 0;
+    for (const row of this.selectedRowMap.values()) {
+      if (this.getLiveRowTags(row.sha256).length > 0) {
+        number_of_tags += 1;
+      }
+    }
+
+    return number_of_tags;
+  }
+
+  protected hasAnyRemovableTags(): boolean {
+    return this.countRemovableTags() > 0;
+  }
+
+  private getLiveRowTags(sha256: string): string[] {
+    const rowComponent = this.rowComponents?.find(
+      (rc) => rc.row?.sha256 === sha256,
+    );
+    const liveTags = new Set(
+      (rowComponent?.row?.tags$?.value ?? []).map((t) => t.tag),
+    );
+
+    const deltas = this.pendingTagDeltas.get(sha256);
+    for (const [tag, delta] of deltas ?? []) {
+      const confirmed =
+        delta === "added" ? liveTags.has(tag) : !liveTags.has(tag);
+      if (confirmed) {
+        deltas.delete(tag);
+      } else if (delta === "added") {
+        liveTags.add(tag);
+      } else {
+        liveTags.delete(tag);
+      }
+    }
+
+    if (deltas?.size === 0) {
+      this.pendingTagDeltas.delete(sha256);
+    }
+
+    return Array.from(liveTags);
+  }
+
+  private markTagPending(
+    sha256: string,
+    tag: string,
+    delta: "added" | "removed",
+  ): void {
+    const deltas = this.pendingTagDeltas.get(sha256) ?? new Map();
+    deltas.set(tag, delta);
+    this.pendingTagDeltas.set(sha256, deltas);
+  }
+
+  protected formBulkTagSecurityUpdate(event: string): void {
+    if (event == null) {
+      return;
+    }
+    this.bulkTagModel.update((v) => {
+      return { ...v, security: event };
+    });
+  }
+
+  protected onBulkTagSubmit(): void {
+    const hashes = new Set(this.selectedRowMap.keys());
+    const tag = this.bulkTagModel().tag;
+
+    this.entityService
+      .createTagBulk(Array.from(hashes), tag, this.bulkTagModel().security)
+      .pipe(ops.first())
+      .subscribe(() => {
+        for (const sha256 of hashes) {
+          this.markTagPending(sha256, tag, "added");
+        }
+        this.finishBulkAction(hashes, this.showBulkTagForm);
+        this.toastEvent(
+          "Tag Created",
+          `Added tag to ${hashes.size} ${pluralise(hashes.size, "binary", "binaries")}`,
+        );
+      });
+  }
+
+  private finishBulkAction(
+    hashes: Set<string>,
+    formSignal: WritableSignal<boolean>,
+  ): void {
+    formSignal.set(false);
+    if (this.store.bulkTagDeselectAllOnSubmit()) {
+      this.selectedRowMap.clear();
+    }
+    this.cdr.markForCheck();
+    this.rowComponents
+      .filter((rowComponent) => hashes.has(rowComponent.row?.sha256))
+      .forEach((rowComponent) => {
+        rowComponent.refreshRowTags(rowComponent.row);
+      });
+  }
+
+  protected openBulkRemoveForm(): void {
+    const tagCounts = new Map<string, number>();
+    for (const row of this.selectedRowMap.values()) {
+      const tagsOnThisRow = this.getLiveRowTags(row.sha256);
+      for (const tag of tagsOnThisRow) {
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      }
+    }
+
+    const sortedTags = Array.from(tagCounts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count);
+
+    this.availableRemovableTags.set(sortedTags);
+    this.selectedTagToRemove.set(null);
+    this.showBulkRemoveForm.set(true);
+  }
+
+  protected cancelBulkRemoveForm(): void {
+    this.showBulkRemoveForm.set(false);
+  }
+
+  protected onRemoveTagSelectionChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.selectedTagToRemove.set(select.value || null);
+  }
+
+  protected onBulkRemoveSubmit(): void {
+    const tag = this.selectedTagToRemove();
+    const selectedBinaries = this.selectedRowMap;
+
+    if (!tag) {
+      return;
+    }
+
+    // Confirmation dialog
+    const confirmText = `Are you sure you want to remove the tag from the ${selectedBinaries.size} ${pluralise(selectedBinaries.size, "binary", "binaries")}?`;
+    const confirmed = window.confirm(confirmText);
+    if (!confirmed) {
+      return;
+    }
+
+    // Map the hashes which actual have the tag
+    const deleteCalls = [];
+    const removedPairs: { sha256: string; tag: string }[] = [];
+    for (const row of selectedBinaries.values()) {
+      const tagsOnThisRow = this.getLiveRowTags(row.sha256);
+
+      if (tagsOnThisRow.includes(tag)) {
+        deleteCalls.push(this.entityService.deleteTag(row.sha256, tag));
+        removedPairs.push({ sha256: row.sha256, tag });
+      }
+    }
+
+    if (deleteCalls.length === 0) {
+      this.showBulkRemoveForm.set(false);
+      return;
+    }
+
+    const hashes = new Set(selectedBinaries.keys());
+    forkJoin(deleteCalls)
+      .pipe(ops.first())
+      .subscribe(() => {
+        for (const { sha256, tag } of removedPairs) {
+          this.markTagPending(sha256, tag, "removed");
+        }
+        this.finishBulkAction(hashes, this.showBulkRemoveForm);
+        this.toastEvent(
+          "Tag Removed",
+          `Removed tag from ${hashes.size} ${pluralise(hashes.size, "binary", "binaries")}`,
+        );
+      });
   }
 }
