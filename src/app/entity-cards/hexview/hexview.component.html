@@ -33,14 +33,6 @@
             [entity]="entity"
             class="grow"
           ></az-content-search>
-          <div class="py-2">|</div>
-          <fa-icon
-            [icon]="settingsIcon"
-            (click)="debugClick()"
-            animation="spin"
-            title="Settings"
-            class="py-2"
-          ></fa-icon>
         </div>
 
         <div class="hex-view-header custom-header shrink-0">
@@ -110,15 +102,14 @@
                       (mousemove)="handleDrag(row.address + i)"
                       (mouseup)="stopDrag(row.address + i)"
                       (focus)="(null)"
+                      [class]="getHexClass(hexNum)"
                       [ngClass]="{
                         hovered:
                           hexStringSyncService.HexOffsetSignal() ===
                             row.address + i && !isDragging,
                         selected: rangeSignal()?.contains(row.address + i),
-                        'null-value': hexNum === '00',
                       }"
                       [innerText]="gethexCase(hexNum)"
-                      [style.color]="getHexColour(hexNum)"
                     ></div>
                   }
                 </div>

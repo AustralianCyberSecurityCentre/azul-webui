@@ -610,22 +610,25 @@ Ctrl-C will copy selected hexadecimal.`;
     //return hex.toLowerCase();
   }
 
-  protected getHexColour(hex: string): string {
-    // TODO: Compile a list of presets for hex colours etc which are then picked from here
-    const hexInt: number = parseInt(hex, 16);
-    const lowerBound = parseInt("20", 16);
-    const upperBound = parseInt("7e", 16);
-
-    if (hexInt >= lowerBound && hexInt <= upperBound) {
-      return "#a855f7";
+  // https://tailwindcss.com/docs/color#using-a-custom-value
+  protected hexValidCharacters(hex: string): string {
+    if (hex >= "20" && hex <= "7e") {
+      return "text-purple-600";
     } else if (hex === "00") {
-      return "#444444";
+      return "null-value";
     }
 
-    return "#bbbbbb";
+    return "text-current";
   }
 
-  protected debugClick(): void {
-    console.log("clicked");
+  protected hexWhite(hex: string): string {
+    if (hex === "00") {
+      return "null-value";
+    }
+    return "text-current";
+  }
+
+  protected getHexClass(hex: string): string {
+    return this.hexValidCharacters(hex);
   }
 }
