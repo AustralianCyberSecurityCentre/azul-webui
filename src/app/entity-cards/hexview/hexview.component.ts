@@ -32,7 +32,7 @@ import { signal } from "@angular/core";
 import { form } from "@angular/forms/signals";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { hexValidator } from "@app/core/validation";
-import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faSpinner, faGear } from "@fortawesome/free-solid-svg-icons";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";
 import { EntityNavService } from "../entity-nav.services";
@@ -256,6 +256,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
   protected spinnerIcon = faSpinner;
   protected checkIcon = faCheck;
+  protected settingsIcon = faGear;
   private store = inject(GlobalSettingStore);
 
   hexViewReady$ = new ReplaySubject<boolean>(1);
@@ -602,5 +603,29 @@ Ctrl-C will copy selected hexadecimal.`;
         this.hexViewReady$.next(false);
       }
     });
+  }
+
+  protected gethexCase(hex: string): string {
+    return hex;
+    //return hex.toLowerCase();
+  }
+
+  protected getHexColour(hex: string): string {
+    // TODO: Compile a list of presets for hex colours etc which are then picked from here
+    const hexInt: number = parseInt(hex, 16);
+    const lowerBound = parseInt("20", 16);
+    const upperBound = parseInt("7e", 16);
+
+    if (hexInt >= lowerBound && hexInt <= upperBound) {
+      return "#a855f7";
+    } else if (hex === "00") {
+      return "#444444";
+    }
+
+    return "#bbbbbb";
+  }
+
+  protected debugClick(): void {
+    console.log("clicked");
   }
 }

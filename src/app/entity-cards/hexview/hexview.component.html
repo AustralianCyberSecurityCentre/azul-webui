@@ -33,13 +33,23 @@
             [entity]="entity"
             class="grow"
           ></az-content-search>
+          <div class="py-2">|</div>
+          <fa-icon
+            [icon]="settingsIcon"
+            (click)="debugClick()"
+            animation="spin"
+            title="Settings"
+            class="py-2"
+          ></fa-icon>
         </div>
+
         <div class="hex-view-header custom-header shrink-0">
           <div class="row-address font-mono">ADDRESS :</div>
           <div
             class="hex-digit font-mono whitespace-nowrap"
             [ngClass]="hexDigitClass()"
           >
+            <!-- colour for the title-->
             <div>00</div>
             <div>01</div>
             <div>02</div>
@@ -107,7 +117,8 @@
                         selected: rangeSignal()?.contains(row.address + i),
                         'null-value': hexNum === '00',
                       }"
-                      [innerText]="hexNum"
+                      [innerText]="gethexCase(hexNum)"
+                      [style.color]="getHexColour(hexNum)"
                     ></div>
                   }
                 </div>
