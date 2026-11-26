@@ -37,31 +37,39 @@
       <flow-tooltip
         message="Change the maximum number of return values on the Relational Similarity (ssdeep/tlsh/entropy) pages"
       >
-        <flow-label [noPadding]="true" class="pt-1"
-          >Similarity Query Size</flow-label
-        >
-        <flow-signal-input
-          fieldType="number"
-          [step]="5"
-          [formField]="settingsForm.maxSimilaritySize"
-          [size]="5"
-        />
+        <div class="flex items-center gap-2">
+          <flow-label [noPadding]="true" class="shrink-0">
+            Similarity Query Size
+          </flow-label>
+
+          <flow-signal-input
+            class="flex-1"
+            fieldType="number"
+            [step]="5"
+            [formField]="settingsForm.maxSimilaritySize"
+            [size]="5"
+          />
+        </div>
       </flow-tooltip>
     </div>
     <flow-toggle [formField]="settingsForm.showDebugInfo"
       >Show Debug Tab</flow-toggle
     >
-    <div>
-      <flow-label [noPadding]="true" class="pt-1"
-        >Debug Editor Height (pixels)</flow-label
-      >
-      <flow-signal-input
-        fieldType="number"
-        [step]="10"
-        [formField]="settingsForm.debugQueryEditorHeightPx"
-        [size]="5"
-      />
+    <div class="flex items-center gap-2">
+      <flow-label [noPadding]="true" class="shrink-0">
+        Debug Editor Height (pixels)
+      </flow-label>
+
+      <div class="flex-1">
+        <flow-signal-input
+          fieldType="number"
+          [step]="10"
+          [formField]="settingsForm.debugQueryEditorHeightPx"
+          [size]="5"
+        />
+      </div>
     </div>
+
     <flow-tooltip
       message="Enable the strings view to jump to the highlighted value in the hex viewer on a binaries data page."
     >
@@ -101,6 +109,36 @@
   </div>
 </ng-container>
 
+<flow-hr />
+
+<h2 class="mb-2 text-lg font-bold dark:text-white">Hex View Options</h2>
+<ng-container>
+  <div class="grid grid-cols-2 gap-2">
+    <flow-tooltip
+      message="Change the display between A-F being uppercase or lowercase"
+    >
+      <flow-toggle [formField]="settingsForm.hexViewUppercase">
+        A-F Case:
+        {{ settingsFormModel().hexViewUppercase ? "Uppercase" : "Lowercase" }}
+      </flow-toggle>
+    </flow-tooltip>
+    <div class="flex">
+      <flow-label for="hex-theme" class="shrink-0">Hex View: Theme</flow-label>
+      <select
+        flowSelect
+        class="flex-1"
+        id="hex-theme"
+        [formField]="settingsForm.hexViewTheme"
+      >
+        @for (theme_enums of HexViewTheme | keyvalue; track theme_enums.value) {
+          <option [value]="theme_enums.value">
+            {{ theme_enums.value }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+</ng-container>
 <flow-hr />
 
 <h2 class="mb-2 text-lg font-bold dark:text-white">Binary Explorer Options</h2>

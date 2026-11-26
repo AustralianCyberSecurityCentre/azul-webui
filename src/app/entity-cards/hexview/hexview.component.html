@@ -109,7 +109,7 @@
                             row.address + i && !isDragging,
                         selected: rangeSignal()?.contains(row.address + i),
                       }"
-                      [innerText]="gethexCase(hexNum)"
+                      [innerText]="determineHexCase(hexNum)"
                     ></div>
                   }
                 </div>
