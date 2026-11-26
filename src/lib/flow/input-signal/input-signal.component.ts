@@ -82,4 +82,8 @@ export class InputSignalComponent implements FormValueControl<string | number> {
       this.setOutputValue(target.value);
     }
   }
+
+  focus() {
+    this.inputElement?.nativeElement.focus();
+  }
 }

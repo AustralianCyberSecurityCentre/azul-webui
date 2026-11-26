@@ -34,6 +34,7 @@ export interface GlobalSettingState {
   defaultSourceView: SourceViewEnum;
   hexViewGroupingSize: ValidHexSpaces;
   pluginPageColumns: PluginExploreShowColumnModel;
+  bulkTagDeselectAllOnSubmit: boolean;
 }
 
 export const InitialGlobalSettingState: GlobalSettingState = {
@@ -62,6 +63,7 @@ export const InitialGlobalSettingState: GlobalSettingState = {
     errors: true,
     completed_percent: false,
   },
+  bulkTagDeselectAllOnSubmit: true,
 };
 
 /**load from local storage*/
@@ -190,6 +192,11 @@ export const GlobalSettingStore = signalStore(
     ) {
       patchState(store, () => ({
         pluginPageColumns: { ...pluginPageColumns },
+      }));
+    },
+    updateBulkTagDeselectAllOnSubmit(bulkTagDeselectAllOnSubmit: boolean) {
+      patchState(store, () => ({
+        bulkTagDeselectAllOnSubmit: bulkTagDeselectAllOnSubmit,
       }));
     },
   })),

@@ -1189,6 +1189,16 @@ export class ApiService {
     ).pipe(ops.catchError((e) => this.handle(e, undefined, [])));
   }
 
+  /**add tag to multiple entities */
+  entityCreateTagBulk(sha256: string[], tag: string, security: string) {
+    return this.postOperation(
+      "/api/v0/binaries/tags/bulk_add/{tag}",
+      { sha256, security },
+      {},
+      { tag },
+    ).pipe(ops.catchError((e) => this.handle(e, undefined, [])));
+  }
+
   /**remove a tag from an entity*/
   entityDeleteTag(sha256: string, tag: string) {
     return this.deleteOperation(

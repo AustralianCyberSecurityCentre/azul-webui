@@ -1,62 +1,220 @@
 <az-loading-card [cardTitle]="tablename()" [obs$]="filteredFind$">
   @if ((filteredFind$ | async)?.length > 0) {
     <div class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 transform">
-      @if (selectedRowMap?.size === 1 && originalSha256() === undefined) {
+      @if (selectedRowMap.size >= 1) {
         <flow-card darkBackgroundColour="dark:bg-azul-500">
           <flow-card-body>
-            <div class="flex flex-col gap-2">
-              Select 2 or more binaries to compare.
-            </div>
-          </flow-card-body>
-        </flow-card>
-      }
-      @if (
-        selectedRowMap.size > 1 ||
-        (selectedRowMap.size >= 1 && originalSha256() !== undefined)
-      ) {
-        <flow-card darkBackgroundColour="dark:bg-azul-500">
-          <flow-card-body>
-            <div class="items-centre flex gap-2">
-              @if (originalSha256()) {
-                <div class="self-center">
-                  Do you want to compare
-                  {{
-                    originalSha256()?.length > 10
-                      ? (originalSha256() | slice: 0 : 10) + "..."
-                      : originalSha256()
-                  }}
-                  @if (originalSha256()) {
-                    with
+            @if (showBulkTagForm()) {
+              <form (ngSubmit)="onBulkTagSubmit()">
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      Tag {{ selectedRowMap.size }}
+                      {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <flow-checkbox-signal
+                        [checked]="store.bulkTagDeselectAllOnSubmit()"
+                        (checkedChange)="onDeselectAllToggle($event)"
+                      /><span>Deselect all binaries after creation</span>
+                    </div>
+                  </div>
+                  <az-tag-picker
+                    [tagFieldTree]="bulkTagForm.tag"
+                    [refreshTags$]="refreshTags$"
+                    [isEntityTag]="true"
+                    [autofocus]="true"
+                  />
+                  <azco-security-picker
+                    [fullWidth]="true"
+                    (security)="formBulkTagSecurityUpdate($event)"
+                  ></azco-security-picker>
+                  <div class="flex justify-center gap-2">
+                    <flow-button
+                      class="block! w-32"
+                      [type]="ButtonType.Light"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      (click)="cancelBulkTagForm()"
+                    >
+                      Cancel
+                    </flow-button>
+                    <flow-button
+                      class="bulk-action-button block! w-32"
+                      [submit]="true"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      [type]="
+                        bulkTagForm().valid()
+                          ? ButtonType.Primary
+                          : ButtonType.Disabled
+                      "
+                      >Create
+                    </flow-button>
+                  </div>
+                </div>
+              </form>
+            } @else if (showBulkRemoveForm()) {
+              <form (ngSubmit)="onBulkRemoveSubmit()">
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      Remove tags from {{ selectedRowMap.size }}
+                      {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <flow-checkbox-signal
+                      [checked]="store.bulkTagDeselectAllOnSubmit()"
+                      (checkedChange)="onDeselectAllToggle($event)"
+                    /><span>Deselect all binaries after creation</span>
+                  </div>
+                  @if (availableRemovableTags().length > 0) {
+                    <select
+                      flowSelect
+                      class="w-full"
+                      (change)="onRemoveTagSelectionChange($event)"
+                    >
+                      <option
+                        value=""
+                        [selected]="selectedTagToRemove() === null"
+                        disabled
+                      >
+                        Select a tag to remove...
+                      </option>
+                      @for (item of availableRemovableTags(); track item.tag) {
+                        <option
+                          [value]="item.tag"
+                          [selected]="selectedTagToRemove() === item.tag"
+                        >
+                          {{ item.tag }} ({{ item.count }})
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <div class="self-center">
+                      None of the selected binaries have any tags.
+                    </div>
                   }
-                  {{ selectedRowMap.size }}
-                  <ng-container [ngPlural]="selectedRowMap.size">
-                    <ng-template ngPluralCase="=1">binary</ng-template>
-                    <ng-template ngPluralCase="other"
-                      >binaries</ng-template
-                    > </ng-container
-                  >?
+                  <div class="flex justify-center gap-2">
+                    <flow-button
+                      class="block! w-32"
+                      [type]="ButtonType.Light"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      (click)="cancelBulkRemoveForm()"
+                    >
+                      Cancel
+                    </flow-button>
+                    <flow-button
+                      class="bulk-action-button block! w-32"
+                      [submit]="true"
+                      [blockCentered]="true"
+                      [fullWidth]="true"
+                      (click)="
+                        selectedTagToRemove()
+                          ? ButtonType.Danger
+                          : ButtonType.Disabled
+                      "
+                    >
+                      Remove
+                    </flow-button>
+                  </div>
                 </div>
-              } @else {
-                <div class="self-center">
-                  Do you want to compare
-                  {{ selectedRowMap.size }}
-                  <ng-container [ngPlural]="selectedRowMap.size">
-                    <ng-template ngPluralCase="=1">binary</ng-template>
-                    <ng-template ngPluralCase="other"
-                      >binaries</ng-template
-                    > </ng-container
-                  >?
+              </form>
+            } @else {
+              <div class="flex flex-col items-center gap-2">
+                @if (
+                  selectedRowMap.size === 1 && originalSha256() === undefined
+                ) {
+                  <div class="self-center">
+                    Action
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }},
+                    or select more binaries to compare.
+                  </div>
+                } @else if (originalSha256()) {
+                  <div class="self-center">
+                    Do you want to compare
+                    {{
+                      originalSha256()?.length > 10
+                        ? (originalSha256() | slice: 0 : 10) + "..."
+                        : originalSha256()
+                    }}
+                    with
+                    {{ selectedRowMap.size }}
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }}
+                    ?
+                  </div>
+                } @else {
+                  <div class="self-center">
+                    How do you want to action {{ selectedRowMap.size }}
+                    {{ pluralise(selectedRowMap.size, "binary", "binaries") }}?
+                  </div>
+                }
+                <div class="mx-auto grid w-fit grid-cols-2 gap-2">
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    [type]="
+                      canCompareBinaries()
+                        ? ButtonType.Primary
+                        : ButtonType.Disabled
+                    "
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    [title]="
+                      canCompareBinaries()
+                        ? ''
+                        : 'Select more binaries to compare'
+                    "
+                    (click)="onCompareClick()"
+                    >Compare Binaries</flow-button
+                  >
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    title="Run Latest Plugins"
+                    [type]="ButtonType.Primary"
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    (click)="onExpediteClick()"
+                    // not sure how i feel about the button changing TODO: get feedback
+                    >Expedite
+                    {{ pluralise(selectedRowMap.size, "Binary", "Binaries") }}
+                  </flow-button>
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    [type]="ButtonType.Green"
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    (click)="openBulkTagForm()"
+                  >
+                    Add {{ pluralise(selectedRowMap.size, "tag", "tags") }}
+                  </flow-button>
+                  <flow-button
+                    class="bulk-action-button block! w-40 whitespace-nowrap"
+                    [type]="
+                      hasAnyRemovableTags()
+                        ? ButtonType.Danger
+                        : ButtonType.Disabled
+                    "
+                    [blockCentered]="true"
+                    [fullWidth]="true"
+                    [title]="
+                      hasAnyRemovableTags() ? '' : 'There are no tags to remove'
+                    "
+                    (click)="openBulkRemoveForm()"
+                  >
+                    Remove
+                    {{
+                      pluralise(
+                        selectedRowMap.size,
+                        "tag",
+                        countRemovableTags() === 1 ? "tag" : "tags"
+                      )
+                    }}
+                  </flow-button>
                 </div>
-              }
-              <flow-button
-                class="mx-auto! block! w-32"
-                [type]="ButtonType.Danger"
-                [blockCentered]="true"
-                (click)="onCompareClick()"
-              >
-                Compare
-              </flow-button>
-            </div>
+              </div>
+            }
           </flow-card-body>
         </flow-card>
       }
@@ -132,6 +290,7 @@
   @for (overrow of filteredFind$ | async; track overrow) {
     <az-entity-table-row
       [row]="overrow"
+      [checked]="isChecked(overrow.sha256)"
       [externalPagination]="externalPagination()"
       [eType]="eType()"
       [originalSha256]="originalSha256()"
