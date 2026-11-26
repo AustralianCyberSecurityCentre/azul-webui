@@ -18,6 +18,7 @@ import {
 } from "@app/core/signal-store/global-settings.store";
 import {
   ColorTheme,
+  HexViewThemeEnum,
   RelationalGraphLevel,
   SourceViewEnum,
   ValidHexSpaces,
@@ -57,6 +58,8 @@ export class SettingsOverlayComponent {
     defaultSourceView: this.store.defaultSourceView(),
     hexViewGroupingSize: this.store.hexViewGroupingSize(),
     pluginPageColumns: this.store.pluginPageColumns(),
+    hexViewUppercase: this.store.hexViewUppercase(),
+    hexViewTheme: this.store.hexViewTheme(),
   });
 
   protected settingsForm = form(this.settingsFormModel, (f) => {
@@ -72,6 +75,7 @@ export class SettingsOverlayComponent {
   protected lightColorTheme = ColorTheme.Light;
 
   protected SourceViewEnum = SourceViewEnum;
+  protected HexViewTheme = HexViewThemeEnum;
 
   protected faSpinner = faSpinner;
 
