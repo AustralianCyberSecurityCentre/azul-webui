@@ -9,6 +9,7 @@ import {
 } from "@ngrx/signals";
 import {
   ColorTheme,
+  HexViewThemeEnum,
   PluginExploreShowColumnModel,
   RelationalGraphLevel,
   SourceViewEnum,
@@ -34,6 +35,8 @@ export interface GlobalSettingState {
   defaultSourceView: SourceViewEnum;
   hexViewGroupingSize: ValidHexSpaces;
   pluginPageColumns: PluginExploreShowColumnModel;
+  hexViewUppercase: boolean;
+  hexViewTheme: HexViewThemeEnum;
 }
 
 export const InitialGlobalSettingState: GlobalSettingState = {
@@ -62,6 +65,8 @@ export const InitialGlobalSettingState: GlobalSettingState = {
     errors: true,
     completed_percent: false,
   },
+  hexViewUppercase: true,
+  hexViewTheme: HexViewThemeEnum.HIGHLIGHT_ASCII,
 };
 
 /**load from local storage*/
@@ -190,6 +195,16 @@ export const GlobalSettingStore = signalStore(
     ) {
       patchState(store, () => ({
         pluginPageColumns: { ...pluginPageColumns },
+      }));
+    },
+    updateHexViewUppercase(hexViewUppercase: boolean) {
+      patchState(store, () => ({
+        hexViewUppercase: hexViewUppercase,
+      }));
+    },
+    updateHexViewTheme(hexViewTheme: HexViewThemeEnum) {
+      patchState(store, () => ({
+        hexViewTheme: hexViewTheme,
       }));
     },
   })),

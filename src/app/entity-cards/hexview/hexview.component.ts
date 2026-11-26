@@ -32,11 +32,15 @@ import { signal } from "@angular/core";
 import { form } from "@angular/forms/signals";
 import { GlobalSettingStore } from "@app/core/signal-store/global-settings.store";
 import { hexValidator } from "@app/core/validation";
-import { faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faSpinner, faGear } from "@fortawesome/free-solid-svg-icons";
 import { ToastComponent } from "@lib/flow/toast/toast.component";
 import { HotToastService } from "@ngxpert/hot-toast";
 import { EntityNavService } from "../entity-nav.services";
 import { HexStringSyncService } from "../hex-string-sync.service";
+import {
+  ColorTheme,
+  HexViewThemeEnum,
+} from "@app/core/signal-store/global-state.types";
 
 /** Data for a row of a 16-byte wide hexdump */
 interface HexRow {
@@ -256,6 +260,7 @@ Ctrl-C will copy selected hexadecimal.`;
 
   protected spinnerIcon = faSpinner;
   protected checkIcon = faCheck;
+  protected settingsIcon = faGear;
   private store = inject(GlobalSettingStore);
 
   hexViewReady$ = new ReplaySubject<boolean>(1);
@@ -602,5 +607,56 @@ Ctrl-C will copy selected hexadecimal.`;
         this.hexViewReady$.next(false);
       }
     });
+  }
+
+  // Call users settings for the preference
+  protected determineHexCase(hex: string): string {
+    if (this.store.hexViewUppercase()) {
+      return hex.toUpperCase();
+    }
+    return hex.toLowerCase();
+  }
+
+  // Defined custom colours for hex viewer. You need to use tailwind specified colours
+  // https://tailwindcss.com/docs/color#using-a-custom-value
+
+  // See: https://en.wikipedia.org/wiki/ASCII#Character_set
+  protected hexValidCharacters(hex: string): string {
+    // Space -> tilde (ascii)
+    if (hex >= "20" && hex <= "7e") {
+      if (this.store.theme() == ColorTheme.Dark) return "text-purple-400";
+      return "text-purple-600";
+    }
+
+    // Null bytes
+    if (hex === "00") {
+      return "null-value";
+    }
+
+    // Everything else
+    return "text-current";
+  }
+
+  protected hexWhite(hex: string): string {
+    if (hex === "00") {
+      return "null-value";
+    }
+    return "text-current";
+  }
+
+  protected hexMonochrome(): string {
+    return "text-current";
+  }
+
+  protected getHexClass(hex: string): string {
+    switch (this.store.hexViewTheme()) {
+      case HexViewThemeEnum.HIGHLIGHT_ASCII:
+        return this.hexValidCharacters(hex);
+      case HexViewThemeEnum.MONOCHROME:
+        return this.hexMonochrome();
+      case HexViewThemeEnum.NO_THEME:
+      default:
+        return this.hexWhite(hex);
+    }
   }
 }

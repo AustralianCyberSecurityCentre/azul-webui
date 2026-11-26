@@ -34,12 +34,14 @@
             class="grow"
           ></az-content-search>
         </div>
+
         <div class="hex-view-header custom-header shrink-0">
           <div class="row-address font-mono">ADDRESS :</div>
           <div
             class="hex-digit font-mono whitespace-nowrap"
             [ngClass]="hexDigitClass()"
           >
+            <!-- colour for the title-->
             <div>00</div>
             <div>01</div>
             <div>02</div>
@@ -59,6 +61,7 @@
           </div>
           <div class="ascii-digit font-mono">ASCII</div>
         </div>
+        <hr />
         <cdk-virtual-scroll-viewport
           #hexViewport
           [itemSize]="ROW_HEIGHT"
@@ -100,14 +103,14 @@
                       (mousemove)="handleDrag(row.address + i)"
                       (mouseup)="stopDrag(row.address + i)"
                       (focus)="(null)"
+                      [class]="getHexClass(hexNum)"
                       [ngClass]="{
                         hovered:
                           hexStringSyncService.HexOffsetSignal() ===
                             row.address + i && !isDragging,
                         selected: rangeSignal()?.contains(row.address + i),
-                        'null-value': hexNum === '00',
                       }"
-                      [innerText]="hexNum"
+                      [innerText]="determineHexCase(hexNum)"
                     ></div>
                   }
                 </div>

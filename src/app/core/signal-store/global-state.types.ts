@@ -36,3 +36,9 @@ export interface PluginExploreShowColumnModel {
   errors: boolean;
   completed_percent: boolean;
 }
+
+export enum HexViewThemeEnum {
+  HIGHLIGHT_ASCII = "Highlight ASCII characters",
+  NO_THEME = "Dim null bytes",
+  MONOCHROME = "Monochrome",
+}

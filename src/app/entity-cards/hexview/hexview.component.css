@@ -130,5 +130,5 @@ cdk-virtual-scroll-viewport {
 }
 
 hr {
-  @apply border-slate-800;
+  @apply border-black dark:border-white;
 }
