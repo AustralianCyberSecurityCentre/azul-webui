@@ -70,31 +70,6 @@
       </div>
     </div>
 
-    <flow-tooltip
-      message="Enable the strings view to jump to the highlighted value in the hex viewer on a binaries data page."
-    >
-      <flow-toggle [formField]="settingsForm.enableHexStringSync"
-        >Sync hex and string viewer</flow-toggle
-      >
-    </flow-tooltip>
-    <flow-tooltip
-      message="Change how many bytes are grouped together on the binary hex viewer."
-    >
-      <div class="flex">
-        <flow-label for="hex-group-by">Group Hex Bytes: </flow-label>
-        <select
-          flowSelect
-          id="hex-group-by"
-          [formField]="settingsForm.hexViewGroupingSize"
-        >
-          @for (hexSpace of orderedValidHexSpaces; track hexSpace) {
-            <option [value]="hexSpace">
-              {{ hexSpace }}
-            </option>
-          }
-        </select>
-      </div>
-    </flow-tooltip>
     <div class="flex">
       <div class="custom-slider w-20">
         <ngx-slider
@@ -122,8 +97,34 @@
         {{ settingsFormModel().hexViewUppercase ? "Uppercase" : "Lowercase" }}
       </flow-toggle>
     </flow-tooltip>
+    <flow-tooltip
+      message="Change how many bytes are grouped together on the binary hex viewer."
+    >
+      <div class="flex">
+        <flow-label for="hex-group-by">Group Hex Bytes</flow-label>
+        <select
+          flowSelect
+          class="flex-1"
+          id="hex-group-by"
+          [formField]="settingsForm.hexViewGroupingSize"
+        >
+          @for (hexSpace of orderedValidHexSpaces; track hexSpace) {
+            <option [value]="hexSpace">
+              {{ hexSpace }}
+            </option>
+          }
+        </select>
+      </div>
+    </flow-tooltip>
+    <flow-tooltip
+      message="Enable the strings view to jump to the highlighted value in the hex viewer on a binaries data page."
+    >
+      <flow-toggle [formField]="settingsForm.enableHexStringSync"
+        >Sync hex and string viewer</flow-toggle
+      >
+    </flow-tooltip>
     <div class="flex">
-      <flow-label for="hex-theme" class="shrink-0">Hex View: Theme</flow-label>
+      <flow-label for="hex-theme" class="shrink-0">Theme</flow-label>
       <select
         flowSelect
         class="flex-1"
