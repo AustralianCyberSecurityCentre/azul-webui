@@ -60,7 +60,7 @@
     "@angular-eslint/builder": "22.6.0",
     "@angular/build": "22.2.7",
     "@angular/cli": "22.2.7",
-    "@angular/compiler-cli": "22.2.6",
+    "@angular/compiler-cli": "22.3.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.65.1",
     "@schematics/angular": "22.2.7",
